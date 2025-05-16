@@ -692,12 +692,8 @@
                 comets = [];
             }
             
-            // Hide game UI
-            statsPanel.classList.add('hidden');
-            completionMessage.classList.add('hidden');
-            
-            // Show settings panel
-            settingsPanel.classList.remove('hidden');
+            // Redirect to index page
+            window.location.href = 'index.html';
         }
         
         // Create comet element
@@ -957,6 +953,144 @@
             }
             lastTouchEnd = now;
         }, false);
+    </script>
+</body>
+</html>
+        }
+        
+        // Handle comet hit
+        function hitComet(comet) {
+            if (!isSessionActive) return;
+            
+            // Calculate response time
+            const spawnTime = parseInt(comet.dataset.spawnTime);
+            const responseTime = Date.now() - spawnTime;
+            totalResponseTime += responseTime;
+            
+            // Calculate score based on response time and size
+            const sizeMultiplier = cometSizeSelect.value === 'small' ? 1.5 : 
+                                  cometSizeSelect.value === 'large' ? 0.8 : 1;
+            const baseScore = Math.max(50, Math.floor(3000 / responseTime * 100));
+            const points = Math.floor(baseScore * sizeMultiplier);
+            
+            score += points;
+            taps++;
+            
+            updateStats();
+            
+            // Create burst effect
+            createBurst(comet);
+            
+            // Remove comet
+            const index = comets.indexOf(comet);
+            if (index > -1) {
+                comets.splice(index, 1);
+            }
+            if (comet.parentNode) {
+                comet.parentNode.removeChild(comet);
+            }
+        }
+        
+        // Create burst effect when comet is hit
+        function createBurst(comet) {
+            const rect = comet.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Create success burst
+            const burst = document.createElement('div');
+            burst.className = 'success-burst';
+            burst.style.left = `${centerX}px`;
+            burst.style.top = `${centerY}px`;
+            gameContainer.appendChild(burst);
+            
+            // Create particles
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 30;
+                particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+                
+                particle.style.left = `${centerX}px`;
+                particle.style.top = `${centerY}px`;
+                particle.style.backgroundColor = `rgba(111, 211, 245, ${Math.random() * 0.5 + 0.5})`;
+                
+                gameContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 800);
+            }
+            
+            setTimeout(() => {
+                if (burst.parentNode) {
+                    burst.parentNode.removeChild(burst);
+                }
+            }, 800);
+        }
+        
+        // Update comets position in animation loop
+        function updateComets() {
+            if (!isSessionActive) return;
+            
+            comets.forEach((comet, index) => {
+                const velX = parseFloat(comet.dataset.velX);
+                const velY = parseFloat(comet.dataset.velY);
+                const angle = parseFloat(comet.dataset.angle);
+                
+                let x = parseFloat(comet.style.left);
+                let y = parseFloat(comet.style.top);
+                
+                x += velX;
+                y += velY;
+                
+                comet.style.left = `${x}px`;
+                comet.style.top = `${y}px`;
+                
+                // Maintain rotation for consistent tail direction
+                comet.style.transform = `rotate(${angle}deg)`;
+                
+                // Remove comet if it's off screen
+                const size = parseFloat(comet.style.width);
+                if (x < -size * 3 || x > window.innerWidth + size * 3 || 
+                    y < -size * 3 || y > window.innerHeight + size * 3) {
+                    if (comet.parentNode) {
+                        gameContainer.removeChild(comet);
+                    }
+                    comets.splice(index, 1);
+                    misses++;
+                    updateStats();
+                }
+            });
+            
+            if (isSessionActive) {
+                requestAnimationFrame(updateComets);
+            }
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
     </script>
 </body>
 </html>
