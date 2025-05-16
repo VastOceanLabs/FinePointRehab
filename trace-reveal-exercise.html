@@ -816,7 +816,7 @@
                         { x: centerX - width / 2 + skew, y: centerY - height / 2 }
                     ];
                 }
-            }, // <-- ✅ FIXED: this closes the medium group correctly
+            },
             hard: {
                 house: () => {
                     const size = Math.min(canvas.width, canvas.height) * 0.5;
@@ -1039,13 +1039,21 @@
         restartButton.addEventListener('click', resetToSettings);
         
         // Home button functionality
-        homeButton.addEventListener('click', function() {
+        homeButton.addEventListener('click', function(event) {
+            // Stop event from bubbling up to parent elements
+            event.stopPropagation();
+            
+            // Prevent any default behavior
+            event.preventDefault();
+            
             if (isSessionActive) {
                 if (confirm("Are you sure you want to leave? Your current session progress will be lost.")) {
-                    window.location.href = 'index.html';
+                    // Use direct top-level navigation to ensure it works
+                    window.top.location.href = './index.html';
                 }
             } else {
-                window.location.href = 'index.html';
+                // Use direct top-level navigation to ensure it works
+                window.top.location.href = './index.html';
             }
         });
         
