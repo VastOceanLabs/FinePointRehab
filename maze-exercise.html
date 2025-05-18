@@ -576,12 +576,29 @@
         let pathNodes = []; // Store path node positions for navigation
         let playerNodeIndex = 0; // Current player position on path
         
+        // Event handlers storage - ADD THIS TO TRACK EVENT LISTENERS
+        let eventHandlers = {
+            keydown: null,
+            mousedown: null,
+            touchstart: null,
+            mousemove: null,
+            touchmove: null,
+            mouseup: null,
+            touchend: null
+        };
+        
         // Difficulty settings
         const difficultySizes = {
             'easy': { cellSize: 60, wallThickness: 12 },
             'medium': { cellSize: 45, wallThickness: 10 },
             'hard': { cellSize: 30, wallThickness: 8 }
         };
+        
+        // Initialize the game once the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            adjustMazeSize();
+            showSettings();
+        });
         
         // Toggle settings panel
         settingsToggle.addEventListener('click', () => {
@@ -596,10 +613,6 @@
             completionMessage.classList.add('hidden');
             settingsPanel.classList.remove('hidden');
         });
-        
-        // Initialize
-        adjustMazeSize();
-        showSettings();
         
         // Adjust maze size based on screen
         function adjustMazeSize() {
@@ -629,6 +642,8 @@
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
+            // Clean up any remaining event listeners
+            removeAllEventListeners();
         });
         
         function showError(message) {
@@ -656,8 +671,13 @@
             timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
         
-        // Clear maze elements
+        // Clear maze elements AND event listeners
         function clearMaze() {
+            console.log("Clearing maze");
+            
+            // First, remove all event listeners
+            removeAllEventListeners();
+            
             // Remove all child elements from maze container
             while (mazeContainer.firstChild) {
                 mazeContainer.removeChild(mazeContainer.firstChild);
@@ -665,7 +685,54 @@
             
             // Clear path traces array
             pathTraces = [];
+            
+            // Ensure pathNodes is reset to an empty array
             pathNodes = [];
+            
+            console.log("Maze cleared");
+        }
+        
+        // Remove all event listeners
+        function removeAllEventListeners() {
+            // Remove keyboard event listener
+            if (eventHandlers.keydown) {
+                mazeContainer.removeEventListener('keydown', eventHandlers.keydown);
+                eventHandlers.keydown = null;
+            }
+            
+            // Remove mouse/touch event listeners
+            if (player) {
+                if (eventHandlers.mousedown) {
+                    player.removeEventListener('mousedown', eventHandlers.mousedown);
+                    eventHandlers.mousedown = null;
+                }
+                
+                if (eventHandlers.touchstart) {
+                    player.removeEventListener('touchstart', eventHandlers.touchstart);
+                    eventHandlers.touchstart = null;
+                }
+            }
+            
+            // Remove document level event listeners
+            if (eventHandlers.mousemove) {
+                document.removeEventListener('mousemove', eventHandlers.mousemove);
+                eventHandlers.mousemove = null;
+            }
+            
+            if (eventHandlers.touchmove) {
+                document.removeEventListener('touchmove', eventHandlers.touchmove);
+                eventHandlers.touchmove = null;
+            }
+            
+            if (eventHandlers.mouseup) {
+                document.removeEventListener('mouseup', eventHandlers.mouseup);
+                eventHandlers.mouseup = null;
+            }
+            
+            if (eventHandlers.touchend) {
+                document.removeEventListener('touchend', eventHandlers.touchend);
+                eventHandlers.touchend = null;
+            }
         }
         
         // Show settings panel
@@ -688,11 +755,13 @@
                 totalCompletionTime = 0;
                 timeRemaining = sessionDuration;
                 
+                console.log("Session initialized, settings applied");
+                
                 // Update UI
                 updateStats();
                 updateTimer();
                 
-                // Clear any existing maze
+                // Clear any existing maze and event listeners
                 clearMaze();
                 
                 // Hide settings, show stats
@@ -700,6 +769,8 @@
                 instructions.classList.remove('hidden');
                 statsPanel.classList.remove('hidden');
                 timerBar.classList.remove('hidden');
+                
+                console.log("UI updated, about to start timer");
                 
                 // Start timer
                 isSessionActive = true;
@@ -720,6 +791,8 @@
                     }
                 }, 100);
                 
+                console.log("Timer started, about to generate maze");
+                
                 // Generate first maze
                 generateMaze();
                 mazeStartTime = Date.now();
@@ -727,333 +800,395 @@
                 // Focus on maze for keyboard controls
                 mazeContainer.focus();
                 
+                console.log("Session successfully started");
+                
             } catch (error) {
                 console.error('Failed to start session:', error);
-                showError('Failed to start session. Please try again.');
+                showError('Failed to start session: ' + error.message);
             }
         }
         
+        // Complete current maze and generate a new one
+        function completeCurrentMaze() {
+            // Calculate completion time
+            const completionTime = Date.now() - mazeStartTime;
+            totalCompletionTime += completionTime;
+            
+            // Update statistics
+            mazesCompleted++;
+            currentMaze++;
+            updateStats();
+            
+            // Generate a new maze
+            generateMaze();
+            mazeStartTime = Date.now();
+        }
+        
+        // End the current session and show results
         function endSession() {
-            clearInterval(timerInterval);
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Clean up
             isSessionActive = false;
+            clearMaze();
+            
+            // Hide timer and stats panels
+            timerBar.classList.add('hidden');
+            statsPanel.classList.add('hidden');
             
             // Calculate final score
-            const avgCompletionTime = mazesCompleted > 0 ? totalCompletionTime / mazesCompleted / 1000 : 0;
-            const finalScore = Math.round(mazesCompleted * 1000 / (avgCompletionTime || 1)); // Avoid division by zero
+            const avgTime = mazesCompleted > 0 ? (totalCompletionTime / mazesCompleted / 1000).toFixed(1) : '0.0';
+            const performanceScore = Math.round((mazesCompleted * 100) / (avgTime > 0 ? avgTime : 1));
             
-            // Hide maze and stats
-            clearMaze();
-            statsPanel.classList.add('hidden');
-            timerBar.classList.add('hidden');
-            instructions.classList.add('hidden');
-            
-            // Show completion message
+            // Show completion message with results
             finalCompletedElement.textContent = mazesCompleted;
-            finalAvgTimeElement.textContent = avgCompletionTime.toFixed(1);
-            finalScoreElement.textContent = finalScore;
+            finalAvgTimeElement.textContent = `${avgTime}s`;
+            finalScoreElement.textContent = performanceScore;
             completionMessage.classList.remove('hidden');
         }
         
-        // Get unvisited neighboring cells for maze generation
-        function getUnvisitedNeighbors(x, y) {
-            const neighbors = [];
-            const rows = maze.length;
-            const cols = maze[0].length;
-            
-            // Check each direction (up, right, down, left)
-            const directions = [
-                { dx: 0, dy: -1 }, // up
-                { dx: 1, dy: 0 },  // right
-                { dx: 0, dy: 1 },  // down
-                { dx: -1, dy: 0 }  // left
-            ];
-            
-            // Shuffle directions to create a more random maze
-            shuffleArray(directions);
-            
-            for (const dir of directions) {
-                const newX = x + dir.dx;
-                const newY = y + dir.dy;
-                
-                // Check if the new coordinates are within the grid
-                if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
-                    // Check if the neighbor has not been visited
-                    if (!maze[newY][newX].visited) {
-                        neighbors.push({ x: newX, y: newY });
-                    }
-                }
-            }
-            
-            return neighbors;
-        }
-        
-        // Helper function to shuffle an array (Fisher-Yates algorithm)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        // Create maze walls based on the generated maze data
-        function createMazeWalls(cols, rows) {
-            // Create outer walls
-            const topWall = document.createElement('div');
-            topWall.className = 'maze-wall';
-            topWall.style.top = '0';
-            topWall.style.left = '0';
-            topWall.style.width = `${cols * cellSize}px`;
-            topWall.style.height = `${wallThickness}px`;
-            mazeContainer.appendChild(topWall);
-            
-            const leftWall = document.createElement('div');
-            leftWall.className = 'maze-wall';
-            leftWall.style.top = '0';
-            leftWall.style.left = '0';
-            leftWall.style.width = `${wallThickness}px`;
-            leftWall.style.height = `${rows * cellSize}px`;
-            mazeContainer.appendChild(leftWall);
-            
-            const rightWall = document.createElement('div');
-            rightWall.className = 'maze-wall';
-            rightWall.style.top = '0';
-            rightWall.style.left = `${cols * cellSize - wallThickness}px`;
-            rightWall.style.width = `${wallThickness}px`;
-            rightWall.style.height = `${rows * cellSize}px`;
-            mazeContainer.appendChild(rightWall);
-            
-            const bottomWall = document.createElement('div');
-            bottomWall.className = 'maze-wall';
-            bottomWall.style.top = `${rows * cellSize - wallThickness}px`;
-            bottomWall.style.left = '0';
-            bottomWall.style.width = `${cols * cellSize}px`;
-            bottomWall.style.height = `${wallThickness}px`;
-            mazeContainer.appendChild(bottomWall);
-            
-            // Create inner walls based on the maze data
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    const cell = maze[i][j];
-                    
-                    // Add right wall if needed
-                    if (cell.walls.right && j < cols - 1) {
-                        const rightWall = document.createElement('div');
-                        rightWall.className = 'maze-wall';
-                        rightWall.style.top = `${i * cellSize}px`;
-                        rightWall.style.left = `${(j + 1) * cellSize - wallThickness / 2}px`;
-                        rightWall.style.width = `${wallThickness}px`;
-                        rightWall.style.height = `${cellSize}px`;
-                        mazeContainer.appendChild(rightWall);
-                    }
-                    
-                    // Add bottom wall if needed
-                    if (cell.walls.bottom && i < rows - 1) {
-                        const bottomWall = document.createElement('div');
-                        bottomWall.className = 'maze-wall';
-                        bottomWall.style.top = `${(i + 1) * cellSize - wallThickness / 2}px`;
-                        bottomWall.style.left = `${j * cellSize}px`;
-                        bottomWall.style.width = `${cellSize}px`;
-                        bottomWall.style.height = `${wallThickness}px`;
-                        mazeContainer.appendChild(bottomWall);
-                    }
-                }
-            }
-        }
-        
+        // Generate a new maze
         function generateMaze() {
             try {
-                // Clear existing maze
-                clearMaze();
+                console.log("Beginning maze generation");
                 
-                // Get difficulty settings
-                const { cellSize: cs, wallThickness: wt } = difficultySizes[currentDifficulty];
-                cellSize = cs;
-                wallThickness = wt;
+                // Check if the required variables are defined
+                if (!difficultySizes || !currentDifficulty || !difficultySizes[currentDifficulty]) {
+                    throw new Error(`Invalid difficulty settings: ${currentDifficulty}`);
+                }
+                
+                // Update cell size and wall thickness based on difficulty
+                cellSize = difficultySizes[currentDifficulty].cellSize;
+                wallThickness = difficultySizes[currentDifficulty].wallThickness;
+                
+                console.log(`Difficulty: ${currentDifficulty}, cellSize: ${cellSize}, wallThickness: ${wallThickness}`);
                 
                 // Calculate grid size
+                if (typeof mazeWidth !== 'number' || typeof mazeHeight !== 'number') {
+                    throw new Error(`Invalid maze dimensions: ${mazeWidth}x${mazeHeight}`);
+                }
+                
                 const cols = Math.floor(mazeWidth / cellSize);
                 const rows = Math.floor(mazeHeight / cellSize);
                 
-                // Initialize maze grid (2D array of cells)
+                if (cols <= 0 || rows <= 0) {
+                    throw new Error(`Invalid grid dimensions: ${cols}x${rows}`);
+                }
+                
+                console.log(`Grid size: ${cols}x${rows}`);
+                
+                // Clear maze container and reset arrays
+                clearMaze();
+                
+                // Explicitly initialize arrays
                 maze = [];
+                pathNodes = [];
+                
+                // Initialize maze grid with cells
                 for (let i = 0; i < rows; i++) {
-                    maze[i] = [];
+                    const row = [];
                     for (let j = 0; j < cols; j++) {
-                        maze[i][j] = {
+                        row.push({
                             x: j,
                             y: i,
-                            walls: { top: true, right: true, bottom: true, left: true },
-                            visited: false
-                        };
+                            visited: false,
+                            walls: { top: true, right: true, bottom: true, left: true }
+                        });
+                    }
+                    maze.push(row);
+                }
+                
+                if (maze.length === 0 || maze[0].length === 0) {
+                    throw new Error("Failed to create maze grid");
+                }
+                
+                console.log("Maze grid initialized, generating paths");
+                
+                // Generate maze using depth-first search algorithm
+                const stack = [];
+                const startX = 0;
+                const startY = 0;
+                
+                // Check bounds
+                if (startY >= maze.length || startX >= maze[0].length) {
+                    throw new Error("Start position out of bounds");
+                }
+                
+                // Mark the starting cell as visited
+                maze[startY][startX].visited = true;
+                stack.push({ x: startX, y: startY });
+                
+                // Continue until all cells are visited
+                while (stack.length > 0) {
+                    // Get the current cell
+                    const current = stack[stack.length - 1];
+                    const { x, y } = current;
+                    
+                    // Get unvisited neighbors
+                    const neighbors = getUnvisitedNeighbors(x, y);
+                    
+                    if (neighbors.length === 0) {
+                        // No unvisited neighbors, backtrack
+                        stack.pop();
+                    } else {
+                        // Choose a random unvisited neighbor
+                        const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                        
+                        // Remove walls between current cell and chosen neighbor
+                        if (next.x > x) {
+                            // Remove right wall of current and left wall of neighbor
+                            maze[y][x].walls.right = false;
+                            maze[next.y][next.x].walls.left = false;
+                        } else if (next.x < x) {
+                            // Remove left wall of current and right wall of neighbor
+                            maze[y][x].walls.left = false;
+                            maze[next.y][next.x].walls.right = false;
+                        } else if (next.y > y) {
+                            // Remove bottom wall of current and top wall of neighbor
+                            maze[y][x].walls.bottom = false;
+                            maze[next.y][next.x].walls.top = false;
+                        } else if (next.y < y) {
+                            // Remove top wall of current and bottom wall of neighbor
+                            maze[y][x].walls.top = false;
+                            maze[next.y][next.x].walls.bottom = false;
+                        }
+                        
+                        // Mark the neighbor as visited and push to stack
+                        maze[next.y][next.x].visited = true;
+                        stack.push(next);
                     }
                 }
                 
-                // Generate maze using depth-first search algorithm
-                generateMazeRecursive(0, 0);
+                console.log("Maze paths generated, creating visual elements");
                 
-                // Create walls for the maze
+                // Create the maze walls
                 createMazeWalls(cols, rows);
                 
-                // Create path lines in the center of paths
+                // Create path lines and nodes for navigation
                 createPathLines(cols, rows);
                 
-                // Add player (spaceship)
-                player = document.createElement('div');
-                player.id = 'player';
+                // Add player
+                createPlayer(startX, startY);
                 
-                // Set player size based on difficulty
-                const playerSize = Math.max(20, Math.min(30, cellSize * 0.6));
-                player.style.width = `${playerSize}px`;
-                player.style.height = `${playerSize}px`;
-                
-                // Position player at start (center of first path)
-                const startX = cellSize / 2;
-                const startY = cellSize / 2;
-                player.style.left = `${startX}px`;
-                player.style.top = `${startY}px`;
-                playerNodeIndex = 0;
-                
-                // Add player to maze
-                mazeContainer.appendChild(player);
-                
-                // Add goal (Earth)
-                goal = document.createElement('div');
-                goal.id = 'goal';
-                
-                // Set goal size based on difficulty
-                const goalSize = Math.max(30, Math.min(40, cellSize * 0.8));
-                goal.style.width = `${goalSize}px`;
-                goal.style.height = `${goalSize}px`;
-                
-                // Position goal at end (center of last cell)
-                const goalX = (cols - 0.5) * cellSize;
-                const goalY = (rows - 0.5) * cellSize;
-                goal.style.left = `${goalX}px`;
-                goal.style.top = `${goalY}px`;
-                
-                // Add goal to maze
-                mazeContainer.appendChild(goal);
+                // Add goal at the opposite corner (bottom-right)
+                createGoal(cols - 1, rows - 1);
                 
                 // Set up player movement
                 setupPlayerMovement();
                 
-                // Record maze start time
-                mazeStartTime = Date.now();
+                console.log("Maze generation complete");
                 
             } catch (error) {
-                console.error('Maze generation failed:', error);
-                showError('Failed to generate maze. Please try again.');
+                console.error("Error during maze generation:", error);
+                showError("Maze creation failed: " + error.message);
+                throw error; // Re-throw to stop execution
+            }
+        }
+            
+            console.log("Maze paths generated, creating visual elements");
+            
+            // Create the maze walls
+            createMazeWalls(cols, rows);
+            
+            try {
+                // Create path lines and nodes for navigation
+                createPathLines(cols, rows);
+                
+                // Add player
+                createPlayer(startX, startY);
+                
+                // Add goal at the opposite corner (bottom-right)
+                createGoal(cols - 1, rows - 1);
+                
+                // Set up player movement
+                setupPlayerMovement();
+                
+                console.log("Maze generation complete");
+            } catch (error) {
+                console.error("Error during maze creation:", error);
+                showError("Maze creation failed: " + error.message);
             }
         }
         
-        function createPathLines(cols, rows) {
-            pathNodes = [];
+        // Create the player element
+        function createPlayer(x, y) {
+            player = document.createElement('div');
+            player.id = 'player';
             
-            // Create lines in the center of each path
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    const cell = maze[i][j];
-                    const centerX = (j + 0.5) * cellSize;
-                    const centerY = (i + 0.5) * cellSize;
-                    
-                    // Create a path node at the center of this cell
-                    pathNodes.push({
-                        x: centerX,
-                        y: centerY,
-                        cellX: j,
-                        cellY: i,
-                        connections: []
-                    });
-                    
-                    // Add horizontal path line if no right wall
-                    if (!cell.walls.right && j < cols - 1) {
-                        const pathLine = document.createElement('div');
-                        pathLine.className = 'path-line horizontal';
-                        pathLine.style.left = `${centerX}px`;
-                        pathLine.style.top = `${centerY}px`;
-                        pathLine.style.width = `${cellSize}px`;
-                        pathLine.style.transform = 'translateY(-50%)';
-                        mazeContainer.appendChild(pathLine);
+            // Position at the center of the starting cell
+            const posX = x * cellSize + cellSize / 2;
+            const posY = y * cellSize + cellSize / 2;
+            
+            player.style.left = `${posX}px`;
+            player.style.top = `${posY}px`;
+            
+            mazeContainer.appendChild(player);
+        }
+        
+        // Create the goal element
+        function createGoal(x, y) {
+            goal = document.createElement('div');
+            goal.id = 'goal';
+            
+            // Position at the center of the goal cell
+            const posX = x * cellSize + cellSize / 2;
+            const posY = y * cellSize + cellSize / 2;
+            
+            goal.style.left = `${posX}px`;
+            goal.style.top = `${posY}px`;
+            goal.style.width = `${cellSize * 0.7}px`;
+            goal.style.height = `${cellSize * 0.7}px`;
+            
+            mazeContainer.appendChild(goal);
+        }
+        
+        // Create path lines and nodes for navigation
+        function createPathLines(cols, rows) {
+            try {
+                console.log("Creating path lines, grid size:", cols, "x", rows);
+                
+                // Validate parameters
+                if (cols <= 0 || rows <= 0) {
+                    throw new Error(`Invalid grid dimensions: ${cols}x${rows}`);
+                }
+                
+                if (!Array.isArray(maze) || maze.length === 0) {
+                    throw new Error("Maze grid is not properly initialized");
+                }
+                
+                // Initialize pathNodes if not already done
+                if (!Array.isArray(pathNodes)) {
+                    console.warn("pathNodes was not an array, initializing");
+                    pathNodes = [];
+                }
+                
+                // Create horizontal path lines (left to right)
+                console.log("Creating horizontal path lines");
+                for (let y = 0; y < rows; y++) {
+                    if (!maze[y]) {
+                        console.error(`Row ${y} is undefined in maze grid`);
+                        continue;
                     }
                     
-                    // Add vertical path line if no bottom wall
-                    if (!cell.walls.bottom && i < rows - 1) {
-                        const pathLine = document.createElement('div');
-                        pathLine.className = 'path-line vertical';
-                        pathLine.style.left = `${centerX}px`;
-                        pathLine.style.top = `${centerY}px`;
-                        pathLine.style.height = `${cellSize}px`;
-                        pathLine.style.transform = 'translateX(-50%)';
-                        mazeContainer.appendChild(pathLine);
+                    for (let x = 0; x < cols - 1; x++) {
+                        if (!maze[y][x]) {
+                            console.error(`Cell at (${x},${y}) is undefined`);
+                            continue;
+                        }
+                        
+                        if (!maze[y][x].walls.right) {
+                            // If there's no right wall, create a horizontal path line
+                            const pathLine = document.createElement('div');
+                            pathLine.className = 'path-line horizontal';
+                            pathLine.style.top = `${y * cellSize + cellSize / 2}px`;
+                            pathLine.style.left = `${x * cellSize + cellSize / 2}px`;
+                            pathLine.style.width = `${cellSize}px`;
+                            mazeContainer.appendChild(pathLine);
+                            
+                            // Create nodes at each end of the path
+                            createPathNode(x, y);
+                            createPathNode(x + 1, y);
+                        }
                     }
+                }
+                
+                // Create vertical path lines (top to bottom)
+                console.log("Creating vertical path lines");
+                for (let x = 0; x < cols; x++) {
+                    for (let y = 0; y < rows - 1; y++) {
+                        if (!maze[y] || !maze[y][x]) {
+                            console.error(`Cell at (${x},${y}) is undefined`);
+                            continue;
+                        }
+                        
+                        if (!maze[y][x].walls.bottom) {
+                            // If there's no bottom wall, create a vertical path line
+                            const pathLine = document.createElement('div');
+                            pathLine.className = 'path-line vertical';
+                            pathLine.style.top = `${y * cellSize + cellSize / 2}px`;
+                            pathLine.style.left = `${x * cellSize + cellSize / 2}px`;
+                            pathLine.style.height = `${cellSize}px`;
+                            mazeContainer.appendChild(pathLine);
+                            
+                            // Create nodes at each end of the path
+                            createPathNode(x, y);
+                            createPathNode(x, y + 1);
+                        }
+                    }
+                }
+                
+                console.log("Path nodes created:", pathNodes.length);
+                
+                // Connect path nodes based on maze structure
+                connectPathNodes(cols, rows);
+                
+            } catch (error) {
+                console.error("Error creating path lines:", error);
+                throw new Error("Path lines creation failed: " + error.message);
+            }
+        }
+        
+        // Create a path node if it doesn't exist
+        function createPathNode(x, y) {
+            try {
+                console.log(`Creating path node at grid (${x}, ${y}), cellSize: ${cellSize}`);
+                
+                if (typeof cellSize !== 'number') {
+                    console.error("cellSize is not a number:", cellSize);
+                    throw new Error("Invalid cellSize");
+                }
+                
+                const posX = x * cellSize + cellSize / 2;
+                const posY = y * cellSize + cellSize / 2;
+                
+                if (!Array.isArray(pathNodes)) {
+                    console.error("pathNodes is not an array:", pathNodes);
+                    pathNodes = [];
+                }
+                
+                // Check if node already exists at this position
+                const existingNode = pathNodes.find(node => node.x === posX && node.y === posY);
+                
+                if (!existingNode) {
+                    // Create a new node
+                    const nodeIndex = pathNodes.length;
                     
-                    // Add node visualization
+                    // Create visual node element
                     const nodeElement = document.createElement('div');
                     nodeElement.className = 'path-node';
-                    nodeElement.style.left = `${centerX}px`;
-                    nodeElement.style.top = `${centerY}px`;
-                    mazeContainer.appendChild(nodeElement);
-                }
-            }
-            
-            // Set up connections between nodes
-            for (let i = 0; i < pathNodes.length; i++) {
-                const node = pathNodes[i];
-                const cell = maze[node.cellY][node.cellX];
-                
-                // Check each direction for connections
-                if (!cell.walls.right && node.cellX < cols - 1) {
-                    const rightNodeIndex = i + 1;
-                    node.connections.push(rightNodeIndex);
-                }
-                if (!cell.walls.left && node.cellX > 0) {
-                    const leftNodeIndex = i - 1;
-                    node.connections.push(leftNodeIndex);
-                }
-                if (!cell.walls.bottom && node.cellY < rows - 1) {
-                    const bottomNodeIndex = i + cols;
-                    node.connections.push(bottomNodeIndex);
-                }
-                if (!cell.walls.top && node.cellY > 0) {
-                    const topNodeIndex = i - cols;
-                    node.connections.push(topNodeIndex);
-                }
-            }
-        }
-        
-        function generateMazeRecursive(x, y) {
-            // Mark current cell as visited
-            maze[y][x].visited = true;
-            
-            // Get neighbors (in random order)
-            const neighbors = getUnvisitedNeighbors(x, y);
-            
-            for (const neighbor of neighbors) {
-                if (!maze[neighbor.y][neighbor.x].visited) {
-                    // Remove walls between current cell and chosen neighbor
-                    if (neighbor.x > x) {
-                        maze[y][x].walls.right = false;
-                        maze[neighbor.y][neighbor.x].walls.left = false;
-                    } else if (neighbor.x < x) {
-                        maze[y][x].walls.left = false;
-                        maze[neighbor.y][neighbor.x].walls.right = false;
-                    } else if (neighbor.y > y) {
-                        maze[y][x].walls.bottom = false;
-                        maze[neighbor.y][neighbor.x].walls.top = false;
-                    } else if (neighbor.y < y) {
-                        maze[y][x].walls.top = false;
-                        maze[neighbor.y][neighbor.x].walls.bottom = false;
-                    }
+                    nodeElement.style.left = `${posX}px`;
+                    nodeElement.style.top = `${posY}px`;
                     
-                    // Continue with the chosen neighbor
-                    generateMazeRecursive(neighbor.x, neighbor.y);
+                    // Add to DOM before updating array (to catch DOM errors first)
+                    mazeContainer.appendChild(nodeElement);
+                    
+                    // Now add to pathNodes array
+                    pathNodes.push({
+                        x: posX,
+                        y: posY,
+                        gridX: x,
+                        gridY: y,
+                        connections: [] // Will be filled with indices of connected nodes
+                    });
+                    
+                    console.log(`Path node created at (${posX}, ${posY}), index: ${nodeIndex}`);
                 }
+            } catch (error) {
+                console.error(`Failed to create path node at (${x}, ${y}):`, error);
+                throw new Error(`Path node creation failed: ${error.message}`);
             }
         }
         
-        // Set up player movement with keyboard and drag controls
+        // Setup player movement with keyboard and drag controls
         function setupPlayerMovement() {
+            if (!player || pathNodes.length === 0) {
+                console.error("Player or pathNodes not initialized");
+                return;
+            }
+            
             // Reference to player position
             let playerX = parseFloat(player.style.left);
             let playerY = parseFloat(player.style.top);
@@ -1061,21 +1196,14 @@
             let closestNodeIndex = 0;
             
             // Find the closest node index for starting position
-            updateClosestNodeIndex();
+            try {
+                updateClosestNodeIndex();
+            } catch (error) {
+                console.error("Error finding closest node:", error);
+                return;
+            }
             
-            // Keyboard controls
-            mazeContainer.addEventListener('keydown', handleKeyDown);
-            
-            // Touch/Mouse drag controls
-            player.addEventListener('mousedown', startDrag);
-            player.addEventListener('touchstart', startDrag, { passive: false });
-            
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag, { passive: false });
-            
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchend', endDrag);
-            
+            // Define all event handlers using named functions so they can be removed later
             function handleKeyDown(e) {
                 if (!isSessionActive) return;
                 
@@ -1215,6 +1343,24 @@
                 player.style.boxShadow = '0 0 15px rgba(111, 211, 245, 0.6)';
             }
             
+            // Store references to event handlers
+            eventHandlers.keydown = handleKeyDown;
+            eventHandlers.mousedown = startDrag;
+            eventHandlers.touchstart = startDrag;
+            eventHandlers.mousemove = drag;
+            eventHandlers.touchmove = drag;
+            eventHandlers.mouseup = endDrag;
+            eventHandlers.touchend = endDrag;
+            
+            // Attach the event listeners
+            mazeContainer.addEventListener('keydown', eventHandlers.keydown);
+            player.addEventListener('mousedown', eventHandlers.mousedown);
+            player.addEventListener('touchstart', eventHandlers.touchstart, { passive: false });
+            document.addEventListener('mousemove', eventHandlers.mousemove);
+            document.addEventListener('touchmove', eventHandlers.touchmove, { passive: false });
+            document.addEventListener('mouseup', eventHandlers.mouseup);
+            document.addEventListener('touchend', eventHandlers.touchend);
+            
             function moveToNode(nodeIndex) {
                 if (nodeIndex >= 0 && nodeIndex < pathNodes.length) {
                     const targetNode = pathNodes[nodeIndex];
@@ -1238,6 +1384,11 @@
             
             function updateClosestNodeIndex() {
                 // Find the closest node to the player
+                if (pathNodes.length === 0) {
+                    console.error("No path nodes available");
+                    return;
+                }
+                
                 let minDistance = Infinity;
                 
                 for (let i = 0; i < pathNodes.length; i++) {
@@ -1292,20 +1443,111 @@
             }
         }
         
-        // Complete current maze and generate a new one
-        function completeCurrentMaze() {
-            // Calculate completion time
-            const completionTime = Date.now() - mazeStartTime;
-            totalCompletionTime += completionTime;
+        // Get unvisited neighboring cells for maze generation
+        function getUnvisitedNeighbors(x, y) {
+            const neighbors = [];
+            const rows = maze.length;
+            const cols = maze[0].length;
             
-            // Update statistics
-            mazesCompleted++;
-            currentMaze++;
-            updateStats();
+            // Check each direction (up, right, down, left)
+            const directions = [
+                { dx: 0, dy: -1 }, // up
+                { dx: 1, dy: 0 },  // right
+                { dx: 0, dy: 1 },  // down
+                { dx: -1, dy: 0 }  // left
+            ];
             
-            // Generate a new maze
-            generateMaze();
-            mazeStartTime = Date.now();
+            // Shuffle directions to create a more random maze
+            shuffleArray(directions);
+            
+            for (const dir of directions) {
+                const newX = x + dir.dx;
+                const newY = y + dir.dy;
+                
+                // Check if the new coordinates are within the grid
+                if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
+                    // Check if the neighbor has not been visited
+                    if (!maze[newY][newX].visited) {
+                        neighbors.push({ x: newX, y: newY });
+                    }
+                }
+            }
+            
+            return neighbors;
+        }
+        
+        // Helper function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Create maze walls based on the generated maze data
+        function createMazeWalls(cols, rows) {
+            // Create outer walls
+            const topWall = document.createElement('div');
+            topWall.className = 'maze-wall';
+            topWall.style.top = '0';
+            topWall.style.left = '0';
+            topWall.style.width = `${cols * cellSize}px`;
+            topWall.style.height = `${wallThickness}px`;
+            mazeContainer.appendChild(topWall);
+            
+            const leftWall = document.createElement('div');
+            leftWall.className = 'maze-wall';
+            leftWall.style.top = '0';
+            leftWall.style.left = '0';
+            leftWall.style.width = `${wallThickness}px`;
+            leftWall.style.height = `${rows * cellSize}px`;
+            mazeContainer.appendChild(leftWall);
+            
+            const rightWall = document.createElement('div');
+            rightWall.className = 'maze-wall';
+            rightWall.style.top = '0';
+            rightWall.style.left = `${cols * cellSize - wallThickness}px`;
+            rightWall.style.width = `${wallThickness}px`;
+            rightWall.style.height = `${rows * cellSize}px`;
+            mazeContainer.appendChild(rightWall);
+            
+            const bottomWall = document.createElement('div');
+            bottomWall.className = 'maze-wall';
+            bottomWall.style.top = `${rows * cellSize - wallThickness}px`;
+            bottomWall.style.left = '0';
+            bottomWall.style.width = `${cols * cellSize}px`;
+            bottomWall.style.height = `${wallThickness}px`;
+            mazeContainer.appendChild(bottomWall);
+            
+            // Create inner walls based on the maze data
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const cell = maze[i][j];
+                    
+                    // Add right wall if needed
+                    if (cell.walls.right && j < cols - 1) {
+                        const rightWall = document.createElement('div');
+                        rightWall.className = 'maze-wall';
+                        rightWall.style.top = `${i * cellSize}px`;
+                        rightWall.style.left = `${(j + 1) * cellSize - wallThickness / 2}px`;
+                        rightWall.style.width = `${wallThickness}px`;
+                        rightWall.style.height = `${cellSize}px`;
+                        mazeContainer.appendChild(rightWall);
+                    }
+                    
+                    // Add bottom wall if needed
+                    if (cell.walls.bottom && i < rows - 1) {
+                        const bottomWall = document.createElement('div');
+                        bottomWall.className = 'maze-wall';
+                        bottomWall.style.top = `${(i + 1) * cellSize - wallThickness / 2}px`;
+                        bottomWall.style.left = `${j * cellSize}px`;
+                        bottomWall.style.width = `${cellSize}px`;
+                        bottomWall.style.height = `${wallThickness}px`;
+                        mazeContainer.appendChild(bottomWall);
+                    }
+                }
+            }
         }
     </script>
 </body>
