@@ -473,6 +473,9 @@
         const roundNumber = document.getElementById('round-number');
         const totalRounds = document.getElementById('total-rounds');
         
+        // Add color palette for matching pairs
+        const pairColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', '#3498db', '#e67e22', '#1abc9c', '#34495e'];
+        
         // Create stars for background effect
         const starsCount = 50;
         
@@ -538,13 +541,6 @@
             medium: { targetSize: 60, objectSize: 30, points: 200 },
             hard: { targetSize: 40, objectSize: 25, points: 300 }
         };
-        
-        // Toggle settings panel - REMOVED THIS EVENT LISTENER
-        // settingsToggle.addEventListener('click', () => {
-        //     if (!isSessionActive) {
-        //         settingsPanel.classList.toggle('hidden');
-        //     }
-        // });
         
         // Function definitions - utility functions first
         function showSettings() {
@@ -674,6 +670,12 @@
             for (let i = 0; i < numTargets; i++) {
                 const target = document.createElement('div');
                 target.classList.add('target');
+                
+                // Apply color to the target
+                const color = pairColors[i % pairColors.length];
+                target.style.borderColor = color;
+                target.style.background = color + '33'; // Add a subtle background with 20% opacity
+                
                 target.style.width = `${settings.targetSize}px`;
                 target.style.height = `${settings.targetSize}px`;
                 
@@ -690,6 +692,17 @@
                 target.style.top = `${y}px`;
                 target.dataset.targetId = i;
                 
+                // Add numbers to targets if setting is enabled
+                if (showNumbers) {
+                    target.textContent = i + 1;
+                    target.style.display = 'flex';
+                    target.style.alignItems = 'center';
+                    target.style.justifyContent = 'center';
+                    target.style.color = 'white';
+                    target.style.fontSize = '18px';
+                    target.style.fontWeight = 'bold';
+                }
+                
                 gameArea.appendChild(target);
                 activeTargets.push(target);
             }
@@ -700,6 +713,10 @@
                 draggable.classList.add('draggable');
                 draggable.style.width = `${settings.objectSize}px`;
                 draggable.style.height = `${settings.objectSize}px`;
+                
+                // Apply matching color to the draggable
+                const color = pairColors[i % pairColors.length];
+                draggable.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), ${color})`;
                 
                 if (showNumbers) {
                     draggable.textContent = i + 1;
@@ -742,7 +759,7 @@
             }
             
             // Update status
-            statusMessage.textContent = "Drag objects from all directions to their matching targets";
+            statusMessage.textContent = "Drag objects to their matching colored targets";
             roundStartTime = Date.now();
         }
         
@@ -812,9 +829,19 @@
                     target.dataset.targetId === currentDragging.dataset.targetId) {
                     successfulDrop = true;
                     
-                    // Success animation
+                    // Get the color for this pair
+                    const colorIndex = parseInt(target.dataset.targetId) % pairColors.length;
+                    const color = pairColors[colorIndex];
+                    
+                    // Success animation - use the pair color for the success indicator
                     target.classList.add('success');
-                    setTimeout(() => target.classList.remove('success'), 500);
+                    target.style.borderColor = color;
+                    target.style.boxShadow = `0 0 20px ${color}`;
+                    
+                    setTimeout(() => {
+                        target.classList.remove('success');
+                        target.style.boxShadow = '';
+                    }, 500);
                     
                     // Update score
                     const dropTime = Date.now() - roundStartTime;
@@ -843,7 +870,7 @@
             
             if (!successfulDrop) {
                 // Return to original position if drop failed
-                statusMessage.textContent = "Try again - drag to the matching target";
+                statusMessage.textContent = "Try again - drag to the matching colored target";
                 statusMessage.style.color = '#e74c3c';
             }
             
@@ -942,153 +969,6 @@
             }, 1500);
         }
         
-        function startDrag(e) {
-            if (!isSessionActive) return;
-            
-            e.preventDefault();
-            currentDragging = e.currentTarget;
-            currentDragging.classList.add('dragging');
-            
-            const rect = currentDragging.getBoundingClientRect();
-            const gameRect = gameArea.getBoundingClientRect();
-            
-            if (e.type === 'mousedown') {
-                dragOffsetX = e.clientX - rect.left;
-                dragOffsetY = e.clientY - rect.top;
-                
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('mouseup', endDrag);
-            } else if (e.type === 'touchstart') {
-                const touch = e.touches[0];
-                dragOffsetX = touch.clientX - rect.left;
-                dragOffsetY = touch.clientY - rect.top;
-                
-                document.addEventListener('touchmove', drag);
-                document.addEventListener('touchend', endDrag);
-            }
-        }
-        
-        function drag(e) {
-            if (!currentDragging || !isSessionActive) return;
-            
-            e.preventDefault();
-            const gameRect = gameArea.getBoundingClientRect();
-            
-            let clientX, clientY;
-            
-            if (e.type === 'mousemove') {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            } else if (e.type === 'touchmove') {
-                const touch = e.touches[0];
-                clientX = touch.clientX;
-                clientY = touch.clientY;
-            }
-            
-            // Calculate new position
-            let newX = clientX - gameRect.left - dragOffsetX;
-            let newY = clientY - gameRect.top - dragOffsetY;
-            
-            // Constrain to game area
-            newX = Math.max(0, Math.min(newX, gameRect.width - currentDragging.offsetWidth));
-            newY = Math.max(0, Math.min(newY, gameRect.height - currentDragging.offsetHeight));
-            
-            currentDragging.style.left = `${newX}px`;
-            currentDragging.style.top = `${newY}px`;
-            
-            // Check proximity to targets
-            checkProximity();
-        }
-        
-        function endDrag() {
-            if (!currentDragging || !isSessionActive) return;
-            
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('mouseup', endDrag);
-            document.removeEventListener('touchmove', drag);
-            document.removeEventListener('touchend', endDrag);
-            
-            currentDragging.classList.remove('dragging');
-            checkDrop();
-            currentDragging = null;
-        }
-        
-        function checkProximity() {
-            const dragRect = currentDragging.getBoundingClientRect();
-            const dragCenter = {
-                x: dragRect.left + dragRect.width / 2,
-                y: dragRect.top + dragRect.height / 2
-            };
-            
-            // Reset all targets
-            activeTargets.forEach(target => target.classList.remove('active'));
-            
-            // Check each target
-            activeTargets.forEach(target => {
-                const targetRect = target.getBoundingClientRect();
-                const targetCenter = {
-                    x: targetRect.left + targetRect.width / 2,
-                    y: targetRect.top + targetRect.height / 2
-                };
-                
-                const distance = Math.hypot(
-                    dragCenter.x - targetCenter.x,
-                    dragCenter.y - targetCenter.y
-                );
-                
-                // Activate target if close enough
-                if (distance < targetRect.width / 2 + dragRect.width / 2) {
-                    target.classList.add('active');
-                }
-            });
-        }
-        
-        function nextRound() {
-            currentRound++;
-            
-            if (currentRound > maxRounds || timeRemaining <= 0) {
-                endSession();
-                return;
-            }
-            
-            updateProgress();
-            statusMessage.textContent = "Well done! Get ready for the next round...";
-            statusMessage.style.color = 'white';
-            
-            setTimeout(() => {
-                const difficulty = difficultySelect.value;
-                const numTargets = parseInt(numTargetsSelect.value);
-                const showNumbers = showNumbersSelect.value === 'yes';
-                createRound(difficulty, numTargets, showNumbers);
-            }, 1500);
-        }
-        
-        function clearGameElements() {
-            activeDroppables.forEach(d => d.remove());
-            activeTargets.forEach(t => t.remove());
-            activeDroppables = [];
-            activeTargets = [];
-        }
-        
-        function updateStats() {
-            scoreElement.textContent = score;
-            successfulDropsElement.textContent = successfulDrops;
-            accuracyElement.textContent = totalDrops > 0 ? 
-                Math.round(successfulDrops / totalDrops * 100) + '%' : '0%';
-        }
-        
-        function updateTimer() {
-            const minutes = Math.floor(timeRemaining / 60000);
-            const seconds = Math.floor((timeRemaining % 60000) / 1000);
-            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        function updateProgress() {
-            roundNumber.textContent = currentRound;
-            totalRounds.textContent = maxRounds;
-        }
-        
-        
         // Prevent zooming on double tap
         document.addEventListener('touchstart', function(event) {
             if (event.touches.length > 1) {
@@ -1141,4 +1021,3 @@
     </script>
 </body>
 </html>
-        
