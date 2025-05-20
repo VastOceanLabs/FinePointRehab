@@ -72,14 +72,14 @@
         }
         
         .sort-object {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(111, 211, 245, 0.9));
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 30px;
             cursor: grab;
             box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
             transition: transform 0.2s ease;
@@ -87,6 +87,7 @@
             position: relative;
             z-index: 5;
             user-select: none;
+            border: 3px solid transparent;
         }
         
         .sort-object:active {
@@ -96,9 +97,9 @@
         }
         
         .category-box {
-            width: 120px;
-            height: 120px;
-            border: 2px dashed rgba(111, 211, 245, 0.7);
+            width: 130px;
+            height: 130px;
+            border: 3px dashed rgba(111, 211, 245, 0.7);
             border-radius: 15px;
             display: flex;
             flex-direction: column;
@@ -106,49 +107,58 @@
             justify-content: center;
             padding: 10px;
             transition: all 0.3s ease;
+            background: rgba(8, 15, 35, 0.4);
         }
         
         .category-box.highlight {
             background: rgba(111, 211, 245, 0.2);
-            box-shadow: 0 0 15px rgba(111, 211, 245, 0.3);
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.5);
+            transform: scale(1.05);
         }
         
         .category-box.correct {
-            border-color: rgba(46, 204, 113, 0.7);
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
-            animation: correctPulse 0.5s ease;
+            border-color: rgba(46, 204, 113, 0.9);
+            background: rgba(46, 204, 113, 0.15);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            animation: correctPulse 0.8s ease;
         }
         
         .category-box.incorrect {
-            border-color: rgba(231, 76, 60, 0.7);
-            box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+            border-color: rgba(231, 76, 60, 0.9);
+            background: rgba(231, 76, 60, 0.15);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
             animation: incorrectShake 0.5s ease;
         }
         
         @keyframes correctPulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
         
         @keyframes incorrectShake {
             0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
             100% { transform: translateX(0); }
         }
         
         .category-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 40px;
+            margin-bottom: 12px;
         }
         
         .category-label {
-            font-size: 16px;
+            font-size: 18px;
             text-align: center;
             font-weight: bold;
             color: rgba(255, 255, 255, 0.9);
+            background: rgba(8, 15, 35, 0.6);
+            padding: 5px 10px;
+            border-radius: 10px;
+            width: 90%;
         }
         
         .object-clone {
@@ -164,11 +174,12 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 10px 20px;
-            background: rgba(8, 15, 35, 0.8);
+            padding: 12px 24px;
+            background: rgba(8, 15, 35, 0.85);
+            border: 2px solid rgba(111, 211, 245, 0.5);
             border-radius: 15px;
             z-index: 20;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
             max-width: 80%;
@@ -362,6 +373,163 @@
             border-radius: 50%;
             opacity: 0.4;
         }
+
+        /* New styles for feedback messages */
+        #feedback-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        #feedback-message.show {
+            opacity: 1;
+        }
+
+        #feedback-message.correct {
+            background-color: rgba(46, 204, 113, 0.9);
+            color: white;
+        }
+
+        #feedback-message.incorrect {
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+
+        /* Category hint style */
+        .category-hint {
+            position: absolute;
+            bottom: -25px;
+            font-size: 14px;
+            background: rgba(8, 15, 35, 0.7);
+            padding: 3px 8px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .sort-object:hover .category-hint {
+            opacity: 1;
+        }
+
+        /* Object border styling for better category visibility */
+        .sort-object[data-category="Red"],
+        .sort-object[data-category="Red"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        .sort-object[data-category="Blue"],
+        .sort-object[data-category="Blue"] .category-hint {
+            border-color: rgba(52, 152, 219, 0.7);
+        }
+
+        .sort-object[data-category="Green"],
+        .sort-object[data-category="Green"] .category-hint {
+            border-color: rgba(46, 204, 113, 0.7);
+        }
+
+        .sort-object[data-category="Yellow"],
+        .sort-object[data-category="Yellow"] .category-hint {
+            border-color: rgba(241, 196, 15, 0.7);
+        }
+
+        .sort-object[data-category="Purple"],
+        .sort-object[data-category="Purple"] .category-hint {
+            border-color: rgba(155, 89, 182, 0.7);
+        }
+
+        .sort-object[data-category="Round"],
+        .sort-object[data-category="Round"] .category-hint {
+            border-color: rgba(52, 152, 219, 0.7);
+        }
+
+        .sort-object[data-category="Square"],
+        .sort-object[data-category="Square"] .category-hint {
+            border-color: rgba(243, 156, 18, 0.7);
+        }
+
+        .sort-object[data-category="Triangle"],
+        .sort-object[data-category="Triangle"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        .sort-object[data-category="Stars"],
+        .sort-object[data-category="Stars"] .category-hint {
+            border-color: rgba(241, 196, 15, 0.7);
+        }
+
+        .sort-object[data-category="Hearts"],
+        .sort-object[data-category="Hearts"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        /* Help button */
+        #help-button {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #help-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+
+        /* Show Hints button */
+        #hint-toggle {
+            position: fixed;
+            bottom: 15px;
+            left: 90px;
+            background-color: rgba(46, 204, 113, 0.8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #hint-toggle:hover {
+            background-color: rgba(46, 204, 113, 1);
+            transform: translateY(-2px);
+        }
+
+        #hint-toggle.active {
+            background-color: rgba(231, 76, 60, 0.8);
+        }
+
+        #hint-toggle.active:hover {
+            background-color: rgba(231, 76, 60, 1);
+        }
         
         @media (max-width: 768px) {
             .stat-value {
@@ -373,12 +541,12 @@
             }
             
             .category-box {
-                width: 100px;
-                height: 100px;
+                width: 110px;
+                height: 110px;
             }
             
             .category-icon {
-                font-size: 24px;
+                font-size: 30px;
             }
             
             .category-label {
@@ -386,14 +554,14 @@
             }
             
             .sort-object {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
             }
             
             #challenge-display {
                 font-size: 16px;
-                padding: 8px 15px;
+                padding: 10px 15px;
             }
         }
     </style>
@@ -404,12 +572,15 @@
         <div id="timer-bar"></div>
         
         <div id="challenge-display" class="hidden">Sort the objects by their categories</div>
+        <div id="feedback-message"></div>
         
         <div id="sort-area">
             <div id="objects-container"></div>
             <div id="categories-container"></div>
         </div>
         
+        <button id="help-button">?</button>
+        <button id="hint-toggle">Show Hints</button>
         <button id="home-button">Home</button>
         
         <div id="settings-panel">
@@ -445,6 +616,15 @@
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Show Category Hints:</label>
+                <select id="hint-setting">
+                    <option value="off">Off</option>
+                    <option value="hover">Show on Hover</option>
+                    <option value="always">Always Show</option>
+                </select>
             </div>
             
             <button id="start-session">Start Therapy Session</button>
@@ -492,6 +672,9 @@
         const completionMessage = document.getElementById('completion-message');
         const starsContainer = document.getElementById('stars-container');
         const challengeDisplay = document.getElementById('challenge-display');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const helpButton = document.getElementById('help-button');
+        const hintToggle = document.getElementById('hint-toggle');
         
         // Create stars for background effect
         const starsCount = 50;
@@ -513,6 +696,7 @@
         const categoryTypeSelect = document.getElementById('category-type');
         const objectsCountSelect = document.getElementById('objects-count');
         const sessionDurationInput = document.getElementById('session-duration');
+        const hintSettingSelect = document.getElementById('hint-setting');
         const startSessionButton = document.getElementById('start-session');
         const restartButton = document.getElementById('restart-button');
         
@@ -543,21 +727,22 @@
         let objectElements = [];
         let currentRoundObjects = [];
         let currentCategories = [];
+        let hintsVisible = false;
         
-        // Category libraries
+        // Improved category libraries with more distinct items
         const categoryLibraries = {
             colors: [
-                { name: "Red", icon: "🔴", items: ["🍎", "🍓", "🍒", "🌹", "🧨", "❤️", "🚨", "🏮"] },
-                { name: "Blue", icon: "🔵", items: ["🌊", "🐳", "🐬", "🧢", "🚾", "🌍", "🧿", "🚾"] },
+                { name: "Red", icon: "🔴", items: ["🍎", "🍓", "🍒", "❤️", "🌹", "🚨", "🧧", "🍄"] },
+                { name: "Blue", icon: "🔵", items: ["🌊", "🐳", "🐬", "🚾", "🧵", "🔷", "🫐", "🫧"] },
                 { name: "Green", icon: "🟢", items: ["🍀", "🥝", "🥬", "🥦", "🌲", "🐢", "🦎", "🐸"] },
-                { name: "Yellow", icon: "🟡", items: ["🍋", "🍌", "🌻", "🌝", "⭐", "💛", "🚕", "🏆"] },
-                { name: "Purple", icon: "🟣", items: ["🍇", "🦄", "🔮", "💜", "🪁", "🪀", "🎵", "👾"] }
+                { name: "Yellow", icon: "🟡", items: ["🍋", "🍌", "🌻", "⭐", "💛", "🚕", "🏆", "🔔"] },
+                { name: "Purple", icon: "🟣", items: ["🍇", "🔮", "💜", "👾", "💟", "🛐", "☂️", "🌂"] }
             ],
             shapes: [
-                { name: "Round", icon: "⭕", items: ["🪙", "🪄", "🧿", "🧶", "🏀", "⚽", "🍊", "⏰"] },
-                { name: "Square", icon: "⬛", items: ["📦", "🧊", "💾", "🎲", "🧀", "🏢", "🔲", "📱"] },
-                { name: "Triangle", icon: "⚠️", items: ["🔺", "📐", "🎯", "⛰️", "🏔️", "🧠", "🍕", "📏"] },
-                { name: "Stars", icon: "⭐", items: ["🌟", "✨", "💫", "🌠", "🎖️", "🎇", "🎆", "🏅"] },
+                { name: "Round", icon: "⭕", items: ["🥎", "⚽", "🏀", "🌕", "🔴", "🔵", "🪙", "🌝"] },
+                { name: "Square", icon: "⬛", items: ["🟦", "🟧", "🟩", "🟨", "🟪", "🟫", "🧊", "📦"] },
+                { name: "Triangle", icon: "🔺", items: ["🔻", "📐", "🔼", "🔽", "⚠️", "🏔️", "⛰️", "🗻"] },
+                { name: "Stars", icon: "⭐", items: ["✨", "🌟", "💫", "✡️", "🎇", "🎆", "🌠", "🌃"] },
                 { name: "Hearts", icon: "❤️", items: ["💕", "💓", "💗", "💖", "💘", "💞", "💝", "💟"] }
             ],
             numbers: [
@@ -568,13 +753,60 @@
                 { name: "Math", icon: "➕", items: ["➕", "➖", "✖️", "➗", "💲", "💹", "📊", "📉"] }
             ],
             letters: [
-                { name: "A-E", icon: "🔤", items: ["🅰️", "🆎", "🅱️", "🅾️", "🅿️", "🔡", "📧", "🔠"] },
-                { name: "F-J", icon: "📝", items: ["🇫", "🇬", "🇭", "🇮", "🇯", "🏧", "🗣️", "👤"] },
-                { name: "K-O", icon: "📚", items: ["🇰", "🇱", "🇲", "🇳", "🇴", "🔍", "🧿", "🏧"] },
-                { name: "P-T", icon: "📖", items: ["🇵", "🇶", "🇷", "🇸", "🇹", "🚷", "⛔", "🚯"] },
-                { name: "U-Z", icon: "📕", items: ["🇺", "🇻", "🇼", "🇽", "🇾", "🇿", "🚸", "⚠️"] }
+                { name: "A-E", icon: "🔤", items: ["🅰️", "🆎", "🅱️", "🅾️", "🅿️", "🔡", "📧", "Ⓐ"] },
+                { name: "F-J", icon: "📝", items: ["🇫", "🇬", "🇭", "🇮", "🇯", "Ⓕ", "Ⓖ", "Ⓗ"] },
+                { name: "K-O", icon: "📚", items: ["🇰", "🇱", "🇲", "🇳", "🇴", "Ⓚ", "Ⓛ", "Ⓜ️"] },
+                { name: "P-T", icon: "📖", items: ["🇵", "🇶", "🇷", "🇸", "🇹", "Ⓟ", "Ⓠ", "Ⓡ"] },
+                { name: "U-Z", icon: "📕", items: ["🇺", "🇻", "🇼", "🇽", "🇾", "🇿", "Ⓤ", "Ⓥ"] }
             ]
         };
+
+        // Help button functionality
+        helpButton.addEventListener('click', function() {
+            if (!isSessionActive) return;
+            
+            // Show instructions as a dialog or alert
+            alert("Sort & Categorize Exercise Instructions:\n\n" +
+                  "1. Drag each object to its matching category below\n" +
+                  "2. Items are sorted by " + categoryTypeSelect.value + "\n" +
+                  "3. You can toggle hints using the 'Show Hints' button\n" +
+                  "4. Try to sort all objects correctly before time runs out!");
+        });
+
+        // Toggle hints functionality
+        hintToggle.addEventListener('click', function() {
+            if (!isSessionActive) return;
+            
+            hintsVisible = !hintsVisible;
+            
+            if (hintsVisible) {
+                hintToggle.textContent = "Hide Hints";
+                hintToggle.classList.add('active');
+                document.querySelectorAll('.sort-object').forEach(obj => {
+                    obj.dataset.showHint = 'true';
+                    
+                    // Make any existing hints visible
+                    const hint = obj.querySelector('.category-hint');
+                    if (hint) {
+                        hint.style.opacity = '1';
+                    }
+                });
+            } else {
+                hintToggle.textContent = "Show Hints";
+                hintToggle.classList.remove('active');
+                document.querySelectorAll('.sort-object').forEach(obj => {
+                    obj.dataset.showHint = 'false';
+                    
+                    // Hide existing hints unless hint setting is "always"
+                    if (hintSettingSelect.value !== 'always') {
+                        const hint = obj.querySelector('.category-hint');
+                        if (hint) {
+                            hint.style.opacity = '0';
+                        }
+                    }
+                });
+            }
+        });
         
         // Home button functionality
         document.getElementById('home-button').addEventListener('click', function() {
@@ -601,6 +833,9 @@
             totalPlacements = 0;
             correctPlacements = 0;
             timeRemaining = sessionDuration;
+            hintsVisible = false;
+            hintToggle.textContent = "Show Hints";
+            hintToggle.classList.remove('active');
             
             // Set up sort area size based on window size
             const areaWidth = Math.min(800, window.innerWidth * 0.9);
@@ -612,6 +847,8 @@
             settingsPanel.classList.add('hidden');
             statsPanel.classList.remove('hidden');
             challengeDisplay.classList.remove('hidden');
+            hintToggle.classList.remove('hidden');
+            helpButton.classList.remove('hidden');
             
             // Update stats
             updateStats();
@@ -732,6 +969,17 @@
                 objectElement.className = 'sort-object';
                 objectElement.textContent = obj.item;
                 objectElement.dataset.category = obj.category;
+                
+                // Add category hint element
+                const hintElement = document.createElement('div');
+                hintElement.className = 'category-hint';
+                hintElement.textContent = obj.category;
+                objectElement.appendChild(hintElement);
+                
+                // Handle hint visibility based on settings
+                if (hintSettingSelect.value === 'always' || hintsVisible) {
+                    hintElement.style.opacity = '1';
+                }
                 
                 // Add drag start event listeners
                 objectElement.addEventListener('mousedown', handleDragStart);
@@ -874,11 +1122,17 @@
                         
                         // Visual feedback
                         box.classList.add('correct');
-                        setTimeout(() => box.classList.remove('correct'), 500);
+                        setTimeout(() => box.classList.remove('correct'), 800);
+                        
+                        // Show feedback message
+                        showFeedbackMessage("Correct! ✅", "correct");
                     } else {
                         // Visual feedback for incorrect
                         box.classList.add('incorrect');
-                        setTimeout(() => box.classList.remove('incorrect'), 500);
+                        setTimeout(() => box.classList.remove('incorrect'), 800);
+                        
+                        // Show feedback message - tell them the correct category
+                        showFeedbackMessage(`Incorrect! That belongs in ${draggingElement.dataset.category} ❌`, "incorrect");
                     }
                     
                     // Remove the object
@@ -892,6 +1146,9 @@
                         roundsCompleted++;
                         updateStats();
                         
+                        // Show round complete message
+                        showFeedbackMessage(`Round Complete! +${correctPlacements * 100} points`, "correct");
+                        
                         // Start new round after delay
                         setTimeout(() => {
                             if (isSessionActive) {
@@ -901,7 +1158,7 @@
                                     parseInt(objectsCountSelect.value)
                                 );
                             }
-                        }, 1000);
+                        }, 1500);
                     }
                 }
             });
@@ -939,6 +1196,18 @@
             accuracyElement.textContent = `${accuracy}%`;
         }
         
+        function showFeedbackMessage(message, type) {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = ''; // Clear classes
+            feedbackMessage.classList.add(type);
+            feedbackMessage.classList.add('show');
+            
+            // Hide after delay
+            setTimeout(() => {
+                feedbackMessage.classList.remove('show');
+            }, 2000);
+        }
+        
         function updateTimer() {
             const minutes = Math.floor(timeRemaining / 60000);
             const seconds = Math.floor((timeRemaining % 60000) / 1000);
@@ -961,6 +1230,8 @@
             // Hide game elements
             challengeDisplay.classList.add('hidden');
             statsPanel.classList.add('hidden');
+            helpButton.classList.add('hidden');
+            hintToggle.classList.add('hidden');
             
             // Show completion message
             finalScoreElement.textContent = score;
@@ -1020,11 +1291,16 @@
                 sessionDurationInput.value = localStorage.getItem('sortDuration');
             }
             
+            if (localStorage.getItem('sortHintSetting')) {
+                hintSettingSelect.value = localStorage.getItem('sortHintSetting');
+            }
+            
             // Save settings when they change
             difficultySelect.addEventListener('change', saveSettings);
             categoryTypeSelect.addEventListener('change', saveSettings);
             objectsCountSelect.addEventListener('change', saveSettings);
             sessionDurationInput.addEventListener('change', saveSettings);
+            hintSettingSelect.addEventListener('change', saveSettings);
         });
         
         // Save settings to localStorage
@@ -1033,6 +1309,7 @@
             localStorage.setItem('sortCategoryType', categoryTypeSelect.value);
             localStorage.setItem('sortObjectsCount', objectsCountSelect.value);
             localStorage.setItem('sortDuration', sessionDurationInput.value);
+            localStorage.setItem('sortHintSetting', hintSettingSelect.value);
         }
     </script>
 </body>
