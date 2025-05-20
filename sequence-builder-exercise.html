@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sequence Builder Exercise | Executive Function Training | Fine Point Rehab</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive sequence building exercise for cognitive rehabilitation. Improve executive function, planning skills, and sequential processing with this therapeutic exercise designed for stroke rehabilitation, brain injury recovery, and cognitive therapy.">
+    <meta name="keywords" content="executive function training, sequence building exercise, cognitive rehabilitation, planning skills therapy, sequential processing, stroke rehabilitation, brain injury recovery, cognitive therapy, multi-step planning, memory rehabilitation">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Sequence Builder | Executive Function Training | Fine Point Rehab">
+    <meta property="og:description" content="Improve executive function, planning skills, and sequential processing with this therapeutic sequence building exercise designed for cognitive rehabilitation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finepointrehab.com/sequence-builder-exercise">
+    <meta property="og:image" content="https://finepointrehab.com/images/sequence-builder-preview.jpg">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #121d33;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #sequence-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            background: #1c2a4e;
+            border: 2px solid rgba(111, 211, 245, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            z-index: 10;
+        }
+        
+        #model-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(111, 211, 245, 0.5);
+            background: rgba(8, 15, 35, 0.5);
+        }
+        
+        #model-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px dashed rgba(111, 211, 245, 0.5);
+            border-radius: 10px;
+            background: rgba(8, 15, 35, 0.5);
+        }
+        
+        #build-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        #user-sequence {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px dashed rgba(111, 211, 245, 0.5);
+            border-radius: 10px;
+            background: rgba(8, 15, 35, 0.3);
+            min-height: 100px;
+            margin-bottom: 20px;
+        }
+        
+        #pieces-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(8, 15, 35, 0.5);
+            border-radius: 10px;
+        }
+        
+        .sequence-piece {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(111, 211, 245, 0.9));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            user-select: none;
+        }
+        
+        .sequence-piece:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.6);
+        }
+        
+        .sequence-piece.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(111, 211, 245, 0.8);
+        }
+        
+        .sequence-piece.model {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(111, 211, 245, 0.7));
+            cursor: default;
+            transform: none;
+            box-shadow: 0 0 10px rgba(111, 211, 245, 0.3);
+        }
+        
+        .sequence-piece.correct {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(46, 204, 113, 0.9));
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+        }
+        
+        .sequence-piece.incorrect {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(231, 76, 60, 0.9));
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+            animation: shake 0.4s ease;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .sequence-piece.placeholder {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+            border: 2px dashed rgba(111, 211, 245, 0.5);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .control-button {
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .control-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .control-button.check {
+            background-color: rgba(46, 204, 113, 0.8);
+        }
+        
+        .control-button.check:hover {
+            background-color: rgba(46, 204, 113, 1);
+        }
+        
+        .control-button.reset {
+            background-color: rgba(231, 76, 60, 0.8);
+        }
+        
+        .control-button.reset:hover {
+            background-color: rgba(231, 76, 60, 1);
+        }
+        
+        .status-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            background: rgba(8, 15, 35, 0.7);
+            font-size: 16px;
+        }
+        
+        .current-step {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #sequence-progress {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: rgba(8, 15, 35, 0.8);
+            border-radius: 15px;
+            z-index: 20;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        #timer-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            background-color: rgba(111, 211, 245, 0.9);
+            width: 100%;
+            z-index: 20;
+        }
+        
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #settings-panel h2 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        #home-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #home-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            background-color: rgba(0, 10, 30, 0.8);
+            color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+        }
+        
+        button {
+            background-color: rgba(111, 211, 245, 0.9);
+            color: #121d33;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #stats-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(8, 15, 35, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        #completion-message h2 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        #completion-scores {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .score-highlight {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        .feedback-message {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 50;
+            opacity: 0;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOut 0.8s ease-in-out forwards;
+        }
+        
+        .feedback-message.success {
+            background-color: rgba(46, 204, 113, 0.8);
+            color: white;
+        }
+        
+        .feedback-message.error {
+            background-color: rgba(231, 76, 60, 0.8);
+            color: white;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+        
+        #instruction-banner {
+            text-align: center;
+            padding: 8px;
+            font-size: 16px;
+            background: rgba(111,211,245,0.2);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            .sequence-piece {
+                width: 45px;
+                height: 45px;
+                font-size: 22px;
+            }
+            
+            #sequence-progress {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+            
+            .control-button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            #model-container, #build-area {
+                padding: 15px;
+            }
+            
+            #model-display, #user-sequence {
+                padding: 10px;
+                gap: 8px;
+            }
+        }
+        
+        /* CSS for drag-and-drop functionality */
+        .placeholder.drag-over {
+            background: rgba(111, 211, 245, 0.3);
+            box-shadow: 0 0 8px rgba(111, 211, 245, 0.8);
+            border: 2px solid rgba(111, 211, 245, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="timer-bar"></div>
+        
+        <div id="sequence-progress" class="hidden">Sequence <span id="current-sequence">1</span> of <span id="total-sequences">10</span></div>
+        
+        <div id="sequence-area">
+            <div id="model-container">
+                <div id="model-display"></div>
+            </div>
+            <div id="instruction-banner">
+                👉 Drag a symbol from below into the dashed slots above (or tap to select/place) 👈
+            </div>
+            <div id="build-area">
+                <div id="user-sequence"></div>
+                <div class="status-indicator">
+                    <span>Complete the sequence</span>
+                    <span class="current-step">Step: <span id="current-step">1</span>/<span id="total-steps">5</span></span>
+                </div>
+                <div id="pieces-container"></div>
+                <div class="button-container">
+                    <button class="control-button reset" id="reset-button">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <button id="home-button">Home</button>
+        
+        <div id="settings-panel">
+            <h2>Sequence Builder Settings</h2>
+            <div class="settings-group">
+                <label class="settings-label">Sequence Type:</label>
+                <select id="sequence-type">
+                    <option value="pattern" selected>Pattern (Symbols)</option>
+                    <option value="assembly">Assembly (Building Blocks)</option>
+                    <option value="numerical">Numerical (Math Sequence)</option>
+                    <option value="spatial">Spatial (Positioning)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (3-4 Steps)</option>
+                    <option value="medium" selected>Medium (5-6 Steps)</option>
+                    <option value="hard">Hard (7-8 Steps)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Show Completed Sequence:</label>
+                <select id="show-completed">
+                    <option value="always">Always Visible</option>
+                    <option value="initially" selected>Initially Visible, Then Hidden</option>
+                    <option value="never">Never Visible (Memory Challenge)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Session Duration (minutes):</label>
+                <input type="number" id="session-duration" min="1" max="10" value="3">
+            </div>
+            
+            <button id="start-session">Start Therapy Session</button>
+        </div>
+        
+        <div id="stats-panel" class="hidden">
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="sequences-completed" class="stat-value">0</div>
+                <div class="stat-label">Sequences</div>
+            </div>
+            <div class="stat-box">
+                <div id="time-left" class="stat-value">3:00</div>
+                <div class="stat-label">Time Left</div>
+            </div>
+            <div class="stat-box">
+                <div id="accuracy" class="stat-value">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+        
+        <div id="completion-message" class="hidden">
+            <h2>Session Complete!</h2>
+            <div id="completion-scores">
+                <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
+                <p>Sequences Completed: <span id="final-sequences" class="score-highlight">0</span></p>
+                <p>Steps Accuracy: <span id="final-accuracy" class="score-highlight">0%</span></p>
+            </div>
+            <button id="restart-button">Start New Session</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game elements
+        const gameContainer = document.getElementById('game-container');
+        const sequenceArea = document.getElementById('sequence-area');
+        const modelDisplay = document.getElementById('model-display');
+        const userSequence = document.getElementById('user-sequence');
+        const piecesContainer = document.getElementById('pieces-container');
+        const timerBar = document.getElementById('timer-bar');
+        const settingsPanel = document.getElementById('settings-panel');
+        const statsPanel = document.getElementById('stats-panel');
+        const completionMessage = document.getElementById('completion-message');
+        const starsContainer = document.getElementById('stars-container');
+        const sequenceProgress = document.getElementById('sequence-progress');
+        const currentSequenceElement = document.getElementById('current-sequence');
+        const totalSequencesElement = document.getElementById('total-sequences');
+        const currentStepElement = document.getElementById('current-step');
+        const totalStepsElement = document.getElementById('total-steps');
+        
+        // Create stars for background effect
+        const starsCount = 50;
+        
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.opacity = Math.random() * 0.4 + 0.1;
+            starsContainer.appendChild(star);
+        }
+        
+        // Settings elements
+        const sequenceTypeSelect = document.getElementById('sequence-type');
+        const difficultySelect = document.getElementById('difficulty');
+        const showCompletedSelect = document.getElementById('show-completed');
+        const sessionDurationInput = document.getElementById('session-duration');
+        const startSessionButton = document.getElementById('start-session');
+        const restartButton = document.getElementById('restart-button');
+        
+        // Stats elements
+        const scoreElement = document.getElementById('score');
+        const sequencesCompletedElement = document.getElementById('sequences-completed');
+        const timeLeftElement = document.getElementById('time-left');
+        const accuracyElement = document.getElementById('accuracy');
+        
+        // Completion elements
+        const finalScoreElement = document.getElementById('final-score');
+        const finalSequencesElement = document.getElementById('final-sequences');
+        const finalAccuracyElement = document.getElementById('final-accuracy');
+        
+        // Control buttons
+        const resetButton = document.getElementById('reset-button');
+        const viewModelButton = document.getElementById('view-model-button'); // This element doesn't exist in HTML
+        
+        // Game state variables
+        let isSessionActive = false;
+        let sessionDuration = 3 * 60 * 1000;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let score = 0;
+        let sequencesCompleted = 0;
+        let totalSteps = 0;
+        let correctSteps = 0;
+        let currentSequenceIndex = 0;
+        let selectedPiece = null;
+        let sequences = [];
+        let currentSequence = [];
+        let availablePieces = [];
+        let userSteps = [];
+        let currentStepIndex = 0;
+        let modelVisible = true;
+        let savedModelSequence = [];
+        
+        // Touch event variables
+        let touchStartX, touchStartY;
+        let touchedPiece = null;
+        let touchMoved = false;
+        
+        // Sequence libraries
+        const sequenceLibraries = {
+            pattern: {
+                // FIXED: Added missing quote before '❄️'
+                pieces: ['🔹', '🔸', '🔺', '🔻', '⭐', '💫', '🌟', '✨', '⚡', '❄️', '🌀', '💠', '🔄', '➿', '➰'],
+                generators: [
+                    // Alternating patterns
+                    (steps) => {
+                        const pieces = getRandomSubset(sequenceLibraries.pattern.pieces, 2);
+                        return Array(steps).fill().map((_, i) => pieces[i % 2]);
+                    },
+                    // Repeating groups
+                    (steps) => {
+                        const pieces = getRandomSubset(sequenceLibraries.pattern.pieces, 3);
+                        return Array(steps).fill().map((_, i) => pieces[i % 3]);
+                    },
+                    // Growing pattern
+                    (steps) => {
+                        const piece = getRandomSubset(sequenceLibraries.pattern.pieces, 1)[0];
+                        const result = [];
+                        for (let i = 0; i < steps; i++) {
+                            if (i < 3) {
+                                result.push(piece);
+                            } else {
+                                result.push(result[i-3]);
+                            }
+                        }
+                        return result;
+                    },
+                    // Symbol progression
+                    (steps) => {
+                        const pieces = getRandomSubset(sequenceLibraries.pattern.pieces, steps);
+                        return pieces;
+                    }
+                ]
+            },
+            assembly: {
+                pieces: ['🧱', '🔨', '🔧', '🪓', '🔩', '⚙️', '🧰', '🧲', '🧪', '🔬', '📊', '📋', '📚', '📁', '📑'],
+                generators: [
+                    // Tool sequence
+                    (steps) => {
+                        const pieces = getRandomSubset(sequenceLibraries.assembly.pieces, steps);
+                        return pieces;
+                    },
+                    // Building sequence
+                    (steps) => {
+                        const pieces = ['🧱', '🔨', '🔧', '⚙️', '🔩', '🧰', '🏗️', '🚧'];
+                        return getRandomSubset(pieces, steps);
+                    },
+                    // Laboratory sequence
+                    (steps) => {
+                        const pieces = ['🧪', '🔬', '⚗️', '🧫', '📊', '📝', '💡', '📚'];
+                        return getRandomSubset(pieces, steps);
+                    }
+                ]
+            },
+            numerical: {
+                pieces: ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔢', '🔣', '➕', '➖', '✖️', '➗'],
+                generators: [
+                    // Counting sequence
+                    (steps) => {
+                        const numbers = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
+                        return numbers.slice(0, steps);
+                    },
+                    // Even numbers
+                    (steps) => {
+                        const numbers = ['0️⃣', '2️⃣', '4️⃣', '6️⃣', '8️⃣', '🔟'];
+                        return numbers.slice(0, steps);
+                    },
+                    // Odd numbers
+                    (steps) => {
+                        const numbers = ['1️⃣', '3️⃣', '5️⃣', '7️⃣', '9️⃣'];
+                        return numbers.slice(0, steps);
+                    },
+                    // Basic math operations
+                    (steps) => {
+                        const operations = ['1️⃣', '➕', '2️⃣', '➖', '3️⃣', '✖️', '4️⃣', '➗'];
+                        return operations.slice(0, steps);
+                    }
+                ]
+            },
+            spatial: {
+                pieces: ['⬆️', '⬇️', '⬅️', '➡️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '🔄', '🔁', '🔂', '🔃', '🔀'],
+                generators: [
+                    // Direction sequence
+                    (steps) => {
+                        const directions = ['⬆️', '⬇️', '⬅️', '➡️', '↗️', '↘️', '↙️', '↖️'];
+                        return getRandomSubset(directions, steps);
+                    },
+                    // Rotational sequence
+                    (steps) => {
+                        const rotations = ['🔄', '🔁', '🔂', '🔃', '🔀'];
+                        return getRandomSubset(rotations, steps);
+                    },
+                    // Movement pattern
+                    (steps) => {
+                        const movements = ['⬆️', '⬇️', '⬅️', '➡️'];
+                        return Array(steps).fill().map((_, i) => movements[i % 4]);
+                    }
+                ]
+            }
+        };
+        
+        // Add event listeners for home, start, and restart buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const homeButton = document.getElementById('home-button');
+            if (homeButton) {
+                homeButton.addEventListener('click', function() {
+                    window.location.href = 'index.html';
+                });
+            }
+            
+            // Start new session
+            if (startSessionButton) {
+                startSessionButton.addEventListener('click', startSession);
+            }
+            
+            if (restartButton) {
+                restartButton.addEventListener('click', () => {
+                    completionMessage.classList.add('hidden');
+                    settingsPanel.classList.remove('hidden');
+                });
+            }
+        });
+        
+        // Control buttons
+        resetButton.addEventListener('click', resetUserSequence);
+        
+        // Fix for view-model-button: Only add event listener if the button exists
+        if (viewModelButton) {
+            viewModelButton.addEventListener('click', toggleModelVisibility);
+        }
+        
+        // UPDATED: createSequencePiece function with drag-and-drop and touch support
+        function createSequencePiece(symbol, type = '') {
+            const piece = document.createElement('div');
+            piece.className = 'sequence-piece';
+            if (type) {
+                piece.classList.add(type);
+            }
+            piece.textContent = symbol;
+            piece.dataset.symbol = symbol;
+            
+            // Only make the _user_ pieces draggable
+            if (type === '') {
+                piece.setAttribute('draggable', 'true');
+                piece.addEventListener('dragstart', handleDragStart);
+                piece.addEventListener('dragend', handleDragEnd);
+                piece.addEventListener('click', selectPiece);
+                
+                // Add touch events for mobile
+                piece.addEventListener('touchstart', handleTouchStart);
+                piece.addEventListener('touchmove', handleTouchMove);
+                piece.addEventListener('touchend', handleTouchEnd);
+            }
+            
+            return piece;
+        }
+        
+        // UPDATED: createUserPlaceholders function with drop event handlers
+        function createUserPlaceholders(count) {
+            for (let i = 0; i < count; i++) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'sequence-piece placeholder';
+                placeholder.dataset.index = i;
+                
+                // Add drag event handlers to placeholders
+                placeholder.addEventListener('dragover', handleDragOver);
+                placeholder.addEventListener('drop', handleDrop);
+                
+                // Add click handler for tap-to-place functionality
+                placeholder.addEventListener('click', () => {
+                    if (selectedPiece && isSessionActive) {
+                        placePiece(placeholder);
+                    }
+                });
+                
+                userSequence.appendChild(placeholder);
+            }
+        }
+        
+        // UPDATED: handleDragStart function with better visual feedback
+        function handleDragStart(e) {
+            if (!isSessionActive) {
+                e.preventDefault();
+                return;
+            }
+            // Mark which piece is being dragged
+            selectedPiece = this;
+            this.classList.add('selected');
+            
+            // Set data for drop handlers
+            e.dataTransfer.setData('text/plain', this.dataset.symbol);
+            e.dataTransfer.effectAllowed = 'move';
+            
+            // For better visual feedback during drag
+            setTimeout(() => {
+                this.style.opacity = '0.6';
+            }, 0);
+        }
+        
+        // NEW: handleDragEnd function to reset appearance
+        function handleDragEnd(e) {
+            if (!isSessionActive) return;
+            
+            // Reset opacity and remove selected state
+            this.style.opacity = '1';
+            this.classList.remove('selected');
+        }
+        
+        // NEW: handleDragOver function to allow dropping
+        function handleDragOver(e) {
+            if (!isSessionActive) return;
+            
+            // This is necessary to allow the drop
+            e.preventDefault();
+            
+            // Set the drop effect to indicate a valid drop target
+            e.dataTransfer.dropEffect = 'move';
+            
+            // Visual feedback that this is a drop target
+            this.classList.add('drag-over');
+        }
+        
+        // NEW: handleDrop function to handle the drop event
+        function handleDrop(e) {
+            if (!isSessionActive) return;
+            
+            e.preventDefault();
+            
+            // Remove visual feedback
+            this.classList.remove('drag-over');
+            
+            // Place the piece
+            placePiece(this);
+        }
+        
+        // NEW: Touch event handlers for mobile devices
+        function handleTouchStart(e) {
+            if (!isSessionActive) return;
+            
+            // Prevent default to avoid scrolling while dragging
+            e.preventDefault();
+            e.stopPropagation(); // Added stopPropagation to prevent issues on some devices
+            
+            touchedPiece = this;
+            touchMoved = false;
+            
+            // Store initial touch position
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            
+            // Visually select the piece
+            this.classList.add('selected');
+            selectedPiece = this;
+        }
+        
+        function handleTouchMove(e) {
+            if (!isSessionActive || !touchedPiece) return;
+            
+            // Prevent default to avoid scrolling while dragging
+            e.preventDefault();
+            e.stopPropagation(); // Added stopPropagation
+            
+            touchMoved = true;
+            
+            // Update visual feedback that piece is being dragged
+            touchedPiece.classList.add('selected');
+            
+            // Find if we're over a valid drop target
+            const touch = e.touches[0];
+            const elementsAtPoint = document.elementsFromPoint(touch.clientX, touch.clientY);
+            
+            // Remove 'drag-over' class from all placeholders
+            const allPlaceholders = userSequence.querySelectorAll('.placeholder');
+            allPlaceholders.forEach(p => p.classList.remove('drag-over'));
+            
+            // Check if we're over a placeholder
+            for (const element of elementsAtPoint) {
+                if (element.classList.contains('placeholder')) {
+                    // Add visual feedback for drop target
+                    element.classList.add('drag-over');
+                    break;
+                }
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            if (!isSessionActive || !touchedPiece) return;
+            
+            // Reset the touched piece appearance
+            touchedPiece.classList.remove('selected');
+            
+            // Only process if this was a drag attempt (moved) not just a tap
+            if (touchMoved) {
+                // Find if we're over a valid drop target
+                const touch = e.changedTouches[0];
+                const elementsAtPoint = document.elementsFromPoint(touch.clientX, touch.clientY);
+                
+                // Check if we're over a placeholder
+                for (const element of elementsAtPoint) {
+                    if (element.classList.contains('placeholder')) {
+                        // Remove visual feedback and place the piece
+                        element.classList.remove('drag-over');
+                        placePiece(element);
+                        break;
+                    }
+                }
+            }
+            
+            // Reset all placeholder states
+            const allPlaceholders = userSequence.querySelectorAll('.placeholder');
+            allPlaceholders.forEach(p => p.classList.remove('drag-over'));
+            
+            touchedPiece = null;
+            touchMoved = false;
+        }
+        
+        function selectPiece(e) {
+            if (!isSessionActive) return;
+            
+            // Deselect previously selected piece
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+            }
+            
+            // Select new piece
+            selectedPiece = this;
+            selectedPiece.classList.add('selected');
+        }
+        
+        // UPDATED: placePiece function with consistent behavior for both click and drag
+        function placePiece(placeholder) {
+            if (!selectedPiece || !isSessionActive) return;
+            
+            // Get the index of the placeholder
+            const index = parseInt(placeholder.dataset.index);
+            
+            // Check if this is the current step
+            if (index === currentStepIndex) {
+                // Clone the selected piece
+                const newPiece = selectedPiece.cloneNode(true);
+                newPiece.classList.remove('selected');
+                newPiece.dataset.index = index;
+                
+                // Replace placeholder with the piece
+                userSequence.replaceChild(newPiece, placeholder);
+                
+                // Add to user steps
+                userSteps[index] = newPiece.dataset.symbol;
+                
+                // Deselect the piece
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+                
+                // Automatically check step without requiring button click
+                setTimeout(() => checkStep(), 100);
+            }
+        }
+        
+        function checkStep() {
+            if (!isSessionActive || userSteps.length <= currentStepIndex || !userSteps[currentStepIndex]) return;
+            
+            totalSteps++;
+            
+            // Get current step symbol from user and model
+            const userSymbol = userSteps[currentStepIndex];
+            const modelSymbol = currentSequence[currentStepIndex];
+            
+            // Get the placed piece element
+            const placedPiece = userSequence.children[currentStepIndex];
+            
+            // Check if correct
+            if (userSymbol === modelSymbol) {
+                // Correct step
+                correctSteps++;
+                score += 20;
+                
+                // Visual feedback
+                placedPiece.classList.add('correct');
+                
+                // Move to next step
+                currentStepIndex++;
+                currentStepElement.textContent = currentStepIndex + 1;
+                
+                // Show success feedback - use a more subtle feedback for auto-checking
+                showFeedback('✓', 'success');
+                
+                // Check if sequence is complete
+                if (currentStepIndex >= currentSequence.length) {
+                    // Sequence completed
+                    sequencesCompleted++;
+                    score += 50; // Bonus for completing sequence
+                    
+                    // Update stats
+                    updateStats();
+                    
+                    // Show completion feedback
+                    setTimeout(() => {
+                        if (isSessionActive) {
+                            showFeedback('Sequence Complete!', 'success');
+                            
+                            // Move to next sequence
+                            currentSequenceIndex++;
+                            currentSequenceElement.textContent = currentSequenceIndex + 1;
+                            
+                            // Check if all sequences are completed
+                            if (currentSequenceIndex >= sequences.length) {
+                                setTimeout(endSession, 1500);
+                            } else {
+                                // Start next sequence after delay
+                                setTimeout(() => {
+                                    if (isSessionActive) {
+                                        modelVisible = true;
+                                        startSequence(sequences[currentSequenceIndex], showCompletedSelect.value);
+                                    }
+                                }, 1500);
+                            }
+                        }
+                    }, 500);
+                }
+            } else {
+                // Incorrect step
+                placedPiece.classList.add('incorrect');
+                
+                // Show error feedback
+                showFeedback('✗', 'error');
+                
+                // Remove incorrect piece after delay
+                setTimeout(() => {
+                    if (isSessionActive) {
+                        // Replace with placeholder
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'sequence-piece placeholder';
+                        placeholder.dataset.index = currentStepIndex;
+                        
+                        // FIXED: Use handleDragOver and handleDrop functions for consistency
+                        placeholder.addEventListener('dragover', handleDragOver);
+                        placeholder.addEventListener('drop', handleDrop);
+                        
+                        placeholder.addEventListener('click', () => {
+                            if (selectedPiece && isSessionActive) {
+                                placePiece(placeholder);
+                            }
+                        });
+                        
+                        userSequence.replaceChild(placeholder, placedPiece);
+                        
+                        // Remove from user steps
+                        userSteps[currentStepIndex] = null;
+                    }
+                }, 800);
+            }
+            
+            // Update stats
+            updateStats();
+        }
+        
+        // UPDATED: resetUserSequence function to preserve drag-and-drop functionality
+        function resetUserSequence() {
+            if (!isSessionActive) return;
+            
+            // Clear user sequence
+            userSequence.innerHTML = '';
+            userSteps = [];
+            currentStepIndex = 0;
+            
+            // Reset step counter
+            currentStepElement.textContent = '1';
+            
+            // Create placeholders with drag-and-drop functionality
+            createUserPlaceholders(currentSequence.length);
+            
+            // Deselect any selected piece
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
+        }
+        
+        function toggleModelVisibility() {
+            if (!isSessionActive) return;
+            
+            if (modelVisible) {
+                // Hide model
+                modelDisplay.innerHTML = '';
+                modelVisible = false;
+                if (viewModelButton) {
+                    viewModelButton.textContent = 'Show Model';
+                }
+            } else {
+                // Show model
+                modelDisplay.innerHTML = '';
+                savedModelSequence.forEach(item => {
+                    const piece = createSequencePiece(item, 'model');
+                    modelDisplay.appendChild(piece);
+                });
+                modelVisible = true;
+                if (viewModelButton) {
+                    viewModelButton.textContent = 'Hide Model';
+                }
+            }
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback-message ${type}`;
+            feedback.textContent = message;
+            
+            gameContainer.appendChild(feedback);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    gameContainer.removeChild(feedback);
+                }
+            }, 1500);
+        }
+        
+        function updateStats() {
+            scoreElement.textContent = score;
+            sequencesCompletedElement.textContent = sequencesCompleted;
+            
+            // Calculate and display accuracy
+            const accuracy = totalSteps > 0 ? Math.round((correctSteps / totalSteps) * 100) : 0;
+            accuracyElement.textContent = `${accuracy}%`;
+        }
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60000);
+            const seconds = Math.floor((timeRemaining % 60000) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function endSession() {
+            clearInterval(timerInterval);
+            isSessionActive = false;
+            
+            // Hide game elements
+            sequenceProgress.classList.add('hidden');
+            statsPanel.classList.add('hidden');
+            
+            // Show completion message
+            finalScoreElement.textContent = score;
+            finalSequencesElement.textContent = sequencesCompleted;
+            
+            const accuracy = totalSteps > 0 ? Math.round((correctSteps / totalSteps) * 100) : 0;
+            finalAccuracyElement.textContent = `${accuracy}%`;
+            
+            completionMessage.classList.remove('hidden');
+            
+            // Reset timer bar
+            timerBar.style.width = '0%';
+        }
+        
+        function startSession() {
+            // Get settings
+            const sequenceType = sequenceTypeSelect.value;
+            const difficulty = difficultySelect.value;
+            const showCompleted = showCompletedSelect.value;
+            sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
+            
+            // Reset game state
+            score = 0;
+            sequencesCompleted = 0;
+            totalSteps = 0;
+            correctSteps = 0;
+            timeRemaining = sessionDuration;
+            currentSequenceIndex = 0;
+            
+            // Generate sequences for the session
+            generateSequences(sequenceType, difficulty);
+            
+            // Set up sequence area size based on window size
+            const areaWidth = Math.min(800, window.innerWidth * 0.9);
+            const areaHeight = Math.min(600, window.innerHeight * 0.8);
+            sequenceArea.style.width = `${areaWidth}px`;
+            sequenceArea.style.height = `${areaHeight}px`;
+            
+            // Update sequence progress
+            currentSequenceElement.textContent = '1';
+            totalSequencesElement.textContent = sequences.length;
+            
+            // Update stats
+            updateStats();
+            updateTimer();
+            
+            // Hide settings, show stats and progress
+            settingsPanel.classList.add('hidden');
+            statsPanel.classList.remove('hidden');
+            sequenceProgress.classList.remove('hidden');
+            
+            // Start session
+            isSessionActive = true;
+            modelVisible = true;
+            
+            // Start first sequence
+            startSequence(sequences[0], showCompleted);
+            
+            timerInterval = setInterval(() => {
+                timeRemaining -= 100;
+                
+                // Update timer bar
+                const progress = timeRemaining / sessionDuration;
+                timerBar.style.width = `${progress * 100}%`;
+                
+                // Update time display
+                updateTimer();
+                
+                // Check if session is over
+                if (timeRemaining <= 0) {
+                    endSession();
+                }
+            }, 100);
+        }
+        
+        function generateSequences(type, difficulty) {
+            // Clear existing sequences
+            sequences = [];
+            
+            // Determine steps per sequence based on difficulty
+            let stepsPerSequence;
+            switch (difficulty) {
+                case 'easy': stepsPerSequence = Math.floor(Math.random() * 2) + 3; break; // 3-4 steps
+                case 'hard': stepsPerSequence = Math.floor(Math.random() * 2) + 7; break; // 7-8 steps
+                default: stepsPerSequence = Math.floor(Math.random() * 2) + 5; break; // 5-6 steps
+            }
+            
+            // Generate 10 sequences
+            for (let i = 0; i < 10; i++) {
+                const library = sequenceLibraries[type];
+                const generatorIndex = Math.floor(Math.random() * library.generators.length);
+                const generator = library.generators[generatorIndex];
+                
+                // Generate sequence
+                const sequence = generator(stepsPerSequence);
+                sequences.push(sequence);
+            }
+        }
+        
+        function startSequence(sequence, showCompletedOption) {
+            // Clear previous sequence
+            modelDisplay.innerHTML = '';
+            userSequence.innerHTML = '';
+            piecesContainer.innerHTML = '';
+            
+            // Save current sequence
+            currentSequence = sequence;
+            savedModelSequence = [...sequence]; // Save a copy of the model sequence
+            userSteps = [];
+            currentStepIndex = 0;
+            
+            // Update step counter
+            currentStepElement.textContent = '1';
+            totalStepsElement.textContent = sequence.length;
+            
+            // Display model sequence
+            sequence.forEach(item => {
+                const piece = createSequencePiece(item, 'model');
+                modelDisplay.appendChild(piece);
+            });
+            
+            // Create available pieces for user to choose from
+            createAvailablePieces(sequence);
+            
+            // Create placeholders for user sequence
+            createUserPlaceholders(sequence.length);
+            
+            // Hide model after a delay if setting is "initially"
+            if (showCompletedOption === 'initially') {
+                setTimeout(() => {
+                    if (isSessionActive && modelDisplay) {
+                        modelDisplay.innerHTML = '';
+                        modelVisible = false;
+                        if (viewModelButton) {
+                            viewModelButton.textContent = 'Show Model';
+                        }
+                    }
+                }, 5000);
+            } else if (showCompletedOption === 'never') {
+                setTimeout(() => {
+                    if (isSessionActive && modelDisplay) {
+                        modelDisplay.innerHTML = '';
+                        modelVisible = false;
+                        if (viewModelButton) {
+                            viewModelButton.textContent = 'Show Model';
+                        }
+                    }
+                }, 2000);
+            }
+        }
+        
+        function createAvailablePieces(sequence) {
+            // Get unique pieces from the sequence
+            const uniquePieces = [...new Set(sequence)];
+            
+            // Add some distractor pieces based on difficulty
+            const library = sequenceLibraries[sequenceTypeSelect.value];
+            let allPieces = [...uniquePieces];
+            
+            // Add distractors based on difficulty
+            let numDistractors = 0;
+            switch (difficultySelect.value) {
+                case 'easy': numDistractors = 2; break;
+                case 'medium': numDistractors = 4; break;
+                case 'hard': numDistractors = 6; break;
+            }
+            
+            // Find pieces not in the sequence to use as distractors
+            const distractors = library.pieces.filter(p => !uniquePieces.includes(p));
+            const selectedDistractors = getRandomSubset(distractors, numDistractors);
+            
+            allPieces = [...allPieces, ...selectedDistractors];
+            // Shuffle the pieces
+            shuffleArray(allPieces);
+            
+            // Create piece elements
+            allPieces.forEach(symbol => {
+                const piece = createSequencePiece(symbol);
+                piecesContainer.appendChild(piece);
+            });
+            
+            // Save available pieces
+            availablePieces = allPieces;
+        }
+        
+        // Helper function to get random subset of array
+        function getRandomSubset(array, size) {
+            // Clone array to avoid modifying original
+            const shuffled = [...array].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, size);
+        }
+        
+        // Helper function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Resize handler to adjust sequence area size
+        window.addEventListener('resize', function() {
+            if (isSessionActive) {
+                const areaWidth = Math.min(800, window.innerWidth * 0.9);
+                const areaHeight = Math.min(600, window.innerHeight * 0.8);
+                sequenceArea.style.width = `${areaWidth}px`;
+                sequenceArea.style.height = `${areaHeight}px`;
+            }
+        });
+        
+        // Load/save settings with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings if they exist
+            if (localStorage.getItem('sequenceType')) {
+                sequenceTypeSelect.value = localStorage.getItem('sequenceType');
+            }
+            
+            if (localStorage.getItem('sequenceDifficulty')) {
+                difficultySelect.value = localStorage.getItem('sequenceDifficulty');
+            }
+            
+            if (localStorage.getItem('showCompleted')) {
+                showCompletedSelect.value = localStorage.getItem('showCompleted');
+            }
+            
+            if (localStorage.getItem('sequenceDuration')) {
+                sessionDurationInput.value = localStorage.getItem('sequenceDuration');
+            }
+            
+            // Save settings when they change
+            sequenceTypeSelect.addEventListener('change', saveSettings);
+            difficultySelect.addEventListener('change', saveSettings);
+            showCompletedSelect.addEventListener('change', saveSettings);
+            sessionDurationInput.addEventListener('change', saveSettings);
+        });
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('sequenceType', sequenceTypeSelect.value);
+            localStorage.setItem('sequenceDifficulty', difficultySelect.value);
+            localStorage.setItem('showCompleted', showCompletedSelect.value);
+            localStorage.setItem('sequenceDuration', sessionDurationInput.value);
+        }
+    </script>
+</body>
+</html>
