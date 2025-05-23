@@ -139,73 +139,46 @@
             transform: translate(-50%, -50%);
         }
         
-        /* PLAYER - Combined sprite and gradient in a single rule */
+        /* IMPROVED PLAYER SPACESHIP */
         #player {
             position: absolute;
-            /* Size will be set dynamically in createPlayer function */
-            /* Sprite on top, gradient underneath */
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23252736%22%20stroke-width%3D%220.5%22%20d%3D%22M16%202L12%208L12%2016L16%2024L20%2016L20%208L16%202Z%22%2F%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23252736%22%20stroke-width%3D%220.5%22%20d%3D%22M10%2016L4%2022L12%2022L12%2016L10%2016Z%22%2F%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23252736%22%20stroke-width%3D%220.5%22%20d%3D%22M22%2016L20%2016L20%2022L28%2022L22%2016Z%22%2F%3E%3Cpath%20fill%3D%22%234167AD%22%20d%3D%22M16%208L14%2012L14%2016L16%2020L18%2016L18%2012L16%208Z%22%2F%3E%3Cpath%20fill%3D%22%23FF5000%22%20d%3D%22M15%2024L13%2028L16%2026L19%2028L17%2024L15%2024Z%22%2F%3E%3Cpath%20fill%3D%22%23FFA000%22%20d%3D%22M15.5%2025L14.5%2027L16%2026L17.5%2027L16.5%2025L15.5%2025Z%22%2F%3E%3C%2Fsvg%3E"), 
-                           linear-gradient(#d9e0f3 0%, #8fa2c6 100%);
-            background-size: contain, cover;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='bodyGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23e8eef5'/%3E%3Cstop offset='100%25' style='stop-color:%239fb5d4'/%3E%3C/linearGradient%3E%3ClinearGradient id='windowGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236495ed'/%3E%3Cstop offset='100%25' style='stop-color:%232856a8'/%3E%3C/linearGradient%3E%3ClinearGradient id='flameGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23ffef00'/%3E%3Cstop offset='50%25' style='stop-color:%23ff8c00'/%3E%3Cstop offset='100%25' style='stop-color:%23ff4500'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- Main body --%3E%3Cellipse cx='20' cy='20' rx='12' ry='16' fill='url(%23bodyGrad)' stroke='%23364a69' stroke-width='1'/%3E%3C!-- Cockpit window --%3E%3Cellipse cx='20' cy='12' rx='6' ry='7' fill='url(%23windowGrad)' stroke='%231a3a6e' stroke-width='0.5'/%3E%3C!-- Window shine --%3E%3Cellipse cx='18' cy='10' rx='2' ry='3' fill='%23a8ccff' opacity='0.6'/%3E%3C!-- Side fins --%3E%3Cpath d='M8 18 L2 28 L8 26 Z' fill='%23536b8a' stroke='%23364a69' stroke-width='0.5'/%3E%3Cpath d='M32 18 L38 28 L32 26 Z' fill='%23536b8a' stroke='%23364a69' stroke-width='0.5'/%3E%3C!-- Engine nozzles --%3E%3Crect x='14' y='32' width='4' height='3' rx='1' fill='%23434d5a'/%3E%3Crect x='22' y='32' width='4' height='3' rx='1' fill='%23434d5a'/%3E%3C!-- Engine flames --%3E%3Cellipse cx='16' cy='36' rx='3' ry='5' fill='url(%23flameGrad)' opacity='0.9'/%3E%3Cellipse cx='24' cy='36' rx='3' ry='5' fill='url(%23flameGrad)' opacity='0.9'/%3E%3C!-- Body details --%3E%3Cline x1='12' y1='20' x2='28' y2='20' stroke='%23536b8a' stroke-width='0.5'/%3E%3Cline x1='12' y1='24' x2='28' y2='24' stroke='%23536b8a' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            border: 2px solid #1a2539;
             transform: translate(-50%, -50%) rotate(90deg);
-            box-shadow: 0 0 15px rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.8);
             z-index: 10;
             cursor: pointer;
             touch-action: none;
-            transition: all 0.3s ease;
-            animation: pulse 1.5s infinite alternate;
+            transition: box-shadow 0.3s ease;
+            animation: hover 2s ease-in-out infinite;
         }
         
-        /* Wings (both left and right) */
-        #player::before, 
-        #player::after {
-            content: '';
-            position: absolute;
-            top: 55%;
-            width: 6px;
-            height: 10px;
-            background: #252736;
+        @keyframes hover {
+            0%, 100% { transform: translate(-50%, -50%) rotate(90deg) translateY(0); }
+            50% { transform: translate(-50%, -50%) rotate(90deg) translateY(-2px); }
         }
         
-        /* Left wing */
-        #player::before {
-            left: -4px;
-            border-radius: 2px 0 0 2px;
-        }
-        
-        /* Right wing */
-        #player::after {
-            right: -4px;
-            border-radius: 0 2px 2px 0;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 15px rgba(111, 211, 245, 0.6); }
-            100% { box-shadow: 0 0 25px rgba(111, 211, 245, 0.8); }
-        }
-        
+        /* IMPROVED EARTH GOAL */
         #goal {
             position: absolute;
             width: 44px;
             height: 44px;
-            /* Updated Earth/goal SVG for better visibility */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234CAF50"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM18.24 17H13v-1h5.92c-.2.35-.43.69-.68 1zm1.5-3H13v-1h6.93c-.04.34-.11.67-.19 1z"/></svg>');
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cdefs%3E%3CradialGradient id='earthGlow'%3E%3Cstop offset='70%25' style='stop-color:%2300ff00;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%2300ff00;stop-opacity:0.3'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer glow --%3E%3Ccircle cx='25' cy='25' r='24' fill='url(%23earthGlow)'/%3E%3C!-- Earth sphere --%3E%3Ccircle cx='25' cy='25' r='20' fill='%232E86AB' stroke='%231a5a7a' stroke-width='0.5'/%3E%3C!-- Continents --%3E%3Cpath d='M15 15 Q20 12 25 14 T35 18 Q33 25 30 28 Q25 30 20 28 Q15 25 15 20 Z' fill='%23228B22' opacity='0.8'/%3E%3Cpath d='M10 25 Q12 23 15 24 Q18 28 15 32 Q12 33 10 30 Z' fill='%23228B22' opacity='0.8'/%3E%3Cpath d='M30 10 Q35 12 37 15 Q35 18 32 16 Q30 13 30 10 Z' fill='%23228B22' opacity='0.8'/%3E%3Cpath d='M25 32 Q28 35 32 36 Q35 38 33 40 Q28 39 25 36 Z' fill='%23228B22' opacity='0.8'/%3E%3C!-- Cloud wisps --%3E%3Cpath d='M12 18 Q15 17 18 18' stroke='white' stroke-width='1' fill='none' opacity='0.4'/%3E%3Cpath d='M28 22 Q31 21 34 22' stroke='white' stroke-width='1' fill='none' opacity='0.4'/%3E%3Cpath d='M20 35 Q23 34 26 35' stroke='white' stroke-width='1' fill='none' opacity='0.4'/%3E%3C!-- Atmosphere highlight --%3E%3Cpath d='M10 20 Q10 10 20 7 Q30 5 38 12' stroke='%2387CEEB' stroke-width='1.5' fill='none' opacity='0.5'/%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             border-radius: 50%;
             z-index: 5;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
-            animation: earth-pulse 2s infinite alternate;
+            box-shadow: 0 0 30px rgba(46, 134, 171, 0.7);
+            animation: earth-rotate 20s linear infinite;
             transform: translate(-50%, -50%);
         }
         
-        @keyframes earth-pulse {
-            0% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.7); }
-            100% { box-shadow: 0 0 30px rgba(76, 175, 80, 0.9); }
+        @keyframes earth-rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
         /* START and END labels */
@@ -233,14 +206,6 @@
             background-color: rgba(8, 15, 35, 0.7);
             border: 1px solid rgba(76, 175, 80, 0.7);
             box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
-        }
-        
-
-        
-        /* Flame animation */
-        @keyframes flame {
-            from { height: 18px; opacity: 0.8; }
-            to { height: 26px; opacity: 1; }
         }
         
         .path-trace {
@@ -275,6 +240,8 @@
             width: 80%;
             max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+	    max-height: 90vh;
+	    overflow-y: auto;
         }
         
         #settings-panel h2 {
@@ -336,6 +303,39 @@
         #home-button:hover {
             background-color: rgba(111, 211, 245, 1);
             transform: translateY(-2px);
+        }
+        
+        .game-description {
+            background-color: rgba(0, 10, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(111, 211, 245, 0.3);
+        }
+        
+        .game-description h3 {
+            color: rgba(111, 211, 245, 1);
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .game-description p {
+            margin: 0 0 12px 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .game-description p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-help {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            margin-top: 5px;
+            font-style: italic;
         }
         
         .settings-group {
@@ -540,30 +540,44 @@
         </button>
         
         <div id="settings-panel">
-            <h2>Therapeutic Exercise Settings</h2>
+            <h2>Cosmic Maze Exercise</h2>
+            
+            <div class="game-description">
+                <h3>About This Exercise</h3>
+                <p>Navigate a spaceship through randomly generated mazes to reach Earth. This therapeutic exercise helps improve fine motor skills, hand-eye coordination, and precision movements.</p>
+                
+                <h3>How to Play</h3>
+                <p><strong>Controls:</strong> Drag the spaceship or use arrow keys to move along the dotted path lines. The spaceship can only move to connected areas - no cutting through walls!</p>
+                
+                <p><strong>Goal:</strong> Guide your spaceship from the START point to the FINISH (Earth) as quickly as possible. Complete as many mazes as you can within your session time.</p>
+            </div>
+            
             <div class="settings-group">
-                <label class="settings-label">Difficulty Level (Motor Control Challenge):</label>
+                <label class="settings-label">Difficulty Level:</label>
                 <select id="difficulty" aria-label="Select difficulty level">
-                    <option value="easy" selected>Easy (Wide Paths) - Beginning Motor Recovery</option>
-                    <option value="medium">Medium - Intermediate Motor Control</option>
-                    <option value="hard">Hard (Narrow Paths) - Advanced Precision Training</option>
+                    <option value="easy" selected>Easy - Wide paths, larger spaceship (beginners)</option>
+                    <option value="medium">Medium - Standard paths and spaceship size</option>
+                    <option value="hard">Hard - Narrow paths, smaller spaceship (advanced)</option>
                 </select>
+                <small class="setting-help">Higher difficulty requires more precise movements and motor control.</small>
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Therapy Session Duration (minutes):</label>
+                <label class="settings-label">Session Duration:</label>
                 <input type="number" id="session-duration" min="1" max="10" value="5" aria-label="Set session duration">
+                <small class="setting-help">How many minutes to practice (1-10 minutes recommended).</small>
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Visual Feedback (Path Trace):</label>
+                <label class="settings-label">Movement Trail:</label>
                 <select id="show-trace" aria-label="Enable or disable path trace">
-                    <option value="yes" selected>Yes - Shows Movement Pattern</option>
-                    <option value="no">No - Clean Navigation</option>
+                    <option value="yes" selected>Show Trail - See where you've moved</option>
+                    <option value="no">No Trail - Clean view</option>
                 </select>
+                <small class="setting-help">The trail helps track your movement patterns for progress monitoring.</small>
             </div>
             
-            <button id="start-session">Start Rehabilitation Session</button>
+            <button id="start-session">Start Exercise</button>
         </div>
         
         <div id="stats-panel" class="hidden">
@@ -1354,32 +1368,8 @@
             player.style.left = `${posX}px`;
             player.style.top = `${posY}px`;
             
-            // Add thruster flame span
-            const thruster = document.createElement('span');
-            thruster.className = 'thruster';
-            thruster.style.position = 'absolute';
-            thruster.style.bottom = '-12px';
-            thruster.style.left = '50%';
-            thruster.style.transform = 'translateX(-50%)';
-            thruster.style.width = '18px';
-            thruster.style.height = '24px';
-            thruster.style.background = 'linear-gradient(#FF7B00 0%, #FFA800 100%)';
-            thruster.style.clipPath = 'polygon(20% 0, 0% 100%, 50% 60%, 100% 100%, 80% 0)';
-            thruster.style.animation = 'flame 0.5s infinite alternate';
-            
-            player.appendChild(thruster);
             mazeContainer.appendChild(player);
         }
-        
-        // Add the flame animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes flame {
-                from { height: 18px; opacity: 0.8; }
-                to { height: 26px; opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
         
         // Create the goal element
         function createGoal(x, y) {
@@ -1441,8 +1431,11 @@
             // Reference to player position
             let playerX = parseFloat(player.style.left);
             let playerY = parseFloat(player.style.top);
-            let startX, startY;
             let closestNodeIndex = 0;
+            
+            // SMOOTHER DRAGGING VARIABLES
+            let dragPath = []; // Track the path of nodes visited during current drag
+            let lastVisitedNode = 0; // Track last node to prevent back-and-forth jumping
             
             // Find the closest node index for starting position
             try {
@@ -1504,22 +1497,13 @@
                 if (!isSessionActive) return;
                 
                 isDragging = true;
-                
-                // Get container's position relative to viewport
-                const rect = mazeContainer.getBoundingClientRect();
-                
-                // Capture start position relative to the maze container
-                if (e.type === 'mousedown') {
-                    startX = e.clientX - rect.left;
-                    startY = e.clientY - rect.top;
-                } else if (e.type === 'touchstart') {
-                    startX = e.touches[0].clientX - rect.left;
-                    startY = e.touches[0].clientY - rect.top;
-                    e.preventDefault(); // Prevent scrolling on touch
-                }
+                dragPath = [closestNodeIndex]; // Start with current node
+                lastVisitedNode = closestNodeIndex;
                 
                 // Add active class for visual feedback
-                player.style.boxShadow = '0 0 20px rgba(111, 211, 245, 0.9)';
+                player.style.boxShadow = '0 0 30px rgba(111, 211, 245, 1)';
+                
+                e.preventDefault(); // Prevent scrolling on touch
             }
             
             function drag(e) {
@@ -1540,66 +1524,96 @@
                     e.preventDefault(); // Prevent scrolling on touch
                 }
                 
-                // Calculate drag direction and distance
-                const deltaX = currentX - startX;
-                const deltaY = currentY - startY;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                // Find the closest connected node to the drag position
+                const currentNode = pathNodes[closestNodeIndex];
+                let bestNodeIndex = -1;
+                let minDistance = Infinity;
                 
-                // Scale the drag threshold relative to cell size (25% of cell size)
-                const dragThreshold = cellSize * 0.25;
+                // Check all connected nodes (and their connections for smoother movement)
+                const nodesToCheck = new Set([closestNodeIndex]);
                 
-                // Only process if dragged far enough to avoid accidental movements
-                if (distance > dragThreshold) {
-                    const currentNode = pathNodes[closestNodeIndex];
-                    let nextNodeIndex = -1;
+                // Add all immediately connected nodes
+                for (const connectedIndex of currentNode.connections) {
+                    nodesToCheck.add(connectedIndex);
                     
-                    // Determine primary direction of drag
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        // Horizontal drag
-                        if (deltaX > 0) {
-                            // Find node to the right
-                            nextNodeIndex = currentNode.connections.find(index => 
-                                pathNodes[index].x > currentNode.x && 
-                                pathNodes[index].y === currentNode.y
-                            );
-                        } else {
-                            // Find node to the left
-                            nextNodeIndex = currentNode.connections.find(index => 
-                                pathNodes[index].x < currentNode.x && 
-                                pathNodes[index].y === currentNode.y
-                            );
-                        }
-                    } else {
-                        // Vertical drag
-                        if (deltaY > 0) {
-                            // Find node below
-                            nextNodeIndex = currentNode.connections.find(index => 
-                                pathNodes[index].y > currentNode.y && 
-                                pathNodes[index].x === currentNode.x
-                            );
-                        } else {
-                            // Find node above
-                            nextNodeIndex = currentNode.connections.find(index => 
-                                pathNodes[index].y < currentNode.y && 
-                                pathNodes[index].x === currentNode.x
-                            );
-                        }
+                    // Also check nodes connected to those (for smoother diagonal movement)
+                    const connectedNode = pathNodes[connectedIndex];
+                    for (const secondLevelIndex of connectedNode.connections) {
+                        nodesToCheck.add(secondLevelIndex);
                     }
+                }
+                
+                // Find closest node from the candidates
+                for (const nodeIndex of nodesToCheck) {
+                    const node = pathNodes[nodeIndex];
+                    const dx = node.x - currentX;
+                    const dy = node.y - currentY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    // If valid connection found, move to the next node
-                    if (nextNodeIndex !== undefined && nextNodeIndex !== -1) {
-                        moveToNode(nextNodeIndex);
-                        
-                        // Reset anchor to the player's new position (node center)
-                        startX = pathNodes[nextNodeIndex].x;
-                        startY = pathNodes[nextNodeIndex].y;
+                    // Prefer nodes we haven't visited in this drag to prevent jumping back
+                    const visitedPenalty = dragPath.includes(nodeIndex) ? cellSize * 0.5 : 0;
+                    const adjustedDistance = distance + visitedPenalty;
+                    
+                    if (adjustedDistance < minDistance && nodeIndex !== lastVisitedNode) {
+                        minDistance = adjustedDistance;
+                        bestNodeIndex = nodeIndex;
+                    }
+                }
+                
+                // If we found a good node and it's close enough, move there
+                if (bestNodeIndex !== -1 && minDistance < cellSize * 0.7) {
+                    // Check if there's a valid path from current position to target
+                    const path = findPath(closestNodeIndex, bestNodeIndex);
+                    
+                    if (path.length > 0) {
+                        // Move along the path
+                        for (let i = 1; i < path.length; i++) {
+                            const nodeIndex = path[i];
+                            if (!dragPath.includes(nodeIndex)) {
+                                dragPath.push(nodeIndex);
+                            }
+                            moveToNode(nodeIndex);
+                            lastVisitedNode = nodeIndex;
+                        }
                     }
                 }
             }
             
             function endDrag() {
                 isDragging = false;
-                player.style.boxShadow = '0 0 15px rgba(111, 211, 245, 0.6)';
+                player.style.boxShadow = '0 0 20px rgba(111, 211, 245, 0.8)';
+                dragPath = [];
+                lastVisitedNode = closestNodeIndex;
+            }
+            
+            // Simple pathfinding to ensure smooth movement
+            function findPath(startIndex, targetIndex) {
+                if (startIndex === targetIndex) return [startIndex];
+                
+                const visited = new Set();
+                const queue = [[startIndex]];
+                
+                while (queue.length > 0) {
+                    const path = queue.shift();
+                    const currentIndex = path[path.length - 1];
+                    
+                    if (currentIndex === targetIndex) {
+                        return path;
+                    }
+                    
+                    if (!visited.has(currentIndex)) {
+                        visited.add(currentIndex);
+                        
+                        const currentNode = pathNodes[currentIndex];
+                        for (const connectedIndex of currentNode.connections) {
+                            if (!visited.has(connectedIndex)) {
+                                queue.push([...path, connectedIndex]);
+                            }
+                        }
+                    }
+                }
+                
+                return []; // No path found
             }
             
             // Store references to event handlers

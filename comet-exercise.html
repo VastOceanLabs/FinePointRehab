@@ -189,8 +189,10 @@
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
-            width: 80%;
-            max-width: 400px;
+            width: 85%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
@@ -198,9 +200,33 @@
             text-align: center;
             color: white;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-description {
+            background-color: rgba(111, 211, 245, 0.1);
+            border-left: 4px solid rgba(111, 211, 245, 0.8);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+        
+        .game-description h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: rgba(111, 211, 245, 1);
+            font-size: 18px;
+        }
+        
+        .setting-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         
         #home-button {
@@ -235,7 +261,7 @@
         
         .settings-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
             color: white;
             font-size: 16px;
@@ -408,6 +434,16 @@
             .stat-label {
                 font-size: 12px;
             }
+            
+            #settings-panel {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .game-description {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
@@ -419,37 +455,48 @@
         <button id="home-button">Home</button>
         
         <div id="settings-panel">
-            <h2>Therapy Settings</h2>
+            <h2>Comet Tap Exercise</h2>
+            
+            <div class="game-description">
+                <h3>How to Play</h3>
+                <p>Glowing comets will streak across the screen from different directions. Your goal is to tap or click on each comet before it disappears off the edge of the screen. This exercise helps improve hand-eye coordination, reaction time, and fine motor control.</p>
+                <p><strong>Tip:</strong> Faster reactions and smaller targets earn higher scores!</p>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <div class="setting-description">How long you want to practice. Start with shorter sessions (0.5-2 minutes) and gradually increase as you improve.</div>
                 <input type="number" id="session-duration" min="0.5" max="10" value="2" step="0.5">
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Comet Size:</label>
+                <div class="setting-description">Larger comets are easier to tap but give fewer points. Smaller comets are more challenging and give bonus points.</div>
                 <select id="comet-size">
-                    <option value="small">Small</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="large">Large</option>
+                    <option value="large">Large (Easier)</option>
+                    <option value="medium" selected>Medium (Balanced)</option>
+                    <option value="small">Small (Challenging)</option>
                 </select>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Comet Speed:</label>
+                <div class="setting-description">How fast the comets move across the screen. Start with slow speed and increase as your coordination improves.</div>
                 <select id="comet-speed">
-                    <option value="slow">Slow</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="fast">Fast</option>
+                    <option value="slow">Slow (Beginner)</option>
+                    <option value="medium" selected>Medium (Intermediate)</option>
+                    <option value="fast">Fast (Advanced)</option>
                 </select>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Spawn Rate:</label>
+                <div class="setting-description">How frequently new comets appear. Slower rates give you more time between targets, while faster rates provide more intense practice.</div>
                 <select id="spawn-rate">
-                    <option value="very-fast">Very Fast (0.5s)</option>
-                    <option value="fast" selected>Fast (1s)</option>
-                    <option value="medium">Medium (1.5s)</option>
-                    <option value="slow">Slow (2s)</option>
+                    <option value="slow">Slow (2 seconds apart)</option>
+                    <option value="medium">Medium (1.5 seconds apart)</option>
+                    <option value="fast" selected>Fast (1 second apart)</option>
+                    <option value="very-fast">Very Fast (0.5 seconds apart)</option>
                 </select>
             </div>
             
@@ -953,144 +1000,6 @@
             }
             lastTouchEnd = now;
         }, false);
-    </script>
-</body>
-</html>
-        }
-        
-        // Handle comet hit
-        function hitComet(comet) {
-            if (!isSessionActive) return;
-            
-            // Calculate response time
-            const spawnTime = parseInt(comet.dataset.spawnTime);
-            const responseTime = Date.now() - spawnTime;
-            totalResponseTime += responseTime;
-            
-            // Calculate score based on response time and size
-            const sizeMultiplier = cometSizeSelect.value === 'small' ? 1.5 : 
-                                  cometSizeSelect.value === 'large' ? 0.8 : 1;
-            const baseScore = Math.max(50, Math.floor(3000 / responseTime * 100));
-            const points = Math.floor(baseScore * sizeMultiplier);
-            
-            score += points;
-            taps++;
-            
-            updateStats();
-            
-            // Create burst effect
-            createBurst(comet);
-            
-            // Remove comet
-            const index = comets.indexOf(comet);
-            if (index > -1) {
-                comets.splice(index, 1);
-            }
-            if (comet.parentNode) {
-                comet.parentNode.removeChild(comet);
-            }
-        }
-        
-        // Create burst effect when comet is hit
-        function createBurst(comet) {
-            const rect = comet.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            // Create success burst
-            const burst = document.createElement('div');
-            burst.className = 'success-burst';
-            burst.style.left = `${centerX}px`;
-            burst.style.top = `${centerY}px`;
-            gameContainer.appendChild(burst);
-            
-            // Create particles
-            for (let i = 0; i < 8; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const size = Math.random() * 8 + 4;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 50 + 30;
-                particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
-                particle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
-                
-                particle.style.left = `${centerX}px`;
-                particle.style.top = `${centerY}px`;
-                particle.style.backgroundColor = `rgba(111, 211, 245, ${Math.random() * 0.5 + 0.5})`;
-                
-                gameContainer.appendChild(particle);
-                
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
-                    }
-                }, 800);
-            }
-            
-            setTimeout(() => {
-                if (burst.parentNode) {
-                    burst.parentNode.removeChild(burst);
-                }
-            }, 800);
-        }
-        
-        // Update comets position in animation loop
-        function updateComets() {
-            if (!isSessionActive) return;
-            
-            comets.forEach((comet, index) => {
-                const velX = parseFloat(comet.dataset.velX);
-                const velY = parseFloat(comet.dataset.velY);
-                const angle = parseFloat(comet.dataset.angle);
-                
-                let x = parseFloat(comet.style.left);
-                let y = parseFloat(comet.style.top);
-                
-                x += velX;
-                y += velY;
-                
-                comet.style.left = `${x}px`;
-                comet.style.top = `${y}px`;
-                
-                // Maintain rotation for consistent tail direction
-                comet.style.transform = `rotate(${angle}deg)`;
-                
-                // Remove comet if it's off screen
-                const size = parseFloat(comet.style.width);
-                if (x < -size * 3 || x > window.innerWidth + size * 3 || 
-                    y < -size * 3 || y > window.innerHeight + size * 3) {
-                    if (comet.parentNode) {
-                        gameContainer.removeChild(comet);
-                    }
-                    comets.splice(index, 1);
-                    misses++;
-                    updateStats();
-                }
-            });
-            
-            if (isSessionActive) {
-                requestAnimationFrame(updateComets);
-            }
-        }
-        
-        // Prevent zooming on double tap
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-        
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
     </script>
 </body>
 </html>

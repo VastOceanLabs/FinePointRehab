@@ -157,8 +157,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         #settings-panel h2 {
@@ -168,6 +170,34 @@
             margin-bottom: 25px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-explanation {
+            background: rgba(111, 211, 245, 0.1);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .game-explanation h3 {
+            color: rgba(111, 211, 245, 1);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .game-explanation p {
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        
+        .game-explanation .benefits {
+            color: rgba(46, 204, 113, 0.9);
+            font-weight: bold;
+            margin-top: 15px;
         }
         
         #home-button {
@@ -206,6 +236,13 @@
             font-weight: bold;
             color: white;
             font-size: 16px;
+        }
+        
+        .setting-description {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            line-height: 1.3;
         }
         
         select, input {
@@ -356,6 +393,14 @@
             #instructions {
                 top: 55px;
             }
+            
+            .game-explanation {
+                padding: 15px;
+            }
+            
+            .game-explanation p {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -376,9 +421,19 @@
         <button id="home-button">Home</button>
         
         <div id="settings-panel">
-            <h2>Mirror Match Settings</h2>
+            <h2>Mirror Match Exercise</h2>
+            
+            <div class="game-explanation">
+                <h3>How It Works</h3>
+                <p>Mirror Match is a bilateral coordination exercise that helps improve communication between both sides of your brain and enhances motor control in both hands.</p>
+                <p>You'll see circles appear on both the left and right sides of the screen. Your goal is to touch the matching circles using both hands - left hand for left side, right hand for right side.</p>
+                <p>The exercise tracks patterns that help you develop symmetrical movements and cross-body coordination.</p>
+                <p class="benefits">Benefits: Improves bilateral coordination, enhances motor planning, and strengthens neural pathways between brain hemispheres.</p>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Difficulty:</label>
+                <div class="setting-description">Controls pattern complexity and timing requirements</div>
                 <select id="difficulty">
                     <option value="easy">Easy (Simple Patterns)</option>
                     <option value="medium" selected>Medium</option>
@@ -388,6 +443,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Target Size:</label>
+                <div class="setting-description">Adjusts circle size for your precision level</div>
                 <select id="target-size">
                     <option value="large">Large (Easier to Touch)</option>
                     <option value="medium" selected>Medium</option>
@@ -397,6 +453,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Mode:</label>
+                <div class="setting-description">How you need to touch the circles</div>
                 <select id="mirror-mode">
                     <option value="simultaneous" selected>Simultaneous (Both Hands Together)</option>
                     <option value="sequential">Sequential (One After Another)</option>
@@ -405,6 +462,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <div class="setting-description">How long your therapy session will last</div>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
             </div>
             

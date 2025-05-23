@@ -127,17 +127,43 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 85vh;
+            overflow-y: auto;
         }
         
         #settings-panel h2 {
             text-align: center;
             color: white;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-description {
+            background-color: rgba(111, 211, 245, 0.1);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .game-description h3 {
+            color: rgba(111, 211, 245, 1);
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+        
+        .game-description p {
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .game-description p:last-child {
+            margin-bottom: 0;
         }
         
         #home-button {
@@ -172,10 +198,18 @@
         
         .settings-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
             color: white;
             font-size: 16px;
+        }
+        
+        .settings-description {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.4;
         }
         
         select, input {
@@ -336,6 +370,16 @@
                 width: 50px;
                 height: 50px;
             }
+            
+            #settings-panel {
+                width: 90%;
+                max-width: none;
+                padding: 20px;
+            }
+            
+            .game-description {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -354,9 +398,18 @@
         <button id="home-button">Home</button>
         
         <div id="settings-panel">
-            <h2>Visual Scanner Settings</h2>
+            <h2>Visual Scanner Exercise</h2>
+            
+            <div class="game-description">
+                <h3>How It Works</h3>
+                <p>This exercise helps improve your visual scanning and attention skills. Multiple objects will appear on screen, and you need to find and click the specific target object shown at the top.</p>
+                <p>Each time you find the correct object, a new target will appear. Try to find objects as quickly and accurately as possible!</p>
+                <p>This exercise is helpful for improving visual field awareness, attention, and search skills after stroke or brain injury.</p>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Difficulty:</label>
+                <span class="settings-description">Choose how many objects appear on screen. More objects make it harder to find the target.</span>
                 <select id="difficulty">
                     <option value="easy">Easy (Fewer Objects)</option>
                     <option value="medium" selected>Medium</option>
@@ -366,6 +419,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Focus Area:</label>
+                <span class="settings-description">Practice scanning specific areas of your vision. Useful for working on visual field deficits.</span>
                 <select id="focus-area">
                     <option value="none">None (Full Field)</option>
                     <option value="left">Left Visual Field</option>
@@ -377,6 +431,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Object Type:</label>
+                <span class="settings-description">Choose what type of objects to search for during the exercise.</span>
                 <select id="object-type">
                     <option value="shapes" selected>Shapes</option>
                     <option value="letters">Letters</option>
@@ -387,6 +442,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <span class="settings-description">How long you want to practice. Start with shorter sessions and work your way up.</span>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
             </div>
             

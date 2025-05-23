@@ -10,6 +10,10 @@
     <meta name="keywords" content="trace therapy, stroke rehabilitation, fine motor skills, hand-eye coordination, occupational therapy games, physical therapy exercises, brain injury recovery, neurological rehabilitation, Fine Point Rehab">
     
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             margin: 0;
             padding: 0;
@@ -21,12 +25,14 @@
             background: #121d33;
             color: white;
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile */
         }
         
         #game-container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -36,7 +42,20 @@
         
         #canvas-wrapper {
             position: relative;
-            margin: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+            padding: 10px;
+            max-height: calc(100vh - 120px); /* Account for stats panel */
+            max-height: calc(100dvh - 120px);
+        }
+        
+        .canvas-container {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
         }
         
         #traceCanvas {
@@ -47,58 +66,88 @@
             cursor: crosshair;
             touch-action: none;
             transition: transform 0.5s ease-out;
+            max-width: 100%;
+            max-height: 100%;
         }
         
-        #guideLayer {
+        #guideLayer, #completionLayer {
             position: absolute;
             top: 0;
             left: 0;
             pointer-events: none;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        #guideLayer {
             z-index: 10;
         }
         
         #completionLayer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
             z-index: 20;
         }
         
         #settings-panel {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
-            width: 80%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 450px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            max-height: 90dvh;
+            overflow-y: auto;
         }
         
         #settings-panel h2 {
             text-align: center;
             color: white;
             margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 24px;
+            margin-bottom: 15px;
+            font-size: clamp(20px, 5vw, 24px);
             letter-spacing: 0.5px;
         }
         
-        .settings-group {
+        .game-description {
+            background-color: rgba(111, 211, 245, 0.1);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: 10px;
+            padding: 15px;
             margin-bottom: 20px;
+            font-size: clamp(14px, 3.5vw, 16px);
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .game-description h3 {
+            margin: 0 0 10px 0;
+            color: rgba(111, 211, 245, 1);
+            font-size: clamp(16px, 4vw, 18px);
+        }
+        
+        .settings-group {
+            margin-bottom: 18px;
         }
         
         .settings-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
             color: white;
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
+        }
+        
+        .setting-description {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            line-height: 1.3;
         }
         
         select, input {
@@ -106,7 +155,7 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
             background-color: rgba(0, 10, 30, 0.8);
             color: white;
         }
@@ -123,13 +172,14 @@
             border: none;
             border-radius: 10px;
             padding: 12px 15px;
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
             font-weight: bold;
             cursor: pointer;
             margin-top: 15px;
             width: 100%;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            min-height: 44px; /* Minimum touch target size */
         }
         
         button:hover {
@@ -147,7 +197,7 @@
             border-radius: 50%;
             width: 60px;
             height: 60px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             z-index: 90;
@@ -156,6 +206,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 44px;
+            min-width: 44px;
         }
         
         #home-button:hover {
@@ -164,34 +216,41 @@
         }
         
         #stats-panel {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: rgba(8, 15, 35, 0.8);
-            padding: 15px;
-            display: flex;
-            justify-content: space-around;
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .stat-box {
             text-align: center;
+            padding: 5px;
         }
         
         .stat-value {
-            font-size: 24px;
+            font-size: clamp(18px, 4vw, 24px);
             font-weight: bold;
             color: rgba(111, 211, 245, 1);
+            line-height: 1;
         }
         
         .stat-label {
-            font-size: 14px;
+            font-size: clamp(10px, 2.5vw, 14px);
             color: rgba(255, 255, 255, 0.8);
+            line-height: 1.2;
+            margin-top: 2px;
         }
         
         #timer-bar {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             height: 8px;
@@ -205,16 +264,17 @@
         }
         
         #completion-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             text-align: center;
-            max-width: 80%;
+            width: 90%;
+            max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 101;
         }
@@ -277,31 +337,33 @@
         }
         
         #instructions {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             color: white;
             text-align: center;
             background-color: rgba(8, 15, 35, 0.9);
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 10px;
             z-index: 10;
+            max-width: 90%;
         }
         
         #coverage-progress {
             position: absolute;
-            top: -40px;
+            top: -50px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(8, 15, 35, 0.9);
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 18px;
+            font-size: clamp(16px, 4vw, 18px);
             color: rgba(111, 211, 245, 1);
             font-weight: bold;
             border: 1px solid rgba(111, 211, 245, 0.5);
+            white-space: nowrap;
         }
         
         .completion-text {
@@ -309,7 +371,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            font-size: 48px;
+            font-size: clamp(32px, 8vw, 48px);
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
@@ -351,6 +413,93 @@
             border-radius: 50%;
             opacity: 0.4;
         }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            #canvas-wrapper {
+                padding: 5px;
+                max-height: calc(100vh - 100px);
+                max-height: calc(100dvh - 100px);
+            }
+            
+            #settings-panel {
+                padding: 15px;
+                width: 95%;
+            }
+            
+            #home-button {
+                bottom: 80px; /* Move above stats panel on mobile */
+                right: 10px;
+                width: 50px;
+                height: 50px;
+                font-size: 10px;
+            }
+            
+            #stats-panel {
+                padding: 8px;
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .stat-box {
+                padding: 3px;
+            }
+        }
+        
+        /* Landscape mobile adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #canvas-wrapper {
+                padding: 2px;
+                max-height: calc(100vh - 80px);
+                max-height: calc(100dvh - 80px);
+            }
+            
+            #instructions {
+                top: 10px;
+                font-size: 14px;
+                padding: 4px 8px;
+            }
+            
+            #coverage-progress {
+                top: -40px;
+                font-size: 14px;
+                padding: 4px 8px;
+            }
+            
+            #stats-panel {
+                padding: 5px;
+            }
+            
+            .stat-value {
+                font-size: 16px;
+            }
+            
+            .stat-label {
+                font-size: 10px;
+            }
+            
+            #home-button {
+                bottom: 60px;
+                width: 40px;
+                height: 40px;
+                font-size: 9px;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 320px) {
+            #settings-panel {
+                padding: 10px;
+                width: 98%;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            button {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -363,50 +512,62 @@
         </div>
         
         <div id="canvas-wrapper">
-            <div id="coverage-progress" class="hidden">0%</div>
-            <canvas id="traceCanvas" width="500" height="500"></canvas>
-            <canvas id="guideLayer" width="500" height="500"></canvas>
-            <canvas id="completionLayer" width="500" height="500"></canvas>
+            <div class="canvas-container">
+                <div id="coverage-progress" class="hidden">0%</div>
+                <canvas id="traceCanvas"></canvas>
+                <canvas id="guideLayer"></canvas>
+                <canvas id="completionLayer"></canvas>
+            </div>
         </div>
         
         <button id="home-button">Home</button>
         
         <div id="settings-panel">
-            <h2>Trace & Reveal Settings</h2>
+            <h2>Trace & Reveal Exercise</h2>
+            
+            <div class="game-description">
+                <h3>How to Play</h3>
+                <p>Follow the dotted line with your finger or cursor to gradually reveal a hidden colorful image. When you cover enough of the line, the complete image will appear with a celebration! This exercise helps improve hand-eye coordination, fine motor control, and concentration.</p>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Brush Size:</label>
+                <div class="setting-description">Choose how wide your painting brush is. Larger brushes make it easier to cover the line.</div>
                 <select id="brush-size">
-                    <option value="20">Small</option>
-                    <option value="35" selected>Medium</option>
-                    <option value="50">Large</option>
-                    <option value="65">Very Large</option>
+                    <option value="20">Small - Precise control</option>
+                    <option value="35" selected>Medium - Balanced</option>
+                    <option value="50">Large - Easier coverage</option>
+                    <option value="65">Very Large - Maximum ease</option>
                 </select>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <div class="setting-description">How long your practice session will last. You can complete multiple shapes during this time.</div>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Difficulty Level:</label>
+                <div class="setting-description">Choose the complexity of shapes you'll trace, from simple circles to detailed structures.</div>
                 <select id="difficulty-level">
-                    <option value="easy">Easy - Basic Shapes</option>
-                    <option value="medium" selected>Medium - Complex Shapes</option>
-                    <option value="hard">Hard - Structures</option>
+                    <option value="easy">Easy - Basic shapes (circles, squares)</option>
+                    <option value="medium" selected>Medium - Complex shapes (stars, letters)</option>
+                    <option value="hard">Hard - Detailed structures (houses, cars)</option>
                 </select>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Coverage Required:</label>
+                <div class="setting-description">How much of the dotted line you need to trace before the image is revealed.</div>
                 <select id="coverage-required">
-                    <option value="75">Easy (75%)</option>
-                    <option value="85" selected>Medium (85%)</option>
-                    <option value="95">Hard (95%)</option>
+                    <option value="75">Easy (75%) - Most forgiving</option>
+                    <option value="85" selected>Medium (85%) - Balanced challenge</option>
+                    <option value="95">Hard (95%) - Precise tracing needed</option>
                 </select>
             </div>
             
-            <button id="start-session">Start Session</button>
+            <button id="start-session">Start Tracing Session</button>
         </div>
         
         <div id="stats-panel" class="hidden">
@@ -440,7 +601,7 @@
     </div>
     
     <script>
-        // Canvas setup
+        // Canvas setup with responsive sizing
         const canvas = document.getElementById('traceCanvas');
         const ctx = canvas.getContext('2d');
         const guideCanvas = document.getElementById('guideLayer');
@@ -457,6 +618,62 @@
         const coverageProgress = document.getElementById('coverage-progress');
         const homeButton = document.getElementById('home-button');
         const starsContainer = document.getElementById('stars-container');
+        const canvasContainer = document.querySelector('.canvas-container');
+        
+        // Responsive canvas sizing
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-wrapper');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Calculate available space
+            const maxWidth = containerRect.width - 20; // Account for padding
+            const maxHeight = containerRect.height - 60; // Account for coverage progress
+            
+            // Use the smaller dimension to maintain square aspect ratio
+            const size = Math.min(maxWidth, maxHeight, 500); // Cap at 500px max
+            
+            // Set canvas size
+            canvas.width = size;
+            canvas.height = size;
+            guideCanvas.width = size;
+            guideCanvas.height = size;
+            completionCanvas.width = size;
+            completionCanvas.height = size;
+            
+            // Update canvas styles
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            guideCanvas.style.width = size + 'px';
+            guideCanvas.style.height = size + 'px';
+            completionCanvas.style.width = size + 'px';
+            completionCanvas.style.height = size + 'px';
+            
+            return size;
+        }
+        
+        // Initialize canvas size
+        let canvasSize = resizeCanvas();
+        
+        // Handle window resize and orientation changes
+        window.addEventListener('resize', () => {
+            setTimeout(() => {
+                canvasSize = resizeCanvas();
+                if (isSessionActive && !isCompleting) {
+                    // Regenerate current shape with new canvas size
+                    loadNewShape();
+                }
+            }, 100);
+        });
+        
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                canvasSize = resizeCanvas();
+                if (isSessionActive && !isCompleting) {
+                    // Regenerate current shape with new canvas size
+                    loadNewShape();
+                }
+            }, 300);
+        });
         
         // Create stars for background effect
         const starsCount = 50;
@@ -511,15 +728,19 @@
         
         // Hidden image canvas
         const hiddenImage = document.createElement('canvas');
-        hiddenImage.width = canvas.width;
-        hiddenImage.height = canvas.height;
         const hiddenCtx = hiddenImage.getContext('2d');
         
         // Mask canvas for reveal effect
         const maskCanvas = document.createElement('canvas');
-        maskCanvas.width = canvas.width;
-        maskCanvas.height = canvas.height;
         const maskCtx = maskCanvas.getContext('2d');
+        
+        // Update hidden and mask canvas sizes
+        function updateCanvasSizes() {
+            hiddenImage.width = canvas.width;
+            hiddenImage.height = canvas.height;
+            maskCanvas.width = canvas.width;
+            maskCanvas.height = canvas.height;
+        }
         
         // Shape images for completion
         const shapeImages = {
@@ -536,6 +757,8 @@
             heart: '❤️',
             letterS: '🇸',
             letterZ: '🇿',
+            letterL: '🇱',
+            letterT: '🇹',
             rhombus: '◇',
             octagon: '🛑',
             parallelogram: '▱',
@@ -549,7 +772,7 @@
             phone: '📱'
         };
         
-        // Shape generators by difficulty level
+        // Shape generators by difficulty level (updated to use dynamic canvas size)
         const shapeGenerators = {
             easy: {
                 circle: () => {
@@ -735,24 +958,28 @@
                 },
                 
                 letterS: () => {
+                    const size = Math.min(canvas.width, canvas.height) * 0.5;
                     const centerX = canvas.width / 2;
                     const centerY = canvas.height / 2;
-                    const size = Math.min(canvas.width, canvas.height) * 0.6;
-                    const points = [];
+                    const width = size * 0.6;
+                    const height = size;
+                    const thickness = size * 0.15;
                     
-                    // Create S shape
-                    const numPoints = 50;
-                    for (let i = 0; i <= numPoints; i++) {
-                        const t = i / numPoints;
-                        const angle = Math.PI * (1.5 - 2 * t);
-                        const radius = size * (0.3 + 0.1 * Math.sin(t * Math.PI));
-                        
-                        const x = centerX + radius * Math.cos(angle);
-                        const y = centerY + (t - 0.5) * size * 0.8 - radius * Math.sin(angle) * 0.5;
-                        
-                        points.push({ x, y });
-                    }
-                    return points;
+                    return [
+                        // Top horizontal part
+                        { x: centerX + width / 2, y: centerY - height / 2 },
+                        { x: centerX - width / 4, y: centerY - height / 2 },
+                        { x: centerX - width / 2, y: centerY - height / 2 + thickness },
+                        { x: centerX - width / 2, y: centerY - thickness / 2 },
+                        // Middle horizontal part
+                        { x: centerX + width / 2, y: centerY - thickness / 2 },
+                        { x: centerX + width / 2, y: centerY + thickness / 2 },
+                        { x: centerX - width / 4, y: centerY + thickness / 2 },
+                        // Bottom horizontal part
+                        { x: centerX + width / 2, y: centerY + height / 2 - thickness },
+                        { x: centerX + width / 2, y: centerY + height / 2 },
+                        { x: centerX - width / 2, y: centerY + height / 2 }
+                    ];
                 },
                 
                 letterZ: () => {
@@ -763,10 +990,47 @@
                     const height = size * 0.8;
                     
                     return [
+                        // Top line (left to right)
                         { x: centerX - width / 2, y: centerY - height / 2 },
                         { x: centerX + width / 2, y: centerY - height / 2 },
+                        // Diagonal line (top-right to bottom-left)
                         { x: centerX - width / 2, y: centerY + height / 2 },
+                        // Bottom line (left to right)
                         { x: centerX + width / 2, y: centerY + height / 2 }
+                    ];
+                },
+                
+                letterL: () => {
+                    const size = Math.min(canvas.width, canvas.height) * 0.6;
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const width = size * 0.7;
+                    const height = size;
+                    
+                    return [
+                        // Vertical line
+                        { x: centerX - width / 2, y: centerY - height / 2 },
+                        { x: centerX - width / 2, y: centerY + height / 2 },
+                        // Horizontal line
+                        { x: centerX + width / 2, y: centerY + height / 2 }
+                    ];
+                },
+                
+                letterT: () => {
+                    const size = Math.min(canvas.width, canvas.height) * 0.6;
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const width = size;
+                    const height = size * 0.8;
+                    
+                    return [
+                        // Top horizontal line
+                        { x: centerX - width / 2, y: centerY - height / 2 },
+                        { x: centerX + width / 2, y: centerY - height / 2 },
+                        // Back to center top
+                        { x: centerX, y: centerY - height / 2 },
+                        // Vertical line down
+                        { x: centerX, y: centerY + height / 2 }
                     ];
                 },
                                  
@@ -945,44 +1209,65 @@
                 flower: () => {
                     const centerX = canvas.width / 2;
                     const centerY = canvas.height / 2;
-                    const size = Math.min(canvas.width, canvas.height) * 0.3;
+                    const size = Math.min(canvas.width, canvas.height) * 0.25;
                     const points = [];
                     
-                    // Create flower with petals
+                    // Create simple 6-petal flower
                     for (let i = 0; i < 6; i++) {
                         const angle = (i / 6) * Math.PI * 2;
-                        const petalAngle = Math.PI / 6;
                         
-                        // Petal edge
-                        for (let j = -petalAngle; j <= petalAngle; j += petalAngle / 10) {
-                            const r = size * (0.8 + 0.2 * Math.cos(j * 3));
-                            const x = centerX + r * Math.cos(angle + j);
-                            const y = centerY + r * Math.sin(angle + j);
-                            points.push({ x, y });
-                        }
+                        // Petal tip
+                        const tipX = centerX + Math.cos(angle) * size;
+                        const tipY = centerY + Math.sin(angle) * size;
                         
-                        // Back to center
+                        // Go from center to tip
                         points.push({ x: centerX, y: centerY });
+                        points.push({ x: tipX, y: tipY });
+                        
+                        // Curve around petal (simplified)
+                        const nextAngle = ((i + 1) / 6) * Math.PI * 2;
+                        const midAngle = angle + (nextAngle - angle) / 2;
+                        const midX = centerX + Math.cos(midAngle) * size * 0.7;
+                        const midY = centerY + Math.sin(midAngle) * size * 0.7;
+                        points.push({ x: midX, y: midY });
                     }
                     
+                    // Close by returning to center
+                    points.push({ x: centerX, y: centerY });
                     return points;
                 },
                 
                 sun: () => {
                     const centerX = canvas.width / 2;
                     const centerY = canvas.height / 2;
-                    const size = Math.min(canvas.width, canvas.height) * 0.3;
+                    const innerRadius = Math.min(canvas.width, canvas.height) * 0.15;
+                    const outerRadius = Math.min(canvas.width, canvas.height) * 0.3;
                     const points = [];
                     
-                    // Create sun with rays
-                    for (let i = 0; i < 16; i++) {
-                        const angle = (i / 16) * Math.PI * 2;
-                        const radius = i % 2 === 0 ? size : size * 0.6;
-                        points.push({
-                            x: centerX + Math.cos(angle) * radius,
-                            y: centerY + Math.sin(angle) * radius
-                        });
+                    // Create sun with 8 simple rays
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (i / 8) * Math.PI * 2;
+                        
+                        // Inner circle point
+                        const innerX = centerX + Math.cos(angle) * innerRadius;
+                        const innerY = centerY + Math.sin(angle) * innerRadius;
+                        
+                        // Outer ray point
+                        const outerX = centerX + Math.cos(angle) * outerRadius;
+                        const outerY = centerY + Math.sin(angle) * outerRadius;
+                        
+                        // Add points for ray
+                        points.push({ x: innerX, y: innerY });
+                        points.push({ x: outerX, y: outerY });
+                        
+                        // Add intermediate point for next inner circle
+                        const nextAngle = ((i + 1) / 8) * Math.PI * 2;
+                        const nextInnerX = centerX + Math.cos(nextAngle) * innerRadius;
+                        const nextInnerY = centerY + Math.sin(nextAngle) * innerRadius;
+                        points.push({ x: nextInnerX, y: nextInnerY });
                     }
+                    
+                    // Close the shape
                     points.push(points[0]);
                     return points;
                 },
@@ -1057,7 +1342,7 @@
             }
         });
         
-        // Drawing events
+        // Drawing events with improved touch handling
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
@@ -1065,13 +1350,20 @@
         
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            startDrawing(e.touches[0]);
-        });
+            const touch = e.touches[0];
+            startDrawing(touch);
+        }, { passive: false });
+        
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            draw(e.touches[0]);
-        });
-        canvas.addEventListener('touchend', stopDrawing);
+            const touch = e.touches[0];
+            draw(touch);
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopDrawing();
+        }, { passive: false });
         
         function startSession() {
             // Get settings
@@ -1101,6 +1393,9 @@
         
         function loadNewShape() {
             if (isCompleting) return;
+            
+            // Update canvas sizes
+            updateCanvasSizes();
             
             // Clear canvases
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1168,13 +1463,60 @@
             gradient.addColorStop(0, `hsl(${hue}, 70%, 60%)`);
             gradient.addColorStop(1, `hsl(${hue + 30}, 80%, 40%)`);
             
-            hiddenCtx.fillStyle = gradient;
+            // Determine if this shape should be stroked or filled
+            const strokeShapes = ['letterS', 'letterZ', 'letterL', 'letterT', 'cross'];
+            const shouldStroke = strokeShapes.includes(currentShapeType);
+            
             hiddenCtx.beginPath();
             hiddenCtx.moveTo(pathPoints[0].x, pathPoints[0].y);
-            for (let i = 1; i < pathPoints.length; i++) {
-                hiddenCtx.lineTo(pathPoints[i].x, pathPoints[i].y);
+            
+            if (shouldStroke) {
+                // For letters and line-based shapes, draw as strokes
+                hiddenCtx.strokeStyle = gradient;
+                hiddenCtx.lineWidth = Math.min(canvas.width, canvas.height) * 0.08; // Thick stroke
+                hiddenCtx.lineCap = 'round';
+                hiddenCtx.lineJoin = 'round';
+                
+                // Draw each line segment for letters
+                if (currentShapeType === 'letterZ') {
+                    // Top line
+                    hiddenCtx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                    hiddenCtx.lineTo(pathPoints[1].x, pathPoints[1].y);
+                    // Diagonal line  
+                    hiddenCtx.moveTo(pathPoints[1].x, pathPoints[1].y);
+                    hiddenCtx.lineTo(pathPoints[2].x, pathPoints[2].y);
+                    // Bottom line
+                    hiddenCtx.moveTo(pathPoints[2].x, pathPoints[2].y);
+                    hiddenCtx.lineTo(pathPoints[3].x, pathPoints[3].y);
+                } else if (currentShapeType === 'letterL') {
+                    // Vertical line
+                    hiddenCtx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                    hiddenCtx.lineTo(pathPoints[1].x, pathPoints[1].y);
+                    // Horizontal line
+                    hiddenCtx.lineTo(pathPoints[2].x, pathPoints[2].y);
+                } else if (currentShapeType === 'letterT') {
+                    // Top horizontal line
+                    hiddenCtx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                    hiddenCtx.lineTo(pathPoints[1].x, pathPoints[1].y);
+                    // Vertical line
+                    hiddenCtx.moveTo(pathPoints[2].x, pathPoints[2].y);
+                    hiddenCtx.lineTo(pathPoints[3].x, pathPoints[3].y);
+                } else {
+                    // For other stroke shapes, connect all points
+                    for (let i = 1; i < pathPoints.length; i++) {
+                        hiddenCtx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                    }
+                }
+                
+                hiddenCtx.stroke();
+            } else {
+                // For geometric shapes, fill as usual
+                hiddenCtx.fillStyle = gradient;
+                for (let i = 1; i < pathPoints.length; i++) {
+                    hiddenCtx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+                hiddenCtx.fill();
             }
-            hiddenCtx.fill();
         }
         
         function drawGuidePath() {
@@ -1295,12 +1637,12 @@
             updateCanvas();
             
             // Expand canvas
-            canvas.style.transform = 'scale(1.2)';
+            canvas.style.transform = 'scale(1.1)';
             
             // Draw completion image
             setTimeout(() => {
                 completionCtx.clearRect(0, 0, completionCanvas.width, completionCanvas.height);
-                completionCtx.font = '200px Arial';
+                completionCtx.font = `${Math.min(canvas.width, canvas.height) * 0.4}px Arial`;
                 completionCtx.textAlign = 'center';
                 completionCtx.textBaseline = 'middle';
                 completionCtx.fillText(shapeImages[currentShapeType], canvas.width / 2, canvas.height / 2);
@@ -1312,7 +1654,7 @@
                 const perfectText = document.createElement('div');
                 perfectText.className = 'completion-text';
                 perfectText.textContent = 'Perfect!';
-                document.getElementById('canvas-wrapper').appendChild(perfectText);
+                canvasContainer.appendChild(perfectText);
                 
                 setTimeout(() => {
                     perfectText.remove();
@@ -1325,6 +1667,7 @@
         function createCelebration() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
+            const canvasRect = canvas.getBoundingClientRect();
             
             // Create multiple particles
             for (let i = 0; i < 20; i++) {
@@ -1341,9 +1684,8 @@
                     particle.style.setProperty('--tx', `${tx}px`);
                     particle.style.setProperty('--ty', `${ty}px`);
                     
-                    const rect = canvas.getBoundingClientRect();
-                    particle.style.left = `${rect.left + centerX}px`;
-                    particle.style.top = `${rect.top + centerY}px`;
+                    particle.style.left = `${canvasRect.left + centerX * (canvasRect.width / canvas.width)}px`;
+                    particle.style.top = `${canvasRect.top + centerY * (canvasRect.height / canvas.height)}px`;
                     
                     document.body.appendChild(particle);
                     
@@ -1358,9 +1700,9 @@
             const particle = document.createElement('div');
             particle.className = 'particle';
             
-            const rect = canvas.getBoundingClientRect();
-            particle.style.left = `${rect.left + x}px`;
-            particle.style.top = `${rect.top + y}px`;
+            const canvasRect = canvas.getBoundingClientRect();
+            particle.style.left = `${canvasRect.left + x * (canvasRect.width / canvas.width)}px`;
+            particle.style.top = `${canvasRect.top + y * (canvasRect.height / canvas.height)}px`;
             
             document.body.appendChild(particle);
             
@@ -1411,7 +1753,7 @@
             settingsPanel.classList.remove('hidden');
         }
         
-        // Prevent zooming on double tap
+        // Prevent zooming and improve mobile experience
         document.addEventListener('touchstart', function(event) {
             if (event.touches.length > 1) {
                 event.preventDefault();
@@ -1427,24 +1769,46 @@
             lastTouchEnd = now;
         }, false);
         
-        // Load/save settings with localStorage
+        // Prevent pull-to-refresh on mobile
+        document.addEventListener('touchmove', function(event) {
+            if (event.touches.length === 1 && window.scrollY === 0) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Handle visibility change to pause timer when app goes to background
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isSessionActive) {
+                // Pause timer when app goes to background
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            } else if (!document.hidden && isSessionActive && !timerInterval) {
+                // Resume timer when app comes back to foreground
+                startTimer();
+            }
+        });
+        
+        // Initialize canvas size on load
+        window.addEventListener('load', () => {
+            canvasSize = resizeCanvas();
+        });
+        
+        // Settings persistence (using in-memory storage for compatibility)
+        let savedSettings = {
+            brushSize: '35',
+            duration: '3',
+            difficulty: 'medium',
+            coverage: '85'
+        };
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Load saved settings if they exist
-            if (localStorage.getItem('traceRevealBrushSize')) {
-                brushSizeSelect.value = localStorage.getItem('traceRevealBrushSize');
-            }
-            
-            if (localStorage.getItem('traceRevealDuration')) {
-                sessionDurationInput.value = localStorage.getItem('traceRevealDuration');
-            }
-            
-            if (localStorage.getItem('traceRevealDifficulty')) {
-                difficultyLevelSelect.value = localStorage.getItem('traceRevealDifficulty');
-            }
-            
-            if (localStorage.getItem('traceRevealCoverage')) {
-                coverageRequiredSelect.value = localStorage.getItem('traceRevealCoverage');
-            }
+            // Load saved settings
+            brushSizeSelect.value = savedSettings.brushSize;
+            sessionDurationInput.value = savedSettings.duration;
+            difficultyLevelSelect.value = savedSettings.difficulty;
+            coverageRequiredSelect.value = savedSettings.coverage;
             
             // Save settings when they change
             brushSizeSelect.addEventListener('change', saveSettings);
@@ -1453,12 +1817,12 @@
             coverageRequiredSelect.addEventListener('change', saveSettings);
         });
         
-        // Save settings to localStorage
+        // Save settings to memory
         function saveSettings() {
-            localStorage.setItem('traceRevealBrushSize', brushSizeSelect.value);
-            localStorage.setItem('traceRevealDuration', sessionDurationInput.value);
-            localStorage.setItem('traceRevealDifficulty', difficultyLevelSelect.value);
-            localStorage.setItem('traceRevealCoverage', coverageRequiredSelect.value);
+            savedSettings.brushSize = brushSizeSelect.value;
+            savedSettings.duration = sessionDurationInput.value;
+            savedSettings.difficulty = difficultyLevelSelect.value;
+            savedSettings.coverage = coverageRequiredSelect.value;
         }
     </script>
 </body>

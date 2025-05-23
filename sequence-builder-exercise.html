@@ -254,17 +254,36 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         #settings-panel h2 {
             text-align: center;
             color: white;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-description {
+            background: rgba(111, 211, 245, 0.1);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .game-description h3 {
+            color: rgba(111, 211, 245, 1);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
         
         #home-button {
@@ -303,6 +322,24 @@
             font-weight: bold;
             color: white;
             font-size: 16px;
+        }
+        
+        .setting-description {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .option-explanations {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        
+        .option-explanations li {
+            margin-bottom: 3px;
         }
         
         select, input {
@@ -499,6 +536,16 @@
                 padding: 10px;
                 gap: 8px;
             }
+            
+            #settings-panel {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .game-description {
+                font-size: 13px;
+                padding: 12px;
+            }
         }
         
         /* CSS for drag-and-drop functionality */
@@ -540,36 +587,63 @@
         
         <div id="settings-panel">
             <h2>Sequence Builder Settings</h2>
+            
+            <div class="game-description">
+                <h3>🧩 How to Play</h3>
+                <p>Sequence Builder helps train your planning and memory skills. You'll see a pattern at the top of the screen, then recreate it step-by-step by dragging the correct symbols into the empty slots.</p>
+                <p><strong>Goal:</strong> Complete as many sequences as possible within the time limit with high accuracy to improve your executive function and sequential processing abilities.</p>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Sequence Type:</label>
+                <div class="setting-description">Choose what kind of sequences you'll practice with:</div>
                 <select id="sequence-type">
                     <option value="pattern" selected>Pattern (Symbols)</option>
                     <option value="assembly">Assembly (Building Blocks)</option>
                     <option value="numerical">Numerical (Math Sequence)</option>
                     <option value="spatial">Spatial (Positioning)</option>
                 </select>
+                <ul class="option-explanations">
+                    <li><strong>Pattern:</strong> Geometric shapes and symbols in repeating patterns</li>
+                    <li><strong>Assembly:</strong> Tools and building components in logical order</li>
+                    <li><strong>Numerical:</strong> Numbers and math symbols in mathematical sequences</li>
+                    <li><strong>Spatial:</strong> Directional arrows and movement patterns</li>
+                </ul>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Difficulty:</label>
+                <div class="setting-description">Controls how many steps each sequence has and how many distractor pieces appear:</div>
                 <select id="difficulty">
                     <option value="easy">Easy (3-4 Steps)</option>
                     <option value="medium" selected>Medium (5-6 Steps)</option>
                     <option value="hard">Hard (7-8 Steps)</option>
                 </select>
+                <ul class="option-explanations">
+                    <li><strong>Easy:</strong> 3-4 steps per sequence, 2 distractor pieces</li>
+                    <li><strong>Medium:</strong> 5-6 steps per sequence, 4 distractor pieces</li>
+                    <li><strong>Hard:</strong> 7-8 steps per sequence, 6 distractor pieces</li>
+                </ul>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Show Completed Sequence:</label>
+                <div class="setting-description">Choose how long you can see the target pattern:</div>
                 <select id="show-completed">
                     <option value="always">Always Visible</option>
                     <option value="initially" selected>Initially Visible, Then Hidden</option>
                     <option value="never">Never Visible (Memory Challenge)</option>
                 </select>
+                <ul class="option-explanations">
+                    <li><strong>Always:</strong> Target pattern stays visible (easier, focuses on sequencing)</li>
+                    <li><strong>Initially:</strong> Pattern shows for 5 seconds, then disappears (memory + sequencing)</li>
+                    <li><strong>Never:</strong> Pattern shows for 2 seconds only (hardest, pure memory challenge)</li>
+                </ul>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <div class="setting-description">How long your therapy session will last (1-10 minutes recommended):</div>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
             </div>
             
@@ -1453,7 +1527,7 @@
                 sequenceArea.style.width = `${areaWidth}px`;
                 sequenceArea.style.height = `${areaHeight}px`;
             }
-        });
+        }); 
         
         // Load/save settings with localStorage
         document.addEventListener('DOMContentLoaded', function() {

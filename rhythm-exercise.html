@@ -133,7 +133,9 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
-            max-width: 400px;
+            max-width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
@@ -141,9 +143,31 @@
             text-align: center;
             color: white;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-description {
+            background-color: rgba(111, 211, 245, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid rgba(111, 211, 245, 0.8);
+        }
+        
+        .game-description h3 {
+            color: rgba(111, 211, 245, 1);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .game-description p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
         
         #settings-toggle {
@@ -179,10 +203,17 @@
         
         .settings-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
             color: white;
             font-size: 16px;
+        }
+        
+        .setting-description {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            line-height: 1.3;
         }
         
         select, input {
@@ -349,6 +380,11 @@
                 width: 280px;
                 height: 280px;
             }
+            
+            #settings-panel {
+                width: 90%;
+                max-width: 400px;
+            }
         }
     </style>
 </head>
@@ -370,36 +406,49 @@
         <a href="index.html" id="settings-toggle" aria-label="Return to home page">Home</a>
         
         <aside id="settings-panel">
-            <h2>Settings</h2>
+            <h2>Rhythm Reach</h2>
+            
+            <div class="game-description">
+                <h3>How to Play</h3>
+                <p><strong>Watch:</strong> The game will light up squares in a pattern on the 3×3 grid.</p>
+                <p><strong>Remember:</strong> Pay attention to the order and sequence of the lights.</p>
+                <p><strong>Repeat:</strong> Touch the squares in the same order you saw them light up.</p>
+                <p><strong>Advance:</strong> Each round adds one more square to remember. See how far you can go!</p>
+            </div>
+            
             <form>
                 <div class="settings-group">
                     <label class="settings-label" for="start-length">Starting Sequence Length:</label>
+                    <div class="setting-description">How many squares will light up in the first round. Start with fewer squares if you're new to the game.</div>
                     <select id="start-length" name="start-length">
-                        <option value="2">2 items (Easy)</option>
-                        <option value="3" selected>3 items (Medium)</option>
-                        <option value="4">4 items (Hard)</option>
+                        <option value="2">2 squares (Easier)</option>
+                        <option value="3" selected>3 squares (Medium)</option>
+                        <option value="4">4 squares (Harder)</option>
                     </select>
                 </div>
                 
                 <div class="settings-group">
                     <label class="settings-label" for="sequence-speed">Speed:</label>
+                    <div class="setting-description">How fast the squares light up. Choose slower if you need more time to see the pattern.</div>
                     <select id="sequence-speed" name="sequence-speed">
-                        <option value="slow" selected>Slow</option>
+                        <option value="slow" selected>Slow (easier to follow)</option>
                         <option value="medium">Medium</option>
-                        <option value="fast">Fast</option>
+                        <option value="fast">Fast (more challenging)</option>
                     </select>
                 </div>
                 
                 <div class="settings-group">
                     <label class="settings-label" for="session-duration">Session Duration (minutes):</label>
+                    <div class="setting-description">How long you want to practice. Start with shorter sessions and gradually increase.</div>
                     <input type="number" id="session-duration" name="session-duration" min="1" max="10" value="2">
                 </div>
                 
                 <div class="settings-group">
-                    <label class="settings-label" for="show-numbers">Show Numbers on Pads:</label>
+                    <label class="settings-label" for="show-numbers">Show Numbers on Squares:</label>
+                    <div class="setting-description">Display numbers 1-9 on each square to help with identification and communication.</div>
                     <select id="show-numbers" name="show-numbers">
-                        <option value="no" selected>No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no" selected>No numbers</option>
+                        <option value="yes">Show numbers</option>
                     </select>
                 </div>
                 

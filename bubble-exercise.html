@@ -416,32 +416,44 @@
         </div>
         
         <div id="settings-panel" class="hidden">
-            <h2>Therapy Settings</h2>
+            <h2>Bubble Tap Therapy</h2>
+            
+            <div class="settings-group">
+                <div style="background-color: rgba(111, 211, 245, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid rgba(111, 211, 245, 0.3);">
+                    <p style="margin: 0; font-size: 15px; line-height: 1.4; color: rgba(255, 255, 255, 0.9);">
+                        <strong>About this exercise:</strong> Tap the moving bubbles as quickly as you can to improve hand-eye coordination, reaction time, and finger precision. This helps with fine motor skills and cognitive response training.
+                    </p>
+                </div>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Bubble Size:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Choose larger bubbles for easier targeting, smaller for more precise movement practice.</p>
                 <select id="bubble-size">
-                    <option value="very-large">Very Large</option>
-                    <option value="large">Large</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="small">Small</option>
+                    <option value="very-large">Very Large - Easiest to tap</option>
+                    <option value="large">Large - Easy to tap</option>
+                    <option value="medium" selected>Medium - Moderate difficulty</option>
+                    <option value="small">Small - Requires precision</option>
                 </select>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Start with shorter sessions (1-2 minutes) and gradually increase as you improve.</p>
                 <input type="number" id="session-duration" min="1" max="10" value="2">
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Show Finger Number:</label>
+                <label class="settings-label">Finger Training Mode:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Practice with specific fingers or all fingers. Numbers show which finger to use for each bubble.</p>
                 <select id="finger-option">
-                    <option value="none">No finger indication</option>
-                    <option value="all" selected>All fingers (1-5)</option>
-                    <option value="1">Thumb only (1)</option>
-                    <option value="2">Index only (2)</option>
-                    <option value="3">Middle only (3)</option>
-                    <option value="4">Ring only (4)</option>
-                    <option value="5">Pinky only (5)</option>
+                    <option value="none">No finger guidance - Tap with any finger</option>
+                    <option value="all" selected>All fingers (1-5) - Random finger practice</option>
+                    <option value="1">Thumb only (1) - Thumb isolation practice</option>
+                    <option value="2">Index finger only (2) - Index finger practice</option>
+                    <option value="3">Middle finger only (3) - Middle finger practice</option>
+                    <option value="4">Ring finger only (4) - Ring finger practice</option>
+                    <option value="5">Pinky only (5) - Pinky finger practice</option>
                 </select>
             </div>
             
