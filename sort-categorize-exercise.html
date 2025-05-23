@@ -207,7 +207,28 @@
             z-index: 100;
             width: 80%;
             max-width: 400px;
+            max-height: 90vh;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        /* Custom scrollbar for settings panel */
+        #settings-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-thumb {
+            background: rgba(111, 211, 245, 0.6);
+            border-radius: 3px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(111, 211, 245, 0.8);
         }
         
         #settings-panel h2 {
@@ -585,8 +606,18 @@
         
         <div id="settings-panel">
             <h2>Sort & Categorize Settings</h2>
+            
+            <div class="settings-group">
+                <div style="background-color: rgba(111, 211, 245, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid rgba(111, 211, 245, 0.3);">
+                    <p style="margin: 0; font-size: 15px; line-height: 1.4; color: rgba(255, 255, 255, 0.9);">
+                        <strong>About this exercise:</strong> Drag and drop objects into their correct categories to improve visual discrimination, decision-making, and upper limb control. This cognitive-motor task enhances attention, executive function, and hand-eye coordination while practicing categorization skills essential for daily activities.
+                    </p>
+                </div>
+            </div>
+            
             <div class="settings-group">
                 <label class="settings-label">Difficulty:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Choose fewer categories for easier sorting, more categories for increased cognitive challenge.</p>
                 <select id="difficulty">
                     <option value="easy">Easy (3 Categories)</option>
                     <option value="medium" selected>Medium (4 Categories)</option>
@@ -596,6 +627,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Category Type:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Practice different types of categorization skills. Start with colors or shapes, advance to numbers and letters.</p>
                 <select id="category-type">
                     <option value="colors">Colors</option>
                     <option value="shapes" selected>Shapes</option>
@@ -606,6 +638,7 @@
             
             <div class="settings-group">
                 <label class="settings-label">Objects Per Round:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">More objects increase the motor and cognitive demands of the task.</p>
                 <select id="objects-count">
                     <option value="6">Few (6)</option>
                     <option value="9" selected>Medium (9)</option>
@@ -615,11 +648,13 @@
             
             <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Start with shorter sessions and gradually increase as concentration and endurance improve.</p>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
             </div>
 
             <div class="settings-group">
                 <label class="settings-label">Show Category Hints:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Hints can help with learning. Turn off for increased difficulty and independent problem-solving.</p>
                 <select id="hint-setting">
                     <option value="off">Off</option>
                     <option value="hover">Show on Hover</option>
