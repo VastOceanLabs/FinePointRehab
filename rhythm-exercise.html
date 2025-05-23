@@ -123,20 +123,24 @@
         }
         
         #settings-panel {
-            position: absolute;
-            top: 50%;
+            position: fixed;
+            top: 5vh;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             background-color: rgba(8, 15, 35, 0.95);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
-            width: 80%;
+            width: 85%;
             max-width: 450px;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Ensure smooth scrolling */
+            -webkit-overflow-scrolling: touch;
+            /* Fix for iOS scrolling */
+            overscroll-behavior: contain;
         }
         
         #settings-panel h2 {
@@ -152,7 +156,7 @@
             background-color: rgba(111, 211, 245, 0.1);
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border-left: 4px solid rgba(111, 211, 245, 0.8);
         }
         
@@ -198,12 +202,12 @@
         }
         
         .settings-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         
         .settings-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: bold;
             color: white;
             font-size: 16px;
@@ -212,7 +216,7 @@
         .setting-description {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             line-height: 1.3;
         }
         
@@ -224,6 +228,7 @@
             font-size: 16px;
             background-color: rgba(0, 10, 30, 0.8);
             color: white;
+            box-sizing: border-box;
         }
         
         select:focus, input:focus {
@@ -242,9 +247,11 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 15px;
+            margin-bottom: 10px;
             width: 100%;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-sizing: border-box;
         }
         
         button:hover {
@@ -367,6 +374,7 @@
             z-index: 15;
         }
         
+        /* Enhanced mobile responsiveness */
         @media (max-width: 768px) {
             .stat-value {
                 font-size: 20px;
@@ -382,8 +390,58 @@
             }
             
             #settings-panel {
-                width: 90%;
+                width: 95%;
                 max-width: 400px;
+                top: 2vh;
+                max-height: 96vh;
+                padding: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            .game-description {
+                margin-bottom: 15px;
+                padding: 12px;
+            }
+            
+            .game-description p {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-height: 600px) {
+            #settings-panel {
+                top: 1vh;
+                max-height: 98vh;
+                padding: 10px;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 12px;
+            }
+            
+            .game-description {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+            
+            .game-description h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+            
+            .game-description p {
+                font-size: 12px;
+                margin-bottom: 5px;
             }
         }
     </style>
@@ -834,39 +892,13 @@
             lastTouchEnd = now;
         }, false);
         
-        // Load/save settings with localStorage
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved settings if they exist
-            if (localStorage.getItem('rhythmStartLength')) {
-                startLengthSelect.value = localStorage.getItem('rhythmStartLength');
-            }
-            
-            if (localStorage.getItem('rhythmSpeed')) {
-                sequenceSpeedSelect.value = localStorage.getItem('rhythmSpeed');
-            }
-            
-            if (localStorage.getItem('rhythmDuration')) {
-                sessionDurationInput.value = localStorage.getItem('rhythmDuration');
-            }
-            
-            if (localStorage.getItem('rhythmShowNumbers')) {
-                showNumbersSelect.value = localStorage.getItem('rhythmShowNumbers');
-            }
-            
-            // Save settings when they change
-            startLengthSelect.addEventListener('change', saveSettings);
-            sequenceSpeedSelect.addEventListener('change', saveSettings);
-            sessionDurationInput.addEventListener('change', saveSettings);
-            showNumbersSelect.addEventListener('change', saveSettings);
-        });
+        // NOTE: localStorage functionality has been removed to prevent issues in Claude.ai artifacts
+        // If you need persistent settings, you can add this functionality back when hosting elsewhere
         
-        // Save settings to localStorage
-        function saveSettings() {
-            localStorage.setItem('rhythmStartLength', startLengthSelect.value);
-            localStorage.setItem('rhythmSpeed', sequenceSpeedSelect.value);
-            localStorage.setItem('rhythmDuration', sessionDurationInput.value);
-            localStorage.setItem('rhythmShowNumbers', showNumbersSelect.value);
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Settings are now using default values only
+            // If you need to restore localStorage functionality, add it here when hosting elsewhere
+        });
     </script>
 </body>
 </html>
