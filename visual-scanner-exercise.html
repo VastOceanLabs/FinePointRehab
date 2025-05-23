@@ -621,6 +621,7 @@
             }
             
             // Create visual objects
+            targetDisplay.classList.remove('hidden');
             createVisualObjects(difficulty, objectType, focusArea);
             
             // Update UI
@@ -700,6 +701,10 @@
             const areaWidth = parseInt(scanArea.style.width);
             const areaHeight = parseInt(scanArea.style.height);
             
+	    const bannerRect         = targetDisplay.getBoundingClientRect(); 
+	    const scanRect           = scanArea.getBoundingClientRect(); 
+	    const bannerBottomInScan = bannerRect.bottom - scanRect.top; 
+
             // Get objects library
             const objects = objectLibraries[objectType].slice();
             
@@ -735,7 +740,7 @@
                     // Generate random position
                     x = Math.random() * (areaWidth - size);
                     y = Math.random() * (areaHeight - size);
-                    
+		                        
                     // Adjust position based on focus area
                     if (focusArea === 'left') {
                         x = Math.random() * (areaWidth / 2 - size);
@@ -747,6 +752,9 @@
                         y = areaHeight / 2 + Math.random() * (areaHeight / 2 - size);
                     }
                     
+		    if (bannerBottomInScan > 0 && y < bannerBottomInScan) continue;
+
+
                     // Check for overlap with existing objects
                     validPosition = true;
                     for (const existingObj of visualObjects) {
