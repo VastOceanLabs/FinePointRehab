@@ -75,18 +75,49 @@
             box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
             transform: translate(-50%, -50%);
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
             z-index: 5;
+            border: 3px solid transparent;
         }
         
         .mirror-target.active {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 25px rgba(111, 211, 245, 0.8);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .mirror-target.touched {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255, 193, 7, 0.9));
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.7);
             transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 0 0 20px rgba(111, 211, 245, 0.7);
         }
         
         .mirror-target.completed {
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(46, 204, 113, 0.9));
             box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+        
+        .mirror-target.failed {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(231, 76, 60, 0.9));
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-5px); }
+            75% { transform: translate(-50%, -50%) translateX(5px); }
+        }
+        
+        .mirror-target.pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px rgba(111, 211, 245, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(111, 211, 245, 0.7); }
+            100% { box-shadow: 0 0 15px rgba(111, 211, 245, 0.4); }
         }
         
         .mirror-path {
@@ -144,6 +175,36 @@
             border-radius: 20px;
             z-index: 15;
             max-width: 400px;
+            transition: all 0.3s ease;
+        }
+        
+        #feedback-message {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            text-align: center;
+            background: rgba(8, 15, 35, 0.9);
+            padding: 8px 16px;
+            border-radius: 15px;
+            z-index: 15;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        #feedback-message.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+            color: rgba(46, 204, 113, 1);
+            opacity: 1;
+        }
+        
+        #feedback-message.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            color: rgba(231, 76, 60, 1);
+            opacity: 1;
         }
         
         #settings-panel {
@@ -316,6 +377,7 @@
             background-color: rgba(111, 211, 245, 0.9);
             width: 100%;
             z-index: 20;
+            transition: width 0.1s linear;
         }
         
         .hidden {
@@ -372,6 +434,24 @@
             opacity: 0.4;
         }
         
+        .touch-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+            transition: all 0.2s ease;
+        }
+        
+        .touch-indicator.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
         @media (max-width: 768px) {
             .stat-value {
                 font-size: 20px;
@@ -394,6 +474,11 @@
                 top: 55px;
             }
             
+            #feedback-message {
+                top: 100px;
+                font-size: 12px;
+            }
+            
             .game-explanation {
                 padding: 15px;
             }
@@ -411,6 +496,7 @@
         
         <div id="progress-display" class="hidden">Pattern <span id="current-pattern">1</span> of <span id="total-patterns">10</span></div>
         <div id="instructions" class="hidden">Touch both circles simultaneously to complete the pattern</div>
+        <div id="feedback-message" class="hidden">Great synchronization!</div>
         
         <div id="mirror-area">
             <div class="mirror-side left"></div>
@@ -461,6 +547,15 @@
             </div>
             
             <div class="settings-group">
+                <label class="settings-label">Adaptive Timing:</label>
+                <div class="setting-description">Automatically adjusts timing based on your performance</div>
+                <select id="adaptive-timing">
+                    <option value="on" selected>On (Recommended)</option>
+                    <option value="off">Off</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
                 <label class="settings-label">Session Duration (minutes):</label>
                 <div class="setting-description">How long your therapy session will last</div>
                 <input type="number" id="session-duration" min="1" max="10" value="3">
@@ -494,6 +589,7 @@
                 <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
                 <p>Patterns Completed: <span id="final-patterns" class="score-highlight">0</span></p>
                 <p>Synchronization Rate: <span id="final-sync-rate" class="score-highlight">0%</span></p>
+                <p>Average Sync Time: <span id="final-avg-sync" class="score-highlight">0ms</span></p>
             </div>
             <button id="restart-button">Start New Session</button>
         </div>
@@ -512,6 +608,7 @@
         const starsContainer = document.getElementById('stars-container');
         const progressDisplay = document.getElementById('progress-display');
         const instructions = document.getElementById('instructions');
+        const feedbackMessage = document.getElementById('feedback-message');
         const currentPatternElement = document.getElementById('current-pattern');
         const totalPatternsElement = document.getElementById('total-patterns');
         
@@ -534,6 +631,7 @@
         const difficultySelect = document.getElementById('difficulty');
         const targetSizeSelect = document.getElementById('target-size');
         const mirrorModeSelect = document.getElementById('mirror-mode');
+        const adaptiveTimingSelect = document.getElementById('adaptive-timing');
         const sessionDurationInput = document.getElementById('session-duration');
         const startSessionButton = document.getElementById('start-session');
         const restartButton = document.getElementById('restart-button');
@@ -548,6 +646,7 @@
         const finalScoreElement = document.getElementById('final-score');
         const finalPatternsElement = document.getElementById('final-patterns');
         const finalSyncRateElement = document.getElementById('final-sync-rate');
+        const finalAvgSyncElement = document.getElementById('final-avg-sync');
         
         // Game state variables
         let isSessionActive = false;
@@ -558,6 +657,7 @@
         let patternsCompleted = 0;
         let totalAttempts = 0;
         let successfulAttempts = 0;
+        let syncTimes = [];
         let currentTargetIndex = 0;
         let currentTargets = { left: null, right: null };
         let leftTouched = false;
@@ -567,6 +667,18 @@
         let pattern = [];
         let patterns = [];
         let currentPatternIndex = 0;
+        let usedPatternTypes = [];
+        let adaptiveSyncWindow = 500;
+        let feedbackTimeout = null;
+        
+        // Touch indicators
+        const leftTouchIndicator = document.createElement('div');
+        leftTouchIndicator.classList.add('touch-indicator');
+        gameContainer.appendChild(leftTouchIndicator);
+        
+        const rightTouchIndicator = document.createElement('div');
+        rightTouchIndicator.classList.add('touch-indicator');
+        gameContainer.appendChild(rightTouchIndicator);
         
         // Target sizes
         const targetSizes = {
@@ -577,10 +689,13 @@
         
         // Difficulty settings
         const difficultySetting = {
-            'easy': { pointsPerPattern: 100, patternLength: 3, timeLimit: 60000 },
-            'medium': { pointsPerPattern: 200, patternLength: 5, timeLimit: 45000 },
-            'hard': { pointsPerPattern: 300, patternLength: 7, timeLimit: 30000 }
+            'easy': { pointsPerPattern: 100, patternLength: 3, timeLimit: 60000, baseSync: 750 },
+            'medium': { pointsPerPattern: 200, patternLength: 5, timeLimit: 45000, baseSync: 500 },
+            'hard': { pointsPerPattern: 300, patternLength: 7, timeLimit: 30000, baseSync: 350 }
         };
+        
+        // Pattern types for variety
+        const patternTypes = ['random', 'circle', 'square', 'triangle', 'zigzag', 'line', 'spiral'];
         
         // Home button functionality
         document.getElementById('home-button').addEventListener('click', function() {
@@ -599,6 +714,7 @@
             const difficulty = difficultySelect.value;
             const targetSize = targetSizeSelect.value;
             const mirrorMode = mirrorModeSelect.value;
+            const adaptiveTiming = adaptiveTimingSelect.value === 'on';
             sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
             
             // Reset game state
@@ -606,10 +722,13 @@
             patternsCompleted = 0;
             totalAttempts = 0;
             successfulAttempts = 0;
+            syncTimes = [];
             timeRemaining = sessionDuration;
             currentPatternIndex = 0;
             pattern = [];
             patterns = [];
+            usedPatternTypes = [];
+            adaptiveSyncWindow = difficultySetting[difficulty].baseSync;
             
             // Set up mirror area size based on window size
             const areaWidth = Math.min(900, window.innerWidth * 0.9);
@@ -621,8 +740,8 @@
             rightSide.style.width = `${areaWidth / 2}px`;
             rightSide.style.height = `${areaHeight}px`;
             
-            // Generate patterns
-            generatePatterns(difficulty, areaWidth / 2, areaHeight);
+            // Generate patterns with variety
+            generateDiversePatterns(difficulty, areaWidth / 2, areaHeight);
             
             // Update UI
             updateStats();
@@ -664,83 +783,121 @@
             }, 100);
         }
         
-        function generatePatterns(difficulty, sideWidth, areaHeight) {
+        function generateDiversePatterns(difficulty, sideWidth, areaHeight) {
             const settings = difficultySetting[difficulty];
             const patternLength = settings.patternLength;
-            const numPatterns = 10; // Fixed number of patterns per session
+            const numPatterns = 10;
             
             for (let p = 0; p < numPatterns; p++) {
                 let patternPoints = [];
                 
-                // Choose pattern type (random path or shape)
-                const patternType = Math.random() > 0.5 ? 'random' : 'shape';
-                
-                if (patternType === 'random') {
-                    // Generate random pattern points
-                    for (let i = 0; i < patternLength; i++) {
-                        const x = Math.floor(Math.random() * (sideWidth - 100) + 50);
-                        const y = Math.floor(Math.random() * (areaHeight - 100) + 50);
-                        patternPoints.push({ x, y });
-                    }
-                } else {
-                    // Generate shape-based pattern
-                    const shape = ['circle', 'square', 'triangle', 'zigzag'][Math.floor(Math.random() * 4)];
-                    const centerX = sideWidth / 2;
-                    const centerY = areaHeight / 2;
-                    const radius = Math.min(sideWidth, areaHeight) * 0.3;
-                    
-                    switch (shape) {
-                        case 'circle':
-                            for (let i = 0; i < patternLength; i++) {
-                                const angle = (i / patternLength) * 2 * Math.PI;
-                                const x = centerX + Math.cos(angle) * radius;
-                                const y = centerY + Math.sin(angle) * radius;
-                                patternPoints.push({ x, y });
-                            }
-                            break;
-                        case 'square':
-                            const squareSize = radius * 1.5;
-                            const halfSize = squareSize / 2;
-                            patternPoints = [
-                                { x: centerX - halfSize, y: centerY - halfSize },
-                                { x: centerX + halfSize, y: centerY - halfSize },
-                                { x: centerX + halfSize, y: centerY + halfSize },
-                                { x: centerX - halfSize, y: centerY + halfSize }
-                            ];
-                            
-                            // Add more points if needed
-                            while (patternPoints.length < patternLength) {
-                                const index = patternPoints.length % 4;
-                                patternPoints.push(patternPoints[index]);
-                            }
-                            break;
-                        case 'triangle':
-                            for (let i = 0; i < 3; i++) {
-                                const angle = (i / 3) * 2 * Math.PI - Math.PI / 2;
-                                const x = centerX + Math.cos(angle) * radius;
-                                const y = centerY + Math.sin(angle) * radius;
-                                patternPoints.push({ x, y });
-                            }
-                            
-                            // Add more points if needed
-                            while (patternPoints.length < patternLength) {
-                                const index = patternPoints.length % 3;
-                                patternPoints.push(patternPoints[index]);
-                            }
-                            break;
-                        case 'zigzag':
-                            const stepY = areaHeight / (patternLength + 1);
-                            for (let i = 0; i < patternLength; i++) {
-                                const y = stepY + i * stepY;
-                                const x = (i % 2 === 0) ? sideWidth * 0.25 : sideWidth * 0.75;
-                                patternPoints.push({ x, y });
-                            }
-                            break;
-                    }
+                // Ensure pattern variety by avoiding consecutive similar patterns
+                let availableTypes = patternTypes.filter(type => !usedPatternTypes.includes(type));
+                if (availableTypes.length === 0) {
+                    usedPatternTypes = [];
+                    availableTypes = [...patternTypes];
                 }
                 
+                const patternType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                usedPatternTypes.push(patternType);
+                
+                if (usedPatternTypes.length > 3) {
+                    usedPatternTypes.shift();
+                }
+                
+                patternPoints = generatePatternByType(patternType, patternLength, sideWidth, areaHeight);
                 patterns.push(patternPoints);
             }
+        }
+        
+        function generatePatternByType(type, length, sideWidth, areaHeight) {
+            const centerX = sideWidth / 2;
+            const centerY = areaHeight / 2;
+            const radius = Math.min(sideWidth, areaHeight) * 0.3;
+            let points = [];
+            
+            switch (type) {
+                case 'circle':
+                    for (let i = 0; i < length; i++) {
+                        const angle = (i / length) * 2 * Math.PI;
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+                        points.push({ x, y });
+                    }
+                    break;
+                    
+                case 'square':
+                    const squareSize = radius * 1.5;
+                    const halfSize = squareSize / 2;
+                    const corners = [
+                        { x: centerX - halfSize, y: centerY - halfSize },
+                        { x: centerX + halfSize, y: centerY - halfSize },
+                        { x: centerX + halfSize, y: centerY + halfSize },
+                        { x: centerX - halfSize, y: centerY + halfSize }
+                    ];
+                    
+                    for (let i = 0; i < length; i++) {
+                        points.push(corners[i % 4]);
+                    }
+                    break;
+                    
+                case 'triangle':
+                    const trianglePoints = [];
+                    for (let i = 0; i < 3; i++) {
+                        const angle = (i / 3) * 2 * Math.PI - Math.PI / 2;
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+                        trianglePoints.push({ x, y });
+                    }
+                    
+                    for (let i = 0; i < length; i++) {
+                        points.push(trianglePoints[i % 3]);
+                    }
+                    break;
+                    
+                case 'zigzag':
+                    const stepY = areaHeight / (length + 1);
+                    for (let i = 0; i < length; i++) {
+                        const y = stepY + i * stepY;
+                        const x = (i % 2 === 0) ? sideWidth * 0.25 : sideWidth * 0.75;
+                        points.push({ x, y });
+                    }
+                    break;
+                    
+                case 'line':
+                    const startX = sideWidth * 0.2;
+                    const endX = sideWidth * 0.8;
+                    const startY = areaHeight * 0.3;
+                    const endY = areaHeight * 0.7;
+                    
+                    for (let i = 0; i < length; i++) {
+                        const progress = i / (length - 1);
+                        const x = startX + (endX - startX) * progress;
+                        const y = startY + (endY - startY) * progress;
+                        points.push({ x, y });
+                    }
+                    break;
+                    
+                case 'spiral':
+                    for (let i = 0; i < length; i++) {
+                        const angle = (i / length) * 4 * Math.PI;
+                        const spiralRadius = (i / length) * radius;
+                        const x = centerX + Math.cos(angle) * spiralRadius;
+                        const y = centerY + Math.sin(angle) * spiralRadius;
+                        points.push({ x, y });
+                    }
+                    break;
+                    
+                default: // random
+                    for (let i = 0; i < length; i++) {
+                        const x = Math.floor(Math.random() * (sideWidth - 100) + 50);
+                        const y = Math.floor(Math.random() * (areaHeight - 100) + 50);
+                        points.push({ x, y });
+                    }
+                    break;
+            }
+            
+            return points;
         }
         
         function startPattern(targetSizeOption) {
@@ -838,7 +995,7 @@
             
             // Create left target
             const leftTarget = document.createElement("div");
-            leftTarget.className = "mirror-target";
+            leftTarget.className = "mirror-target pulse";
             leftTarget.style.width = `${size}px`;
             leftTarget.style.height = `${size}px`;
             leftTarget.style.left = `${point.x}px`;
@@ -847,18 +1004,22 @@
             
             // Create right target (mirrored)
             const rightTarget = document.createElement("div");
-            rightTarget.className = "mirror-target";
+            rightTarget.className = "mirror-target pulse";
             rightTarget.style.width = `${size}px`;
             rightTarget.style.height = `${size}px`;
             rightTarget.style.left = `${leftSide.offsetWidth - point.x}px`;
             rightTarget.style.top = `${point.y}px`;
             rightTarget.dataset.index = currentTargetIndex;
             
-            // Add event listeners
-            leftTarget.addEventListener("touchstart", handleLeftTouch);
+            // Improved touch event listeners
+            leftTarget.addEventListener("touchstart", handleLeftTouch, { passive: false });
             leftTarget.addEventListener("mousedown", handleLeftTouch);
-            rightTarget.addEventListener("touchstart", handleRightTouch);
+            rightTarget.addEventListener("touchstart", handleRightTouch, { passive: false });
             rightTarget.addEventListener("mousedown", handleRightTouch);
+            
+            // Prevent context menu on long press
+            leftTarget.addEventListener("contextmenu", e => e.preventDefault());
+            rightTarget.addEventListener("contextmenu", e => e.preventDefault());
             
             // Add targets to sides
             leftSide.appendChild(leftTarget);
@@ -872,11 +1033,19 @@
         function handleLeftTouch(e) {
             if (!isSessionActive || leftTouched) return;
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Show touch indicator
+            showTouchIndicator(e, leftTouchIndicator);
             
             // Mark left side as touched
             leftTouched = true;
             leftTouchTime = Date.now();
-            currentTargets.left.classList.add("active");
+            currentTargets.left.classList.remove("pulse");
+            currentTargets.left.classList.add("touched");
+            
+            // Visual feedback
+            currentTargets.left.style.transform = "translate(-50%, -50%) scale(1.1)";
             
             // Check if this completes the pair
             checkTargetPair(mirrorModeSelect.value);
@@ -885,14 +1054,36 @@
         function handleRightTouch(e) {
             if (!isSessionActive || rightTouched) return;
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Show touch indicator
+            showTouchIndicator(e, rightTouchIndicator);
             
             // Mark right side as touched
             rightTouched = true;
             rightTouchTime = Date.now();
-            currentTargets.right.classList.add("active");
+            currentTargets.right.classList.remove("pulse");
+            currentTargets.right.classList.add("touched");
+            
+            // Visual feedback
+            currentTargets.right.style.transform = "translate(-50%, -50%) scale(1.1)";
             
             // Check if this completes the pair
             checkTargetPair(mirrorModeSelect.value);
+        }
+        
+        function showTouchIndicator(e, indicator) {
+            const rect = e.target.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            indicator.style.left = `${x}px`;
+            indicator.style.top = `${y}px`;
+            indicator.classList.add('active');
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 300);
         }
         
         function checkTargetPair(mode) {
@@ -903,16 +1094,23 @@
             // Calculate synchronization time difference
             const timeDiff = Math.abs(leftTouchTime - rightTouchTime);
             
+            // Use adaptive timing if enabled
+            const currentSyncWindow = adaptiveTimingSelect.value === 'on' ? adaptiveSyncWindow : difficultySetting[difficultySelect.value].baseSync;
+            
             // Check if targets were touched within the acceptable time window
-            const isSync = mode === 'simultaneous' ? timeDiff < 500 : true;
+            const isSync = mode === 'simultaneous' ? timeDiff < currentSyncWindow : true;
             
             if (isSync) {
                 // Successful synchronization
                 successfulAttempts++;
+                syncTimes.push(timeDiff);
+                
+                // Show success feedback
+                showFeedback(`Great! Sync time: ${timeDiff}ms`, 'success');
                 
                 // Mark targets as completed
-                currentTargets.left.classList.remove("active");
-                currentTargets.right.classList.remove("active");
+                currentTargets.left.classList.remove("touched");
+                currentTargets.right.classList.remove("touched");
                 currentTargets.left.classList.add("completed");
                 currentTargets.right.classList.add("completed");
                 
@@ -921,9 +1119,19 @@
                 const rightPaths = rightSide.querySelectorAll(".mirror-path");
                 
                 if (leftPaths.length > 0 && rightPaths.length > 0) {
-                    // Add completed class to current segment
                     leftPaths[0].classList.add("completed");
                     rightPaths[0].classList.add("completed");
+                }
+                
+                // Adaptive timing adjustment
+                if (adaptiveTimingSelect.value === 'on') {
+                    if (timeDiff < adaptiveSyncWindow * 0.7) {
+                        // Too easy, make it harder
+                        adaptiveSyncWindow = Math.max(200, adaptiveSyncWindow - 25);
+                    } else if (timeDiff > adaptiveSyncWindow * 0.9) {
+                        // Getting close to limit, make it slightly easier
+                        adaptiveSyncWindow = Math.min(1000, adaptiveSyncWindow + 10);
+                    }
                 }
                 
                 // Move to next target
@@ -934,9 +1142,19 @@
                     // Pattern completed
                     patternsCompleted++;
                     
-                    // Calculate score based on difficulty
+                    // Calculate score based on difficulty and performance
                     const settings = difficultySetting[difficultySelect.value];
-                    score += settings.pointsPerPattern;
+                    let patternScore = settings.pointsPerPattern;
+                    
+                    // Bonus for good synchronization
+                    const avgSyncTime = syncTimes.slice(-pattern.length).reduce((a, b) => a + b, 0) / pattern.length;
+                    if (avgSyncTime < currentSyncWindow * 0.5) {
+                        patternScore *= 1.5; // 50% bonus for excellent sync
+                    } else if (avgSyncTime < currentSyncWindow * 0.75) {
+                        patternScore *= 1.25; // 25% bonus for good sync
+                    }
+                    
+                    score += Math.round(patternScore);
                     
                     // Update stats
                     updateStats();
@@ -965,16 +1183,42 @@
                 }
             } else {
                 // Failed synchronization
-                currentTargets.left.classList.remove("active");
-                currentTargets.right.classList.remove("active");
+                showFeedback(`Try again! Sync time: ${timeDiff}ms (need < ${currentSyncWindow}ms)`, 'error');
+                
+                currentTargets.left.classList.remove("touched");
+                currentTargets.right.classList.remove("touched");
+                currentTargets.left.classList.add("failed");
+                currentTargets.right.classList.add("failed");
                 
                 // Reset and try again
-                leftTouched = false;
-                rightTouched = false;
+                setTimeout(() => {
+                    if (currentTargets.left && currentTargets.right) {
+                        currentTargets.left.classList.remove("failed");
+                        currentTargets.right.classList.remove("failed");
+                        currentTargets.left.classList.add("pulse");
+                        currentTargets.right.classList.add("pulse");
+                    }
+                    leftTouched = false;
+                    rightTouched = false;
+                }, 1000);
             }
             
             // Update stats
             updateStats();
+        }
+        
+        function showFeedback(message, type) {
+            if (feedbackTimeout) {
+                clearTimeout(feedbackTimeout);
+            }
+            
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = `${type}`;
+            
+            feedbackTimeout = setTimeout(() => {
+                feedbackMessage.classList.remove('success', 'error');
+                feedbackMessage.classList.add('hidden');
+            }, 2000);
         }
         
         function updateStats() {
@@ -999,7 +1243,11 @@
             // Hide game elements
             progressDisplay.classList.add('hidden');
             instructions.classList.add('hidden');
+            feedbackMessage.classList.add('hidden');
             statsPanel.classList.add('hidden');
+            
+            // Calculate final stats
+            const avgSyncTime = syncTimes.length > 0 ? Math.round(syncTimes.reduce((a, b) => a + b, 0) / syncTimes.length) : 0;
             
             // Show completion message
             finalScoreElement.textContent = score;
@@ -1007,6 +1255,7 @@
             
             const syncRate = totalAttempts > 0 ? Math.round((successfulAttempts / totalAttempts) * 100) : 0;
             finalSyncRateElement.textContent = `${syncRate}%`;
+            finalAvgSyncElement.textContent = `${avgSyncTime}ms`;
             
             completionMessage.classList.remove('hidden');
             
@@ -1014,9 +1263,15 @@
             timerBar.style.width = '0%';
         }
         
-        // Prevent zooming on double tap
+        // Enhanced touch prevention for better mobile experience
         document.addEventListener('touchstart', function(event) {
             if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', function(event) {
+            if (isSessionActive) {
                 event.preventDefault();
             }
         }, { passive: false });
@@ -1028,7 +1283,12 @@
                 event.preventDefault();
             }
             lastTouchEnd = now;
-        }, false);
+        }, { passive: false });
+        
+        // Prevent zoom gestures
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
         
         // Resize handler to adjust mirror area size
         window.addEventListener('resize', function() {
@@ -1044,7 +1304,7 @@
             }
         });
         
-        // Load/save settings with localStorage
+        // Load/save settings
         document.addEventListener('DOMContentLoaded', function() {
             // Load saved settings if they exist
             if (localStorage.getItem('mirrorDifficulty')) {
@@ -1059,6 +1319,10 @@
                 mirrorModeSelect.value = localStorage.getItem('mirrorMode');
             }
             
+            if (localStorage.getItem('mirrorAdaptiveTiming')) {
+                adaptiveTimingSelect.value = localStorage.getItem('mirrorAdaptiveTiming');
+            }
+            
             if (localStorage.getItem('mirrorDuration')) {
                 sessionDurationInput.value = localStorage.getItem('mirrorDuration');
             }
@@ -1067,6 +1331,7 @@
             difficultySelect.addEventListener('change', saveSettings);
             targetSizeSelect.addEventListener('change', saveSettings);
             mirrorModeSelect.addEventListener('change', saveSettings);
+            adaptiveTimingSelect.addEventListener('change', saveSettings);
             sessionDurationInput.addEventListener('change', saveSettings);
         });
         
@@ -1075,6 +1340,7 @@
             localStorage.setItem('mirrorDifficulty', difficultySelect.value);
             localStorage.setItem('mirrorTargetSize', targetSizeSelect.value);
             localStorage.setItem('mirrorMode', mirrorModeSelect.value);
+            localStorage.setItem('mirrorAdaptiveTiming', adaptiveTimingSelect.value);
             localStorage.setItem('mirrorDuration', sessionDurationInput.value);
         }
     </script>
