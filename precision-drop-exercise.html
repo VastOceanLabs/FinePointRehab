@@ -156,8 +156,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 85vh;
+            overflow-y: auto;
         }
         
         #settings-panel h2 {
@@ -167,6 +169,21 @@
             margin-bottom: 25px;
             font-size: 24px;
             letter-spacing: 0.5px;
+        }
+        
+        .game-description {
+            background: rgba(111, 211, 245, 0.1);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .game-description p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
         }
         
         #settings-toggle {
@@ -202,10 +219,19 @@
         
         .settings-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
             color: white;
             font-size: 16px;
+        }
+        
+        .setting-description {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            line-height: 1.4;
+            font-style: italic;
         }
         
         select, input {
@@ -376,6 +402,22 @@
                 width: 90%;
                 height: 300px;
             }
+            
+            #settings-panel {
+                width: 90%;
+                max-width: none;
+                max-height: 90vh;
+                padding: 20px;
+            }
+            
+            .game-description {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .game-description p {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -392,9 +434,15 @@
         <a href="index.html" id="settings-toggle">Home</a>
         
         <div id="settings-panel">
-            <h2>Settings</h2>
+            <h2>Precision Drop Exercise</h2>
+            
+            <div class="game-description">
+                <p><strong>About this exercise:</strong> Drag each colored circle to its matching colored target to improve fine motor skills, hand-eye coordination, and precision. The targets will light up when you get close to help guide you. You earn points for successful drops with bonus points for faster completion.</p>
+            </div>
+            
             <div class="settings-group">
-                <label class="settings-label">Difficulty:</label>
+                <label class="settings-label">Difficulty Level:</label>
+                <span class="setting-description">Controls the size of targets and objects. Start with Easy for larger targets, then progress to smaller ones as your precision improves.</span>
                 <select id="difficulty">
                     <option value="easy" selected>Easy (Large targets)</option>
                     <option value="medium">Medium (Medium targets)</option>
@@ -403,24 +451,28 @@
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Number of Targets:</label>
+                <label class="settings-label">Number of Objects:</label>
+                <span class="setting-description">Choose how many objects to match per round. Start with 1 object and increase as your coordination improves.</span>
                 <select id="num-targets">
-                    <option value="1" selected>1 target</option>
-                    <option value="2">2 targets</option>
-                    <option value="3">3 targets</option>
+                    <option value="1" selected>1 object per round</option>
+                    <option value="2">2 objects per round</option>
+                    <option value="3">3 objects per round</option>
                 </select>
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Session Duration (minutes):</label>
+                <label class="settings-label">Session Duration:</label>
+                <span class="setting-description">Set how long you want to practice. Shorter sessions are good for building up endurance gradually.</span>
                 <input type="number" id="session-duration" min="1" max="10" value="2">
+                <span class="setting-description">Duration in minutes (1-10)</span>
             </div>
             
             <div class="settings-group">
-                <label class="settings-label">Show Object Numbers:</label>
+                <label class="settings-label">Show Numbers:</label>
+                <span class="setting-description">Display numbers on objects and targets for additional cognitive challenge and easier identification.</span>
                 <select id="show-numbers">
-                    <option value="no" selected>No</option>
-                    <option value="yes">Yes</option>
+                    <option value="no" selected>No numbers (color matching only)</option>
+                    <option value="yes">Yes (show numbers)</option>
                 </select>
             </div>
             
