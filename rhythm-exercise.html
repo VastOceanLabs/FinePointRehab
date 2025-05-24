@@ -393,8 +393,8 @@
                 width: 95%;
                 max-width: 400px;
                 top: 2vh;
-                max-height: 94vh;
-                padding: 15px 15px 80px 15px; /* Extra bottom padding for button */
+                max-height: 90vh;
+                padding: 15px 15px calc(120px + env(safe-area-inset-bottom)) 15px; /* Extra bottom padding for mobile nav */
             }
             
             .settings-group {
@@ -413,11 +413,13 @@
             
             button {
                 position: sticky;
-                bottom: 0;
-                background-color: rgba(111, 211, 245, 0.95);
-                backdrop-filter: blur(10px);
+                bottom: calc(20px + env(safe-area-inset-bottom));
+                background-color: rgba(111, 211, 245, 0.98);
+                backdrop-filter: blur(15px);
                 margin-bottom: 0;
-                box-shadow: 0 -4px 10px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.2);
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.2);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                z-index: 50;
             }
         }
         
@@ -426,7 +428,7 @@
             #settings-panel {
                 top: 1vh;
                 max-height: 98vh;
-                padding: 10px 10px 70px 10px; /* Extra bottom padding for button */
+                padding: 10px 10px calc(100px + env(safe-area-inset-bottom)) 10px; /* Extra bottom padding for button */
             }
             
             #settings-panel h2 {
@@ -455,11 +457,13 @@
             
             button {
                 position: sticky;
-                bottom: 0;
-                background-color: rgba(111, 211, 245, 0.95);
-                backdrop-filter: blur(10px);
+                bottom: calc(15px + env(safe-area-inset-bottom));
+                background-color: rgba(111, 211, 245, 0.98);
+                backdrop-filter: blur(15px);
                 margin-bottom: 0;
-                box-shadow: 0 -4px 10px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.2);
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.2);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                z-index: 50;
                 font-size: 14px;
                 padding: 10px 12px;
             }
