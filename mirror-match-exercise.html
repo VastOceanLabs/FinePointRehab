@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Mirror Match Exercise | Bilateral Coordination | Fine Point Rehab</title>
     
     <!-- SEO Meta Tags -->
@@ -208,20 +211,26 @@
         }
         
         #settings-panel {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
             border-radius: 15px;
-            padding: 25px;
+            padding: 25px 25px 40px 25px; /* Extra bottom padding */
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
-            width: 80%;
+            width: 85%;
             max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 90vh;
+            max-height: calc(100vh - 120px); /* Account for system UI */
+            max-height: calc(100svh - 120px); /* Use small viewport height */
             overflow-y: auto;
+            /* Safe area support for notched devices */
+            padding-top: max(25px, env(safe-area-inset-top, 25px));
+            padding-bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 30px));
+            padding-left: max(25px, env(safe-area-inset-left, 25px));
+            padding-right: max(25px, env(safe-area-inset-right, 25px));
         }
         
         #settings-panel h2 {
@@ -327,14 +336,17 @@
             color: #121d33;
             border: none;
             border-radius: 10px;
-            padding: 12px 15px;
-            font-size: 16px;
+            padding: 15px 20px; /* Larger padding for easier touch */
+            font-size: 18px; /* Larger font for better readability */
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 20px;
             width: 100%;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            min-height: 48px; /* Minimum touch target size */
+            position: relative;
+            z-index: 10; /* Ensure button stays on top */
         }
         
         button:hover {
@@ -385,18 +397,24 @@
         }
         
         #completion-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
-            padding: 30px;
+            padding: 30px 30px 40px 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             text-align: center;
-            max-width: 80%;
+            width: 85%;
+            max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 100;
+            max-height: calc(100vh - 100px);
+            max-height: calc(100svh - 100px);
+            overflow-y: auto;
+            /* Safe area support */
+            padding-bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 30px));
         }
         
         #completion-message h2 {
@@ -485,6 +503,122 @@
             
             .game-explanation p {
                 font-size: 13px;
+            }
+            
+            #settings-panel {
+                width: 95%;
+                padding: 20px 20px 50px 20px;
+                margin: 10px;
+                max-height: calc(100vh - 80px);
+                max-height: calc(100svh - 80px);
+                border-radius: 10px;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .settings-group {
+                margin-bottom: 18px;
+            }
+            
+            .settings-label {
+                font-size: 15px;
+            }
+            
+            select, input {
+                padding: 14px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            button {
+                padding: 18px 20px;
+                font-size: 18px;
+                margin-top: 25px;
+                min-height: 52px;
+                margin-bottom: 10px; /* Extra space at bottom */
+            }
+        }
+        
+        /* Android-specific fixes */
+        @media screen and (max-width: 768px) {
+            body {
+                /* Ensure content doesn't go behind system UI */
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                min-height: 100vh;
+                min-height: 100svh; /* Small viewport height for mobile browsers */
+            }
+            
+            #game-container {
+                height: 100vh;
+                height: 100svh;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            
+            /* Ensure settings panel never goes below visible area */
+            #settings-panel {
+                bottom: max(20px, env(safe-area-inset-bottom, 20px));
+                top: auto;
+                transform: translateX(-50%);
+                max-height: calc(100vh - 100px);
+                max-height: calc(100svh - 100px);
+            }
+            
+            /* Make sure start button is always visible */
+            #start-session {
+                position: sticky;
+                bottom: 0;
+                background-color: rgba(111, 211, 245, 1) !important;
+                margin-top: 30px;
+                margin-bottom: 0;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.2);
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-height: 600px) {
+            #settings-panel {
+                padding: 15px 15px 40px 15px;
+                max-height: calc(100vh - 60px);
+                max-height: calc(100svh - 60px);
+            }
+            
+            #settings-panel h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .game-explanation {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            #completion-message {
+                padding: 20px 20px 35px 20px;
+                max-height: calc(100vh - 80px);
+                max-height: calc(100svh - 80px);
+            }
+            
+            #completion-scores {
+                margin: 15px 0;
+                font-size: 16px;
+            }
+        }
+        
+        /* Ensure restart button is always visible */
+        @media screen and (max-width: 768px) {
+            #restart-button {
+                position: sticky;
+                bottom: 0;
+                background-color: rgba(111, 211, 245, 1) !important;
+                margin-top: 25px;
+                margin-bottom: 0;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.2);
             }
         }
     </style>
@@ -1343,6 +1477,52 @@
             localStorage.setItem('mirrorAdaptiveTiming', adaptiveTimingSelect.value);
             localStorage.setItem('mirrorDuration', sessionDurationInput.value);
         }
+        
+        // Mobile-specific improvements
+        function handleMobileUI() {
+            // Check if we're on a mobile device
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Adjust viewport height on mobile to account for address bar changes
+                const setViewportHeight = () => {
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                };
+                
+                setViewportHeight();
+                window.addEventListener('resize', setViewportHeight);
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(setViewportHeight, 100);
+                });
+                
+                // Prevent scrolling when touching the game area
+                document.addEventListener('touchmove', function(e) {
+                    if (isSessionActive) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                // Ensure settings panel scrolls to show button when opened
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.target === settingsPanel && !settingsPanel.classList.contains('hidden')) {
+                            setTimeout(() => {
+                                const startButton = document.getElementById('start-session');
+                                if (startButton) {
+                                    startButton.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                                }
+                            }, 300);
+                        }
+                    });
+                });
+                
+                observer.observe(settingsPanel, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+        
+        // Initialize mobile UI improvements
+        document.addEventListener('DOMContentLoaded', handleMobileUI);
     </script>
 </body>
 </html>

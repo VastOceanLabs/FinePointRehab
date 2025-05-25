@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sort & Categorize Exercise | Cognitive-Motor Training | Fine Point Rehab</title>
     
     <!-- SEO Meta Tags -->
@@ -202,14 +202,15 @@
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
             border-radius: 15px;
-            padding: 25px;
+            padding: 25px 25px calc(25px + env(safe-area-inset-bottom, 20px));
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
             max-width: 400px;
-            max-height: 90vh;
+            max-height: calc(85vh - env(safe-area-inset-bottom, 40px));
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
+            margin-bottom: env(safe-area-inset-bottom, 20px);
         }
         
         /* Custom scrollbar for settings panel */
@@ -583,6 +584,68 @@
             #challenge-display {
                 font-size: 16px;
                 padding: 10px 15px;
+            }
+            
+            /* Mobile-specific settings panel adjustments */
+            #settings-panel {
+                width: 90%;
+                max-width: 350px;
+                max-height: calc(80vh - env(safe-area-inset-bottom, 60px));
+                padding: 20px 20px calc(30px + env(safe-area-inset-bottom, 30px));
+                top: 45%;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .settings-group {
+                margin-bottom: 18px;
+            }
+            
+            .settings-label {
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+            
+            /* Ensure button has enough space on mobile */
+            button {
+                padding: 15px;
+                font-size: 16px;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+            
+            /* Additional mobile safety margin */
+            #settings-panel::after {
+                content: '';
+                display: block;
+                height: calc(env(safe-area-inset-bottom, 20px) + 20px);
+                width: 100%;
+            }
+        }
+        
+        /* Extra mobile safety for very small screens */
+        @media (max-height: 600px) {
+            #settings-panel {
+                max-height: calc(75vh - env(safe-area-inset-bottom, 80px));
+                top: 40%;
+                padding: 15px 20px calc(40px + env(safe-area-inset-bottom, 40px));
+            }
+            
+            #settings-panel h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            .settings-group p {
+                font-size: 12px !important;
+                margin: 3px 0 8px 0 !important;
             }
         }
     </style>

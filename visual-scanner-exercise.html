@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Visual Scanner Exercise | Fine Point Rehab</title>
     
     <!-- SEO Meta Tags -->
@@ -123,7 +123,7 @@
             transform: translate(-50%, -50%);
             background-color: rgba(8, 15, 35, 0.95);
             border-radius: 15px;
-            padding: 25px;
+            padding: 25px 25px 40px 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             z-index: 100;
             width: 80%;
@@ -131,6 +131,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             max-height: 85vh;
             overflow-y: auto;
+            padding-bottom: env(safe-area-inset-bottom, 40px);
         }
         
         #settings-panel h2 {
@@ -374,11 +375,18 @@
             #settings-panel {
                 width: 90%;
                 max-width: none;
-                padding: 20px;
+                padding: 20px 20px 80px 20px;
+                max-height: 80vh;
+                top: 45%;
+                padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
             }
             
             .game-description {
                 padding: 15px;
+            }
+            
+            button {
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -621,7 +629,6 @@
             }
             
             // Create visual objects
-            targetDisplay.classList.remove('hidden');
             createVisualObjects(difficulty, objectType, focusArea);
             
             // Update UI
@@ -701,10 +708,6 @@
             const areaWidth = parseInt(scanArea.style.width);
             const areaHeight = parseInt(scanArea.style.height);
             
-	    const bannerRect         = targetDisplay.getBoundingClientRect(); 
-	    const scanRect           = scanArea.getBoundingClientRect(); 
-	    const bannerBottomInScan = bannerRect.bottom - scanRect.top; 
-
             // Get objects library
             const objects = objectLibraries[objectType].slice();
             
@@ -740,7 +743,7 @@
                     // Generate random position
                     x = Math.random() * (areaWidth - size);
                     y = Math.random() * (areaHeight - size);
-		                        
+                    
                     // Adjust position based on focus area
                     if (focusArea === 'left') {
                         x = Math.random() * (areaWidth / 2 - size);
@@ -752,9 +755,6 @@
                         y = areaHeight / 2 + Math.random() * (areaHeight / 2 - size);
                     }
                     
-		    if (bannerBottomInScan > 0 && y < bannerBottomInScan) continue;
-
-
                     // Check for overlap with existing objects
                     validPosition = true;
                     for (const existingObj of visualObjects) {

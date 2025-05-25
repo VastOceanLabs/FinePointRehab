@@ -105,7 +105,7 @@
         }
         
         #settings-panel {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -117,6 +117,40 @@
             width: 80%;
             max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Mobile-specific positioning to avoid system UI */
+            max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px);
+            overflow-y: auto;
+            /* Ensure it's always above system navigation */
+            margin-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Alternative positioning for better mobile compatibility */
+        @media (max-height: 700px) {
+            #settings-panel {
+                position: fixed;
+                top: calc(env(safe-area-inset-top) + 20px);
+                bottom: calc(env(safe-area-inset-bottom) + 20px);
+                left: 50%;
+                transform: translateX(-50%);
+                max-height: none;
+                height: auto;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Extra mobile protection for very small screens */
+        @media (max-height: 600px) {
+            #settings-panel {
+                top: calc(env(safe-area-inset-top) + 10px);
+                bottom: calc(env(safe-area-inset-bottom) + 10px);
+                padding: 15px;
+                width: 85%;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
         }
         
         #settings-panel h2 {
@@ -174,6 +208,7 @@
             font-size: 16px;
             background-color: rgba(0, 10, 30, 0.8);
             color: white;
+            box-sizing: border-box;
         }
         
         select:focus, input:focus {
@@ -187,7 +222,7 @@
             color: #121d33;
             border: none;
             border-radius: 10px;
-            padding: 12px 15px;
+            padding: 15px 20px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
@@ -195,11 +230,18 @@
             width: 100%;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            /* Ensure button is always tappable */
+            min-height: 48px;
         }
         
         button:hover {
             background-color: rgba(111, 211, 245, 1);
             transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         #stats-panel {
@@ -244,7 +286,7 @@
         }
         
         #completion-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -255,6 +297,10 @@
             text-align: center;
             max-width: 80%;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 101;
+            /* Mobile-safe positioning */
+            max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px);
+            overflow-y: auto;
         }
         
         #completion-message h2 {
@@ -376,6 +422,48 @@
             
             #playable-area {
                 bottom: 120px; /* Keep enough space for finger guide and stats */
+            }
+        }
+        
+        /* Additional mobile optimizations */
+        @media (max-width: 480px) {
+            #settings-panel {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            button {
+                padding: 18px 20px;
+                font-size: 18px;
+                min-height: 52px;
+            }
+            
+            select, input {
+                padding: 14px;
+                font-size: 18px;
+            }
+        }
+        
+        /* Landscape mode adjustments for mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #settings-panel {
+                width: 70%;
+                max-width: 500px;
+                padding: 15px;
+            }
+            
+            #settings-panel h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            button {
+                padding: 12px 15px;
+                margin-top: 10px;
             }
         }
     </style>

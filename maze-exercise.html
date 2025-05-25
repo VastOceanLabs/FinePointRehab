@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cosmic Maze Exercise - Fine Motor Skills Rehabilitation | Fine Point Rehab</title>
     
     <!-- SEO Meta Tags -->
@@ -69,6 +69,11 @@
             background: #121d33;
             color: white;
             min-height: 100vh;
+            /* Handle safe areas for devices with notches/nav bars */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
         
         #game-container {
@@ -80,6 +85,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            /* Account for safe areas */
+            padding-bottom: env(safe-area-inset-bottom, 0);
         }
         
         #maze-container {
@@ -239,9 +246,28 @@
             z-index: 100;
             width: 80%;
             max-width: 400px;
+            max-height: 85vh; /* Limit height on mobile */
+            overflow-y: auto; /* Allow scrolling if content is too tall */
             border: 1px solid rgba(255, 255, 255, 0.1);
-	    max-height: 90vh;
-	    overflow-y: auto;
+            /* Add extra bottom padding for mobile nav bars */
+            padding-bottom: calc(25px + env(safe-area-inset-bottom, 20px));
+            /* Smooth scrolling on mobile */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Add subtle scroll indicator for mobile */
+        #settings-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-thumb {
+            background: rgba(111, 211, 245, 0.5);
+            border-radius: 3px;
         }
         
         #settings-panel h2 {
@@ -281,8 +307,8 @@
         
         #home-button {
             position: fixed;
-            bottom: 15px;
-            right: 15px;
+            bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+            right: calc(15px + env(safe-area-inset-right, 0px));
             background-color: rgba(111, 211, 245, 0.8);
             color: #121d33;
             border: none;
@@ -355,9 +381,11 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 16px;
+            font-size: 16px; /* 16px prevents zoom on iOS */
             background-color: rgba(0, 10, 30, 0.8);
             color: white;
+            /* Prevent zoom on focus for mobile */
+            touch-action: manipulation;
         }
         
         select:focus, input:focus {
@@ -379,6 +407,8 @@
             width: 100%;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            /* Ensure minimum touch target size */
+            min-height: 48px;
         }
         
         button:hover {
@@ -424,7 +454,11 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
             text-align: center;
             max-width: 80%;
+            max-height: 80vh;
+            overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Add padding for mobile nav bars */
+            padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
         }
         
         #completion-message h2 {
@@ -497,6 +531,17 @@
             display: none !important;
         }
         
+        /* Mobile-specific styles */
+        .mobile-device #settings-panel {
+            /* Ensure panel doesn't go too high on mobile */
+            top: 45%;
+        }
+        
+        .mobile-device .instructions {
+            /* Slightly smaller on mobile to save space */
+            margin-bottom: 10px;
+        }
+        
         @media (max-width: 768px) {
             .stat-value {
                 font-size: 20px;
@@ -519,6 +564,81 @@
             #settings-panel {
                 width: 90%;
                 padding: 20px;
+                padding-bottom: calc(30px + env(safe-area-inset-bottom, 20px));
+                max-height: 80vh;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .game-description {
+                padding: 12px;
+            }
+            
+            .game-description h3 {
+                font-size: 14px;
+            }
+            
+            .game-description p {
+                font-size: 13px;
+            }
+            
+            .settings-label {
+                font-size: 14px;
+            }
+            
+            select, input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            button {
+                padding: 14px 15px;
+                font-size: 14px;
+                /* Ensure button is well above system nav */
+                margin-bottom: 10px;
+            }
+            
+            .setting-help {
+                font-size: 11px;
+            }
+            
+            /* Smaller home button on mobile */
+            #home-button {
+                width: 50px;
+                height: 50px;
+                font-size: 12px;
+            }
+            
+            /* Adjust stats panel for mobile */
+            #stats-panel {
+                padding: 12px 10px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+            }
+            
+            /* Ensure maze container doesn't go under nav bars */
+            #maze-container {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 400px) {
+            #settings-panel {
+                width: 95%;
+                padding: 15px;
+                padding-bottom: calc(25px + env(safe-area-inset-bottom, 20px));
+            }
+            
+            .game-description {
+                display: none; /* Hide description on very small screens to save space */
+            }
+            
+            .instructions {
+                font-size: 13px;
+                padding: 8px;
             }
         }
     </style>
@@ -707,6 +827,11 @@
         
         // Initialize the game once the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
+            // Add mobile class if on mobile device
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                document.body.classList.add('mobile-device');
+            }
+            
             adjustMazeSize();
             showSettings();
         });
@@ -723,9 +848,19 @@
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
             
+            // Account for mobile UI elements
+            const safeBottomSpace = 100; // Space for stats panel and system UI
+            const safeTopSpace = 80; // Space for instructions
+            
             // Maximum maze size based on screen (with margins)
             mazeWidth = Math.min(600, windowWidth * 0.9);
-            mazeHeight = Math.min(400, windowHeight * 0.6);
+            
+            // On mobile, be more conservative with height
+            if (windowWidth <= 768) {
+                mazeHeight = Math.min(400, (windowHeight - safeBottomSpace - safeTopSpace) * 0.8);
+            } else {
+                mazeHeight = Math.min(400, windowHeight * 0.6);
+            }
             
             // Update maze container size
             mazeContainer.style.width = `${mazeWidth}px`;
