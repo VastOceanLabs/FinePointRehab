@@ -735,25 +735,63 @@
                 const hue = Math.random() * 360;
                 obj.style.color = `hsl(${hue}, 70%, 70%)`;
                 
-                // Set position based on focus area
+                // Set position based on focus area with safety checks
                 let x, y;
                 let validPosition = false;
+                let attempts = 0;
+                const maxAttempts = 100; // Prevent infinite loops
                 
-                while (!validPosition) {
-                    // Generate random position
-                    x = Math.random() * (areaWidth - size);
-                    y = Math.random() * (areaHeight - size);
-                    
-                    // Adjust position based on focus area
-                    if (focusArea === 'left') {
-                        x = Math.random() * (areaWidth / 2 - size);
-                    } else if (focusArea === 'right') {
-                        x = areaWidth / 2 + Math.random() * (areaWidth / 2 - size);
-                    } else if (focusArea === 'top') {
-                        y = Math.random() * (areaHeight / 2 - size);
-                    } else if (focusArea === 'bottom') {
-                        y = areaHeight / 2 + Math.random() * (areaHeight / 2 - size);
+                // Calculate available space for focus areas
+                let availableWidth = areaWidth - size;
+                let availableHeight = areaHeight - size;
+                let minX = 0;
+                let minY = 0;
+                
+                // Adjust available space based on focus area
+                if (focusArea === 'left') {
+                    availableWidth = Math.max(10, (areaWidth / 2) - size - 10);
+                    if (availableWidth <= 0) {
+                        // Fallback to full area if left area is too small
+                        availableWidth = areaWidth - size;
+                        focusArea = 'none';
                     }
+                } else if (focusArea === 'right') {
+                    availableWidth = Math.max(10, (areaWidth / 2) - size - 10);
+                    minX = areaWidth / 2 + 10;
+                    if (availableWidth <= 0) {
+                        // Fallback to full area if right area is too small
+                        availableWidth = areaWidth - size;
+                        minX = 0;
+                        focusArea = 'none';
+                    }
+                } else if (focusArea === 'top') {
+                    availableHeight = Math.max(10, (areaHeight / 2) - size - 10);
+                    if (availableHeight <= 0) {
+                        // Fallback to full area if top area is too small
+                        availableHeight = areaHeight - size;
+                        focusArea = 'none';
+                    }
+                } else if (focusArea === 'bottom') {
+                    availableHeight = Math.max(10, (areaHeight / 2) - size - 10);
+                    minY = areaHeight / 2 + 10;
+                    if (availableHeight <= 0) {
+                        // Fallback to full area if bottom area is too small
+                        availableHeight = areaHeight - size;
+                        minY = 0;
+                        focusArea = 'none';
+                    }
+                }
+                
+                while (!validPosition && attempts < maxAttempts) {
+                    attempts++;
+                    
+                    // Generate random position within available space
+                    x = minX + Math.random() * availableWidth;
+                    y = minY + Math.random() * availableHeight;
+                    
+                    // Ensure position is within bounds
+                    x = Math.max(0, Math.min(x, areaWidth - size));
+                    y = Math.max(0, Math.min(y, areaHeight - size));
                     
                     // Check for overlap with existing objects
                     validPosition = true;
@@ -774,6 +812,35 @@
                             break;
                         }
                     }
+                    
+                    // If we've tried many times, reduce overlap requirement
+                    if (attempts > 50) {
+                        validPosition = true;
+                        for (const existingObj of visualObjects) {
+                            const existingX = parseInt(existingObj.style.left);
+                            const existingY = parseInt(existingObj.style.top);
+                            const existingSize = parseInt(existingObj.style.width);
+                            
+                            // More lenient overlap check
+                            const distance = Math.sqrt(
+                                Math.pow(x + size/2 - (existingX + existingSize/2), 2) +
+                                Math.pow(y + size/2 - (existingY + existingSize/2), 2)
+                            );
+                            
+                            if (distance < (size + existingSize) / 2) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // If still no valid position found, place anyway
+                if (!validPosition) {
+                    x = minX + Math.random() * availableWidth;
+                    y = minY + Math.random() * availableHeight;
+                    x = Math.max(0, Math.min(x, areaWidth - size));
+                    y = Math.max(0, Math.min(y, areaHeight - size));
                 }
                 
                 // Set position
