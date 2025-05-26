@@ -543,7 +543,6 @@
         let totalSearchTime = 0;
         let lastTargetTime = 0;
         let currentTarget = null;
-        let currentTargetIndex = -1;
         let visualObjects = [];
         
         // Home button functionality
@@ -870,7 +869,6 @@
             
             const randomIndex = Math.floor(Math.random() * availableObjects.length);
             currentTarget = availableObjects[randomIndex];
-            currentTargetIndex = visualObjects.indexOf(currentTarget);
             
             // Update target display
             targetIcon.textContent = currentTarget.dataset.symbol;
@@ -883,9 +881,10 @@
         function handleObjectClick(e) {
             if (!isSessionActive) return;
             
-            const clickedIndex = parseInt(e.target.dataset.index);
+            const clickedSymbol = e.target.dataset.symbol;
+            const targetSymbol = currentTarget.dataset.symbol;
             
-            if (clickedIndex === currentTargetIndex) {
+            if (clickedSymbol === targetSymbol && !e.target.classList.contains('found')) {
                 // Correct object found
                 const now = Date.now();
                 const searchTime = now - lastTargetTime;
@@ -902,7 +901,7 @@
                 updateStats();
                 
                 // Mark object as found
-                currentTarget.classList.add('found');
+                e.target.classList.add('found');
                 
                 // Set new target after a short delay
                 setTimeout(() => {
