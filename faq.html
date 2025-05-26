@@ -123,6 +123,8 @@
         .faq-question i {
             color: rgba(72, 202, 228, 0.9);
             transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-left: 10px;
         }
         
         .faq-question.active i {
@@ -130,15 +132,23 @@
         }
         
         .faq-answer {
-            padding: 0 20px;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            transition: max-height 0.4s ease-out;
         }
         
         .faq-answer.show {
+            overflow: visible;
+        }
+        
+        /* Fallback for when JavaScript fails or content changes dynamically */
+        .faq-answer.show[style*="height: auto"] {
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        .faq-answer-content {
             padding: 20px;
-            max-height: 500px;
         }
         
         .faq-answer p {
@@ -277,6 +287,7 @@
         @media (max-width: 768px) {
             .page-content {
                 padding: 20px;
+                margin: 20px auto;
             }
             
             h1 {
@@ -289,6 +300,7 @@
             
             nav a {
                 margin: 5px 10px;
+                font-size: 1rem;
             }
             
             .faq-categories-nav {
@@ -300,6 +312,83 @@
                 width: 80%;
                 text-align: center;
                 margin: 3px 0;
+            }
+            
+            .faq-question {
+                padding: 12px 15px;
+                font-size: 1rem;
+                line-height: 1.4;
+            }
+            
+            .faq-question i {
+                margin-left: 8px;
+            }
+            
+            .faq-answer-content {
+                padding: 15px;
+            }
+            
+            .faq-answer p,
+            .faq-answer ul li {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            
+            .page-content h2 {
+                font-size: 1.8rem;
+            }
+            
+            .faq-category h3 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .page-content {
+                padding: 15px;
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            nav a {
+                margin: 3px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .faq-question {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            .faq-answer-content {
+                padding: 12px;
+            }
+            
+            .faq-answer p,
+            .faq-answer ul li {
+                font-size: 0.9rem;
+            }
+            
+            .page-content h2 {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+            
+            .faq-category h3 {
+                font-size: 1.2rem;
+                margin-top: 25px;
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -342,15 +431,17 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Our exercises are designed primarily for individuals recovering from:</p>
-                        <ul>
-                            <li>Stroke</li>
-                            <li>Traumatic brain injury</li>
-                            <li>Spinal cord injury</li>
-                            <li>Neurological conditions affecting motor skills</li>
-                            <li>Hand or upper limb injuries</li>
-                        </ul>
-                        <p>The exercises can be beneficial for anyone looking to improve fine motor skills, hand-eye coordination, and cognitive function. They can be used as part of a home exercise program or under the guidance of a healthcare professional.</p>
+                        <div class="faq-answer-content">
+                            <p>Our exercises are designed primarily for individuals recovering from:</p>
+                            <ul>
+                                <li>Stroke</li>
+                                <li>Traumatic brain injury</li>
+                                <li>Spinal cord injury</li>
+                                <li>Neurological conditions affecting motor skills</li>
+                                <li>Hand or upper limb injuries</li>
+                            </ul>
+                            <p>The exercises can be beneficial for anyone looking to improve fine motor skills, hand-eye coordination, and cognitive function. They can be used as part of a home exercise program or under the guidance of a healthcare professional.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -360,8 +451,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>For optimal results, we recommend following the guidance of your healthcare provider. Generally, short but frequent sessions (15-30 minutes, 3-5 times per week) are more beneficial than occasional long sessions.</p>
-                        <p>Consistency is key in rehabilitation. Regular practice helps reinforce neural pathways and improve functional outcomes. However, it's important to avoid overexertion and to take breaks if you experience fatigue or discomfort.</p>
+                        <div class="faq-answer-content">
+                            <p>For optimal results, we recommend following the guidance of your healthcare provider. Generally, short but frequent sessions (15-30 minutes, 3-5 times per week) are more beneficial than occasional long sessions.</p>
+                            <p>Consistency is key in rehabilitation. Regular practice helps reinforce neural pathways and improve functional outcomes. However, it's important to avoid overexertion and to take breaks if you experience fatigue or discomfort.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -371,8 +464,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>No, our exercises are designed to complement, not replace, professional therapy. They can be used as part of a comprehensive rehabilitation program developed by healthcare professionals.</p>
-                        <p>We strongly recommend using these exercises under the guidance of a physical therapist, occupational therapist, or other qualified healthcare provider who can assess your specific needs, set appropriate goals, and monitor your progress.</p>
+                        <div class="faq-answer-content">
+                            <p>No, our exercises are designed to complement, not replace, professional therapy. They can be used as part of a comprehensive rehabilitation program developed by healthcare professionals.</p>
+                            <p>We strongly recommend using these exercises under the guidance of a physical therapist, occupational therapist, or other qualified healthcare provider who can assess your specific needs, set appropriate goals, and monitor your progress.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -382,9 +477,11 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, our exercises are based on established principles of motor learning, neuroplasticity, and rehabilitation science. The specific activities incorporated into our digital exercises are adapted from evidence-based therapeutic techniques used by rehabilitation professionals.</p>
-                        <p>Research has shown that gamified rehabilitation exercises can significantly improve adherence to home exercise programs and enhance motivation. Studies also support the effectiveness of repetitive, task-specific training in improving motor function following neurological injury.</p>
-                        <p>We continually update our exercises based on the latest research and feedback from healthcare professionals.</p>
+                        <div class="faq-answer-content">
+                            <p>Yes, our exercises are based on established principles of motor learning, neuroplasticity, and rehabilitation science. The specific activities incorporated into our digital exercises are adapted from evidence-based therapeutic techniques used by rehabilitation professionals.</p>
+                            <p>Research has shown that gamified rehabilitation exercises can significantly improve adherence to home exercise programs and enhance motivation. Studies also support the effectiveness of repetitive, task-specific training in improving motor function following neurological injury.</p>
+                            <p>We continually update our exercises based on the latest research and feedback from healthcare professionals.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -398,20 +495,22 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Each exercise is designed to target specific skills:</p>
-                        <ul>
-                            <li><strong>Bubble Tap:</strong> Fine motor control, reaction time, and finger isolation</li>
-                            <li><strong>Comet Tap:</strong> Dynamic visual tracking, coordination, and reaction speed</li>
-                            <li><strong>Trace & Reveal:</strong> Controlled movement, precision, and sustained attention</li>
-                            <li><strong>Rhythm Reach:</strong> Memory, sequential processing, and spatial awareness</li>
-                            <li><strong>Precision Drop:</strong> Hand-eye coordination, grasp and release skills, and accuracy</li>
-                            <li><strong>Cosmic Maze:</strong> Planning, controlled movement, and problem-solving</li>
-                            <li><strong>Mirror Match:</strong> Bilateral coordination, symmetrical movement, and motor control in both hands.</li>
-                            <li><strong>Sequence Builder:</strong> Executive function, planning skills, and sequential processing.</li>
-                            <li><strong>Sort &amp; Categorize:</strong> Visual discrimination, decision-making, and attention paired with motor tasks.</li>
-                            <li><strong>Visual Scanner:</strong> Visual attention, field-of-vision expansion, and visual search skills training.</li>
-                        </ul>
-                        <p>Many exercises offer multiple benefits and can be customized to target specific rehabilitation goals.</p>
+                        <div class="faq-answer-content">
+                            <p>Each exercise is designed to target specific skills:</p>
+                            <ul>
+                                <li><strong>Bubble Tap:</strong> Fine motor control, reaction time, and finger isolation</li>
+                                <li><strong>Comet Tap:</strong> Dynamic visual tracking, coordination, and reaction speed</li>
+                                <li><strong>Trace & Reveal:</strong> Controlled movement, precision, and sustained attention</li>
+                                <li><strong>Rhythm Reach:</strong> Memory, sequential processing, and spatial awareness</li>
+                                <li><strong>Precision Drop:</strong> Hand-eye coordination, grasp and release skills, and accuracy</li>
+                                <li><strong>Cosmic Maze:</strong> Planning, controlled movement, and problem-solving</li>
+                                <li><strong>Mirror Match:</strong> Bilateral coordination, symmetrical movement, and motor control in both hands.</li>
+                                <li><strong>Sequence Builder:</strong> Executive function, planning skills, and sequential processing.</li>
+                                <li><strong>Sort &amp; Categorize:</strong> Visual discrimination, decision-making, and attention paired with motor tasks.</li>
+                                <li><strong>Visual Scanner:</strong> Visual attention, field-of-vision expansion, and visual search skills training.</li>
+                            </ul>
+                            <p>Many exercises offer multiple benefits and can be customized to target specific rehabilitation goals.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -421,15 +520,17 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, all exercises include customization options to accommodate different ability levels and therapeutic goals. Common adjustable parameters include:</p>
-                        <ul>
-                            <li>Difficulty level</li>
-                            <li>Speed</li>
-                            <li>Target size</li>
-                            <li>Session duration</li>
-                            <li>Visual and auditory feedback</li>
-                        </ul>
-                        <p>These settings allow you or your therapist to tailor the exercises to your specific needs and gradually increase the challenge as your skills improve.</p>
+                        <div class="faq-answer-content">
+                            <p>Yes, all exercises include customization options to accommodate different ability levels and therapeutic goals. Common adjustable parameters include:</p>
+                            <ul>
+                                <li>Difficulty level</li>
+                                <li>Speed</li>
+                                <li>Target size</li>
+                                <li>Session duration</li>
+                                <li>Visual and auditory feedback</li>
+                            </ul>
+                            <p>These settings allow you or your therapist to tailor the exercises to your specific needs and gradually increase the challenge as your skills improve.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -439,8 +540,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Each exercise provides immediate feedback during and after sessions, including metrics such as accuracy, completion time, and score. Currently, these stats are shown at the end of each session but are not saved between sessions.</p>
-                        <p>We are developing a progress tracking feature that will allow users to save their results and view performance trends over time. This feature will be available in a future update.</p>
+                        <div class="faq-answer-content">
+                            <p>Each exercise provides immediate feedback during and after sessions, including metrics such as accuracy, completion time, and score. Currently, these stats are shown at the end of each session but are not saved between sessions.</p>
+                            <p>We are developing a progress tracking feature that will allow users to save their results and view performance trends over time. This feature will be available in a future update.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -450,14 +553,16 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>All exercises offer adjustable difficulty levels to accommodate a wide range of abilities. If you find an exercise too challenging:</p>
-                        <ul>
-                            <li>Select an easier difficulty level from the settings menu</li>
-                            <li>Increase target sizes or slow down movement speeds</li>
-                            <li>Reduce session duration to prevent fatigue</li>
-                            <li>Try a different exercise that might better match your current abilities</li>
-                        </ul>
-                        <p>Remember that rehabilitation is a journey. Starting with achievable challenges and gradually increasing difficulty as you improve is an effective approach. Consult with your healthcare provider for specific recommendations tailored to your needs.</p>
+                        <div class="faq-answer-content">
+                            <p>All exercises offer adjustable difficulty levels to accommodate a wide range of abilities. If you find an exercise too challenging:</p>
+                            <ul>
+                                <li>Select an easier difficulty level from the settings menu</li>
+                                <li>Increase target sizes or slow down movement speeds</li>
+                                <li>Reduce session duration to prevent fatigue</li>
+                                <li>Try a different exercise that might better match your current abilities</li>
+                            </ul>
+                            <p>Remember that rehabilitation is a journey. Starting with achievable challenges and gradually increasing difficulty as you improve is an effective approach. Consult with your healthcare provider for specific recommendations tailored to your needs.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -471,14 +576,16 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Healthcare professionals can incorporate Fine Point Rehab exercises into treatment plans in several ways:</p>
-                        <ul>
-                            <li>As guided activities during in-person therapy sessions</li>
-                            <li>As prescribed home exercise programs between clinical visits</li>
-                            <li>As assessment tools to evaluate progress in specific skill areas</li>
-                            <li>As motivational tools to increase engagement with rehabilitation</li>
-                        </ul>
-                        <p>Therapists can select exercises that target specific functional goals, adjust settings to match the patient's abilities, and use the performance metrics to track progress over time.</p>
+                        <div class="faq-answer-content">
+                            <p>Healthcare professionals can incorporate Fine Point Rehab exercises into treatment plans in several ways:</p>
+                            <ul>
+                                <li>As guided activities during in-person therapy sessions</li>
+                                <li>As prescribed home exercise programs between clinical visits</li>
+                                <li>As assessment tools to evaluate progress in specific skill areas</li>
+                                <li>As motivational tools to increase engagement with rehabilitation</li>
+                            </ul>
+                            <p>Therapists can select exercises that target specific functional goals, adjust settings to match the patient's abilities, and use the performance metrics to track progress over time.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -488,14 +595,16 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Currently, we do not offer integrated clinical documentation or reporting tools. However, we are developing features specifically for healthcare professionals, including:</p>
-                        <ul>
-                            <li>Detailed performance reports for individual patients</li>
-                            <li>Progress tracking across multiple sessions</li>
-                            <li>Customizable exercise prescription tools</li>
-                            <li>Integration options with electronic health record (EHR) systems</li>
-                        </ul>
-                        <p>If you're a healthcare professional interested in these upcoming features, please contact us to join our clinical partners program for early access and input on development.</p>
+                        <div class="faq-answer-content">
+                            <p>Currently, we do not offer integrated clinical documentation or reporting tools. However, we are developing features specifically for healthcare professionals, including:</p>
+                            <ul>
+                                <li>Detailed performance reports for individual patients</li>
+                                <li>Progress tracking across multiple sessions</li>
+                                <li>Customizable exercise prescription tools</li>
+                                <li>Integration options with electronic health record (EHR) systems</li>
+                            </ul>
+                            <p>If you're a healthcare professional interested in these upcoming features, please contact us to join our clinical partners program for early access and input on development.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -509,21 +618,23 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Fine Point Rehab exercises are web-based and designed to work on a wide range of devices, including:</p>
-                        <ul>
-                            <li>Desktop computers (Windows, Mac)</li>
-                            <li>Laptops</li>
-                            <li>Tablets (iPad, Android)</li>
-                            <li>Smartphones (though a larger screen provides a better experience)</li>
-                        </ul>
-                        <p>Supported browsers include:</p>
-                        <ul>
-                            <li>Google Chrome (recommended)</li>
-                            <li>Mozilla Firefox</li>
-                            <li>Safari</li>
-                            <li>Microsoft Edge</li>
-                        </ul>
-                        <p>For the best experience, we recommend using the latest version of Google Chrome on a tablet or desktop device with a touchscreen.</p>
+                        <div class="faq-answer-content">
+                            <p>Fine Point Rehab exercises are web-based and designed to work on a wide range of devices, including:</p>
+                            <ul>
+                                <li>Desktop computers (Windows, Mac)</li>
+                                <li>Laptops</li>
+                                <li>Tablets (iPad, Android)</li>
+                                <li>Smartphones (though a larger screen provides a better experience)</li>
+                            </ul>
+                            <p>Supported browsers include:</p>
+                            <ul>
+                                <li>Google Chrome (recommended)</li>
+                                <li>Mozilla Firefox</li>
+                                <li>Safari</li>
+                                <li>Microsoft Edge</li>
+                            </ul>
+                            <p>For the best experience, we recommend using the latest version of Google Chrome on a tablet or desktop device with a touchscreen.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -533,8 +644,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, an internet connection is required to access and use the exercises initially. However, once the exercises are loaded, many of them can continue to function if your connection is temporarily interrupted.</p>
-                        <p>We are developing offline functionality for a future update, which will allow users to download exercises for use without an internet connection.</p>
+                        <div class="faq-answer-content">
+                            <p>Yes, an internet connection is required to access and use the exercises initially. However, once the exercises are loaded, many of them can continue to function if your connection is temporarily interrupted.</p>
+                            <p>We are developing offline functionality for a future update, which will allow users to download exercises for use without an internet connection.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -544,17 +657,19 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>If you're experiencing performance issues, try these troubleshooting steps:</p>
-                        <ol>
-                            <li>Close other applications and browser tabs to free up system resources</li>
-                            <li>Clear your browser cache and cookies</li>
-                            <li>Ensure your browser is updated to the latest version</li>
-                            <li>Try a different browser (Google Chrome is recommended)</li>
-                            <li>Restart your device</li>
-                            <li>Check your internet connection speed and stability</li>
-                            <li>Reduce the visual quality settings in the exercise (if available)</li>
-                        </ol>
-                        <p>If problems persist, please contact our technical support team with details about your device, browser, and the specific issues you're experiencing.</p>
+                        <div class="faq-answer-content">
+                            <p>If you're experiencing performance issues, try these troubleshooting steps:</p>
+                            <ol>
+                                <li>Close other applications and browser tabs to free up system resources</li>
+                                <li>Clear your browser cache and cookies</li>
+                                <li>Ensure your browser is updated to the latest version</li>
+                                <li>Try a different browser (Google Chrome is recommended)</li>
+                                <li>Restart your device</li>
+                                <li>Check your internet connection speed and stability</li>
+                                <li>Reduce the visual quality settings in the exercise (if available)</li>
+                            </ol>
+                            <p>If problems persist, please contact our technical support team with details about your device, browser, and the specific issues you're experiencing.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -564,16 +679,18 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>If you encounter a bug or technical issue, please contact our support team at support@finepointrehab.com with the following information:</p>
-                        <ul>
-                            <li>Description of the issue</li>
-                            <li>Steps to reproduce the problem</li>
-                            <li>Device type and model</li>
-                            <li>Browser name and version</li>
-                            <li>Operating system</li>
-                            <li>Screenshots or video of the issue (if possible)</li>
-                        </ul>
-                        <p>Our technical team reviews all reports and works to resolve issues as quickly as possible. We appreciate your patience and feedback as we continue to improve our exercises.</p>
+                        <div class="faq-answer-content">
+                            <p>If you encounter a bug or technical issue, please contact our support team at support@finepointrehab.com with the following information:</p>
+                            <ul>
+                                <li>Description of the issue</li>
+                                <li>Steps to reproduce the problem</li>
+                                <li>Device type and model</li>
+                                <li>Browser name and version</li>
+                                <li>Operating system</li>
+                                <li>Screenshots or video of the issue (if possible)</li>
+                            </ul>
+                            <p>Our technical team reviews all reports and works to resolve issues as quickly as possible. We appreciate your patience and feedback as we continue to improve our exercises.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -587,15 +704,17 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Currently, our exercises are available without requiring an account. You can access and use all exercises directly through our website without signing up or logging in.</p>
-                        <p>In the future, we plan to introduce optional user accounts that will enable additional features such as:</p>
-                        <ul>
-                            <li>Saving personalized settings</li>
-                            <li>Tracking progress across sessions</li>
-                            <li>Syncing data between devices</li>
-                            <li>Access to premium exercises and features</li>
-                        </ul>
-                        <p>We'll announce these features when they become available.</p>
+                        <div class="faq-answer-content">
+                            <p>Currently, our exercises are available without requiring an account. You can access and use all exercises directly through our website without signing up or logging in.</p>
+                            <p>In the future, we plan to introduce optional user accounts that will enable additional features such as:</p>
+                            <ul>
+                                <li>Saving personalized settings</li>
+                                <li>Tracking progress across sessions</li>
+                                <li>Syncing data between devices</li>
+                                <li>Access to premium exercises and features</li>
+                            </ul>
+                            <p>We'll announce these features when they become available.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -605,9 +724,11 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, all exercises currently available on our website are free to use. We're committed to making rehabilitation resources accessible to everyone who needs them.</p>
-                        <p>In the future, we may introduce premium features or additional exercises as part of a subscription model. However, our core set of exercises will remain free to ensure accessibility.</p>
-                        <p>For healthcare organizations or clinics interested in enterprise solutions with additional features, please contact us at partnerships@finepointrehab.com to discuss licensing options.</p>
+                        <div class="faq-answer-content">
+                            <p>Yes, all exercises currently available on our website are free to use. We're committed to making rehabilitation resources accessible to everyone who needs them.</p>
+                            <p>In the future, we may introduce premium features or additional exercises as part of a subscription model. However, our core set of exercises will remain free to ensure accessibility.</p>
+                            <p>For healthcare organizations or clinics interested in enterprise solutions with additional features, please contact us at partnerships@finepointrehab.com to discuss licensing options.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -665,19 +786,87 @@
             starsContainer.appendChild(star);
         }
         
-        // FAQ accordion functionality
+        // Enhanced FAQ accordion functionality with dynamic height calculation
         document.addEventListener('DOMContentLoaded', function() {
             const faqQuestions = document.querySelectorAll('.faq-question');
             
+            // Function to safely get content height
+            function getContentHeight(element) {
+                // Temporarily remove max-height and make visible to measure
+                const originalMaxHeight = element.style.maxHeight;
+                const originalOverflow = element.style.overflow;
+                
+                element.style.maxHeight = 'none';
+                element.style.overflow = 'visible';
+                const height = element.scrollHeight;
+                
+                // Restore original styles
+                element.style.maxHeight = originalMaxHeight;
+                element.style.overflow = originalOverflow;
+                
+                return height;
+            }
+            
             faqQuestions.forEach(question => {
                 question.addEventListener('click', function() {
-                    // Toggle active class on the question
-                    this.classList.toggle('active');
-                    
-                    // Toggle show class on the answer
                     const answer = this.nextElementSibling;
-                    answer.classList.toggle('show');
+                    const isCurrentlyOpen = this.classList.contains('active');
+                    
+                    // Close all other FAQ items first
+                    faqQuestions.forEach(otherQuestion => {
+                        if (otherQuestion !== this) {
+                            otherQuestion.classList.remove('active');
+                            const otherAnswer = otherQuestion.nextElementSibling;
+                            otherAnswer.classList.remove('show');
+                            otherAnswer.style.maxHeight = '0px';
+                        }
+                    });
+                    
+                    // Toggle current item
+                    if (isCurrentlyOpen) {
+                        // Close this item
+                        this.classList.remove('active');
+                        answer.classList.remove('show');
+                        answer.style.maxHeight = '0px';
+                    } else {
+                        // Open this item
+                        this.classList.add('active');
+                        
+                        // Calculate the actual height needed
+                        const contentHeight = getContentHeight(answer);
+                        
+                        // Set the calculated height for smooth animation
+                        answer.style.maxHeight = contentHeight + 'px';
+                        
+                        // Add show class for overflow change
+                        answer.classList.add('show');
+                        
+                        // After animation completes, remove max-height constraint entirely
+                        // This ensures content can expand if needed (e.g., orientation change)
+                        setTimeout(() => {
+                            if (answer.classList.contains('show')) {
+                                answer.style.maxHeight = '';
+                                answer.style.height = 'auto';
+                            }
+                        }, 450);
+                    }
                 });
+            });
+            
+            // Handle window resize to recalculate heights if needed
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Recalculate open FAQ heights
+                    const openAnswers = document.querySelectorAll('.faq-answer.show');
+                    openAnswers.forEach(answer => {
+                        if (answer.style.maxHeight && answer.style.maxHeight !== '') {
+                            const newHeight = getContentHeight(answer);
+                            answer.style.maxHeight = newHeight + 'px';
+                        }
+                    });
+                }, 250);
             });
             
             // Category navigation
