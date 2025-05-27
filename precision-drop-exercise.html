@@ -55,6 +55,19 @@
     </script>
     
     <style>
+        :root {
+            --primary-color: #6fd3f5;
+            --secondary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-dark: #0a0f1b;
+            --bg-medium: #1a2332;
+            --bg-light: #2a3548;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d6;
+        }
+        
         body {
             margin: 0;
             padding: 0;
@@ -63,8 +76,8 @@
             touch-action: manipulation;
             user-select: none;
             -webkit-user-select: none;
-            background: #121d33;
-            color: white;
+            background: var(--bg-dark);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
@@ -74,6 +87,7 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            background: radial-gradient(ellipse at center, var(--bg-medium) 0%, var(--bg-dark) 100%);
         }
         
         #game-area {
@@ -82,14 +96,35 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 80%;
-            max-width: 500px;
-            height: 400px;
-            background: #1c2a4e;
-            border: 2px solid rgba(111, 211, 245, 0.9);
-            border-radius: 15px;
+            max-width: 600px;
+            height: 450px;
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 2px solid rgba(111, 211, 245, 0.3);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 0 20px rgba(111, 211, 245, 0.1);
             z-index: 10;
+            position: relative;
+        }
+        
+        #game-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(111, 211, 245, 0.05) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes rotateGradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .draggable {
@@ -97,53 +132,114 @@
             border-radius: 50%;
             cursor: grab;
             touch-action: none;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(111, 211, 245, 0.9));
-            box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
-            transition: box-shadow 0.2s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             z-index: 20;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #121d33;
+            color: var(--bg-dark);
+            backdrop-filter: blur(10px);
+            animation: floatAnimation 3s ease-in-out infinite;
+        }
+        
+        @keyframes floatAnimation {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         
         .draggable.dragging {
             cursor: grabbing;
-            box-shadow: 0 0 25px rgba(111, 211, 245, 0.6);
-            transform: scale(1.1);
+            box-shadow: 
+                0 8px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px currentColor;
+            transform: scale(1.15);
+            animation: none;
+            z-index: 30;
+        }
+        
+        .draggable:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 30px currentColor;
         }
         
         .target {
             position: absolute;
-            border: 3px dashed rgba(255, 255, 255, 0.6);
+            border: 3px dashed rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 15;
+            background: radial-gradient(circle at center, transparent 40%, rgba(255, 255, 255, 0.02) 100%);
+        }
+        
+        .target::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%;
+            height: 30%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .target.active {
-            border-color: rgba(111, 211, 245, 1);
-            box-shadow: 0 0 20px rgba(111, 211, 245, 0.5);
-            animation: targetPulse 1.5s ease-in-out infinite;
+            animation: targetPulse 1s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px currentColor,
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .target.active::before {
+            opacity: 1;
         }
         
         @keyframes targetPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.08);
+                opacity: 0.8;
+            }
         }
         
         .target.success {
-            background: radial-gradient(circle at center, rgba(46, 204, 113, 0.3), transparent);
-            border-color: rgba(46, 204, 113, 1);
-            animation: successFlash 0.5s ease;
+            animation: successBurst 0.6s ease;
         }
         
-        @keyframes successFlash {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        @keyframes successBurst {
+            0% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3);
+                opacity: 0.6;
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
         }
         
         #settings-panel {
@@ -151,49 +247,53 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(8, 15, 35, 0.95);
-            border-radius: 15px;
-            padding: 25px;
-            padding-bottom: calc(25px + env(safe-area-inset-bottom) + 60px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            padding-bottom: calc(30px + env(safe-area-inset-bottom) + 60px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(111, 211, 245, 0.2);
             z-index: 100;
             width: 80%;
             max-width: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             max-height: 75vh;
             overflow-y: auto;
+            backdrop-filter: blur(10px);
         }
         
         #settings-panel h2 {
             text-align: center;
-            color: white;
+            color: var(--text-primary);
             margin-top: 0;
             margin-bottom: 25px;
-            font-size: 24px;
-            letter-spacing: 0.5px;
+            font-size: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .game-description {
-            background: rgba(111, 211, 245, 0.1);
-            border: 1px solid rgba(111, 211, 245, 0.3);
-            border-radius: 10px;
-            padding: 15px;
+            background: rgba(111, 211, 245, 0.08);
+            border: 1px solid rgba(111, 211, 245, 0.2);
+            border-radius: 12px;
+            padding: 18px;
             margin-bottom: 25px;
+            backdrop-filter: blur(5px);
         }
         
         .game-description p {
             margin: 0;
             font-size: 15px;
-            line-height: 1.4;
-            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            color: var(--text-secondary);
         }
         
         #settings-toggle {
             position: fixed;
-            bottom: calc(15px + env(safe-area-inset-bottom));
-            right: calc(15px + env(safe-area-inset-right));
-            background-color: rgba(111, 211, 245, 0.8);
-            color: #121d33;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            right: calc(20px + env(safe-area-inset-right));
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--bg-dark);
             border: none;
             border-radius: 50%;
             width: 60px;
@@ -202,8 +302,10 @@
             font-weight: bold;
             cursor: pointer;
             z-index: 90;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(111, 211, 245, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -211,65 +313,79 @@
         }
         
         #settings-toggle:hover {
-            background-color: rgba(111, 211, 245, 1);
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(111, 211, 245, 0.5);
         }
         
         .settings-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
         
         .settings-label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: white;
+            color: var(--text-primary);
             font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .setting-description {
             display: block;
             margin-bottom: 10px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
             font-size: 13px;
-            line-height: 1.4;
+            line-height: 1.5;
             font-style: italic;
         }
         
         select, input {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(111, 211, 245, 0.2);
             font-size: 16px;
-            background-color: rgba(0, 10, 30, 0.8);
-            color: white;
+            background-color: rgba(0, 10, 30, 0.4);
+            color: var(--text-primary);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
         }
         
         select:focus, input:focus {
             outline: none;
-            border-color: rgba(111, 211, 245, 0.8);
-            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(111, 211, 245, 0.2);
+            background-color: rgba(0, 10, 30, 0.6);
         }
         
         button {
-            background-color: rgba(111, 211, 245, 0.9);
-            color: #121d33;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--bg-dark);
             border: none;
-            border-radius: 10px;
-            padding: 12px 15px;
+            border-radius: 12px;
+            padding: 14px 20px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 15px;
             width: 100%;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         button:hover {
-            background-color: rgba(111, 211, 245, 1);
             transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(111, 211, 245, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         #stats-panel {
@@ -277,11 +393,12 @@
             bottom: env(safe-area-inset-bottom);
             left: env(safe-area-inset-left);
             right: env(safe-area-inset-right);
-            background-color: rgba(8, 15, 35, 0.8);
-            padding: 15px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+            padding: 18px;
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
         
         .stat-box {
@@ -289,24 +406,28 @@
         }
         
         .stat-value {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            color: rgba(111, 211, 245, 1);
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(111, 211, 245, 0.5);
         }
         
         .stat-label {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
+            margin-top: 4px;
         }
         
         #timer-bar {
             position: absolute;
             top: 0;
             left: 0;
-            height: 8px;
-            background-color: rgba(111, 211, 245, 0.9);
+            height: 6px;
+            background: linear-gradient(90deg, var(--success-color) 0%, var(--primary-color) 50%, var(--warning-color) 100%);
             width: 100%;
             z-index: 20;
+            box-shadow: 0 2px 10px rgba(111, 211, 245, 0.4);
+            transition: width 0.1s linear;
         }
         
         .hidden {
@@ -318,29 +439,35 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(8, 15, 35, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(111, 211, 245, 0.2);
             text-align: center;
             max-width: 80%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         
         #completion-message h2 {
-            color: white;
+            color: var(--text-primary);
             margin-top: 0;
+            font-size: 32px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         #completion-scores {
-            margin: 20px 0;
+            margin: 25px 0;
             font-size: 18px;
+            line-height: 1.8;
         }
         
         .score-highlight {
-            color: rgba(111, 211, 245, 1);
+            color: var(--primary-color);
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(111, 211, 245, 0.5);
         }
         
         #stars-container {
@@ -357,43 +484,71 @@
         .star {
             position: absolute;
             background-color: white;
-            width: 2px;
-            height: 2px;
             border-radius: 50%;
-            opacity: 0.4;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
         }
         
         #status-message {
             position: absolute;
-            top: 10%;
+            top: 15%;
             left: 50%;
             transform: translateX(-50%);
             font-size: 24px;
             font-weight: bold;
             text-align: center;
-            color: white;
+            color: var(--text-primary);
             z-index: 15;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
         }
         
         #progress-display {
             position: absolute;
-            top: 20px;
+            top: 25px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 20px;
             font-weight: bold;
             text-align: center;
-            color: white;
+            color: var(--text-primary);
             z-index: 15;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 15px;
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .drag-trail {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 18;
+            animation: fadeOut 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
         
         @media (max-width: 768px) {
             .stat-value {
-                font-size: 20px;
+                font-size: 22px;
             }
             
             .stat-label {
@@ -402,7 +557,7 @@
             
             #game-area {
                 width: 90%;
-                height: 300px;
+                height: 350px;
             }
             
             #settings-panel {
@@ -414,7 +569,7 @@
             }
             
             .game-description {
-                padding: 12px;
+                padding: 15px;
                 margin-bottom: 20px;
             }
             
@@ -423,7 +578,7 @@
             }
             
             button {
-                padding: 15px;
+                padding: 16px;
                 font-size: 18px;
                 margin-top: 20px;
             }
@@ -440,7 +595,7 @@
         
         <div id="game-area"></div>
         
-        <a href="index.html" id="settings-toggle">Home</a>
+        <button id="settings-toggle">⚙️</button>
         
         <div id="settings-panel">
             <h2>Precision Drop Exercise</h2>
@@ -508,7 +663,7 @@
         </div>
         
         <div id="completion-message" class="hidden">
-            <h2>Session Complete!</h2>
+            <h2>🎉 Session Complete!</h2>
             <div id="completion-scores">
                 <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
                 <p>Successful Drops: <span id="final-drops" class="score-highlight">0</span></p>
@@ -534,27 +689,31 @@
         const roundNumber = document.getElementById('round-number');
         const totalRounds = document.getElementById('total-rounds');
         
-        // Add color palette for matching pairs
-        const pairColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', '#3498db', '#e67e22', '#1abc9c', '#34495e'];
+        // Enhanced color palette with gradients
+        const colorPalette = [
+            { solid: '#e74c3c', gradient: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)' },
+            { solid: '#f1c40f', gradient: 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)' },
+            { solid: '#2ecc71', gradient: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)' },
+            { solid: '#9b59b6', gradient: 'linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)' },
+            { solid: '#3498db', gradient: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)' },
+            { solid: '#e67e22', gradient: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)' },
+            { solid: '#1abc9c', gradient: 'linear-gradient(135deg, #1abc9c 0%, #16a085 100%)' },
+            { solid: '#34495e', gradient: 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)' }
+        ];
         
-        // Create stars for background effect
-        const starsCount = 50;
-        
-        // Helper function to get random direction for draggable objects
-        function getRandomDirection() {
-            const directions = ['left', 'right', 'top', 'bottom'];
-            return directions[Math.floor(Math.random() * directions.length)];
-        }
+        // Create animated stars background
+        const starsCount = 60;
         
         for (let i = 0; i < starsCount; i++) {
             const star = document.createElement('div');
             star.classList.add('star');
             star.style.left = `${Math.random() * 100}%`;
             star.style.top = `${Math.random() * 100}%`;
-            const size = Math.random() * 2 + 0.5;
+            const size = Math.random() * 3 + 1;
             star.style.width = `${size}px`;
             star.style.height = `${size}px`;
-            star.style.opacity = Math.random() * 0.4 + 0.1;
+            star.style.animationDelay = `${Math.random() * 3}s`;
+            star.style.animationDuration = `${3 + Math.random() * 2}s`;
             starsContainer.appendChild(star);
         }
         
@@ -595,15 +754,16 @@
         let currentDragging = null;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
+        let lastTrailTime = 0;
         
         // Difficulty settings
         const difficulties = {
-            easy: { targetSize: 80, objectSize: 40, points: 100 },
-            medium: { targetSize: 60, objectSize: 30, points: 200 },
-            hard: { targetSize: 40, objectSize: 25, points: 300 }
+            easy: { targetSize: 90, objectSize: 45, points: 100, spacing: 120 },
+            medium: { targetSize: 70, objectSize: 35, points: 200, spacing: 100 },
+            hard: { targetSize: 50, objectSize: 28, points: 300, spacing: 80 }
         };
         
-        // Function definitions - utility functions first
+        // Utility functions
         function showSettings() {
             settingsPanel.classList.remove('hidden');
             statsPanel.classList.add('hidden');
@@ -635,16 +795,332 @@
             totalRounds.textContent = maxRounds;
         }
         
-        // Start new session
+        // Collision detection function
+        function checkCollision(x1, y1, size1, x2, y2, size2, spacing) {
+            const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            return distance < (size1 / 2 + size2 / 2 + spacing);
+        }
+        
+        // Find non-overlapping position
+        function findNonOverlappingPosition(size, existingPositions, gameRect, spacing) {
+            const maxAttempts = 100;
+            const padding = 40;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const x = padding + Math.random() * (gameRect.width - size - 2 * padding);
+                const y = padding + Math.random() * (gameRect.height - size - 2 * padding);
+                
+                let collision = false;
+                for (const pos of existingPositions) {
+                    if (checkCollision(x + size/2, y + size/2, size, 
+                                     pos.x + pos.size/2, pos.y + pos.size/2, pos.size, spacing)) {
+                        collision = true;
+                        break;
+                    }
+                }
+                
+                if (!collision) {
+                    return { x, y, size };
+                }
+            }
+            
+            // Fallback: return a position anyway
+            return {
+                x: padding + Math.random() * (gameRect.width - size - 2 * padding),
+                y: padding + Math.random() * (gameRect.height - size - 2 * padding),
+                size
+            };
+        }
+        
+        // Create particle effect
+        function createParticles(x, y, color) {
+            const particleCount = 15;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.background = color;
+                
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const velocity = 50 + Math.random() * 50;
+                const duration = 0.5 + Math.random() * 0.5;
+                
+                particle.style.animation = `none`;
+                
+                gameArea.appendChild(particle);
+                
+                // Animate particle
+                let startTime = null;
+                function animateParticle(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = (timestamp - startTime) / (duration * 1000);
+                    
+                    if (progress < 1) {
+                        const distance = velocity * progress;
+                        const fadeOut = 1 - progress;
+                        
+                        particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(${1 - progress * 0.5})`;
+                        particle.style.opacity = fadeOut;
+                        
+                        requestAnimationFrame(animateParticle);
+                    } else {
+                        particle.remove();
+                    }
+                }
+                
+                requestAnimationFrame(animateParticle);
+            }
+        }
+        
+        // Create drag trail effect
+        function createDragTrail(x, y) {
+            const now = Date.now();
+            if (now - lastTrailTime < 50) return; // Limit trail creation rate
+            lastTrailTime = now;
+            
+            const trail = document.createElement('div');
+            trail.classList.add('drag-trail');
+            trail.style.left = `${x - 4}px`;
+            trail.style.top = `${y - 4}px`;
+            
+            gameArea.appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 800);
+        }
+        
+        // Start drag function
+        function startDrag(e) {
+            if (!isSessionActive) return;
+            
+            e.preventDefault();
+            currentDragging = e.currentTarget;
+            currentDragging.classList.add('dragging');
+            
+            const rect = currentDragging.getBoundingClientRect();
+            const gameRect = gameArea.getBoundingClientRect();
+            
+            // Calculate offset
+            if (e.type === 'mousedown') {
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
+            } else if (e.type === 'touchstart') {
+                dragOffsetX = e.touches[0].clientX - rect.left;
+                dragOffsetY = e.touches[0].clientY - rect.top;
+            }
+            
+            // Add event listeners for drag and end
+            document.addEventListener('mousemove', dragElement);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', dragElement, { passive: false });
+            document.addEventListener('touchend', endDrag);
+        }
+        
+        function dragElement(e) {
+            if (!currentDragging) return;
+            
+            e.preventDefault();
+            const gameRect = gameArea.getBoundingClientRect();
+            
+            let clientX, clientY;
+            if (e.type === 'mousemove') {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            } else if (e.type === 'touchmove') {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            // Calculate new position relative to game area
+            let newX = clientX - gameRect.left - dragOffsetX;
+            let newY = clientY - gameRect.top - dragOffsetY;
+            
+            // Keep within bounds
+            const elementSize = parseInt(currentDragging.style.width);
+            newX = Math.max(0, Math.min(newX, gameRect.width - elementSize));
+            newY = Math.max(0, Math.min(newY, gameRect.height - elementSize));
+            
+            currentDragging.style.left = `${newX}px`;
+            currentDragging.style.top = `${newY}px`;
+            
+            checkProximity();
+        }
+        
+        function endDrag(e) {
+            if (!currentDragging) return;
+            
+            e.preventDefault();
+            
+            // Remove event listeners
+            document.removeEventListener('mousemove', dragElement);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', dragElement);
+            document.removeEventListener('touchend', endDrag);
+            
+            // Check for successful drop
+            checkDrop();
+            
+            // Reset dragging state
+            currentDragging.classList.remove('dragging');
+            activeTargets.forEach(target => target.classList.remove('active'));
+            currentDragging = null;
+        }
+        
+        function addDragListeners(element) {
+            element.addEventListener('mousedown', startDrag);
+            element.addEventListener('touchstart', startDrag, { passive: false });
+        }
+        
+        function checkProximity() {
+            if (!currentDragging) return;
+            
+            const dragRect = currentDragging.getBoundingClientRect();
+            const gameRect = gameArea.getBoundingClientRect();
+            const dragCenter = {
+                x: dragRect.left + dragRect.width / 2 - gameRect.left,
+                y: dragRect.top + dragRect.height / 2 - gameRect.top
+            };
+            
+            // Create drag trail
+            createDragTrail(dragCenter.x, dragCenter.y);
+            
+            // Reset all targets
+            activeTargets.forEach(target => target.classList.remove('active'));
+            
+            // Check each target
+            activeTargets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const targetCenter = {
+                    x: targetRect.left + targetRect.width / 2,
+                    y: targetRect.top + targetRect.height / 2
+                };
+                
+                const distance = Math.hypot(
+                    dragRect.left + dragRect.width / 2 - targetCenter.x,
+                    dragRect.top + dragRect.height / 2 - targetCenter.y
+                );
+                
+                // Activate target if close enough
+                if (distance < targetRect.width / 2 + dragRect.width / 2 + 20) {
+                    target.classList.add('active');
+                }
+            });
+        }
+        
+        function checkDrop() {
+            if (!currentDragging) return;
+            
+            const dragRect = currentDragging.getBoundingClientRect();
+            const dragCenter = {
+                x: dragRect.left + dragRect.width / 2,
+                y: dragRect.top + dragRect.height / 2
+            };
+            
+            let successfulDrop = false;
+            const difficulty = difficultySelect.value;
+            const settings = difficulties[difficulty];
+            
+            activeTargets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const targetCenter = {
+                    x: targetRect.left + targetRect.width / 2,
+                    y: targetRect.top + targetRect.height / 2
+                };
+                
+                const distance = Math.hypot(
+                    dragCenter.x - targetCenter.x,
+                    dragCenter.y - targetCenter.y
+                );
+                
+                // Check if drop is successful
+                if (distance < targetRect.width / 3 && 
+                    target.dataset.targetId === currentDragging.dataset.targetId) {
+                    successfulDrop = true;
+                    
+                    const color = currentDragging.dataset.color;
+                    
+                    // Success animation
+                    target.classList.add('success');
+                    
+                    // Create particle effect at target center
+                    const gameRect = gameArea.getBoundingClientRect();
+                    createParticles(
+                        targetCenter.x - gameRect.left,
+                        targetCenter.y - gameRect.top,
+                        color
+                    );
+                    
+                    setTimeout(() => {
+                        target.classList.remove('success');
+                    }, 600);
+                    
+                    // Update score
+                    const dropTime = Date.now() - roundStartTime;
+                    totalDropTime += dropTime;
+                    
+                    // Award points based on speed and difficulty
+                    const timeBonus = Math.max(0, Math.floor((5000 - dropTime) / 100));
+                    const points = settings.points + timeBonus;
+                    score += points;
+                    successfulDrops++;
+                    
+                    // Remove this draggable
+                    currentDragging.remove();
+                    activeDroppables = activeDroppables.filter(d => d !== currentDragging);
+                    
+                    // Show success message
+                    statusMessage.textContent = `Perfect! +${points} points`;
+                    statusMessage.style.color = 'var(--success-color)';
+                    
+                    // Check if round is complete
+                    if (activeDroppables.length === 0) {
+                        setTimeout(() => nextRound(), 1000);
+                    }
+                }
+            });
+            
+            if (!successfulDrop) {
+                // Shake animation for failed drop
+                currentDragging.style.animation = 'shake 0.3s ease';
+                setTimeout(() => {
+                    if (currentDragging) {
+                        currentDragging.style.animation = 'floatAnimation 3s ease-in-out infinite';
+                    }
+                }, 300);
+                
+                statusMessage.textContent = "Try again - drag to the matching colored target";
+                statusMessage.style.color = 'var(--danger-color)';
+            }
+            
+            totalDrops++;
+            updateStats();
+        }
+        
+        function nextRound() {
+            currentRound++;
+            updateProgress();
+            
+            if (timeRemaining > 0) {
+                const difficulty = difficultySelect.value;
+                const numTargets = parseInt(numTargetsSelect.value);
+                const showNumbers = showNumbersSelect.value === 'yes';
+                
+                createRound(difficulty, numTargets, showNumbers);
+            } else {
+                endSession();
+            }
+        }
+        
+        // Event listeners
+        settingsToggle.addEventListener('click', showSettings);
         startSessionButton.addEventListener('click', startSession);
         restartButton.addEventListener('click', () => {
             completionMessage.classList.add('hidden');
-            settingsPanel.classList.remove('hidden');
+            showSettings();
         });
         
-        // Initialize
-        showSettings();
-        
+        // Start new session
         function startSession() {
             // Get settings
             const difficulty = difficultySelect.value;
@@ -659,7 +1135,7 @@
             timeRemaining = sessionDuration;
             currentRound = 1;
             totalDropTime = 0;
-            maxRounds = Math.floor(timeRemaining / 6000); // Approximately 6 seconds per round
+            maxRounds = Math.floor(timeRemaining / 6000);
             
             // Clear previous game elements
             clearGameElements();
@@ -713,7 +1189,7 @@
             finalAccuracyElement.textContent = totalDrops > 0 ? 
                 Math.round(successfulDrops / totalDrops * 100) + '%' : '0%';
             finalAvgTimeElement.textContent = successfulDrops > 0 ? 
-                (totalDropTime / successfulDrops / 1000).toFixed(2) : '0.00';
+                (totalDropTime / successfulDrops / 1000).toFixed(2) + 's' : '0.00s';
             completionMessage.classList.remove('hidden');
             
             // Reset timer bar
@@ -725,43 +1201,43 @@
             
             const settings = difficulties[difficulty];
             const gameRect = gameArea.getBoundingClientRect();
-            const padding = 50;
+            const positions = [];
             
-            // Create targets - position them more towards the center
+            // Create targets with non-overlapping positions
             for (let i = 0; i < numTargets; i++) {
                 const target = document.createElement('div');
                 target.classList.add('target');
                 
                 // Apply color to the target
-                const color = pairColors[i % pairColors.length];
-                target.style.borderColor = color;
-                target.style.background = color + '33'; // Add a subtle background with 20% opacity
+                const colorData = colorPalette[i % colorPalette.length];
+                target.style.borderColor = colorData.solid;
+                target.style.background = `radial-gradient(circle at center, ${colorData.solid}22 0%, transparent 60%)`;
                 
                 target.style.width = `${settings.targetSize}px`;
                 target.style.height = `${settings.targetSize}px`;
                 
-                // Position targets more towards center to ensure accessibility from all directions
-                const centerBias = 0.3; // How much to bias towards center (0 = no bias, 1 = all center)
-                const maxX = gameRect.width - settings.targetSize - padding;
-                const maxY = gameRect.height - settings.targetSize - padding;
+                // Find non-overlapping position
+                const position = findNonOverlappingPosition(settings.targetSize, positions, gameRect, settings.spacing);
+                positions.push(position);
                 
-                // Calculate position with center bias
-                const x = padding + (Math.random() * (1 - centerBias) + centerBias * 0.5) * maxX;
-                const y = padding + (Math.random() * (1 - centerBias) + centerBias * 0.5) * maxY;
-                
-                target.style.left = `${x}px`;
-                target.style.top = `${y}px`;
+                target.style.left = `${position.x}px`;
+                target.style.top = `${position.y}px`;
                 target.dataset.targetId = i;
                 
-                // Add numbers to targets if setting is enabled
+                // Add numbers if enabled
                 if (showNumbers) {
-                    target.textContent = i + 1;
-                    target.style.display = 'flex';
-                    target.style.alignItems = 'center';
-                    target.style.justifyContent = 'center';
-                    target.style.color = 'white';
-                    target.style.fontSize = '18px';
-                    target.style.fontWeight = 'bold';
+                    const numberLabel = document.createElement('div');
+                    numberLabel.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        color: ${colorData.solid};
+                        font-size: 20px;
+                        font-weight: bold;
+                    `;
+                    numberLabel.textContent = i + 1;
+                    target.appendChild(numberLabel);
                 }
                 
                 gameArea.appendChild(target);
@@ -775,33 +1251,37 @@
                 draggable.style.width = `${settings.objectSize}px`;
                 draggable.style.height = `${settings.objectSize}px`;
                 
-                // Apply matching color to the draggable
-                const color = pairColors[i % pairColors.length];
-                draggable.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), ${color})`;
+                // Apply matching color gradient
+                const colorData = colorPalette[i % colorPalette.length];
+                draggable.style.background = colorData.gradient;
+                draggable.style.boxShadow = `0 4px 15px ${colorData.solid}66`;
                 
                 if (showNumbers) {
                     draggable.textContent = i + 1;
+                    draggable.style.fontSize = '16px';
+                    draggable.style.color = 'white';
+                    draggable.style.textShadow = '0 1px 3px rgba(0,0,0,0.5)';
                 }
                 
-                // Random position with direction bias
+                // Position draggables around edges
                 let x, y;
-                const direction = getRandomDirection();
-                const margin = 40;
+                const edge = Math.floor(Math.random() * 4);
+                const margin = 30;
                 
-                switch(direction) {
-                    case 'left':
+                switch(edge) {
+                    case 0: // left
                         x = margin;
                         y = margin + Math.random() * (gameRect.height - settings.objectSize - 2 * margin);
                         break;
-                    case 'right':
+                    case 1: // right
                         x = gameRect.width - settings.objectSize - margin;
                         y = margin + Math.random() * (gameRect.height - settings.objectSize - 2 * margin);
                         break;
-                    case 'top':
+                    case 2: // top
                         x = margin + Math.random() * (gameRect.width - settings.objectSize - 2 * margin);
                         y = margin;
                         break;
-                    case 'bottom':
+                    case 3: // bottom
                         x = margin + Math.random() * (gameRect.width - settings.objectSize - 2 * margin);
                         y = gameRect.height - settings.objectSize - margin;
                         break;
@@ -811,6 +1291,10 @@
                 draggable.style.top = `${y}px`;
                 draggable.dataset.objectId = i;
                 draggable.dataset.targetId = i;
+                draggable.dataset.color = colorData.solid;
+                
+                // Add random animation delay
+                draggable.style.animationDelay = `${Math.random() * 2}s`;
                 
                 // Add drag event listeners
                 addDragListeners(draggable);
@@ -821,264 +1305,12 @@
             
             // Update status
             statusMessage.textContent = "Drag objects to their matching colored targets";
+            statusMessage.style.color = 'var(--text-primary)';
             roundStartTime = Date.now();
         }
         
-        function addDragListeners(element) {
-            // Mouse events
-            element.addEventListener('mousedown', startDrag);
-            
-            // Touch events
-            element.addEventListener('touchstart', startDrag);
-        }
-        
-        function checkProximity() {
-            const dragRect = currentDragging.getBoundingClientRect();
-            const dragCenter = {
-                x: dragRect.left + dragRect.width / 2,
-                y: dragRect.top + dragRect.height / 2
-            };
-            
-            // Reset all targets
-            activeTargets.forEach(target => target.classList.remove('active'));
-            
-            // Check each target
-            activeTargets.forEach(target => {
-                const targetRect = target.getBoundingClientRect();
-                const targetCenter = {
-                    x: targetRect.left + targetRect.width / 2,
-                    y: targetRect.top + targetRect.height / 2
-                };
-                
-                const distance = Math.hypot(
-                    dragCenter.x - targetCenter.x,
-                    dragCenter.y - targetCenter.y
-                );
-                
-                // Activate target if close enough
-                if (distance < targetRect.width / 2 + dragRect.width / 2) {
-                    target.classList.add('active');
-                }
-            });
-        }
-        
-        function checkDrop() {
-            const dragRect = currentDragging.getBoundingClientRect();
-            const dragCenter = {
-                x: dragRect.left + dragRect.width / 2,
-                y: dragRect.top + dragRect.height / 2
-            };
-            
-            let successfulDrop = false;
-            const difficulty = difficultySelect.value;
-            const settings = difficulties[difficulty];
-            
-            activeTargets.forEach(target => {
-                const targetRect = target.getBoundingClientRect();
-                const targetCenter = {
-                    x: targetRect.left + targetRect.width / 2,
-                    y: targetRect.top + targetRect.height / 2
-                };
-                
-                const distance = Math.hypot(
-                    dragCenter.x - targetCenter.x,
-                    dragCenter.y - targetCenter.y
-                );
-                
-                // Check if drop is successful
-                if (distance < targetRect.width / 3 && 
-                    target.dataset.targetId === currentDragging.dataset.targetId) {
-                    successfulDrop = true;
-                    
-                    // Get the color for this pair
-                    const colorIndex = parseInt(target.dataset.targetId) % pairColors.length;
-                    const color = pairColors[colorIndex];
-                    
-                    // Success animation - use the pair color for the success indicator
-                    target.classList.add('success');
-                    target.style.borderColor = color;
-                    target.style.boxShadow = `0 0 20px ${color}`;
-                    
-                    setTimeout(() => {
-                        target.classList.remove('success');
-                        target.style.boxShadow = '';
-                    }, 500);
-                    
-                    // Update score
-                    const dropTime = Date.now() - roundStartTime;
-                    totalDropTime += dropTime;
-                    
-                    // Award points based on speed and difficulty
-                    const timeBonus = Math.max(0, Math.floor((5000 - dropTime) / 100));
-                    const points = settings.points + timeBonus;
-                    score += points;
-                    successfulDrops++;
-                    
-                    // Remove this draggable
-                    currentDragging.remove();
-                    activeDroppables = activeDroppables.filter(d => d !== currentDragging);
-                    
-                    // Show success message
-                    statusMessage.textContent = `Perfect! +${points} points`;
-                    statusMessage.style.color = '#2ecc71';
-                    
-                    // Check if round is complete
-                    if (activeDroppables.length === 0) {
-                        setTimeout(() => nextRound(), 1000);
-                    }
-                }
-            });
-            
-            if (!successfulDrop) {
-                // Return to original position if drop failed
-                statusMessage.textContent = "Try again - drag to the matching colored target";
-                statusMessage.style.color = '#e74c3c';
-            }
-            
-            totalDrops++;
-            updateStats();
-        }
-        
-        function startDrag(e) {
-            if (!isSessionActive) return;
-            
-            e.preventDefault();
-            currentDragging = e.currentTarget;
-            currentDragging.classList.add('dragging');
-            
-            const rect = currentDragging.getBoundingClientRect();
-            const gameRect = gameArea.getBoundingClientRect();
-            
-            if (e.type === 'mousedown') {
-                dragOffsetX = e.clientX - rect.left;
-                dragOffsetY = e.clientY - rect.top;
-                
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('mouseup', endDrag);
-            } else if (e.type === 'touchstart') {
-                const touch = e.touches[0];
-                dragOffsetX = touch.clientX - rect.left;
-                dragOffsetY = touch.clientY - rect.top;
-                
-                document.addEventListener('touchmove', drag);
-                document.addEventListener('touchend', endDrag);
-            }
-        }
-        
-        function drag(e) {
-            if (!currentDragging || !isSessionActive) return;
-            
-            e.preventDefault();
-            const gameRect = gameArea.getBoundingClientRect();
-            
-            let clientX, clientY;
-            
-            if (e.type === 'mousemove') {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            } else if (e.type === 'touchmove') {
-                const touch = e.touches[0];
-                clientX = touch.clientX;
-                clientY = touch.clientY;
-            }
-            
-            // Calculate new position
-            let newX = clientX - gameRect.left - dragOffsetX;
-            let newY = clientY - gameRect.top - dragOffsetY;
-            
-            // Constrain to game area
-            newX = Math.max(0, Math.min(newX, gameRect.width - currentDragging.offsetWidth));
-            newY = Math.max(0, Math.min(newY, gameRect.height - currentDragging.offsetHeight));
-            
-            currentDragging.style.left = `${newX}px`;
-            currentDragging.style.top = `${newY}px`;
-            
-            // Check proximity to targets
-            checkProximity();
-        }
-        
-        function endDrag() {
-            if (!currentDragging || !isSessionActive) return;
-            
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('mouseup', endDrag);
-            document.removeEventListener('touchmove', drag);
-            document.removeEventListener('touchend', endDrag);
-            
-            currentDragging.classList.remove('dragging');
-            checkDrop();
-            currentDragging = null;
-        }
-        
-        function nextRound() {
-            currentRound++;
-            
-            if (currentRound > maxRounds || timeRemaining <= 0) {
-                endSession();
-                return;
-            }
-            
-            updateProgress();
-            statusMessage.textContent = "Well done! Get ready for the next round...";
-            statusMessage.style.color = 'white';
-            
-            setTimeout(() => {
-                const difficulty = difficultySelect.value;
-                const numTargets = parseInt(numTargetsSelect.value);
-                const showNumbers = showNumbersSelect.value === 'yes';
-                createRound(difficulty, numTargets, showNumbers);
-            }, 1500);
-        }
-        
-        // Prevent zooming on double tap
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-        
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        
-        // Load/save settings with localStorage
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved settings if they exist
-            if (localStorage.getItem('finepointrehab-difficulty')) {
-                difficultySelect.value = localStorage.getItem('finepointrehab-difficulty');
-            }
-            
-            if (localStorage.getItem('finepointrehab-numTargets')) {
-                numTargetsSelect.value = localStorage.getItem('finepointrehab-numTargets');
-            }
-            
-            if (localStorage.getItem('finepointrehab-duration')) {
-                sessionDurationInput.value = localStorage.getItem('finepointrehab-duration');
-            }
-            
-            if (localStorage.getItem('finepointrehab-showNumbers')) {
-                showNumbersSelect.value = localStorage.getItem('finepointrehab-showNumbers');
-            }
-            
-            // Save settings when they change
-            difficultySelect.addEventListener('change', saveSettings);
-            numTargetsSelect.addEventListener('change', saveSettings);
-            sessionDurationInput.addEventListener('change', saveSettings);
-            showNumbersSelect.addEventListener('change', saveSettings);
-        });
-        
-        // Save settings to localStorage
-        function saveSettings() {
-            localStorage.setItem('finepointrehab-difficulty', difficultySelect.value);
-            localStorage.setItem('finepointrehab-numTargets', numTargetsSelect.value);
-            localStorage.setItem('finepointrehab-duration', sessionDurationInput.value);
-            localStorage.setItem('finepointrehab-showNumbers', showNumbersSelect.value);
-        }
+        // Initialize
+        showSettings();
     </script>
 </body>
 </html>

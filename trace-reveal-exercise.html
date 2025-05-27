@@ -109,6 +109,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 25px;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-y; /* Allow vertical scrolling in settings panel */
         }
         
         #settings-panel h2 {
@@ -300,6 +301,7 @@
             max-height: calc(var(--vh, 1vh) * 85);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-y; /* Allow vertical scrolling in completion message */
         }
         
         .particle {
