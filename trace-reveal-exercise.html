@@ -10,6 +10,10 @@
     <meta name="keywords" content="trace therapy, stroke rehabilitation, fine motor skills, hand-eye coordination, occupational therapy games, physical therapy exercises, brain injury recovery, neurological rehabilitation, Fine Point Rehab">
     
     <style>
+        :root {
+            --vh: 1vh;
+        }
+        
         * {
             box-sizing: border-box;
         }
@@ -25,14 +29,14 @@
             background: #121d33;
             color: white;
             min-height: 100vh;
-            min-height: 100dvh; /* Dynamic viewport height for mobile */
+            min-height: calc(var(--vh, 1vh) * 100);
         }
         
         #game-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            height: 100dvh; /* Dynamic viewport height for mobile */
+            height: calc(var(--vh, 1vh) * 100);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -48,8 +52,8 @@
             flex: 1;
             width: 100%;
             padding: 10px;
-            max-height: calc(100vh - 120px); /* Account for stats panel */
-            max-height: calc(100dvh - 120px);
+            max-height: calc(100vh - 120px);
+            max-height: calc(var(--vh, 1vh) * 100 - 120px);
         }
         
         .canvas-container {
@@ -100,10 +104,11 @@
             width: 85%;
             max-width: 450px;
             max-height: 85vh;
-            max-height: 85dvh;
+            max-height: calc(var(--vh, 1vh) * 85);
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 25px;
+            -webkit-overflow-scrolling: touch;
         }
         
         #settings-panel h2 {
@@ -163,6 +168,7 @@
             -webkit-appearance: none;
             appearance: none;
             cursor: pointer;
+            box-sizing: border-box;
         }
         
         select {
@@ -192,6 +198,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             min-height: 44px; /* Minimum touch target size */
+            box-sizing: border-box;
         }
         
         button:hover {
@@ -289,6 +296,10 @@
             max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 101;
+            max-height: 85vh;
+            max-height: calc(var(--vh, 1vh) * 85);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .particle {
@@ -431,20 +442,34 @@
             #canvas-wrapper {
                 padding: 5px;
                 max-height: calc(100vh - 100px);
-                max-height: calc(100dvh - 100px);
+                max-height: calc(var(--vh, 1vh) * 100 - 100px);
             }
             
             #settings-panel {
                 position: fixed;
                 top: 5vh;
-                top: calc(5dvh);
+                top: calc(var(--vh, 1vh) * 5);
                 transform: translateX(-50%);
                 max-height: 85vh;
-                max-height: calc(85dvh);
+                max-height: calc(var(--vh, 1vh) * 85);
                 padding: 20px;
                 width: 92%;
                 bottom: auto;
                 margin-bottom: 0;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #completion-message {
+                position: fixed;
+                top: 5vh;
+                top: calc(var(--vh, 1vh) * 5);
+                transform: translateX(-50%);
+                max-height: 80vh;
+                max-height: calc(var(--vh, 1vh) * 80);
+                padding: 20px;
+                width: 92%;
+                max-width: 400px;
+                -webkit-overflow-scrolling: touch;
             }
             
             .game-description {
@@ -505,9 +530,9 @@
                 padding: 15px;
                 width: 95%;
                 max-height: 90vh;
-                max-height: calc(90dvh);
+                max-height: calc(var(--vh, 1vh) * 90);
                 top: 3vh;
-                top: calc(3dvh);
+                top: calc(var(--vh, 1vh) * 3);
             }
             
             .game-description {
@@ -540,14 +565,14 @@
             #canvas-wrapper {
                 padding: 2px;
                 max-height: calc(100vh - 80px);
-                max-height: calc(100dvh - 80px);
+                max-height: calc(var(--vh, 1vh) * 100 - 80px);
             }
             
             #settings-panel {
                 top: 2vh;
-                top: calc(2dvh);
+                top: calc(var(--vh, 1vh) * 2);
                 max-height: 95vh;
-                max-height: calc(95dvh);
+                max-height: calc(var(--vh, 1vh) * 95);
                 padding: 15px;
             }
             
@@ -616,9 +641,9 @@
                 padding: 12px;
                 width: 98%;
                 max-height: 92vh;
-                max-height: calc(92dvh);
+                max-height: calc(var(--vh, 1vh) * 92);
                 top: 2vh;
-                top: calc(2dvh);
+                top: calc(var(--vh, 1vh) * 2);
             }
             
             .game-description {
@@ -657,9 +682,9 @@
         @media (max-height: 600px) {
             #settings-panel {
                 max-height: 92vh;
-                max-height: calc(92dvh);
+                max-height: calc(var(--vh, 1vh) * 92);
                 top: 2vh;
-                top: calc(2dvh);
+                top: calc(var(--vh, 1vh) * 2);
             }
             
             .game-description {
@@ -781,6 +806,50 @@
     </div>
     
     <script>
+        // Mobile viewport handling (added from working comet exercise)
+        function setViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        function adjustForMobile() {
+            setViewportHeight();
+            
+            // Check if we're on a mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            if (isMobile || isTouch) {
+                // Add mobile-specific class for additional styling if needed
+                document.body.classList.add('mobile-device');
+                
+                // Ensure panels don't overlap with system UI
+                const settingsPanel = document.getElementById('settings-panel');
+                const completionMessage = document.getElementById('completion-message');
+                
+                if (settingsPanel && !settingsPanel.classList.contains('hidden')) {
+                    // Additional space calculation for Android navigation
+                    const screenHeight = window.innerHeight;
+                    const safeHeight = Math.min(screenHeight * 0.85, screenHeight - 100);
+                    settingsPanel.style.maxHeight = `${safeHeight}px`;
+                }
+                
+                if (completionMessage && !completionMessage.classList.contains('hidden')) {
+                    const screenHeight = window.innerHeight;
+                    const safeHeight = Math.min(screenHeight * 0.8, screenHeight - 100);
+                    completionMessage.style.maxHeight = `${safeHeight}px`;
+                }
+            }
+        }
+        
+        // Call viewport adjustment functions
+        window.addEventListener('load', adjustForMobile);
+        window.addEventListener('resize', adjustForMobile);
+        window.addEventListener('orientationchange', () => {
+            // Small delay to account for orientation change
+            setTimeout(adjustForMobile, 100);
+        });
+        
         // Canvas setup with responsive sizing
         const canvas = document.getElementById('traceCanvas');
         const ctx = canvas.getContext('2d');
@@ -1926,6 +1995,9 @@
             document.getElementById('best-coverage').textContent = Math.round(bestCoverage) + '%';
             
             completionMessage.classList.remove('hidden');
+            
+            // Adjust for mobile after showing completion message
+            setTimeout(adjustForMobile, 100);
         }
         
         function resetToSettings() {
