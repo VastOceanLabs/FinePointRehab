@@ -22,8 +22,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            touch-action: none;
             user-select: none;
             -webkit-user-select: none;
             background: #121d33;
@@ -2025,10 +2023,11 @@
         
         // Prevent pull-to-refresh on mobile
         document.addEventListener('touchmove', function(event) {
-            if (event.touches.length === 1 && window.scrollY === 0) {
-                event.preventDefault();
-            }
-        }, { passive: false });
+      const insideSettings = event.target.closest('#settings-panel');
+      if (!insideSettings && event.touches.length === 1 && window.scrollY === 0) {
+          event.preventDefault();
+      }
+}, { passive: false });
         
         // Handle visibility change to pause timer when app goes to background
         document.addEventListener('visibilitychange', function() {
