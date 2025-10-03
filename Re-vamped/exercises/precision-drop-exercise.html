@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Precision Drop — Fine Point Rehab</title>
+
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+
+  <style>
+    :root{
+      --vh: 1vh;
+      --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
+      --accent: var(--brand-aqua, #6fd3f5);
+      --panel: rgba(10,16,36,.9);
+      --panel-border: rgba(255,255,255,.08);
+      --text: #eaf6ff;
+      --radius: 14px;
+    }
+    body{ margin:0; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      min-height: calc(var(--vh) * 100);
+      touch-action: manipulation;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding:12px 16px; display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(8,12,26,.9), rgba(8,12,26,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(6px);
+    }
+    header .home { text-decoration:none; color:var(--text); font-weight:700;
+      border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:8px 12px; }
+    header h1{ margin:0; font-size: clamp(18px,3vw,24px); }
+
+    .layout{ display:grid; grid-template-columns: 1fr; gap:16px; padding:16px; height:auto; }
+    .panel{ background: var(--panel); border: 1px solid var(--panel-border); border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05); }
+
+    #settings { padding:18px; overflow:auto; position:relative; z-index: 5; max-width: 720px; margin: 0 auto; }
+    #settings h2{ margin:0 0 10px; font-size:20px; text-align:center; }
+    .desc{ margin-bottom:12px; background: rgba(111,211,245,.08);
+          border-left: 4px solid rgba(111,211,245,.7); padding:10px; border-radius:8px; font-size:14px; line-height:1.5; }
+
+    .stats-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+    .metric{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
+            text-align:center; padding:8px 12px; border:1px solid rgba(255,255,255,.12); border-radius:12px;
+            background: rgba(255,255,255,.05); min-width:110px; }
+    .v{ font-weight:900; font-size:18px; color:#bfe6ff; text-shadow: 0 0 6px rgba(150,220,255,.5); line-height:1.1; }
+    .t{ font-size:11px; opacity:.9; margin-top:3px; }
+
+    .group{ margin-bottom:12px; }
+    .label{ display:block; margin-bottom:6px; font-weight:700; letter-spacing:.2px; }
+    select, input[type="number"]{
+      width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
+      background: rgba(5,10,26,.8); color:var(--text); font-size:16px;
+    }
+    select:focus, input[type="number"]:focus{
+      outline:none; border-color: rgba(111,211,245,.9); box-shadow: 0 0 0 2px rgba(111,211,245,.25);
+    }
+    .btn{
+      min-height:46px; border:1px solid rgba(111,211,245,.35); background: rgba(111,211,245,.12);
+      color:var(--text); border-radius:10px; font-weight:800; letter-spacing:.2px; cursor:pointer; transition:.2s;
+    }
+    .btn:hover:not(:disabled){ background: rgba(111,211,245,.22); transform: translateY(-1px); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn-primary{ background: rgba(111,211,245,.95); color:#07101e; border-color: rgba(111,211,245,1); }
+    .btn-primary:hover:not(:disabled){ background: rgba(111,211,245,1); box-shadow: 0 6px 18px rgba(111,211,245,.45); }
+
+    .settings-actions { display:grid; grid-template-columns: 1fr; gap:10px; margin-top:12px; }
+
+    .right{ display:none; position:relative; }
+    body.playing .right{ display:block; }
+
+    .hud{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 10px; margin-bottom:10px;
+          background: linear-gradient(180deg, rgba(6,10,24,.65), rgba(6,10,24,.35));
+          border: 1px solid var(--panel-border); border-radius: var(--radius);
+          box-shadow: 0 6px 16px rgba(0,0,0,.35); position:relative; z-index:4; }
+    .actions{ flex:0 0 auto; display:flex; gap:8px; margin-left:auto; }
+    .btn-ghost{ min-height:34px; padding:6px 10px; font-weight:800; border:1px solid rgba(255,255,255,.22);
+                border-radius:999px; background: rgba(255,255,255,.06); color:var(--text); cursor:pointer; white-space:nowrap; }
+    .btn-ghost:hover{ background: rgba(255,255,255,.12); }
+    .metric .v.time { font-variant-numeric: tabular-nums; }
+
+    .frame{ position:relative; border-radius: var(--radius); overflow:hidden;
+            border:1px solid var(--panel-border); box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+            background: radial-gradient(60% 45% at 50% 40%, rgba(80,160,200,.12), transparent 68%); }
+    #game-surface{ position:relative; min-height: 58vh; max-height:760px; background: transparent; }
+    #stars-container{ position:absolute; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+    #game-area{ position: relative; width: 100%; height: 100%; }
+
+    body.playing .layout{ grid-template-columns: 1fr; padding:0; height: calc(var(--vh) * 100); }
+    body.playing #settings{ display:none; }
+    body.playing .right{ height: calc(var(--vh) * 100); }
+    body.playing .frame{ border:none; border-radius:0; height: calc(var(--vh) * 100); box-shadow: none; background: transparent; }
+    body.playing #game-surface{ width:100vw; height: calc(var(--vh) * 100); max-height:none; }
+    body.playing .hud{
+      position:absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px; right: 10px; margin:0;
+    }
+
+    .draggable{
+      position:absolute; border-radius:50%; cursor: grab; touch-action: none;
+      display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,.5); box-shadow: 0 4px 15px rgba(0,0,0,.3);
+      transition: transform .2s ease, box-shadow .2s ease; z-index: 20; animation: float 3s ease-in-out infinite;
+    }
+    .draggable.dragging{ cursor:grabbing; transform: scale(1.12); animation:none; z-index:30; }
+    @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    .target{
+      position:absolute; border:3px dashed rgba(255,255,255,.3); border-radius:50%;
+      background: radial-gradient(circle at center, transparent 40%, rgba(255,255,255,.03) 100%);
+      transition: transform .2s ease, box-shadow .2s ease; z-index:15;
+    }
+    .target.active{ box-shadow: 0 0 26px currentColor, inset 0 0 16px rgba(255,255,255,.08); transform: scale(1.06); }
+    .target.success{ animation: burst .6s ease; }
+    @keyframes burst{ 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.25);opacity:.7} 100%{transform:scale(1);opacity:1} }
+
+    #status-message{
+      position:absolute; top:14%; left:50%; transform:translateX(-50%);
+      z-index:3; font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.5);
+    }
+    #progress-display{
+      position:absolute; top:20px; left:50%; transform:translateX(-50%);
+      z-index:3; background: rgba(0,0,0,.55); padding: 6px 14px; border-radius: 999px;
+      font-weight:700; box-shadow:0 4px 10px rgba(0,0,0,.3);
+    }
+
+    #completion-modal{ position:absolute; inset:0; display:none; place-items:center; background: rgba(0,0,0,.65);
+                       backdrop-filter: blur(4px); z-index:10; }
+    #completion-card{ max-width:min(560px, 92vw); max-height:80vh; overflow:auto; padding:22px; }
+    #completion-card h2{ margin-top:0; color:var(--accent); }
+    .hi{ color:#9ee7ff; font-weight:900; }
+
+    .sr-only{ position:absolute !important; clip:rect(1px,1px,1px,1px); padding:0; border:0; height:1px; width:1px; overflow:hidden; }
+    :focus-visible{ outline: 3px solid rgba(111,211,245,.85); outline-offset:2px; }
+    @media (max-width: 900px){ #game-surface{ min-height:56vh; } }
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app" role="banner" aria-label="Exercise header">
+    <a class="home" href="/" aria-label="Back to Home">← Home</a>
+    <h1>Precision Drop</h1>
+  </header>
+
+  <main class="layout">
+    <aside id="settings" class="panel" aria-label="Settings">
+      <h2>Settings</h2>
+      <div class="desc"><strong>How to play:</strong> drag each coloured circle to its matching target. Targets glow when you're close. Smaller targets and more objects = harder (more points).</div>
+      <div class="stats-row" role="region" aria-label="Player stats">
+        <div class="metric" aria-live="polite">
+          <div id="pbSettings" class="v">–</div>
+          <div class="t">Personal Best</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="label" for="session-duration">Session Duration (minutes)</label>
+        <input id="session-duration" type="number" min="1" max="10" value="2" inputmode="numeric" />
+      </div>
+      <div class="group">
+        <label class="label" for="difficulty-select">Target Size</label>
+        <select id="difficulty-select">
+          <option value="easy" selected>Easy (large targets)</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard (small targets)</option>
+        </select>
+      </div>
+      <div class="group">
+        <label class="label" for="num-targets">Objects per round</label>
+        <select id="num-targets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <div class="group">
+        <label class="label" for="show-numbers">Show numbers</label>
+        <select id="show-numbers">
+          <option value="no" selected>No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+
+      <div class="settings-actions">
+        <button id="start-button" class="btn btn-primary" type="button">Start</button>
+      </div>
+    </aside>
+
+    <section class="right" aria-label="Game area">
+      <div class="hud" role="region" aria-label="Session HUD">
+        <div class="metric" aria-live="polite"><div id="score" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric" aria-live="polite"><div id="pb" class="v">–</div><div class="t">Personal Best</div></div>
+        <div class="metric" aria-live="polite"><div id="time" class="v time">00:00</div><div class="t">Time</div></div>
+        <div class="metric" aria-live="polite"><div id="hud-difficulty" class="v">Easy</div><div class="t">Difficulty</div></div>
+        <div class="actions">
+          <button id="pauseHud" class="btn-ghost" type="button" aria-label="Pause or resume">Pause</button>
+          <button id="exitHud" class="btn-ghost" type="button" aria-label="Exit to results">Exit</button>
+        </div>
+      </div>
+
+      <div class="frame panel">
+        <div id="game-surface" role="application" aria-describedby="progress-display status-message">
+          <div id="stars-container" aria-hidden="true"></div>
+          <div id="progress-display" aria-live="polite">Round <span id="round-number">1</span> of <span id="total-rounds">10</span></div>
+          <div id="status-message" aria-live="polite">Drag the object to the target</div>
+          <div id="game-area" aria-label="Play field" tabindex="0"></div>
+        </div>
+      </div>
+
+      <div id="completion-modal" role="dialog" aria-modal="true" aria-labelledby="completion-title">
+        <div id="completion-card" class="panel" tabindex="-1">
+          <h2 id="completion-title">Session Complete!</h2>
+          <p>Final Score: <span id="final-score" class="hi">0</span></p>
+          <p>Successful Drops: <span id="final-drops" class="hi">0</span></p>
+          <p>Accuracy: <span id="final-accuracy" class="hi">0%</span></p>
+          <p>Average Time / Drop: <span id="final-avg-time" class="hi">0.00s</span></p>
+          <p>XP earned: <span id="final-xp" class="hi">+0 XP</span></p>
+          <div class="settings-actions" style="grid-template-columns:1fr 1fr;">
+            <button id="doneBtn" class="btn btn-primary" type="button">Start New Session</button>
+            <button id="homeBtn" class="btn" type="button">Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Robust JS: dynamic imports with fallbacks; guards around null elements -->
+  <script>
+  (function(){
+    const $ = (id)=>document.getElementById(id);
+
+    // DOM
+    const difficultySelect = $('difficulty-select');
+    const numTargetsSelect = $('num-targets');
+    const sessionDurationInput = $('session-duration');
+    const showNumbersSelect = $('show-numbers');
+
+    const startBtn = $('start-button');
+    const pauseHudBtn = $('pauseHud');
+    const exitHudBtn = $('exitHud');
+    const doneBtn = $('doneBtn');
+    const homeBtn = $('homeBtn');
+
+    const timeEl = $('time');
+    const scoreEl = $('score');
+    const personalBestEl = $('pb');
+    const pbSettingsEl = $('pbSettings');
+    const hudDifficultyEl = $('hud-difficulty');
+
+    const gameArea = $('game-area');
+    const gameSurface = $('game-surface');
+    const starsContainer = $('stars-container');
+
+    const statusMessage = $('status-message');
+    const progressDisplay = $('progress-display');
+    const roundNumber = $('round-number');
+    const totalRounds = $('total-rounds');
+
+    const completionModal = $('completion-modal');
+    const completionCard = $('completion-card');
+    const finalScoreEl = $('final-score');
+    const finalDropsEl = $('final-drops');
+    const finalAccuracyEl = $('final-accuracy');
+    const finalAvgTimeEl = $('final-avg-time');
+    const finalXpEl = $('final-xp');
+
+    // Fallbacks if imports fail
+    let recordSession = ()=>{};
+    let checkAndUnlockAchievements = ()=>[];
+    let markExerciseTried = ()=>{};
+    const storage = { get:(k)=>localStorage.getItem(k), set:(k,v)=>localStorage.setItem(k,v) };
+    const sessionEnhancement = {
+      initializeExercise: ()=>{},
+      personalBest: { getBest: ()=>Number(localStorage.getItem('pb:precision-drop')||0) },
+      handleSessionComplete: ()=>{}
+    };
+    const starfield = { init: ()=>{} };
+
+    (async function loadDeps(){
+      try {
+        const m1 = await import('/js/progress.js'); recordSession = m1.recordSession || recordSession;
+      } catch(e){}
+      try {
+        const m2 = await import('/js/achievements.js');
+        checkAndUnlockAchievements = m2.checkAndUnlockAchievements || checkAndUnlockAchievements;
+        markExerciseTried = m2.markExerciseTried || markExerciseTried;
+      } catch(e) {}
+      try {
+        const m3 = await import('/js/utils.js');
+        if (m3.storage) { storage.get = m3.storage.get; storage.set = m3.storage.set; }
+        if (m3.starfield) { starfield.init = m3.starfield.init || starfield.init; }
+        if (m3.initUtils) { try { m3.initUtils(); } catch(e){} }
+      } catch(e) {}
+      try {
+        const m4 = await import('/js/session-enhancement.js');
+        if (m4.sessionEnhancement) {
+          sessionEnhancement.initializeExercise = m4.sessionEnhancement.initializeExercise;
+          sessionEnhancement.personalBest = m4.sessionEnhancement.personalBest || sessionEnhancement.personalBest;
+          sessionEnhancement.handleSessionComplete = m4.sessionEnhancement.handleSessionComplete;
+        }
+      } catch(e) {}
+    })();
+
+    const EXERCISE_ID = 'precision-drop';
+
+    // ========= Safe area helpers =========
+    function getPlayableRect() {
+      const areaRect = gameArea.getBoundingClientRect();
+      const hud = document.querySelector('.hud');
+      const hudRect = hud ? hud.getBoundingClientRect() : { height: 0, top: 0, bottom: 0 };
+      const overlapTop = Math.max(0, Math.min(hudRect.bottom - areaRect.top, hudRect.height));
+      const padTop = parseFloat(getComputedStyle(gameArea).paddingTop || '0') || 0;
+      const reserve = Math.max(overlapTop, padTop) + 12;
+      const minX = 12;
+      const minY = reserve;
+      const maxX = areaRect.width - 12;
+      const maxY = areaRect.height - 12;
+      return { minX, minY, maxX, maxY, width: areaRect.width, height: areaRect.height, reserve };
+    }
+
+    // ========= Game state =========
+    let isSessionActive = false;
+    let isPaused = false;
+    let sessionDuration = 120000;
+    let timeRemaining = 0;
+    let timerInterval = null;
+
+    let score = 0;
+    let successfulDrops = 0;
+    let totalDrops = 0;
+    let currentRound = 1;
+    let maxRounds = 10;
+
+    let totalDropTime = 0;
+    let roundStartTime = 0;
+
+    let activeDroppables = [];
+    let activeTargets = [];
+    let currentDragging = null;
+    let dragOffsetX = 0, dragOffsetY = 0;
+
+    const DIFF = {
+      easy: { targetSize: 90, objectSize: 45, points: 100, spacing: 120 },
+      medium: { targetSize: 70, objectSize: 35, points: 200, spacing: 100 },
+      hard: { targetSize: 50, objectSize: 28, points: 300, spacing: 80 }
+    };
+    const palette = [
+      { solid:'#e74c3c', grad:'linear-gradient(135deg,#e74c3c,#c0392b)' },
+      { solid:'#f1c40f', grad:'linear-gradient(135deg,#f1c40f,#f39c12)' },
+      { solid:'#2ecc71', grad:'linear-gradient(135deg,#2ecc71,#27ae60)' },
+      { solid:'#9b59b6', grad:'linear-gradient(135deg,#9b59b6,#8e44ad)' },
+      { solid:'#3498db', grad:'linear-gradient(135deg,#3498db,#2980b9)' },
+      { solid:'#e67e22', grad:'linear-gradient(135deg,#e67e22,#d35400)' },
+      { solid:'#1abc9c', grad:'linear-gradient(135deg,#1abc9c,#16a085)' },
+      { solid:'#34495e', grad:'linear-gradient(135deg,#34495e,#2c3e50)' }
+    ];
+
+    // Starfield fallback
+    window.addEventListener('resize', () => { if(isSessionActive){ ensureParity(); } }, {passive:true});
+    (function initTwinkle(){
+      const count = 80;
+      for (let i=0;i<count;i++){
+        const s=document.createElement('div');
+        s.style.cssText=`position:absolute; background:#fff; border-radius:50%; opacity:.25;`;
+        s.style.left = `${Math.random()*100}%`;
+        s.style.top = `${Math.random()*100}%`;
+        const sz = 1 + Math.random()*2.5;
+        s.style.width = `${sz}px`; s.style.height = `${sz}px`;
+        s.style.animation = `twinkle ${3+Math.random()*2}s ease-in-out ${Math.random()*3}s infinite`;
+        if (starsContainer) starsContainer.appendChild(s);
+      }
+      const tw = document.createElement('style');
+      tw.textContent = `@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.8;transform:scale(1.2)}}`;
+      document.head.appendChild(tw);
+    })();
+
+    // ========= PB =========
+    function initializeSessionEnhancement() {
+      try { sessionEnhancement.initializeExercise(EXERCISE_ID, difficultySelect.value); } catch(e){}
+      updatePersonalBestDisplay();
+    }
+    function updatePersonalBestDisplay() {
+      try {
+        const currentDifficulty = difficultySelect.value;
+        const difficultyBest = sessionEnhancement.personalBest.getBest(EXERCISE_ID, currentDifficulty);
+        if (personalBestEl) personalBestEl.textContent = difficultyBest > 0 ? difficultyBest : '–';
+        if (pbSettingsEl) pbSettingsEl.textContent = difficultyBest > 0 ? difficultyBest : '–';
+      } catch(e) {
+        const PB_KEY = 'pb:'+EXERCISE_ID;
+        const pb = Number(localStorage.getItem(PB_KEY) || 0);
+        if (personalBestEl) personalBestEl.textContent = pb > 0 ? pb : '–';
+        if (pbSettingsEl) pbSettingsEl.textContent = pb > 0 ? pb : '–';
+      }
+    }
+    initializeSessionEnhancement();
+    if (difficultySelect) {
+      difficultySelect.addEventListener('change', () => {
+        initializeSessionEnhancement();
+        if (hudDifficultyEl) hudDifficultyEl.textContent = labelForDifficulty(difficultySelect.value);
+      });
+    }
+
+    // ========= Controls =========
+    if (startBtn) startBtn.addEventListener('click', () => { if(!isSessionActive){ startSession(); } });
+    if (pauseHudBtn) pauseHudBtn.addEventListener('click', () => { if(isSessionActive){ togglePause(); } });
+    if (exitHudBtn) exitHudBtn.addEventListener('click', () => { if(isSessionActive){ finishSession(); } });
+    if (doneBtn) doneBtn.addEventListener('click', () => { restartSession(); });
+    if (homeBtn) homeBtn.addEventListener('click', () => { window.location.href = '/'; });
+
+    if (gameArea) gameArea.addEventListener('keydown', (e) => {
+      const focusEl = document.activeElement;
+      if(!focusEl?.classList?.contains('draggable')) return;
+      const step = (e.shiftKey ? 10 : 4);
+      const rect = gameArea.getBoundingClientRect();
+      const r = focusEl.getBoundingClientRect();
+      let x = r.left - rect.left, y = r.top - rect.top;
+      let moved = false;
+      if(e.key === 'ArrowLeft'){ x = Math.max(0, x - step); moved=true; }
+      if(e.key === 'ArrowRight'){ x = Math.min(rect.width - r.width, x + step); moved=true; }
+      if(e.key === 'ArrowUp'){ y = Math.max(0, y - step); moved=true; }
+      if(e.key === 'ArrowDown'){ y = Math.min(rect.height - r.height, y + step); moved=true; }
+      if(moved){ focusEl.style.left = `${x}px`; focusEl.style.top = `${y}px`; e.preventDefault(); checkProximity(); }
+      if(e.key === 'Enter'){ e.preventDefault(); currentDragging = focusEl; checkDrop(); currentDragging=null; }
+    });
+
+    function fmtTime(ms){
+      const s = Math.max(0, Math.ceil(ms/1000));
+      const m = Math.floor(s/60);
+      const ss = String(s%60).padStart(2,'0');
+      return `${String(m).padStart(2,'0')}:${ss}`;
+    }
+    function updateTimeUI(){ if (timeEl) timeEl.textContent = fmtTime(timeRemaining); }
+
+    async function enterFullscreen(){
+      try{
+        const el = document.documentElement;
+        if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      }catch{}
+    }
+    async function exitFullscreen(){
+      try{
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (document.webkitFullscreenElement) await document.webkitExitFullscreen();
+      }catch{}
+    }
+    function toImmersive(){ document.body.classList.add('playing'); window.scrollTo({ top: 0 }); enterFullscreen(); }
+    function fromImmersive(){ document.body.classList.remove('playing'); exitFullscreen(); }
+
+    function startSession(){
+      const minutes = Math.max(1, Math.min(10, parseInt(sessionDurationInput?.value || '2', 10) || 2));
+      sessionDuration = minutes * 60 * 1000;
+      timeRemaining = sessionDuration;
+      score = 0; successfulDrops = 0; totalDrops = 0; totalDropTime = 0; currentRound = 1;
+      maxRounds = Math.max(1, Math.floor(timeRemaining / 6000));
+      updateHUD();
+
+      isSessionActive = true; isPaused = false;
+      if (pauseHudBtn) pauseHudBtn.textContent = 'Pause';
+      if (completionModal) completionModal.style.display='none';
+
+      toImmersive();
+      // Reserve vertical space so nothing spawns under the HUD
+      const __hud = document.querySelector('.hud');
+      const __hudH = __hud ? Math.ceil(__hud.getBoundingClientRect().height) : 0;
+      if (gameArea) gameArea.style.paddingTop = (__hudH + 12) + 'px';
+
+      clearGameElements();
+      createRound();
+      roundStartTime = Date.now();
+
+      clearInterval(timerInterval);
+      let parityInterval = setInterval(() => { if(isSessionActive && !isPaused){ ensureParity(); } }, 2000);
+      timerInterval = setInterval(() => {
+        if(!isPaused){
+          timeRemaining -= 100;
+          updateTimeUI();
+          if (timeRemaining <= 0){ finishSession(); }
+        }
+      }, 100);
+    }
+
+    function togglePause(){
+      if(!isSessionActive) return;
+      isPaused = !isPaused;
+      if (pauseHudBtn) pauseHudBtn.textContent = isPaused ? 'Resume' : 'Pause';
+      if (statusMessage) statusMessage.textContent = isPaused ? 'Paused' : 'Drag the object to the target';
+    }
+
+    function restartSession(){
+      fromImmersive();
+      clearInterval(timerInterval); try{clearInterval(parityInterval);}catch{}; isSessionActive=false; isPaused=false;
+      timeRemaining = 0; updateTimeUI();
+      clearGameElements();
+    }
+
+    function finishSession(){
+      clearInterval(timerInterval);
+      try{clearInterval(parityInterval);}catch{};
+      isSessionActive = false; isPaused = false;
+      clearGameElements();
+
+      const accuracy = totalDrops > 0 ? Math.round((successfulDrops / totalDrops) * 100) : 0;
+      const avgDropTime = successfulDrops > 0 ? (totalDropTime / successfulDrops / 1000).toFixed(2) : '0.00';
+
+      try { sessionEnhancement.handleSessionComplete({ score, drops: successfulDrops, accuracy, avgDropTime: Number(avgDropTime) }); } catch(e){}
+
+      const difficulty = difficultySelect ? difficultySelect.value : 'easy';
+      try { recordSession(EXERCISE_ID, difficulty, score); } catch(e){}
+      try {
+        markExerciseTried(EXERCISE_ID);
+        const unlocked = checkAndUnlockAchievements();
+        if (Array.isArray(unlocked) && unlocked.length && typeof window.showAchievementNotification === 'function') {
+          unlocked.forEach(id => window.showAchievementNotification(id));
+        }
+      } catch(e) {}
+
+      updatePersonalBestDisplay();
+
+      const base = Math.round(score / 10);
+      const accBonus = Math.round(base * ( (totalDrops>0?successfulDrops/totalDrops:0) ) * 0.2);
+      const diffMult = (difficulty === 'hard' ? 1.4 : difficulty === 'medium' ? 1.2 : 1.0);
+      const xp = Math.max(0, Math.round((base + accBonus) * diffMult));
+      if (finalXpEl) finalXpEl.textContent = `+${xp} XP`;
+
+      if (finalScoreEl) finalScoreEl.textContent = String(score);
+      if (finalDropsEl) finalDropsEl.textContent = String(successfulDrops);
+      if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
+      if (finalAvgTimeEl) finalAvgTimeEl.textContent = `${avgDropTime}s`;
+
+      if (completionModal) completionModal.style.display='grid';
+      requestAnimationFrame(() => completionCard && completionCard.focus());
+      fromImmersive();
+    }
+
+    function updateHUD(){
+      if (scoreEl) scoreEl.textContent = String(score);
+      if (roundNumber) roundNumber.textContent = String(currentRound);
+      if (totalRounds) totalRounds.textContent = String(maxRounds);
+      if (hudDifficultyEl) hudDifficultyEl.textContent = labelForDifficulty(difficultySelect?.value || 'easy');
+      updateTimeUI();
+    }
+    function labelForDifficulty(v){ return v === 'hard' ? 'Hard' : v === 'medium' ? 'Medium' : 'Easy'; }
+
+    function clearGameElements(){
+      activeDroppables.forEach(d => d.remove());
+      activeTargets.forEach(t => t.remove());
+      activeDroppables = []; activeTargets = [];
+    }
+
+    function createRound(){
+      clearGameElements();
+      const diff = DIFF[difficultySelect?.value || 'easy'] || DIFF.easy;
+      const numTargets = parseInt(numTargetsSelect?.value || '1', 10) || 1;
+      const showNumbers = (showNumbersSelect?.value || 'no') === 'yes';
+
+      const gameRect = gameArea.getBoundingClientRect();
+      const positions = [];
+
+      // Targets
+      for(let i=0;i<numTargets;i++){
+        const t = document.createElement('div');
+        t.className = 'target'; t.dataset.targetId = String(i);
+        const col = palette[i % palette.length];
+        t.style.borderColor = col.solid;
+        t.style.color = col.solid;
+        t.style.width = `${diff.targetSize}px`; t.style.height = `${diff.targetSize}px`;
+
+        const pos = findOpenPos(diff.targetSize, positions, gameRect, diff.spacing);
+        positions.push(pos);
+        t.style.left = `${pos.x}px`; t.style.top = `${pos.y}px`;
+
+        if (showNumbers){
+          const n = document.createElement('div');
+          n.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:800';
+          n.style.color = col.solid; n.textContent = String(i+1);
+          t.appendChild(n);
+        }
+        gameArea.appendChild(t); activeTargets.push(t);
+      }
+
+      // Draggables
+      for(let i=0;i<numTargets;i++){
+        const d = document.createElement('div');
+        d.className = 'draggable';
+        d.dataset.targetId = String(i);
+        const col = palette[i % palette.length];
+        d.style.width = `${diff.objectSize}px`; d.style.height = `${diff.objectSize}px`;
+        d.style.background = col.grad; d.style.boxShadow = `0 4px 15px ${col.solid}66`;
+        d.style.left = `${randomEdgeX(gameRect, diff.objectSize)}px`;
+        d.style.top = `${randomEdgeY(gameRect, diff.objectSize)}px`;
+        d.setAttribute('tabindex','0');
+        if (showNumbers){ d.textContent = String(i+1); }
+        addDragListeners(d);
+        gameArea.appendChild(d); activeDroppables.push(d);
+      }
+
+      if (statusMessage) statusMessage.textContent = 'Drag objects to their matching targets';
+      roundStartTime = Date.now();
+      updateHUD();
+      ensureParity();
+    }
+
+    function randomEdgeX(rect, size){
+      const B = getPlayableRect();
+      const edge = Math.floor(Math.random()*4);
+      if (edge === 1) return Math.max(B.minX, B.maxX - size); // right
+      return Math.max(B.minX, Math.min(B.maxX - size, B.minX + 12 + Math.random()*(B.maxX - B.minX - size - 24)));
+    }
+    function randomEdgeY(rect, size){
+      const B = getPlayableRect();
+      const edge = Math.floor(Math.random()*4);
+      if (edge === 2) return Math.max(B.minY, B.minY + 0); // top within safe zone
+      if (edge === 3) return Math.max(B.minY, B.maxY - size); // bottom
+      return Math.max(B.minY, Math.min(B.maxY - size, B.minY + 12 + Math.random()*(B.maxY - B.minY - size - 24)));
+    }
+
+    function findOpenPos(size, taken, rect, spacing){
+      const B = getPlayableRect();
+      const pad = 12; 
+      const max = 100;
+      for (let a=0; a<max; a++){
+        const x = B.minX + pad + Math.random()*Math.max(0, (B.maxX - size) - (B.minX + pad));
+        const y = B.minY + pad + Math.random()*Math.max(0, (B.maxY - size) - (B.minY + pad));
+        let clash = false;
+        for (const p of taken){
+          if (dist(x+size/2,y+size/2,p.x+p.size/2,p.y+p.size/2) < (size/2 + p.size/2 + spacing)){ clash = true; break; }
+        }
+        if (!clash) return { x, y, size };
+      }
+      return {
+        x: Math.max(B.minX + pad, Math.min(B.maxX - size - pad, (B.minX + B.maxX - size)/2)),
+        y: Math.max(B.minY + pad, Math.min(B.maxY - size - pad, (B.minY + B.maxY - size)/2)),
+        size
+      };
+    }
+    function dist(x1,y1,x2,y2){ return Math.hypot(x2-x1,y2-y1); }
+
+    // === Parity watchdog: ensure every target has a matching ball ===
+    function ensureParity() {
+      // Build sets of ids present
+      const targetIds = new Set(activeTargets.map(t => String(t.dataset.targetId)));
+      const ballIds = new Set(activeDroppables.map(d => String(d.dataset.targetId)));
+
+      // For any target id without a ball, spawn one
+      const missing = [...targetIds].filter(id => !ballIds.has(id));
+      if (missing.length) {
+        const diff = DIFF[difficultySelect?.value || 'easy'] || DIFF.easy;
+        const gameRect = gameArea.getBoundingClientRect();
+        missing.forEach(id => {
+          const i = parseInt(id, 10) || 0;
+          const d = document.createElement('div');
+          d.className = 'draggable';
+          d.dataset.targetId = id;
+          const col = palette[i % palette.length];
+          d.style.width = `${diff.objectSize}px`; d.style.height = `${diff.objectSize}px`;
+          d.style.background = col.grad; d.style.boxShadow = `0 4px 15px ${col.solid}66`;
+          d.style.left = `${randomEdgeX(gameRect, diff.objectSize)}px`;
+          d.style.top = `${randomEdgeY(gameRect, diff.objectSize)}px`;
+          d.setAttribute('tabindex','0');
+          if ((showNumbersSelect?.value || 'no') === 'yes'){ d.textContent = String(i+1); }
+          addDragListeners(d);
+          gameArea.appendChild(d); activeDroppables.push(d);
+        });
+      }
+    }
+
+
+    function addDragListeners(el){
+      el.addEventListener('mousedown', startDrag);
+      el.addEventListener('touchstart', startDrag, { passive:false });
+    }
+    function startDrag(e){
+      if (!isSessionActive || isPaused) return;
+      e.preventDefault();
+      currentDragging = e.currentTarget;
+      currentDragging.classList.add('dragging');
+
+      const r = currentDragging.getBoundingClientRect();
+      const rect = gameArea.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragOffsetX = clientX - r.left;
+      dragOffsetY = clientY - r.top;
+
+      document.addEventListener('mousemove', onDrag, { passive:false });
+      document.addEventListener('touchmove', onDrag, { passive:false });
+      document.addEventListener('mouseup', endDrag, { passive:false, once:true });
+      document.addEventListener('touchend', endDrag, { passive:false, once:true });
+    }
+    function onDrag(e){
+      if (!currentDragging) return;
+      e.preventDefault();
+      const rect = gameArea.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      let x = clientX - rect.left - dragOffsetX;
+      let y = clientY - rect.top - dragOffsetY;
+      x = Math.max(0, Math.min(rect.width - currentDragging.offsetWidth, x));
+      y = Math.max(0, Math.min(rect.height - currentDragging.offsetHeight, y));
+      const __B = getPlayableRect();
+      y = Math.max(__B.minY, Math.min(__B.maxY - currentDragging.offsetHeight, y));
+      x = Math.max(__B.minX, Math.min(__B.maxX - currentDragging.offsetWidth, x));
+
+      currentDragging.style.left = `${x}px`;
+      currentDragging.style.top = `${y}px`;
+
+      checkProximity();
+    }
+    function endDrag(){
+      if (!currentDragging) return;
+      checkDrop();
+      currentDragging.classList.remove('dragging');
+      currentDragging = null;
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('touchmove', onDrag);
+    }
+
+    function checkProximity(){
+      for(const t of activeTargets){ t.classList.remove('active'); }
+      if (!currentDragging) return;
+      const dRect = currentDragging.getBoundingClientRect();
+      const dCx = dRect.left + dRect.width/2;
+      const dCy = dRect.top + dRect.height/2;
+      for(const t of activeTargets){
+        const tRect = t.getBoundingClientRect();
+        const tCx = tRect.left + tRect.width/2;
+        const tCy = tRect.top + tRect.height/2;
+        const radius = Math.min(tRect.width, tRect.height)/2;
+        const near = Math.hypot(dCx - tCx, dCy - tCy) <= radius * 1.15;
+        if (near) t.classList.add('active');
+      }
+    }
+
+    function checkDrop(){
+      if (!currentDragging) return;
+      totalDrops++;
+      const id = currentDragging.dataset.targetId;
+      let matched = false;
+
+      for (let i=0; i<activeTargets.length; i++){
+        const t = activeTargets[i];
+        if (t.dataset.targetId !== id) continue;
+        const dRect = currentDragging.getBoundingClientRect();
+        const tRect = t.getBoundingClientRect();
+        const dCx = dRect.left + dRect.width/2;
+        const dCy = dRect.top + dRect.height/2;
+        const tCx = tRect.left + tRect.width/2;
+        const tCy = tRect.top + tRect.height/2;
+        const radius = Math.min(tRect.width, tRect.height)/2;
+        const hit = Math.hypot(dCx - tCx, dCy - tCy) <= radius * 0.8;
+        if (hit){
+          matched = true;
+          const diff = DIFF[difficultySelect?.value || 'easy'] || DIFF.easy;
+          const elapsed = Date.now() - roundStartTime;
+          totalDropTime += elapsed;
+          successfulDrops++;
+          score += diff.points;
+          updateHUD();
+          t.classList.add('success');
+          currentDragging.remove();
+          t.remove();
+          activeDroppables = activeDroppables.filter(el => el !== currentDragging);
+          activeTargets = activeTargets.filter(el => el !== t);
+          break;
+        }
+      }
+
+      ensureParity();
+      if (activeDroppables.length === 0 && activeTargets.length === 0){
+        currentRound++;
+        if (currentRound <= maxRounds){ createRound(); }
+        else { finishSession(); }
+      } else {
+        roundStartTime = Date.now();
+      }
+    }
+
+    // Global hook
+    window.endSession = function(scoreFinal, difficulty = 'easy') {
+      try { recordSession(EXERCISE_ID, difficulty, scoreFinal); } catch(e) {}
+      try {
+        const unlocked = checkAndUnlockAchievements();
+        if (Array.isArray(unlocked) && unlocked.length && typeof window.showAchievementNotification === 'function') {
+          unlocked.forEach(id => window.showAchievementNotification(id));
+        }
+      } catch(e) {}
+    };
+  })();
+  </script>
+</body>
+</html>

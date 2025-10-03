@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mirror Match — Bilateral Coordination Rehabilitation</title>
+
+  <style>
+    :root {
+      --bg-primary: #0f1629;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --text-primary: #e8eef5;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --brand-aqua: #6fd3f5;
+      --success: #4caf50;
+      --error: #ff6b6b;
+      --error-bg: #2d1b1b;
+      --border: #374151;
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 50%;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--easing);
+    }
+
+    .btn:hover {
+      border-color: var(--brand-aqua);
+      background-color: var(--bg-tertiary);
+    }
+
+    .btn-primary {
+      background-color: var(--brand-aqua);
+      color: #000;
+      border-color: var(--brand-aqua);
+    }
+
+    .btn-primary:hover {
+      background-color: #5bc2e7;
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+    }
+
+    .input, select {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+    }
+
+    .panel {
+      background: rgba(15, 22, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 15, 35, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header .inner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .site-header h1 {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      line-height: 1.2;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-4);
+    }
+
+    [data-screen] {
+      display: none !important;
+    }
+
+    [data-screen].active {
+      display: block !important;
+    }
+
+    .settings-panel {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: var(--space-6);
+    }
+
+    .settings-panel h2 {
+      margin: 0 0 var(--space-4);
+      font-size: var(--font-size-lg);
+      text-align: center;
+    }
+
+    .game-description {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .metric-settings {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(111, 211, 245, 0.08);
+      min-width: 110px;
+    }
+
+    .pb-value {
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-lg);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 6px rgba(111, 211, 245, 0.5);
+      line-height: 1.1;
+    }
+
+    .pb-label {
+      font-size: var(--font-size-xs);
+      opacity: 0.9;
+      margin-top: var(--space-1);
+      color: var(--text-secondary);
+    }
+
+    .settings-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .settings-label {
+      display: block;
+      margin-bottom: var(--space-2);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .setting-help {
+      display: block;
+      color: var(--text-muted);
+      font-size: var(--font-size-xs);
+      margin-top: var(--space-1);
+      font-style: italic;
+    }
+
+    .right-col {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-3);
+    }
+
+    .hud {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-2);
+      align-items: center;
+      position: relative;
+      padding-top: calc(var(--space-3) + 8px);
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-auto-flow: row;
+        gap: var(--space-1);
+        padding: var(--space-2);
+        padding-top: calc(var(--space-2) + 6px);
+      }
+      
+      .hud-value {
+        font-size: var(--font-size-base);
+      }
+      
+      .hud-label {
+        font-size: 11px;
+      }
+      
+      .controls {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: var(--space-2);
+        justify-content: center;
+        margin-top: var(--space-1);
+      }
+      
+      .controls .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+
+    .hud-group {
+      display: grid;
+      gap: var(--space-1);
+      text-align: center;
+    }
+
+    .hud-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+    }
+
+    .hud-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+    }
+
+    .timer-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--brand-aqua), rgba(111,211,245,.35));
+      transform-origin: left center;
+      transition: transform .1s linear;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .controls {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .instructions {
+      text-align: center;
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-3);
+      font-size: var(--font-size-base);
+      padding: var(--space-3);
+      background-color: rgba(8, 15, 35, 0.7);
+      border-radius: var(--radius);
+    }
+
+    #game-container {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: var(--space-3);
+      background: rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    #stars-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .mirror-container {
+      position: relative;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--brand-aqua);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(111, 211, 245, 0.2);
+      touch-action: none;
+      outline: none;
+      width: 800px;
+      height: 500px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 900px) {
+      .mirror-container {
+        width: 95vw;
+        height: 60vw;
+        max-width: 700px;
+        max-height: 450px;
+        min-width: 300px;
+        min-height: 200px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .mirror-container {
+        height: 50vh;
+        min-height: 250px;
+      }
+      
+      .mirror-target {
+        min-width: 48px;
+        min-height: 48px;
+      }
+      
+      .settings-panel {
+        padding: var(--space-3);
+        margin: var(--space-2);
+      }
+      
+      .page {
+        padding: var(--space-2);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mirror-container {
+        height: 45vh;
+        min-height: 220px;
+      }
+      
+      .hud {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-1);
+      }
+      
+      .hud-group {
+        font-size: 14px;
+      }
+      
+      .hud-value {
+        font-size: var(--font-size-lg);
+      }
+    }
+
+    @media (max-width: 900px) and (orientation: landscape) {
+      .mirror-container {
+        width: 75vw;
+        height: 55vh;
+        max-height: 400px;
+      }
+      
+      .page {
+        padding: var(--space-2);
+      }
+      
+      .right-col {
+        gap: var(--space-2);
+      }
+      
+      .panel {
+        padding: var(--space-3);
+      }
+      
+      .instructions {
+        padding: var(--space-2);
+        margin-bottom: var(--space-2);
+        font-size: 14px;
+      }
+      
+      .progress-display {
+        margin: var(--space-2) 0;
+        padding: var(--space-2);
+        font-size: 14px;
+      }
+    }
+
+    .mirror-area {
+      display: flex;
+      height: 100%;
+      position: relative;
+    }
+
+    .mirror-area.is-paused {
+      filter: grayscale(0.35) brightness(0.9);
+      pointer-events: none;
+    }
+
+    .mirror-side {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mirror-side.left {
+      border-right: 1px solid rgba(111, 211, 245, 0.3);
+    }
+
+    .mirror-target {
+      position: absolute;
+      background: var(--brand-aqua);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(111, 211, 245, 0.4);
+      transition: all var(--duration-fast) var(--easing);
+      z-index: 10;
+      outline: none;
+      touch-action: manipulation;
+      min-width: 44px;
+      min-height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .mirror-target:focus-visible {
+      box-shadow: 0 0 0 4px rgba(111, 211, 245, 0.6);
+    }
+
+    .mirror-target.pulse {
+      animation: mirrorPulse 1.5s infinite;
+    }
+
+    .mirror-target.touched {
+      background: var(--success);
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 0 30px rgba(76, 175, 80, 0.8);
+    }
+
+    .mirror-target.completed {
+      background: var(--success);
+      transform: translate(-50%, -50%) scale(0.9);
+      opacity: 0.85;
+    }
+
+    .mirror-target.failed {
+      background: var(--error);
+      animation: mirrorShake 0.5s ease-in-out;
+    }
+
+    .mirror-target.perfect-glow {
+      box-shadow:
+        0 0 0 10px rgba(111, 211, 245, 0.2),
+        0 0 30px 6px rgba(111, 211, 245, 0.6),
+        inset 0 0 12px rgba(255,255,255,0.4);
+    }
+
+    .mirror-path {
+      fill: none;
+      stroke: rgba(111, 211, 245, 0.4);
+      stroke-width: 2;
+      stroke-dasharray: 8, 8;
+      opacity: 0.8;
+    }
+
+    .mirror-path.completed {
+      stroke: var(--success);
+      stroke-dasharray: none;
+      opacity: 1;
+      stroke-width: 3;
+    }
+
+    .touch-indicator {
+      position: fixed;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(111, 211, 245, 0.9);
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .touch-indicator.active {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .progress-display {
+      text-align: center;
+      margin: 15px 0;
+      padding: 12px 14px;
+      background: rgba(15, 22, 41, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: var(--font-size-base);
+      color: var(--brand-aqua);
+    }
+
+    .feedback-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 22, 41, 0.95);
+      border: 2px solid var(--brand-aqua);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      color: var(--text-primary);
+      font-weight: var(--font-weight-semibold);
+      text-align: center;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transition: opacity var(--duration-fast) var(--easing);
+      pointer-events: none;
+      font-size: var(--font-size-base);
+    }
+
+    .feedback-message:not(.hidden) {
+      opacity: 1;
+    }
+
+    .feedback-message.success {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .feedback-message.error {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .completion {
+      position: fixed;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%) scale(1);
+      max-width: 90%;
+      width: 560px;
+      z-index: 1100;
+      text-align: center;
+      display: none;
+    }
+
+    .completion.show {
+      display: block;
+      animation: pop .25s ease;
+    }
+
+    @keyframes pop {
+      from {
+        transform: translate(-50%, -50%) scale(.95);
+        opacity: .6;
+      }
+      to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .score-highlight {
+      color: var(--brand-aqua);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .mirror-celebrate {
+      animation: celebrate 900ms ease-out 1;
+    }
+
+    @keyframes celebrate {
+      0% { box-shadow: 0 0 0 rgba(111,211,245,0); }
+      40% { box-shadow: 0 0 40px rgba(111,211,245,.8); }
+      100% { box-shadow: 0 0 20px rgba(111,211,245,.2); }
+    }
+
+    @keyframes mirrorPulse {
+      0%, 100% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(111, 211, 245, 0.4);
+      }
+      50% { 
+        opacity: 0.8; 
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 30px rgba(111, 211, 245, 0.8);
+      }
+    }
+
+    @keyframes mirrorShake {
+      0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+      25% { transform: translate(-50%, -50%) translateX(-6px); }
+      75% { transform: translate(-50%, -50%) translateX(6px); }
+    }
+
+    #error-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--error-bg);
+      color: var(--error);
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius);
+      z-index: 1200;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100%); }
+      to { transform: translate(-50%, 0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mirror-target.pulse, 
+      .mirror-target.failed,
+      .mirror-celebrate { 
+        animation: none; 
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <h1>Mirror Match</h1>
+    </div>
+  </header>
+
+  <main class="page">
+    <aside class="settings-panel panel active" data-screen="settings">
+      <h2>Session Settings</h2>
+
+      <div class="game-description">
+        <p>
+          Synchronize bilateral movements by touching corresponding targets simultaneously. Improves bilateral coordination,
+          timing precision, and hemispheric integration. Touch mirrored targets at the same time to complete each pattern.
+        </p>
+      </div>
+
+      <div class="stats-row">
+        <div class="metric-settings">
+          <div id="pb-settings" class="pb-value">0</div>
+          <div class="pb-label">Personal Best</div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="difficulty-select">Difficulty</label>
+        <select id="difficulty-select">
+          <option value="easy">Easy — simple patterns, relaxed timing</option>
+          <option value="medium" selected>Medium — moderate complexity</option>
+          <option value="hard">Hard — complex patterns, precise timing</option>
+        </select>
+        <small class="setting-help">Higher difficulty requires more precise synchronization.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="target-size-select">Target Size</label>
+        <select id="target-size-select">
+          <option value="large">Large — easier targeting</option>
+          <option value="medium" selected>Medium — standard</option>
+          <option value="small">Small — precision training</option>
+        </select>
+        <small class="setting-help">Smaller targets increase motor precision demands.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="mirror-mode-select">Mirror Mode</label>
+        <select id="mirror-mode-select">
+          <option value="simultaneous" selected>Simultaneous — touch both at once</option>
+          <option value="sequential">Sequential — left then right</option>
+        </select>
+        <small class="setting-help">Sequential mode focuses on motor sequencing.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="adaptive-timing-select">Adaptive Timing</label>
+        <select id="adaptive-timing-select">
+          <option value="on" selected>On — adapts to your skill</option>
+          <option value="off">Off — fixed timing window</option>
+        </select>
+        <small class="setting-help">Adaptive timing adjusts difficulty based on performance.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
+        <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
+        <small class="setting-help">1—10 minutes recommended.</small>
+      </div>
+
+      <div class="controls">
+        <button id="start-session" class="btn btn-primary">Start</button>
+        <button id="restart-session" class="btn">Restart</button>
+      </div>
+    </aside>
+
+    <section class="right-col" data-screen="game">
+      <div class="hud panel">
+        <div class="timer-bar" id="timer-bar"></div>
+
+        <div class="hud-group">
+          <div id="hud-score" class="hud-value">0</div>
+          <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-pb" class="hud-value">0</div>
+          <div class="hud-label">Personal Best</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-streak" class="hud-value">0</div>
+          <div class="hud-label">Streak</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-time" class="hud-value">3:00</div>
+          <div class="hud-label">Time Left</div>
+        </div>
+
+        <div class="controls">
+          <button id="pause-session" class="btn btn-secondary">Pause</button>
+          <button id="end-session" class="btn">End</button>
+        </div>
+      </div>
+
+      <div class="panel" id="game-container">
+        <div id="stars-container"></div>
+
+        <div class="progress-display" id="progress-display">
+          Pattern <span id="current-pattern">1</span> of <span id="total-patterns">10</span>
+        </div>
+
+        <p class="instructions" id="instructions">
+          Touch both circles simultaneously to complete each target pair.
+        </p>
+
+        <div class="mirror-container" id="mirror-container" tabindex="0">
+          <div class="mirror-area" id="mirror-area">
+            <div class="mirror-side left" id="left-side" aria-label="Left side"></div>
+            <div class="mirror-side right" id="right-side" aria-label="Right side"></div>
+          </div>
+          <div class="feedback-message hidden" id="feedback-message" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="completion-message" class="completion panel">
+    <h2>Therapy Session Complete!</h2>
+    <div id="completion-scores">
+      <p>Patterns Completed: <span id="final-patterns" class="score-highlight">0</span></p>
+      <p>Success Rate: <span id="final-sync-rate" class="score-highlight">0%</span></p>
+      <p>Average Sync Time: <span id="final-avg-sync" class="score-highlight">0ms</span></p>
+      <p>Perfect Syncs: <span id="final-perfects" class="score-highlight">0</span></p>
+      <p>Motor Performance Score: <span id="final-score" class="score-highlight">0</span></p>
+      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
+    </div>
+    <div class="controls">
+      <button id="restart-button" class="btn btn-primary">Start New Therapy Session</button>
+      <button class="btn" id="close-complete">Close</button>
+    </div>
+  </div>
+
+  <div id="error-message"></div>
+
+  <script>
+    const storage = {
+      get: (key, defaultValue) => {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      },
+      set: (key, value) => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
+      }
+    };
+
+    function generateStars(container, count = 150) {
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        star.style.width = Math.random() * 3 + 'px';
+        star.style.height = star.style.width;
+        star.style.backgroundColor = 'white';
+        star.style.borderRadius = '50%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.8 + 0.2;
+        container.appendChild(star);
+      }
+    }
+
+    const starsContainer = document.getElementById('stars-container');
+    const mirrorContainer = document.getElementById('mirror-container');
+    const difficultySelect = document.getElementById('difficulty-select');
+    const targetSizeSelect = document.getElementById('target-size-select');
+    const mirrorModeSelect = document.getElementById('mirror-mode-select');
+    const adaptiveTimingSelect = document.getElementById('adaptive-timing-select');
+    const sessionDurationInp = document.getElementById('session-duration');
+    const startBtn = document.getElementById('start-session');
+    const pauseBtn = document.getElementById('pause-session');
+    const restartBtn = document.getElementById('restart-session');
+    const timerBarEl = document.getElementById('timer-bar');
+    const hudScore = document.getElementById('hud-score');
+    const hudPB = document.getElementById('hud-pb');
+    const pbSettingsEl = document.getElementById('pb-settings');
+    const hudStreak = document.getElementById('hud-streak');
+    const hudTime = document.getElementById('hud-time');
+    const progressDisplay = document.getElementById('progress-display');
+    const currentPatternEl = document.getElementById('current-pattern');
+    const totalPatternsEl = document.getElementById('total-patterns');
+    const instructions = document.getElementById('instructions');
+    const mirrorArea = document.getElementById('mirror-area');
+    const leftSide = document.getElementById('left-side');
+    const rightSide = document.getElementById('right-side');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const completionModal = document.getElementById('completion-message');
+    const finalPatternsEl = document.getElementById('final-patterns');
+    const finalSyncRateEl = document.getElementById('final-sync-rate');
+    const finalAvgSyncEl = document.getElementById('final-avg-sync');
+    const finalPerfectsEl = document.getElementById('final-perfects');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalXPEl = document.getElementById('final-xp');
+    const completeClose = document.getElementById('close-complete');
+    const restartModalBtn = document.getElementById('restart-button');
+    const errorMessage = document.getElementById('error-message');
+
+    generateStars(starsContainer, 150);
+
+    const PB_KEY = 'mirror-match:best';
+    const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
+    const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
+
+    function updatePersonalBest() {
+      const pb = getPB();
+      if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
+      if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
+    }
+
+    let isSessionActive = false;
+    let isPaused = false;
+    let sessionMs = 3 * 60 * 1000;
+    let timeRemaining = 0;
+    let timerInterval = null;
+    let score = 0;
+    let patternsCompleted = 0;
+    let totalAttempts = 0;
+    let successfulAttempts = 0;
+    let syncTimes = [];
+    let currentPatternIndex = 0;
+    let currentTargetIndex = 0;
+    let pattern = [];
+    let patterns = [];
+    let usedPatternTypes = [];
+    let adaptiveSyncWindow = 500;
+    let leftTouched = false;
+    let rightTouched = false;
+    let leftTouchTime = 0;
+    let rightTouchTime = 0;
+    let lastTouchedSide = null;
+    let currentTargets = { left: null, right: null };
+    let feedbackTimeout = null;
+    let streak = 0;
+    let bestStreak = 0;
+    let perfectCount = 0;
+    let containerWidth = 800;
+    let containerHeight = 500;
+
+    const targetSizes = { small: 40, medium: 55, large: 70 };
+    const difficultySetting = {
+      easy:   { pointsPerPattern: 100, patternLength: 3, timeLimit: 60000, baseSync: 750 },
+      medium: { pointsPerPattern: 200, patternLength: 5, timeLimit: 45000, baseSync: 500 },
+      hard:   { pointsPerPattern: 300, patternLength: 7, timeLimit: 30000, baseSync: 350 }
+    };
+    const patternTypes = ['random', 'circle', 'square', 'triangle', 'zigzag', 'line', 'spiral'];
+
+    const leftTouchIndicator = document.createElement('div');
+    leftTouchIndicator.classList.add('touch-indicator');
+    document.body.appendChild(leftTouchIndicator);
+
+    const rightTouchIndicator = document.createElement('div');
+    rightTouchIndicator.classList.add('touch-indicator');
+    document.body.appendChild(rightTouchIndicator);
+
+    function showError(msg) {
+      if (errorMessage) {
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+        setTimeout(() => errorMessage.style.display = 'none', 3000);
+      }
+    }
+
+    function saveSettings() {
+      if (difficultySelect) storage.set('mirrorDifficulty', difficultySelect.value);
+      if (targetSizeSelect) storage.set('mirrorTargetSize', targetSizeSelect.value);
+      if (mirrorModeSelect) storage.set('mirrorMode', mirrorModeSelect.value);
+      if (adaptiveTimingSelect) storage.set('mirrorAdaptiveTiming', adaptiveTimingSelect.value);
+      if (sessionDurationInp) storage.set('mirrorSessionDuration', sessionDurationInp.value);
+    }
+
+    function loadSettings() {
+      if (difficultySelect) difficultySelect.value = storage.get('mirrorDifficulty', 'medium');
+      if (targetSizeSelect) targetSizeSelect.value = storage.get('mirrorTargetSize', 'medium');
+      if (mirrorModeSelect) mirrorModeSelect.value = storage.get('mirrorMode', 'simultaneous');
+      if (adaptiveTimingSelect) adaptiveTimingSelect.value = storage.get('mirrorAdaptiveTiming', 'on');
+      if (sessionDurationInp) sessionDurationInp.value = storage.get('mirrorSessionDuration', 3);
+      updatePersonalBest();
+    }
+
+    function updateInstructionsText() {
+      if (!mirrorModeSelect) return;
+      const mode = mirrorModeSelect.value;
+      if (instructions) {
+        instructions.textContent = (mode === 'simultaneous')
+          ? 'Touch both circles simultaneously to complete each target pair.'
+          : 'Touch the left circle first, then the right circle to complete each target pair.';
+      }
+    }
+
+    function updateHUD() {
+      if (hudScore) hudScore.textContent = `${score}`;
+      if (hudPB) hudPB.textContent = `${getPB()}`;
+      if (hudStreak) hudStreak.textContent = `${streak}`;
+
+      const mins = Math.max(0, Math.floor(timeRemaining / 60000));
+      const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
+      if (hudTime) hudTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateStats() {
+      if (hudScore) hudScore.textContent = String(score);
+      if (hudPB) hudPB.textContent = String(getPB());
+      if (hudStreak) hudStreak.textContent = String(streak);
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeRemaining -= 100;
+        const progress = Math.max(0, timeRemaining / sessionMs);
+        if (timerBarEl) timerBarEl.style.transform = `scaleX(${progress})`;
+        updateHUD();
+        if (timeRemaining <= 0) {
+          endSession();
+        }
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function clearMirrorArea() {
+      if (leftSide) leftSide.innerHTML = '';
+      if (rightSide) rightSide.innerHTML = '';
+      currentTargets = { left: null, right: null };
+    }
+
+    function adjustContainerSize() {
+      if (!mirrorContainer) return;
+      const containerStyle = window.getComputedStyle(mirrorContainer);
+      const newWidth = parseInt(containerStyle.width);
+      const newHeight = parseInt(containerStyle.height);
+      
+      if (newWidth > 0 && newHeight > 0) {
+        containerWidth = newWidth;
+        containerHeight = newHeight;
+      } else {
+        containerWidth = window.innerWidth <= 900 ? 320 : 800;
+        containerHeight = window.innerWidth <= 900 ? 200 : 500;
+      }
+    }
+
+    function setScreen(screenName) {
+      document.querySelectorAll('[data-screen]').forEach(el => {
+        el.classList.remove('active');
+      });
+      const screen = document.querySelector(`[data-screen="${screenName}"]`);
+      if (screen) screen.classList.add('active');
+    }
+
+    function startSession() {
+      if (isSessionActive) return;
+      
+      const difficulty = difficultySelect?.value || 'medium';
+      const minutes = Math.max(1, Math.min(10, Number(sessionDurationInp?.value) || 3));
+      sessionMs = minutes * 60 * 1000;
+      
+      score = 0;
+      patternsCompleted = 0;
+      totalAttempts = 0;
+      successfulAttempts = 0;
+      syncTimes = [];
+      perfectCount = 0;
+      streak = 0;
+      bestStreak = 0;
+      currentPatternIndex = 0;
+      currentTargetIndex = 0;
+      pattern = [];
+      patterns = [];
+      usedPatternTypes = [];
+      adaptiveSyncWindow = difficultySetting[difficulty]?.baseSync || 500;
+      timeRemaining = sessionMs;
+      isPaused = false;
+
+      clearMirrorArea();
+      updateHUD();
+      setScreen('game');
+
+      isSessionActive = true;
+      startTimer();
+      updatePersonalBest();
+      
+      setTimeout(() => {
+        adjustContainerSize();
+        generateDiversePatterns(difficulty);
+        if (totalPatternsEl) totalPatternsEl.textContent = patterns.length;
+        updateInstructionsText();
+        startPattern();
+        if (mirrorContainer) mirrorContainer.focus();
+      }, 100);
+    }
+
+    function generateDiversePatterns(difficulty) {
+      const settings = difficultySetting[difficulty] || difficultySetting.medium;
+      const patternLength = settings.patternLength;
+      const numPatterns = 10;
+      const sideWidth = containerWidth / 2;
+
+      for (let p = 0; p < numPatterns; p++) {
+        let available = patternTypes.filter(t => !usedPatternTypes.includes(t));
+        if (!available.length) { 
+          usedPatternTypes = []; 
+          available = [...patternTypes]; 
+        }
+        const type = available[Math.floor(Math.random() * available.length)];
+        usedPatternTypes.push(type);
+        if (usedPatternTypes.length > 3) usedPatternTypes.shift();
+        
+        const pts = generatePatternByType(type, patternLength, sideWidth, containerHeight);
+        patterns.push(pts);
+      }
+    }
+
+    function generatePatternByType(type, length, sideWidth, areaHeight) {
+      const centerX = sideWidth / 2;
+      const centerY = areaHeight / 2;
+      const radius = Math.min(sideWidth, areaHeight) * 0.3;
+      let points = [];
+
+      switch (type) {
+        case 'circle':
+          for (let i = 0; i < length; i++) {
+            const a = (i / length) * 2 * Math.PI;
+            points.push({ x: centerX + Math.cos(a) * radius, y: centerY + Math.sin(a) * radius });
+          }
+          break;
+        case 'square': {
+          const s = radius * 1.5, h = s / 2;
+          const corners = [
+            { x: centerX - h, y: centerY - h }, { x: centerX + h, y: centerY - h },
+            { x: centerX + h, y: centerY + h }, { x: centerX - h, y: centerY + h }
+          ];
+          for (let i = 0; i < length; i++) points.push(corners[i % 4]);
+          break;
+        }
+        case 'triangle': {
+          const tri = [];
+          for (let i = 0; i < 3; i++) {
+            const a = (i / 3) * 2 * Math.PI - Math.PI / 2;
+            tri.push({ x: centerX + Math.cos(a) * radius, y: centerY + Math.sin(a) * radius });
+          }
+          for (let i = 0; i < length; i++) points.push(tri[i % 3]);
+          break;
+        }
+        case 'zigzag': {
+          const stepY = areaHeight / (length + 1);
+          for (let i = 0; i < length; i++) {
+            const y = stepY + i * stepY;
+            const x = (i % 2 === 0) ? sideWidth * 0.25 : sideWidth * 0.75;
+            points.push({ x, y });
+          }
+          break;
+        }
+        case 'line': {
+          const sx = sideWidth * 0.2, ex = sideWidth * 0.8;
+          const sy = areaHeight * 0.3, ey = areaHeight * 0.7;
+          for (let i = 0; i < length; i++) {
+            const t = i / (length - 1);
+            points.push({ x: sx + (ex - sx) * t, y: sy + (ey - sy) * t });
+          }
+          break;
+        }
+        case 'spiral':
+          for (let i = 0; i < length; i++) {
+            const a = (i / length) * 4 * Math.PI;
+            const r = (i / length) * radius;
+            points.push({ x: centerX + Math.cos(a) * r, y: centerY + Math.sin(a) * r });
+          }
+          break;
+        default:
+          for (let i = 0; i < length; i++) {
+            const x = Math.floor(Math.random() * (sideWidth - 100) + 50);
+            const y = Math.floor(Math.random() * (areaHeight - 100) + 50);
+            points.push({ x, y });
+          }
+      }
+      return points;
+    }
+
+    function drawPatternPaths() {
+      if (!leftSide || !rightSide) return;
+      
+      const lsvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      lsvg.setAttribute("width", "100%");
+      lsvg.setAttribute("height", "100%");
+      lsvg.style.position = "absolute";
+      lsvg.style.top = "0";
+      lsvg.style.left = "0";
+      lsvg.style.pointerEvents = "none";
+
+      const lpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      lpath.classList.add("mirror-path");
+      let d = "";
+      pattern.forEach((pt, i) => {
+        d += (i === 0 ? `M ${pt.x} ${pt.y} ` : `L ${pt.x} ${pt.y} `);
+      });
+      lpath.setAttribute("d", d);
+      lsvg.appendChild(lpath);
+      leftSide.appendChild(lsvg);
+
+      const rsvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      rsvg.setAttribute("width", "100%");
+      rsvg.setAttribute("height", "100%");
+      rsvg.style.position = "absolute";
+      rsvg.style.top = "0";
+      rsvg.style.left = "0";
+      rsvg.style.pointerEvents = "none";
+
+      const rpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      rpath.classList.add("mirror-path");
+      d = "";
+      pattern.forEach((pt, i) => {
+        const mx = containerWidth / 2 - pt.x;
+        d += (i === 0 ? `M ${mx} ${pt.y} ` : `L ${mx} ${pt.y} `);
+      });
+      rpath.setAttribute("d", d);
+      rsvg.appendChild(rpath);
+      rightSide.appendChild(rsvg);
+    }
+
+    function createTargetPair() {
+      const point = pattern[currentTargetIndex];
+      if (!point) return;
+      
+      const targetSize = targetSizes[targetSizeSelect?.value || 'medium'];
+      const isMobile = window.innerWidth <= 768;
+      const actualSize = Math.max(targetSize, isMobile ? 48 : 44);
+
+      const leftTarget = document.createElement("div");
+      leftTarget.className = "mirror-target pulse";
+      leftTarget.style.width = `${actualSize}px`;
+      leftTarget.style.height = `${actualSize}px`;
+      leftTarget.style.left = `${point.x}px`;
+      leftTarget.style.top = `${point.y}px`;
+
+      const rightTarget = document.createElement("div");
+      rightTarget.className = "mirror-target pulse";
+      rightTarget.style.width = `${actualSize}px`;
+      rightTarget.style.height = `${actualSize}px`;
+      rightTarget.style.left = `${containerWidth / 2 - point.x}px`;
+      rightTarget.style.top = `${point.y}px`;
+
+      leftTarget.addEventListener("touchstart", handleLeftTouch, { passive: false });
+      leftTarget.addEventListener("mousedown", handleLeftTouch);
+      rightTarget.addEventListener("touchstart", handleRightTouch, { passive: false });
+      rightTarget.addEventListener("mousedown", handleRightTouch);
+
+      leftSide.appendChild(leftTarget);
+      rightSide.appendChild(rightTarget);
+
+      currentTargets.left = leftTarget;
+      currentTargets.right = rightTarget;
+    }
+
+    function handleLeftTouch(e) {
+      if (!isSessionActive || leftTouched || isPaused) return;
+      e.preventDefault();
+      leftTouched = true;
+      leftTouchTime = Date.now();
+      if (!rightTouched) lastTouchedSide = 'left';
+      currentTargets.left.classList.remove("pulse");
+      currentTargets.left.classList.add("touched");
+      checkTargetPair();
+    }
+
+    function handleRightTouch(e) {
+      if (!isSessionActive || rightTouched || isPaused) return;
+      e.preventDefault();
+      rightTouched = true;
+      rightTouchTime = Date.now();
+      if (!leftTouched) lastTouchedSide = 'right';
+      currentTargets.right.classList.remove("pulse");
+      currentTargets.right.classList.add("touched");
+      checkTargetPair();
+    }
+
+    function checkTargetPair() {
+      if (!leftTouched || !rightTouched) return;
+
+      totalAttempts++;
+      const timeDiff = Math.abs(leftTouchTime - rightTouchTime);
+      const difficulty = difficultySelect?.value || 'medium';
+      const baseWindow = difficultySetting[difficulty]?.baseSync || 500;
+      const usingAdaptive = adaptiveTimingSelect?.value === 'on';
+      const currentSyncWindow = usingAdaptive ? adaptiveSyncWindow : baseWindow;
+
+      const mode = mirrorModeSelect?.value || 'simultaneous';
+      const isSimul = (mode === 'simultaneous');
+      
+      let isSync = isSimul ? (timeDiff < currentSyncWindow) : (lastTouchedSide === 'left' && timeDiff < currentSyncWindow);
+
+      if (isSync) {
+        successfulAttempts++;
+        if (isSimul) syncTimes.push(timeDiff);
+
+        const feedbackText = isSimul ? `Perfect! Sync time: ${timeDiff}ms` : `Excellent! Sequence completed.`;
+        showFeedback(feedbackText, 'success');
+
+        if (currentTargets.left) {
+          currentTargets.left.classList.remove("touched");
+          currentTargets.left.classList.add("completed");
+        }
+        if (currentTargets.right) {
+          currentTargets.right.classList.remove("touched");
+          currentTargets.right.classList.add("completed");
+        }
+
+        streak += 1;
+        if (streak > bestStreak) bestStreak = streak;
+
+        currentTargetIndex++;
+        if (currentTargetIndex >= pattern.length) {
+          completePattern();
+        } else {
+          leftTouched = false;
+          rightTouched = false;
+          lastTouchedSide = null;
+          setTimeout(() => createTargetPair(), 350);
+        }
+      } else {
+        const feedbackText = isSimul ? 
+          `Try again! Sync time: ${timeDiff}ms (need < ${currentSyncWindow}ms)` :
+          `Try again! Touch left first, then right within ${currentSyncWindow}ms`;
+        showFeedback(feedbackText, 'error');
+        
+        if (currentTargets.left) {
+          currentTargets.left.classList.remove("touched");
+          currentTargets.left.classList.add("failed");
+        }
+        if (currentTargets.right) {
+          currentTargets.right.classList.remove("touched");
+          currentTargets.right.classList.add("failed");
+        }
+        streak = 0;
+
+        setTimeout(() => {
+          if (currentTargets.left && currentTargets.right) {
+            currentTargets.left.classList.remove("failed");
+            currentTargets.right.classList.remove("failed");
+            currentTargets.left.classList.add("pulse");
+            currentTargets.right.classList.add("pulse");
+            leftTouched = false;
+            rightTouched = false;
+            lastTouchedSide = null;
+          }
+        }, 750);
+      }
+
+      updateStats();
+    }
+
+    function completePattern() {
+      patternsCompleted++;
+      const difficulty = difficultySelect?.value || 'medium';
+      const settings = difficultySetting[difficulty] || difficultySetting.medium;
+      score += settings.pointsPerPattern;
+
+      updateStats();
+
+      currentPatternIndex++;
+      if (currentPatternIndex >= patterns.length) {
+        setTimeout(() => endSession(), 600);
+      } else {
+        setTimeout(() => startPattern(), 700);
+      }
+    }
+
+    function startPattern() {
+      if (!isSessionActive) return;
+      
+      clearMirrorArea();
+      leftTouched = false;
+      rightTouched = false;
+      lastTouchedSide = null;
+
+      pattern = patterns[currentPatternIndex];
+      if (!pattern) {
+        endSession();
+        return;
+      }
+
+      if (currentPatternEl) currentPatternEl.textContent = currentPatternIndex + 1;
+      drawPatternPaths();
+      currentTargetIndex = 0;
+      createTargetPair();
+    }
+
+    function showFeedback(message, type) {
+      if (feedbackTimeout) clearTimeout(feedbackTimeout);
+      if (feedbackMessage) {
+        feedbackMessage.textContent = message;
+        feedbackMessage.className = `feedback-message ${type}`;
+        feedbackMessage.classList.remove('hidden');
+        feedbackTimeout = setTimeout(() => feedbackMessage.classList.add('hidden'), 1800);
+      }
+    }
+
+    function endSession() {
+      if (timerInterval) stopTimer();
+      isSessionActive = false;
+
+      const averageTime = syncTimes.length ? Math.round(syncTimes.reduce((a, b) => a + b, 0) / syncTimes.length) : 0;
+      const syncRate = totalAttempts ? Math.round((successfulAttempts / totalAttempts) * 100) : 0;
+
+      const previousPB = getPB();
+      if (score > previousPB) {
+        setPB(score);
+        updatePersonalBest();
+      }
+
+      if (finalPatternsEl) finalPatternsEl.textContent = `${patternsCompleted}`;
+      if (finalSyncRateEl) finalSyncRateEl.textContent = `${syncRate}%`;
+      if (finalAvgSyncEl) finalAvgSyncEl.textContent = `${averageTime}ms`;
+      if (finalPerfectsEl) finalPerfectsEl.textContent = `${perfectCount}`;
+      if (finalScoreEl) finalScoreEl.textContent = `${score}`;
+      if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
+      
+      if (completionModal) completionModal.classList.add('show');
+      clearMirrorArea();
+      setScreen('settings');
+    }
+
+    if (startBtn) startBtn.addEventListener('click', startSession);
+    if (difficultySelect) difficultySelect.addEventListener('change', saveSettings);
+    if (targetSizeSelect) targetSizeSelect.addEventListener('change', saveSettings);
+    if (mirrorModeSelect) mirrorModeSelect.addEventListener('change', () => {
+      saveSettings();
+      updateInstructionsText();
+    });
+    if (adaptiveTimingSelect) adaptiveTimingSelect.addEventListener('change', saveSettings);
+    if (sessionDurationInp) sessionDurationInp.addEventListener('input', saveSettings);
+
+    if (pauseBtn) pauseBtn.addEventListener('click', () => {
+      if (!isSessionActive) return;
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+      if (isPaused) {
+        stopTimer();
+        if (mirrorArea) mirrorArea.classList.add('is-paused');
+      } else {
+        startTimer();
+        if (mirrorArea) mirrorArea.classList.remove('is-paused');
+        if (mirrorContainer) mirrorContainer.focus();
+      }
+    });
+
+    const endBtn = document.getElementById('end-session');
+    if (endBtn) endBtn.addEventListener('click', () => endSession());
+
+    if (restartBtn) restartBtn.addEventListener('click', () => {
+      if (timerInterval) stopTimer();
+      isSessionActive = false;
+      isPaused = false;
+      setScreen('settings');
+    });
+
+    if (restartModalBtn) restartModalBtn.addEventListener('click', () => {
+      if (completionModal) completionModal.classList.remove('show');
+      setScreen('settings');
+    });
+
+    if (completeClose) completeClose.addEventListener('click', () => {
+      if (completionModal) completionModal.classList.remove('show');
+      setScreen('settings');
+    });
+
+    loadSettings();
+    updateHUD();
+    updateInstructionsText();
+    setScreen('settings');
+  </script>
+</body>
+</html>

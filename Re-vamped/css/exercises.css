@@ -1,0 +1,892 @@
+/* =============================================================================
+   EXERCISES.CSS - Shared styles for all therapeutic exercises
+   Consolidates common patterns from individual exercise HTML files
+   ============================================================================= */
+
+/* =============================================================================
+   EXERCISE LAYOUT & CONTAINERS
+   ============================================================================= */
+
+/* Main game container - full screen with safe area support */
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(40,20,80,0.4) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 70%, rgba(20,40,80,0.3) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,20,40,0.5) 0%, transparent 70%),
+    linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Exercise game area - positioned between timer and stats */
+#game-area {
+  position: absolute;
+  top: 8px; /* Below timer bar */
+  left: 0;
+  right: 0;
+  bottom: 120px; /* Above stats panel */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+#game-area .interactive-element {
+  pointer-events: auto;
+}
+
+/* =============================================================================
+   STATS PANEL - Bottom positioned performance display
+   ============================================================================= */
+
+#stats-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(8, 15, 35, 0.8);
+  padding: 15px;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+
+.stat-box {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: rgba(111, 211, 245, 1);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.stat-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4px;
+}
+
+/* =============================================================================
+   SETTINGS PANEL - Modal overlay with exercise configuration
+   ============================================================================= */
+
+#settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: linear-gradient(145deg, rgba(30, 50, 80, 0.95), rgba(20, 35, 60, 0.95));
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 
+    0 15px 40px rgba(0,0,0,0.5), 
+    0 0 0 1px rgba(255,255,255,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  z-index: 100;
+  width: 85%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(111, 211, 245, 0.2);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  animation: slideIn 0.5s ease-out;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+#settings-panel h2 {
+  text-align: center;
+  color: white;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 28px;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.settings-group {
+  margin-bottom: 20px;
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.settings-group:nth-child(1) { animation-delay: 0.1s; }
+.settings-group:nth-child(2) { animation-delay: 0.2s; }
+.settings-group:nth-child(3) { animation-delay: 0.3s; }
+.settings-group:nth-child(4) { animation-delay: 0.4s; }
+
+.settings-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: rgba(111, 211, 245, 1);
+  font-size: 16px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.setting-description {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.option-explanations {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.option-explanations li {
+  margin-bottom: 3px;
+}
+
+/* =============================================================================
+   GAME DESCRIPTION PANEL
+   ============================================================================= */
+
+.game-description {
+  background: linear-gradient(145deg, rgba(111, 211, 245, 0.15), rgba(111, 211, 245, 0.05));
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border-left: 4px solid rgba(111, 211, 245, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.game-description h3 {
+  color: rgba(111, 211, 245, 1);
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.game-description p {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* =============================================================================
+   FORM CONTROLS - Inputs and selects for exercise settings
+   ============================================================================= */
+
+select, input[type="range"], input[type="number"] {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid rgba(111, 211, 245, 0.3);
+  font-size: 16px;
+  background: linear-gradient(145deg, rgba(20, 30, 53, 0.9), rgba(15, 26, 46, 0.9));
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: rgba(111, 211, 245, 0.8);
+  box-shadow: 
+    0 0 0 2px rgba(111, 211, 245, 0.3),
+    inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* =============================================================================
+   BUTTON STYLES - Exercise control buttons
+   ============================================================================= */
+
+button {
+  background-color: rgba(111, 211, 245, 0.9);
+  color: #121d33;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  width: 100%;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  min-height: var(--touch-target, 44px);
+}
+
+button:hover {
+  background-color: rgba(111, 211, 245, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Control button variants */
+.control-button {
+  width: auto;
+  margin-top: 0;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.control-button.check {
+  background-color: rgba(46, 204, 113, 0.8);
+}
+
+.control-button.check:hover {
+  background-color: rgba(46, 204, 113, 1);
+}
+
+.control-button.reset {
+  background-color: rgba(231, 76, 60, 0.8);
+}
+
+.control-button.reset:hover {
+  background-color: rgba(231, 76, 60, 1);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* =============================================================================
+   FIXED NAVIGATION BUTTONS - Settings, help, home
+   ============================================================================= */
+
+#settings-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(145deg, #6fd3f5, #48c9e8);
+  color: #0f1a2e;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 90;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 6px 20px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  animation: buttonPulse 2s ease-in-out infinite;
+}
+
+#settings-toggle:hover {
+  background: linear-gradient(145deg, #7dd8f7, #52ccea);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 
+    0 8px 25px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+#home-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(111, 211, 245, 0.8);
+  color: #121d33;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 90;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#home-button:hover {
+  background-color: rgba(111, 211, 245, 1);
+  transform: translateY(-2px);
+}
+
+#help-button {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  background-color: rgba(111, 211, 245, 0.8);
+  color: #121d33;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 90;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#help-button:hover {
+  background-color: rgba(111, 211, 245, 1);
+  transform: translateY(-2px);
+}
+
+/* Hint toggle button */
+#hint-toggle {
+  position: fixed;
+  bottom: 15px;
+  left: 90px;
+  background-color: rgba(46, 204, 113, 0.8);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 90;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#hint-toggle:hover {
+  background-color: rgba(46, 204, 113, 1);
+  transform: translateY(-2px);
+}
+
+#hint-toggle.active {
+  background-color: rgba(231, 76, 60, 0.8);
+}
+
+#hint-toggle.active:hover {
+  background-color: rgba(231, 76, 60, 1);
+}
+
+/* =============================================================================
+   EXERCISE ANIMATIONS - Shared keyframes and effects
+   ============================================================================= */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes buttonPulse {
+  0%, 100% { 
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3); 
+  }
+  50% { 
+    box-shadow: 0 8px 25px rgba(111, 211, 245, 0.6), inset 0 1px 0 rgba(255,255,255,0.3); 
+  }
+}
+
+@keyframes nextPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(111, 211, 245, 0.5); }
+  50% { box-shadow: 0 0 15px 3px rgba(111, 211, 245, 0.3); }
+}
+
+@keyframes starTwinkle {
+  0%, 100% { 
+    opacity: var(--opacity); 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: calc(var(--opacity) * 1.5); 
+    transform: scale(1.2); 
+  }
+}
+
+/* =============================================================================
+   INTERACTIVE GAME ELEMENTS - Common patterns for game objects
+   ============================================================================= */
+
+/* Base styles for draggable/clickable game objects */
+.game-object {
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.game-object:hover {
+  transform: scale(1.05);
+}
+
+.game-object:active {
+  transform: scale(0.95);
+}
+
+/* Star background elements */
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  animation: starTwinkle 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Impact effect rings for successful interactions */
+.impact-ring {
+  position: absolute;
+  border: 2px solid rgba(150, 220, 255, 0.8);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  animation: ringExpand 0.8s ease-out forwards;
+  pointer-events: none;
+  z-index: 8;
+}
+
+@keyframes ringExpand {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 1;
+    border-width: 3px;
+  }
+  100% {
+    width: 150px;
+    height: 150px;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* Score popup animations */
+.score-popup {
+  position: absolute;
+  font-size: 24px;
+  font-weight: bold;
+  color: #6cffbd;
+  text-shadow: 0 0 10px rgba(108, 255, 189, 0.8);
+  transform: translate(-50%, -50%);
+  animation: scoreFloat 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 9;
+}
+
+@keyframes scoreFloat {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -80%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -120%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* =============================================================================
+   EXERCISE-SPECIFIC GAME COMPONENTS
+   ============================================================================= */
+
+/* Challenge display for exercises with dynamic instructions */
+#challenge-display {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 15, 35, 0.9);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Status indicators for multi-step exercises */
+.status-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background: rgba(8, 15, 35, 0.7);
+  font-size: 16px;
+}
+
+.current-step {
+  color: rgba(111, 211, 245, 1);
+  font-weight: bold;
+}
+
+/* Progress indicators */
+#sequence-progress {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background: rgba(8, 15, 35, 0.8);
+  border-radius: 15px;
+  z-index: 20;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: rgba(111, 211, 245, 1);
+  backdrop-filter: blur(10px);
+}
+
+/* =============================================================================
+   CATEGORY SYSTEMS - For sorting and categorization exercises
+   ============================================================================= */
+
+.category-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+}
+
+.category-box.drag-over {
+  background: rgba(111, 211, 245, 0.2);
+  border-color: rgba(111, 211, 245, 0.8);
+  transform: scale(1.05);
+}
+
+.category-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.category-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+/* Sortable objects with category hints */
+.sort-object {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  cursor: grab;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  position: relative;
+}
+
+.sort-object:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+.category-hint {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.sort-object:hover .category-hint {
+  opacity: 1;
+}
+
+/* Category-specific hint colors */
+.sort-object[data-category="Red"] .category-hint { border-color: rgba(231, 76, 60, 0.7); }
+.sort-object[data-category="Blue"] .category-hint { border-color: rgba(52, 152, 219, 0.7); }
+.sort-object[data-category="Green"] .category-hint { border-color: rgba(46, 204, 113, 0.7); }
+.sort-object[data-category="Yellow"] .category-hint { border-color: rgba(241, 196, 15, 0.7); }
+.sort-object[data-category="Purple"] .category-hint { border-color: rgba(155, 89, 182, 0.7); }
+.sort-object[data-category="Round"] .category-hint { border-color: rgba(52, 152, 219, 0.7); }
+.sort-object[data-category="Square"] .category-hint { border-color: rgba(243, 156, 18, 0.7); }
+.sort-object[data-category="Triangle"] .category-hint { border-color: rgba(231, 76, 60, 0.7); }
+.sort-object[data-category="Stars"] .category-hint { border-color: rgba(241, 196, 15, 0.7); }
+.sort-object[data-category="Hearts"] .category-hint { border-color: rgba(231, 76, 60, 0.7); }
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.correct {
+  animation: correctFlash 0.5s ease-in-out;
+}
+
+.incorrect {
+  animation: incorrectShake 0.5s ease-in-out;
+}
+
+@keyframes correctFlash {
+  0%, 100% { transform: scale(1); }
+  50% { 
+    transform: scale(1.1); 
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
+  }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Exercise-specific mobile optimizations
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Adjust stats panel for mobile */
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  /* Mobile-specific settings panel adjustments */
+  #settings-panel {
+    width: 90%;
+    max-width: 350px;
+    max-height: calc(80vh - env(safe-area-inset-bottom, 60px));
+    padding: 20px 20px calc(30px + env(safe-area-inset-bottom, 30px));
+    top: 45%;
+  }
+  
+  #settings-panel h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .settings-group {
+    margin-bottom: 18px;
+  }
+  
+  .settings-label {
+    font-size: 15px;
+  }
+  
+  /* Optimize game objects for touch */
+  .category-box {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .category-icon {
+    font-size: 30px;
+  }
+  
+  .category-label {
+    font-size: 14px;
+  }
+  
+  .sort-object {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  #challenge-display {
+    font-size: 16px;
+    padding: 10px 15px;
+  }
+  
+  /* Adjust fixed buttons for mobile */
+  #settings-toggle {
+    width: 55px;
+    height: 55px;
+    bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+    right: 15px;
+    font-size: 12px;
+  }
+  
+  #home-button, #help-button {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  
+  #help-button {
+    bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  #hint-toggle {
+    bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+    left: 75px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* =============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================= */
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  #settings-toggle {
+    animation: none;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  #settings-panel,
+  .game-description,
+  .status-indicator {
+    border: 2px solid rgba(111, 211, 245, 1);
+  }
+  
+  button,
+  .control-button {
+    border: 2px solid currentColor;
+  }
+  
+  .sort-object,
+  .category-box {
+    border-width: 3px;
+  }
+}
+
+/* Focus management for keyboard navigation */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(111, 211, 245, 1);
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   THEME INTEGRATION - Support for design system themes
+   ============================================================================= */
+
+/* Dark theme already default for exercises, but prepare for light theme support */
+[data-theme="light"] #game-container {
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(220,235,255,0.4) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 70%, rgba(235,245,255,0.3) 0%, transparent 40%),
+    linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+  color: var(--text-primary, #1f2937);
+}
+
+[data-theme="light"] #stats-panel {
+  background-color: rgba(248, 250, 252, 0.9);
+  color: var(--text-primary, #1f2937);
+}
+
+[data-theme="light"] .stat-value {
+  color: var(--brand-blue, #2563eb);
+}
+
+[data-theme="light"] .stat-label {
+  color: var(--text-secondary, #6b7280);
+}
+
+/* =============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================= */
+
+/* GPU acceleration for animations */
+.game-object,
+.impact-ring,
+.score-popup,
+#settings-panel {
+  will-change: transform;
+}
+
+/* Optimize backdrop filters for better performance */
+#settings-panel,
+#stats-panel,
+#challenge-display {
+  contain: layout style paint;
+}
+
+/* =============================================================================
+   EXERCISE-SPECIFIC OVERRIDES
+   Individual exercises can override these base styles as needed
+   ============================================================================= */
+
+/* Placeholder for exercise-specific customizations */
+.exercise-bubble .game-object { /* Bubble-specific overrides */ }
+.exercise-comet .game-object { /* Comet-specific overrides */ }
+.exercise-rhythm .game-object { /* Rhythm-specific overrides */ }
+.exercise-sort .game-object { /* Sort-specific overrides */ }

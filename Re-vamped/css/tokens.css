@@ -1,0 +1,365 @@
+/* =============================================================================
+   FinePointRehab Design Tokens
+   Single source of truth for all design variables
+   Supports theme evolution: Ocean/Stars -> Guided Path to Recovery
+   ============================================================================= */
+
+/* =============================================================================
+   LIGHT THEME (Default - Clinical Credibility)
+   Professional, clean, medical-grade appearance
+   Base theme - all other themes inherit and override these values
+   ============================================================================= */
+:root {
+  /* Primary Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  
+  /* Brand Colors */
+  --brand-blue: #2563eb;
+  --brand-aqua: #48cae4; /* Keep successful brand color */
+  --brand-teal: #0891b2;
+  --brand-gradient: linear-gradient(135deg, var(--brand-blue, #2563eb) 0%, var(--brand-aqua, #48cae4) 100%);
+  
+  /* Exercise-specific tokens (for game UI, different from semantic colors below) */
+  --primary-color: #8ab4f8;
+  --accent-color: #7bdff6;
+  --success-color: #2ecc71;
+  --warning-color: #f1c40f;
+  --error-color: #e74c3c;
+  
+  /* Semantic Colors */
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --error: #ef4444;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
+  --info-border: #bfdbfe;
+  
+  /* Interactive States */
+  --hover: #f3f4f6;
+  --active: #e5e7eb;
+  --focus: #7aa5ff; /* Updated for exercise compatibility */
+  --shadow-focus: 0 0 0 3px rgba(122, 165, 255, 0.2); /* Updated for better visibility */
+  
+  /* Exercise UI Elements (subtle dark overlay on light backgrounds) */
+  --panel-bg: rgba(0,0,0,0.03);
+  --panel-border: rgba(0,0,0,0.08);
+  --hud-bg: rgba(0,0,0,0.03);
+  --hud-border: rgba(0,0,0,0.08);
+  
+  /* Borders & Dividers */
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --border-strong: #d1d5db;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Typography Scale */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Spacing Scale (rem units for scalability) 
+     Intentional gaps (7, 9, 11, etc.) focus on commonly used values */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.25rem;    /* 4px - default radius */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+  --radius: var(--radius-md); /* Alias for most common usage */
+  
+  /* Touch Targets (44px minimum for accessibility) */
+  --touch-target: 44px; /* Updated to match F2 requirements */
+  --touch-target-sm: 2.5rem; /* 40px - below 44px guideline, use sparingly */
+  
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-modal: 1050;
+  --z-toast: 1100;
+  --z-tooltip: 1150;
+  
+  /* Animation & Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Layout Breakpoints (px units for precise media query control) 
+     Note: CSS custom properties cannot be used directly in @media queries */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* =============================================================================
+   AUTO DARK MODE (System Preference)
+   Automatically switches to dark theme based on user's system preference
+   NOTE: Keep in sync with [data-theme="dark"] below to prevent drift
+   ============================================================================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Apply dark theme when no explicit theme is set */
+    --bg-primary: #1e293b;
+    --bg-secondary: #334155;
+    --bg-tertiary: #475569;
+    --text-primary: #f9fafb;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    
+    --brand-blue: #3b82f6;
+    --brand-aqua: #48cae4;
+    --brand-teal: #06b6d4;
+    --brand-gradient: linear-gradient(135deg, var(--brand-blue, #3b82f6) 0%, var(--brand-aqua, #48cae4) 100%);
+    
+    /* Exercise-specific tokens for dark mode */
+    --primary-color: #8ab4f8;
+    --accent-color: #7bdff6;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --error-color: #e74c3c;
+    
+    --success: #34d399;
+    --warning: #fbbf24;
+    --error: #f87171;
+    --info: #60a5fa;
+    
+    --hover: #475569;
+    --active: #64748b;
+    --focus: #7aa5ff;
+    --shadow-focus: 0 0 0 3px rgba(122, 165, 255, 0.2);
+    
+    /* Exercise UI Elements for dark mode */
+    --panel-bg: rgba(255,255,255,0.06);
+    --panel-border: rgba(255,255,255,0.08);
+    --hud-bg: rgba(255,255,255,0.06);
+    --hud-border: rgba(255,255,255,0.08);
+    
+    --border: #475569;
+    --border-light: #334155;
+    --border-strong: #64748b;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  }
+}
+
+/* =============================================================================
+   DARK THEME (Explicit User Choice)
+   Inherits from :root then overrides - comfortable for extended sessions
+   ============================================================================= */
+[data-theme="dark"] {
+  /* Primary Colors */
+  --bg-primary: #1e293b;
+  --bg-secondary: #334155;
+  --bg-tertiary: #475569;
+  --text-primary: #f9fafb;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  /* Brand Colors (slightly brighter for dark backgrounds) */
+  --brand-blue: #3b82f6;
+  --brand-aqua: #48cae4;
+  --brand-teal: #06b6d4;
+  --brand-gradient: linear-gradient(135deg, var(--brand-blue, #3b82f6) 0%, var(--brand-aqua, #48cae4) 100%);
+  
+  /* Exercise-specific tokens for dark theme */
+  --primary-color: #8ab4f8;
+  --accent-color: #7bdff6;
+  --success-color: #2ecc71;
+  --warning-color: #f1c40f;
+  --error-color: #e74c3c;
+  
+  /* Semantic Colors (adjusted for dark theme) */
+  --success: #34d399;
+  --success-bg: #064e3b;
+  --success-border: #059669;
+  --warning: #fbbf24;
+  --warning-bg: #451a03;
+  --warning-border: #d97706;
+  --error: #f87171;
+  --error-bg: #450a0a;
+  --error-border: #dc2626;
+  --info: #60a5fa;
+  --info-bg: #1e3a8a;
+  --info-border: #2563eb;
+  
+  /* Interactive States */
+  --hover: #475569;
+  --active: #64748b;
+  --focus: #7aa5ff;
+  --shadow-focus: 0 0 0 3px rgba(122, 165, 255, 0.2);
+  
+  /* Exercise UI Elements for dark theme */
+  --panel-bg: rgba(255,255,255,0.06);
+  --panel-border: rgba(255,255,255,0.08);
+  --hud-bg: rgba(255,255,255,0.06);
+  --hud-border: rgba(255,255,255,0.08);
+  
+  /* Borders & Dividers */
+  --border: #475569;
+  --border-light: #334155;
+  --border-strong: #64748b;
+  
+  /* Shadows (more pronounced for dark theme) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+}
+
+/* =============================================================================
+   HIGH CONTRAST THEME (Accessibility)
+   Inherits from :root then overrides - Maximum contrast for visual impairments
+   ============================================================================= */
+[data-theme="contrast"] {
+  /* Primary Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #000000;
+  --text-secondary: #212529;
+  --text-muted: #495057;
+  
+  /* Brand Colors (high contrast versions) */
+  --brand-blue: #1d4ed8;
+  --brand-aqua: #0891b2;
+  --brand-teal: #0f766e;
+  --brand-gradient: linear-gradient(135deg, var(--brand-blue, #1d4ed8) 0%, var(--brand-aqua, #0891b2) 100%);
+  
+  /* Exercise-specific tokens for high contrast */
+  --primary-color: #1d4ed8;
+  --accent-color: #0891b2;
+  --success-color: #166534;
+  --warning-color: #b45309;
+  --error-color: #b91c1c;
+  
+  /* Semantic Colors (high contrast) */
+  --success: #166534;
+  --success-bg: #f0fdf4;
+  --success-border: #166534;
+  --warning: #b45309;
+  --warning-bg: #fffbeb;
+  --warning-border: #b45309;
+  --error: #b91c1c;
+  --error-bg: #fef2f2;
+  --error-border: #b91c1c;
+  --info: #1d4ed8;
+  --info-bg: #eff6ff;
+  --info-border: #1d4ed8;
+  
+  /* Interactive States */
+  --hover: #f3f4f6;
+  --active: #e5e7eb;
+  --focus: #1d4ed8;
+  --shadow-focus: 0 0 0 3px rgba(29, 78, 216, 0.3);
+  
+  /* Exercise UI Elements for high contrast */
+  --panel-bg: rgba(0,0,0,0.05);
+  --panel-border: #000000;
+  --hud-bg: rgba(0,0,0,0.05);
+  --hud-border: #000000;
+  
+  /* Borders & Dividers (maximum contrast) */
+  --border: #000000;
+  --border-light: #6b7280;
+  --border-strong: #000000; /* Same as border for maximum contrast */
+  
+  /* Shadows (crisp edges for high contrast) */
+  --shadow-sm: 0 1px 1px 0 rgb(0 0 0 / 1);
+  --shadow: 0 2px 2px 0 rgb(0 0 0 / 1);
+  --shadow-md: 0 4px 4px 0 rgb(0 0 0 / 1);
+  --shadow-lg: 0 8px 8px 0 rgb(0 0 0 / 1);
+}
+
+/* =============================================================================
+   REDUCED MOTION SUPPORT
+   Respects user preference for reduced motion
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --easing: linear;
+    --easing-bounce: linear;
+  }
+}
+
+/* =============================================================================
+   PRINT STYLES
+   Clean, professional printing
+   ============================================================================= */
+@media print {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    --brand-blue: #000000;
+    --brand-aqua: #000000;
+    --brand-gradient: none; /* Remove gradient for clean print */
+    --primary-color: #000000;
+    --accent-color: #000000;
+    --success-color: #000000;
+    --warning-color: #000000;
+    --error-color: #000000;
+    --shadow-sm: none;
+    --shadow: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+  }
+}

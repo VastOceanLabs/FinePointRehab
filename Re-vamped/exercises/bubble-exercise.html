@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bubble Tap – Fine Point Rehab</title>
+
+  <!-- Global tokens & components -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+
+  <style>
+    :root{
+      --vh: 1vh;
+      --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
+      --accent: var(--brand-aqua, #6fd3f5);
+      --accent-2: #9ae6ff;
+      --radius: 14px;
+      --panel: rgba(10,16,36,.9);
+      --panel-border: rgba(255,255,255,.08);
+      --text: #eaf6ff;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --good: #8ff5b2;
+      --gold: #ffd700;
+      --border: #374151;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --radius-lg: 12px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --header-h: 0px;
+    }
+    body{ 
+      margin:0; 
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding:12px 16px; display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(8,12,26,.9), rgba(8,12,26,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(6px);
+    }
+    header .home { 
+      text-decoration:none; color:var(--text); font-weight:700;
+      border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:8px 12px;
+      transition: all 0.2s;
+    }
+    header .home:hover {
+      background: rgba(111,211,245,.12);
+      border-color: var(--accent);
+    }
+    header h1{ margin:0; font-size: clamp(18px,3vw,24px); }
+
+    /* Desktop-first layout */
+    .layout{ 
+      display:grid; 
+      grid-template-columns: 400px 1fr; 
+      gap:20px; 
+      padding:20px; 
+      max-width: 1800px;
+      margin: 0 auto;
+      min-height: calc(100vh - 60px);
+      align-items: start;
+    }
+
+    .panel{ 
+      background: var(--panel); 
+      border: 1px solid var(--panel-border); 
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35); 
+      padding:20px; 
+    }
+    .panel h2{ margin:0 0 var(--space-4); font-size: var(--font-size-lg); text-align: center; }
+    .desc{ 
+      margin-bottom:16px; 
+      background: rgba(111,211,245,.08);
+      border-left: 4px solid rgba(111,211,245,.7); 
+      padding:12px; 
+      border-radius:8px; 
+      font-size:14px; 
+      line-height:1.5; 
+    }
+
+    /* Stats on settings */
+    .stats-row{ 
+      display:flex; 
+      gap:10px; 
+      justify-content:center; 
+      flex-wrap:wrap; 
+      margin-bottom:16px; 
+    }
+    .metric{ 
+      flex:1 1 auto; 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center;
+      text-align:center; 
+      padding:12px; 
+      border:1px solid rgba(255,255,255,.12); 
+      border-radius:12px;
+      background: rgba(111,211,245,.08); 
+      min-width:110px; 
+    }
+    .v{ 
+      font-weight:900; 
+      font-size:24px; 
+      color:#bfe6ff; 
+      text-shadow: 0 0 6px rgba(150,220,255,.5); 
+      line-height:1.1; 
+    }
+    .t{ 
+      font-size:12px; 
+      opacity:.9; 
+      margin-top:4px; 
+      color: var(--text-secondary); 
+    }
+
+    .group{ margin-bottom:16px; }
+    .label{ 
+      display:block; 
+      margin-bottom:8px; 
+      font-weight:700; 
+      letter-spacing:.2px; 
+    }
+    select, input[type="number"]{
+      width:100%; 
+      padding:12px; 
+      border-radius:10px; 
+      border:1px solid rgba(255,255,255,.2);
+      background: rgba(5,10,26,.8); 
+      color:var(--text); 
+      font-size:16px;
+    }
+    select:focus, input[type="number"]:focus{
+      outline:none; 
+      border-color: rgba(111,211,245,.9); 
+      box-shadow: 0 0 0 2px rgba(111,211,245,.25);
+    }
+    .btn{
+      width: 100%;
+      min-height:50px; 
+      border:1px solid rgba(111,211,245,.35); 
+      background: rgba(111,211,245,.12);
+      color:var(--text); 
+      border-radius:10px; 
+      font-weight:800; 
+      letter-spacing:.2px; 
+      cursor:pointer; 
+      transition:.2s;
+      font-size: 16px;
+    }
+    .btn:hover:not(:disabled){ 
+      background: rgba(111,211,245,.22); 
+      transform: translateY(-1px); 
+    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn-primary{ 
+      background: rgba(111,211,245,.95); 
+      color:#07101e; 
+      border-color: rgba(111,211,245,1); 
+    }
+    .btn-primary:hover:not(:disabled){ 
+      background: rgba(111,211,245,1); 
+      box-shadow: 0 6px 18px rgba(111,211,245,.45); 
+    }
+    .btn-ghost{ 
+      background: transparent; 
+      border:1px solid rgba(255,255,255,.15); 
+      padding: var(--space-2) var(--space-4); 
+      min-height: 44px;
+      width: auto;
+    }
+
+    /* Game column */
+    #gameCol{ 
+      display:none; 
+      position:relative; 
+      padding:0; 
+      overflow:hidden;
+      height: calc(100vh - 100px);
+    }
+    body.playing #gameCol{ 
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+    }
+    body.playing #settings{ display:none; }
+
+    /* Enhanced HUD Design */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-3);
+      align-items: center;
+      position: relative;
+      padding: var(--space-4);
+      padding-top: calc(var(--space-4) + 8px);
+      background: rgba(15, 22, 41, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+
+    .timer-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent), rgba(111,211,245,.35));
+      transform-origin: left center;
+      transition: width .1s linear;
+    }
+
+    .hud-group { 
+      display: grid; 
+      gap: var(--space-1); 
+      text-align: center; 
+    }
+    .hud-value { 
+      font-size: 28px; 
+      font-weight: var(--font-weight-bold); 
+      color: var(--accent); 
+      text-shadow: 0 0 8px rgba(111,211,245,.7); 
+    }
+    .hud-label { 
+      font-size: 13px; 
+      color: var(--text-secondary); 
+      opacity: .9; 
+    }
+
+    /* Combo multiplier styling */
+    .hud-value.combo {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,215,0,.8);
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .controls { 
+      display: flex; 
+      gap: var(--space-3); 
+      justify-content: center; 
+      grid-column: 1 / -1;
+      margin-top: var(--space-2);
+    }
+
+    #game-container {
+      position: relative; 
+      flex: 1;
+      display: flex; 
+      flex-direction: column; 
+      min-height: 0;
+      background: rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    #stars-container { 
+      position: absolute; 
+      inset: 0; 
+      pointer-events: none; 
+      z-index: 1; 
+    }
+
+    /* Particle container */
+    #particles-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .stage-wrap{
+      position:relative; 
+      flex: 1; 
+      width:100%; 
+      display: flex; 
+      overflow: hidden; 
+      touch-action: none;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(111, 211, 245, 0.08), transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(143, 245, 178, 0.06), transparent 50%),
+        radial-gradient(50% 40% at 50% 40%, rgba(111, 211, 245, 0.15), transparent 70%);
+      animation: bgShift 20s ease-in-out infinite;
+    }
+
+    @keyframes bgShift {
+      0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+      50% { filter: hue-rotate(15deg) brightness(1.1); }
+    }
+
+    /* Game surface */
+    .game-surface{ 
+      position:relative; 
+      width:100%; 
+      height:100%; 
+      z-index: 2; 
+    }
+
+    /* Enhanced bubble with variants */
+    #bubble{
+      position:absolute; 
+      width:80px; 
+      height:80px; 
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(111,211,245,.35) 40%, rgba(20,80,150,.35) 70%, rgba(10,20,40,.25) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.25), transparent 60%);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.15) inset,
+        0 12px 30px rgba(111,211,245,.35),
+        inset 0 0 22px rgba(255,255,255,.6);
+      transform: translate(-50%, -50%);
+      touch-action: none; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      animation: bubblePulse 2.2s ease-in-out infinite;
+      font-weight:900; 
+      font-size:22px; 
+      color:#eaffff; 
+      text-shadow: 0 0 10px rgba(255,255,255,.6);
+      cursor: pointer;
+    }
+
+    /* Golden bubble variant */
+    #bubble.golden {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,215,0,.6) 40%, rgba(255,165,0,.5) 70%, rgba(218,165,32,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.4), transparent 60%);
+      box-shadow:
+        0 0 0 2px rgba(255,215,0,.3) inset,
+        0 15px 40px rgba(255,215,0,.5),
+        inset 0 0 30px rgba(255,255,255,.8);
+      animation: goldenPulse 1.5s ease-in-out infinite;
+    }
+
+    #bubble.spawn { 
+      animation: bubbleSpawn .18s ease-out, bubblePulse 2.2s ease-in-out infinite; 
+    }
+    #bubble.golden.spawn { 
+      animation: bubbleSpawn .18s ease-out, goldenPulse 1.5s ease-in-out infinite; 
+    }
+
+    @keyframes bubbleSpawn{ 
+      from{ transform: translate(-50%, -50%) scale(.6); opacity:.0; filter: blur(2px); } 
+      to{ transform: translate(-50%, -50%) scale(1); opacity:1; filter: blur(0); } 
+    }
+    @keyframes bubblePulse{ 
+      0%,100%{ filter: drop-shadow(0 0 0 rgba(111,211,245,.0)); } 
+      50% { filter: drop-shadow(0 0 12px rgba(111,211,245,.45)); } 
+    }
+    @keyframes goldenPulse{ 
+      0%,100%{ filter: drop-shadow(0 0 8px rgba(255,215,0,.4)); } 
+      50% { filter: drop-shadow(0 0 20px rgba(255,215,0,.8)); } 
+    }
+
+    /* Enhanced points feedback */
+    .points{
+      position:absolute; 
+      transform: translate(-50%, -50%);
+      font-weight:900; 
+      font-size:24px; 
+      color: var(--good); 
+      text-shadow: 0 0 12px rgba(143,245,178,.6);
+      pointer-events:none; 
+      z-index:7; 
+      animation: floatUp 800ms ease-out forwards;
+    }
+    .points.golden {
+      color: var(--gold);
+      font-size: 32px;
+      text-shadow: 0 0 16px rgba(255,215,0,.9);
+    }
+    .points.combo {
+      color: #ff6ec7;
+      font-size: 28px;
+      text-shadow: 0 0 14px rgba(255,110,199,.8);
+    }
+    @keyframes floatUp{ 
+      from{ opacity:0; transform: translate(-50%, -50%) translateY(6px) scale(.9); } 
+      20% { opacity:1; } 
+      to{ opacity:0; transform: translate(-50%, -50%) translateY(-50px) scale(1.1); } 
+    }
+
+    .ripple{
+      position:absolute; 
+      transform: translate(-50%, -50%);
+      width:10px; 
+      height:10px; 
+      border-radius:50%;
+      border:2px solid var(--accent-2); 
+      opacity:.6; 
+      animation: ripple 600ms ease-out forwards;
+      pointer-events:none; 
+      z-index:6;
+    }
+    .ripple.golden {
+      border-color: var(--gold);
+      border-width: 3px;
+    }
+    @keyframes ripple{ 
+      from{ opacity:.7; transform: translate(-50%, -50%) scale(.8); } 
+      to{ opacity:0; transform: translate(-50%, -50%) scale(8); } 
+    }
+
+    /* Particle effects */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particleFloat 1s ease-out forwards;
+    }
+
+    @keyframes particleFloat {
+      from {
+        opacity: 1;
+        transform: translate(-50%, -50%) translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(-80px) scale(0.3);
+      }
+    }
+
+    /* Combo streak notification */
+    .combo-notification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,215,0,.9);
+      pointer-events: none;
+      z-index: 10;
+      animation: comboAppear 1s ease-out forwards;
+    }
+
+    @keyframes comboAppear {
+      0% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.5); 
+      }
+      20% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1.2); 
+      }
+      80% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+      }
+      100% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.8); 
+      }
+    }
+
+    .finger-guide{ 
+      position:absolute; 
+      left:0; 
+      right:0; 
+      bottom:0; 
+      padding:16px; 
+      z-index:6; 
+      display:none; 
+    }
+    .finger-guide .card{ 
+      margin:0 auto; 
+      max-width:720px; 
+      border:1px solid rgba(255,255,255,.18); 
+      border-radius:12px; 
+      background: rgba(0,0,0,.5); 
+      backdrop-filter: blur(8px);
+      padding:16px; 
+    }
+    .fingers{ 
+      display:flex; 
+      gap:12px; 
+      justify-content:center; 
+      align-items:center; 
+      flex-wrap:wrap; 
+    }
+    .fingers .chip{ 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center; 
+      width:64px; 
+      height:64px; 
+      border-radius:50%; 
+      border:1px solid rgba(255,255,255,.18); 
+      background: rgba(255,255,255,.06); 
+      font-weight:800; 
+      font-size: 20px;
+    }
+    .fingers .chip .tiny{ 
+      font-size:11px; 
+      opacity:.9; 
+      margin-top:2px; 
+      font-weight:600; 
+    }
+    .fingers .chip.active{ 
+      border-color: var(--accent-2); 
+      box-shadow: 0 0 0 3px rgba(111,211,245,.25), 0 0 18px rgba(111,211,245,.45) inset; 
+      background: rgba(111,211,245,.12); 
+    }
+    .guide-title{ 
+      text-align:center; 
+      font-weight:700; 
+      margin-bottom:12px; 
+      font-size: 15px;
+    }
+
+    .modal{ 
+      position:fixed; 
+      inset:0; 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:200; 
+      background: rgba(0,0,0,.6); 
+      backdrop-filter: blur(6px); 
+    }
+    .modal.open{ display:flex; }
+    .modal .card{ 
+      width:min(560px, 92vw); 
+      border:1px solid rgba(255,255,255,.18); 
+      border-radius:14px; 
+      background: var(--panel); 
+      padding:24px; 
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .setting-help { 
+      display:block; 
+      color: var(--text-muted); 
+      font-size: 13px; 
+      margin-top: var(--space-2); 
+      font-style: italic; 
+    }
+
+    /* Tablet & Mobile Responsive */
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
+      }
+      
+      #gameCol {
+        height: auto;
+        min-height: 500px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: var(--space-2);
+        padding: var(--space-3);
+        padding-top: calc(var(--space-3) + 6px);
+      }
+      .hud-value { font-size: 20px; }
+      .hud-label { font-size: 11px; }
+      
+      .hud-group:nth-child(4), .hud-group:nth-child(5) {
+        grid-column: auto;
+      }
+      
+      .controls { 
+        grid-column: 1 / -1; 
+        gap: var(--space-2); 
+        margin-top: var(--space-2); 
+      }
+      .controls .btn { 
+        padding: 8px 16px; 
+        font-size: 14px; 
+        min-height: 40px;
+      }
+      
+      .layout {
+        padding: 12px;
+      }
+      
+      .panel {
+        padding: 16px;
+      }
+      
+      .fingers .chip {
+        width: 56px;
+        height: 56px;
+        font-size: 18px;
+      }
+
+      .combo-notification {
+        font-size: 32px;
+      }
+    }
+
+    /* Non-playing state - better preview */
+    body:not(.playing) #gameCol {
+      display: block;
+      height: 600px;
+      max-height: 70vh;
+    }
+
+    body:not(.playing) .stage-wrap {
+      border-radius: var(--radius-lg);
+    }
+  </style>
+</head>
+<body>
+  <header class="app" role="banner" aria-label="Exercise header">
+    <a class="home" href="/" aria-label="Back to Home">← Home</a>
+    <h1>Bubble Tap</h1>
+  </header>
+
+  <main class="layout">
+    <!-- SETTINGS -->
+    <aside id="settings" class="panel" aria-label="Settings">
+      <h2>Settings</h2>
+      <div class="desc"><strong>How to play:</strong> tap bubbles quickly to build combos and earn multipliers. Golden bubbles are worth 3x points!</div>
+
+      <div class="stats-row" role="region" aria-label="Player stats">
+        <div class="metric" aria-live="polite">
+          <div id="pbSettings" class="v">0</div>
+          <div class="t">Personal Best</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="label" for="dur">Session Duration (minutes)</label>
+        <input id="dur" type="number" min="0.5" step="0.5" max="10" value="2" inputmode="decimal" />
+        <small class="setting-help">0.5–10 minutes recommended for motor training.</small>
+      </div>
+
+      <div class="group">
+        <label class="label" for="size">Bubble Size</label>
+        <select id="size">
+          <option value="large">Large (Easier)</option>
+          <option value="medium" selected>Medium</option>
+          <option value="small">Small (Harder)</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <label class="label" for="fingerMode">Finger Mode</label>
+        <select id="fingerMode">
+          <option value="any" selected>Any finger</option>
+          <option value="all">All fingers (guided)</option>
+        </select>
+        <div id="singleFingerWrap" class="setting-help" style="display:none; margin-top:8px;">
+          <strong>All fingers (guided):</strong> a number appears in each bubble (1–5). Match the number to the finger shown below.
+        </div>
+      </div>
+
+      <button id="startBtn" class="btn btn-primary" type="button" aria-label="Start session">Start Session</button>
+    </aside>
+
+    <!-- GAME COLUMN -->
+    <section id="gameCol" class="right-col" aria-label="Game">
+      <div class="hud" role="region" aria-label="In-game HUD">
+        <div class="timer-bar" id="timer-bar"></div>
+
+        <div class="hud-group">
+          <div id="score" class="hud-value">0</div>
+          <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="combo" class="hud-value">0x</div>
+          <div class="hud-label">Combo</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="streak" class="hud-value">0</div>
+          <div class="hud-label">Streak</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="pb" class="hud-value">0</div>
+          <div class="hud-label">PB</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="time" class="hud-value">00:00</div>
+          <div class="hud-label">Time Left</div>
+        </div>
+
+        <div class="controls">
+          <button id="pauseBtn" class="btn btn-ghost" type="button" aria-label="Pause">Pause</button>
+          <button id="exitBtn" class="btn btn-ghost" type="button" aria-label="Exit to settings">Exit</button>
+        </div>
+      </div>
+
+      <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="particles-container"></div>
+        <div class="stage-wrap">
+          <div id="surface" class="game-surface" aria-label="Play area">
+            <div id="bubble" role="button" aria-label="Bubble" tabindex="0"></div>
+
+            <!-- Guided finger UI -->
+            <div id="fingerGuide" class="finger-guide" aria-live="polite">
+              <div class="card">
+                <div class="guide-title">Match the bubble number to the finger</div>
+                <div class="fingers" id="fingersRow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="done" class="modal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneDesc">
+    <div class="card">
+      <h2 id="doneTitle" style="margin:0 0 8px 0;">Session Complete! 🎉</h2>
+      <p id="doneDesc" style="margin:0 0 12px 0;">Excellent work! Here are your results:</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+        <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric"><div id="fTaps" class="v">0</div><div class="t">Taps</div></div>
+        <div class="metric"><div id="fAcc" class="v">0%</div><div class="t">Accuracy</div></div>
+        <div class="metric"><div id="fAvg" class="v">0ms</div><div class="t">Avg RT</div></div>
+        <div class="metric"><div id="fMaxStreak" class="v">0</div><div class="t">Max Streak</div></div>
+        <div class="metric"><div id="fMaxCombo" class="v">0x</div><div class="t">Max Combo</div></div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button id="newSession" class="btn btn-primary" type="button">Start New Session</button>
+        <a class="btn btn-ghost" href="/" aria-label="Home">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(text!=null) e.textContent = text;
+      return e;
+    };
+
+    // DOM
+    const settingsEl = $('#settings');
+    const gameCol = $('#gameCol');
+    const surface = $('#surface');
+    const stageWrap = document.querySelector('.stage-wrap');
+    const bubbleEl = $('#bubble');
+    const fingerGuide = $('#fingerGuide');
+    const fingersRow = $('#fingersRow');
+    const startBtn = $('#startBtn');
+    const pauseBtn = $('#pauseBtn');
+    const exitBtn = $('#exitBtn');
+    const timeEl = $('#time');
+    const scoreEl = $('#score');
+    const comboEl = $('#combo');
+    const streakEl = $('#streak');
+    const pbEl = $('#pb');
+    const pbSettingsEl = $('#pbSettings');
+    const timerBar = $('#timer-bar');
+    const doneModal = $('#done');
+    const fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
+    const fMaxStreak = $('#fMaxStreak'), fMaxCombo = $('#fMaxCombo');
+    const newSessionBtn = $('#newSession');
+    const starsContainer = $('#stars-container');
+    const particlesContainer = $('#particles-container');
+
+    // Settings inputs
+    const durIn = $('#dur'), sizeSel = $('#size'), fmSel = $('#fingerMode'), singleWrap = $('#singleFingerWrap');
+
+    // Storage & modules (graceful fallbacks)
+    const EXERCISE_ID = 'bubble_tap';
+    const NullEnhancement = { initializeExercise(){}, handleSessionComplete(){} };
+    const NullAudio = { play(){}, click(){}, miss(){} };
+    const storageFallback = {
+      get:(k, def)=>{ try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
+      set:(k,v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    let storage = storageFallback, audio = NullAudio, sessionEnhancement = NullEnhancement;
+    let recordSession = (id, diff, score)=>{}, checkAndUnlockAchievements = ()=>{}, markExerciseTried = ()=>{};
+    let starfield = null, initUtils = ()=>{};
+
+    try {
+      const u = await import('/js/utils.js');
+      storage = u.storage ?? storage;
+      starfield = u.starfield ?? starfield;
+      initUtils = u.initUtils ?? initUtils;
+      audio = u.audio ?? audio;
+    } catch {}
+    try {
+      const s = await import('/js/session-enhancement.js');
+      sessionEnhancement = s.sessionEnhancement ?? sessionEnhancement;
+    } catch {}
+    try {
+      const p = await import('/js/progress.js');
+      recordSession = p.recordSession ?? recordSession;
+    } catch {}
+    try {
+      const a = await import('/js/achievements.js');
+      checkAndUnlockAchievements = a.checkAndUnlockAchievements ?? checkAndUnlockAchievements;
+      markExerciseTried = a.markExerciseTried ?? markExerciseTried;
+    } catch {}
+
+    // ===== Geometry & fullscreen =====
+    function setVH(){ 
+      document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); 
+    }
+    
+    function setHeaderH() {
+      const header = document.querySelector('.app');
+      const h = header ? header.getBoundingClientRect().height : 0;
+      document.documentElement.style.setProperty('--header-h', `${h}px`);
+    }
+    
+    function onViewportChange(){
+      setVH(); 
+      setHeaderH();
+      if(isActive) hideBubble();
+    }
+    
+    setVH(); 
+    setHeaderH();
+    addEventListener('resize', onViewportChange);
+    addEventListener('orientationchange', onViewportChange);
+
+    async function enterImmersive(){
+      document.body.classList.add('playing');
+      try { 
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen(); 
+        }
+      } catch {}
+    }
+    
+    async function exitImmersive(){
+      document.body.classList.remove('playing');
+      try { 
+        if (document.exitFullscreen) {
+          await document.exitFullscreen(); 
+        }
+      } catch {}
+    }
+
+    // ===== Session state =====
+    let isActive = false, isPaused = false;
+    let taps = 0, misses = 0, score = 0, totalRT = 0;
+    let currentStreak = 0, maxStreak = 0;
+    let currentCombo = 1, maxCombo = 1;
+    let lastHitTime = 0;
+    const COMBO_WINDOW = 1000; // 1 second to maintain combo
+    let sessionDurationMs = 2 * 60 * 1000, timeRemaining = sessionDurationMs;
+    let bubbleSizePx = 80;
+    let fingerMode = 'any';
+    let lastSpawn = 0, bubbleVisible = false, bubbleSpawnTime = 0;
+    let isGoldenBubble = false;
+    const MAX_VISIBLE_MS = 2500;
+    const BUBBLE_SIZES = { large: 120, medium: 80, small: 56 };
+    const GOLDEN_CHANCE = 0.15; // 15% chance for golden bubble
+
+    const FINGERS = [
+      { num:1, name:'Thumb' },
+      { num:2, name:'Index' },
+      { num:3, name:'Middle' },
+      { num:4, name:'Ring' },
+      { num:5, name:'Little' },
+    ];
+
+    function buildFingerChips(){
+      fingersRow.innerHTML = '';
+      FINGERS.forEach((f) => {
+        const chip = el('div', 'chip');
+        chip.append(el('div', '', String(f.num)));
+        chip.append(el('div', 'tiny', f.name));
+        fingersRow.append(chip);
+      });
+    }
+
+    function msToClock(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const rem = s % 60;
+      return String(m).padStart(2,'0')+':'+String(rem).padStart(2,'0');
+    }
+
+    function updateHUD(){
+      timeEl.textContent = msToClock(timeRemaining);
+      scoreEl.textContent = String(score);
+      comboEl.textContent = currentCombo + 'x';
+      streakEl.textContent = String(currentStreak);
+      
+      // Highlight combo when active
+      if (currentCombo > 1) {
+        comboEl.classList.add('combo');
+      } else {
+        comboEl.classList.remove('combo');
+      }
+      
+      const pb = storage.get('PB_'+EXERCISE_ID, 0) || 0;
+      pbEl.textContent = String(pb);
+      pbSettingsEl.textContent = String(pb);
+      if (timerBar && sessionDurationMs > 0) {
+        const pct = Math.max(0, Math.min(1, timeRemaining / sessionDurationMs));
+        timerBar.style.width = (pct * 100).toFixed(2) + '%';
+      }
+    }
+
+    function showFingerGuide(show){ 
+      fingerGuide.style.display = show ? 'block' : 'none'; 
+    }
+
+    function spawnBubble(){
+      const rect = surface.getBoundingClientRect();
+      const sw = rect.width;
+      const sh = rect.height;
+      const fgH = (fingerGuide && fingerGuide.style.display !== 'none') ? fingerGuide.offsetHeight : 0;
+
+      const baseMargin = bubbleSizePx / 2;
+      const extraMargin = Math.min(50, sw * 0.05);
+      const margin = baseMargin + extraMargin;
+
+      const minX = margin;
+      const maxX = Math.max(minX + 10, sw - margin);
+      const minY = margin;
+      const maxY = Math.max(minY + 10, sh - fgH - margin);
+
+      const xRange = maxX - minX;
+      const yRange = maxY - minY;
+
+      if (xRange <= 0 || yRange <= 0) {
+        bubbleEl.style.left = (sw / 2) + 'px';
+        bubbleEl.style.top = (sh / 2) + 'px';
+      } else {
+        const x = minX + Math.random() * xRange;
+        const y = minY + Math.random() * yRange;
+        bubbleEl.style.left = x + 'px';
+        bubbleEl.style.top = y + 'px';
+      }
+
+      // Determine if golden bubble
+      isGoldenBubble = Math.random() < GOLDEN_CHANCE;
+      if (isGoldenBubble) {
+        bubbleEl.classList.add('golden');
+      } else {
+        bubbleEl.classList.remove('golden');
+      }
+
+      bubbleEl.style.width = bubbleSizePx + 'px';
+      bubbleEl.style.height = bubbleSizePx + 'px';
+      bubbleVisible = true;
+      bubbleSpawnTime = performance.now();
+      bubbleEl.classList.remove('spawn'); 
+      void bubbleEl.offsetWidth; 
+      bubbleEl.classList.add('spawn');
+
+      if(fingerMode === 'all'){
+        const n = 1 + Math.floor(Math.random()*5);
+        bubbleEl.textContent = String(n);
+      } else {
+        bubbleEl.textContent = '';
+      }
+    }
+
+    function hideBubble(){ 
+      bubbleVisible = false; 
+      bubbleEl.style.left = '-9999px'; 
+      bubbleEl.style.top = '-9999px'; 
+      bubbleEl.textContent='';
+      bubbleEl.classList.remove('golden');
+      isGoldenBubble = false;
+    }
+
+    function createParticles(x, y, count, color) {
+      for (let i = 0; i < count; i++) {
+        const particle = el('div', 'particle');
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.background = color;
+        
+        const angle = (Math.PI * 2 * i) / count;
+        const distance = 40 + Math.random() * 40;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        
+        particlesContainer.append(particle);
+        particle.addEventListener('animationend', () => particle.remove());
+      }
+    }
+
+    function showPoints(x, y, pts, isGolden = false, hasCombo = false){
+      const p = el('div', 'points', `+${pts}`);
+      p.style.left = x + 'px'; 
+      p.style.top = y + 'px';
+      
+      if (isGolden) {
+        p.classList.add('golden');
+      } else if (hasCombo) {
+        p.classList.add('combo');
+      }
+      
+      surface.append(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+    
+    function ripple(x, y, isGolden = false){
+      const r = el('div', 'ripple');
+      if (isGolden) r.classList.add('golden');
+      r.style.left = x + 'px'; 
+      r.style.top = y + 'px';
+      surface.append(r);
+      r.addEventListener('animationend', () => r.remove());
+    }
+
+    function showComboNotification(combo) {
+      if (combo < 5) return; // Only show for 5x or higher
+      
+      const notification = el('div', 'combo-notification', `${combo}x COMBO!`);
+      document.body.append(notification);
+      notification.addEventListener('animationend', () => notification.remove());
+    }
+
+    function updateCombo(hitTime) {
+      const timeSinceLastHit = hitTime - lastHitTime;
+      
+      if (timeSinceLastHit < COMBO_WINDOW && lastHitTime > 0) {
+        currentCombo = Math.min(currentCombo + 0.5, 5); // Max 5x multiplier
+      } else {
+        currentCombo = 1;
+      }
+      
+      maxCombo = Math.max(maxCombo, currentCombo);
+      lastHitTime = hitTime;
+      
+      // Show notification for milestone combos
+      if (currentCombo >= 5 && currentCombo === Math.floor(currentCombo)) {
+        showComboNotification(Math.floor(currentCombo));
+      }
+    }
+
+    bubbleEl.addEventListener('pointerdown', (ev) => {
+      if(!isActive || isPaused || !bubbleVisible) return;
+      ev.preventDefault();
+      
+      const hitTime = performance.now();
+      const rt = hitTime - bubbleSpawnTime;
+      
+      // Update combo system
+      updateCombo(hitTime);
+      
+      // Calculate base points
+      let pts = Math.max(1, Math.round(1500/Math.max(200, rt)));
+      
+      // Apply golden bubble bonus (3x)
+      if (isGoldenBubble) {
+        pts *= 3;
+      }
+      
+      // Apply combo multiplier
+      pts = Math.round(pts * currentCombo);
+      
+      taps++; 
+      score += pts; 
+      totalRT += rt;
+      currentStreak++;
+      maxStreak = Math.max(maxStreak, currentStreak);
+      
+      const bx = parseFloat(bubbleEl.style.left), by = parseFloat(bubbleEl.style.top);
+      showPoints(bx, by, pts, isGoldenBubble, currentCombo > 1);
+      ripple(bx, by, isGoldenBubble);
+      
+      // Particle effects
+      const particleColor = isGoldenBubble ? '#ffd700' : 
+                           currentCombo > 1 ? '#ff6ec7' : '#8ff5b2';
+      createParticles(bx, by, isGoldenBubble ? 12 : 8, particleColor);
+      
+      hideBubble();
+      audio.click?.();
+    });
+    
+    bubbleEl.addEventListener('keydown', (e) => {
+      if(e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        bubbleEl.dispatchEvent(new PointerEvent('pointerdown'));
+      }
+    });
+    
+    surface.addEventListener('pointerdown', (e) => {
+      if(!isActive || isPaused) return;
+      if(e.target !== bubbleEl){ 
+        misses++;
+        currentStreak = 0;
+        currentCombo = 1;
+        audio.miss?.(); 
+      }
+    }, { passive:true });
+
+    let rafId = 0, prevTs = 0;
+    function loop(now){
+      if(!isActive) return;
+      const dt = prevTs ? (now - prevTs) : 16;
+      prevTs = now;
+      if(!isPaused){
+        timeRemaining -= dt;
+        if(timeRemaining <= 0){ 
+          endSession(); 
+          return; 
+        }
+        if(bubbleVisible && (now - bubbleSpawnTime) > MAX_VISIBLE_MS){ 
+          hideBubble();
+          currentStreak = 0;
+          currentCombo = 1;
+        }
+        if(!bubbleVisible && (now - lastSpawn) > 450){
+          spawnBubble(); 
+          lastSpawn = now;
+        }
+        
+        // Reset combo if too much time has passed
+        if (lastHitTime > 0 && (now - lastHitTime) > COMBO_WINDOW) {
+          currentCombo = 1;
+        }
+      }
+      updateHUD();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function startSession(){
+      const durMin = Math.max(0.5, parseFloat(durIn.value || '2'));
+      sessionDurationMs = durMin * 60 * 1000;
+      timeRemaining = sessionDurationMs;
+      bubbleSizePx = BUBBLE_SIZES[sizeSel.value] ?? 80;
+      fingerMode = fmSel.value;
+      showFingerGuide(fingerMode === 'all');
+      if(fingerMode === 'all'){ 
+        buildFingerChips(); 
+      }
+
+      isActive = true; 
+      isPaused = false; 
+      pauseBtn.textContent = 'Pause';
+      taps = 0; 
+      misses = 0; 
+      score = 0; 
+      totalRT = 0;
+      currentStreak = 0;
+      maxStreak = 0;
+      currentCombo = 1;
+      maxCombo = 1;
+      lastHitTime = 0;
+      hideBubble(); 
+      updateHUD();
+
+      enterImmersive();
+      requestAnimationFrame(ts => { 
+        lastSpawn = prevTs = ts; 
+        rafId = requestAnimationFrame(loop); 
+      });
+
+      try { sessionEnhancement.initializeExercise?.('bubble_tap'); } catch {}
+      try { markExerciseTried(EXERCISE_ID); } catch {}
+    }
+
+    function pauseSession(){
+      if(!isActive) return;
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+    }
+
+    function exitToSettings(){
+      if(isActive) { 
+        isActive = false; 
+        cancelAnimationFrame(rafId); 
+      }
+      prevTs = 0;
+      hideBubble();
+      exitImmersive();
+      pauseBtn.textContent = 'Pause';
+      doneModal.classList.remove('open');
+      bubbleEl.textContent = '';
+    }
+
+    function endSession(){
+      isActive = false; 
+      cancelAnimationFrame(rafId);
+      prevTs = 0;
+      hideBubble(); 
+      exitImmersive();
+
+      const total = taps + misses;
+      const acc = total > 0 ? Math.round((taps/total)*100) : 0;
+      const avg = taps > 0 ? Math.round(totalRT / taps) : 0;
+
+      fScore.textContent = String(score);
+      fTaps.textContent = String(taps);
+      fAcc.textContent = acc + '%';
+      fAvg.textContent = avg + 'ms';
+      fMaxStreak.textContent = String(maxStreak);
+      fMaxCombo.textContent = Math.floor(maxCombo) + 'x';
+
+      const prev = storage.get('PB_'+EXERCISE_ID, 0) || 0;
+      if(score > prev){ 
+        storage.set('PB_'+EXERCISE_ID, score); 
+      }
+
+      try { recordSession(EXERCISE_ID, (sizeSel.value||'medium'), score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
+
+      doneModal.classList.add('open');
+      try { sessionEnhancement.handleSessionComplete?.('bubble_tap', { score, taps, acc, avg, maxStreak, maxCombo }); } catch {}
+      bubbleEl.textContent = '';
+    }
+
+    startBtn.addEventListener('click', () => { 
+      doneModal.classList.remove('open'); 
+      startSession(); 
+    });
+    pauseBtn.addEventListener('click', pauseSession);
+    exitBtn.addEventListener('click', exitToSettings);
+    newSessionBtn.addEventListener('click', () => { 
+      doneModal.classList.remove('open'); 
+      startSession(); 
+    });
+
+    fmSel.addEventListener('change', () => {
+      const isAll = fmSel.value === 'all';
+      singleWrap.style.display = isAll ? '' : 'none';
+    });
+    singleWrap.style.display = (fmSel.value === 'all') ? '' : 'none';
+
+    doneModal.addEventListener('click', (e) => { 
+      if(e.target === doneModal){ 
+        doneModal.classList.remove('open'); 
+      } 
+    });
+    addEventListener('keydown', (e) => { 
+      if(e.key === 'Escape') doneModal.classList.remove('open'); 
+    });
+
+    updateHUD();
+
+    // Generate enhanced stars with more variety
+    function generateStars(container, count = 200) {
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.backgroundColor = i % 20 === 0 ? '#6fd3f5' : 'white';
+        star.style.borderRadius = '50%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.7 + 0.3;
+        star.style.animation = `twinkle ${Math.random() * 4 + 2}s ease-in-out infinite`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        star.style.boxShadow = size > 2 ? '0 0 4px rgba(111,211,245,0.5)' : 'none';
+        container.appendChild(star);
+      }
+    }
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes twinkle { 
+        0%, 100% { opacity: 0.2; transform: scale(0.8); } 
+        50% { opacity: 1; transform: scale(1.2); } 
+      }
+      @keyframes particleFloat {
+        from {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: translate(var(--tx, 0), var(--ty, -80px)) scale(0.3);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    if (starsContainer) generateStars(starsContainer, 200);
+
+    (async () => {
+      try { await initUtils?.({ starfieldTarget: surface }); } catch {}
+      const tryStarfield = () => {
+        if(surface.clientHeight > 0){ 
+          try { starfield?.(surface); } catch {} 
+        } else { 
+          requestAnimationFrame(tryStarfield); 
+        }
+      };
+      tryStarfield();
+    })();
+
+    window.endSession = function(score, difficulty='medium'){
+      try { recordSession(EXERCISE_ID, difficulty, score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
+    };
+  </script>
+</body>
+</html>

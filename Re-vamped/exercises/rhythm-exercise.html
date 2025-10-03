@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Rhythm Reach | Fine Point Rehab</title>
+  <meta name="description" content="Repeat the rhythm pattern by tapping the pads. Mobile-first, accessible therapy exercise." />
+
+  <style>
+    :root {
+      --bg-primary: #0f1629;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --text-primary: #e8eef5;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --brand-aqua: #6fd3f5;
+      --success: #4caf50;
+      --error: #ff6b6b;
+      --border: #374151;
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+      
+      --pad-radius: 16px;
+      --halo-fast: 160ms;
+      --ease: cubic-bezier(.2,.7,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      touch-action: manipulation;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--easing);
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      border-color: var(--brand-aqua);
+      background-color: var(--bg-tertiary);
+    }
+
+    .btn-primary {
+      background-color: var(--brand-aqua);
+      color: #000;
+      border-color: var(--brand-aqua);
+    }
+
+    .btn-primary:hover {
+      background-color: #5bc2e7;
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+    }
+
+    .input, select {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+    }
+
+    .input:focus, select:focus {
+      outline: none;
+      border-color: var(--brand-aqua);
+      box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.25);
+    }
+
+    .panel {
+      background: rgba(15, 22, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 15, 35, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header .inner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .site-header h1 {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      line-height: 1.2;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-4);
+    }
+
+    [data-screen] {
+      display: none !important;
+    }
+
+    [data-screen].active {
+      display: block !important;
+    }
+
+    .settings-panel {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: var(--space-6);
+    }
+
+    .settings-panel h2 {
+      margin: 0 0 var(--space-4);
+      font-size: var(--font-size-lg);
+      text-align: center;
+    }
+
+    .game-description {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .game-description p {
+      margin: 0 0 var(--space-3);
+    }
+
+    .game-description p:last-child {
+      margin: 0;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .metric-settings {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(111, 211, 245, 0.08);
+      min-width: 110px;
+    }
+
+    .pb-value {
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-lg);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 6px rgba(111, 211, 245, 0.5);
+      line-height: 1.1;
+    }
+
+    .pb-label {
+      font-size: var(--font-size-xs);
+      opacity: 0.9;
+      margin-top: var(--space-1);
+      color: var(--text-secondary);
+    }
+
+    .settings-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .settings-label {
+      display: block;
+      margin-bottom: var(--space-2);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .setting-help {
+      display: block;
+      color: var(--text-muted);
+      font-size: var(--font-size-xs);
+      margin-top: var(--space-1);
+      font-style: italic;
+    }
+
+    .controls {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Game screen */
+    .game-container {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .hud {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .hud-group {
+      display: grid;
+      gap: var(--space-1);
+      text-align: center;
+    }
+
+    .hud-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 8px rgba(111, 211, 245, 0.7);
+    }
+
+    .hud-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-auto-flow: row;
+        gap: var(--space-1);
+      }
+      
+      .hud-value {
+        font-size: var(--font-size-base);
+      }
+      
+      .hud-label {
+        font-size: 11px;
+      }
+      
+      .hud .controls {
+        grid-column: 1 / -1;
+        margin-top: var(--space-1);
+      }
+      
+      .hud .controls .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+
+    .grid-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-4);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(72px, 1fr));
+      gap: clamp(10px, 3vw, 16px);
+      max-width: 520px;
+      width: 100%;
+    }
+
+    /* Pads */
+    button.pad,
+    .pad,
+    .pad:active,
+    .pad:focus,
+    .pad:focus-visible,
+    .pad.glow,
+    .pad.glow:active,
+    .pad.glow:focus,
+    .pad.glow:focus-visible {
+      background: none !important;
+      background-image: none !important;
+      background-color: transparent !important;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .pad {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--pad-radius);
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(120% 120% at 30% 30%, rgba(120,150,255,0.16) 0%, rgba(120,150,255,0.06) 40%, rgba(20,26,46,0.88) 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+      box-shadow: inset 0 0 0 1px rgba(140,170,255,0.15), 0 8px 18px rgba(0,0,0,0.35);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--text-secondary);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: 0.4px;
+      transition: transform 120ms var(--ease), box-shadow 160ms var(--ease), border-color 160ms var(--ease);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .pad::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(120% 120% at 50% 50%,
+                  rgba(120,170,255,0.40) 0%,
+                  rgba(120,170,255,0.22) 35%,
+                  rgba(120,170,255,0.06) 65%,
+                  transparent 75%);
+      filter: blur(10px);
+      transform: scale(0.92);
+      transition: opacity var(--halo-fast) var(--ease), transform var(--halo-fast) var(--ease);
+    }
+
+    .pad.glow {
+      border-color: rgba(150,190,255,0.85) !important;
+      box-shadow: inset 0 0 0 1px rgba(160,190,255,0.45), 0 0 0 2px rgba(120,170,255,0.12), 0 10px 24px rgba(60,100,200,0.55) !important;
+    }
+
+    .pad.glow::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .pad:focus {
+      outline: none;
+    }
+
+    .pad:active {
+      transform: translateY(1px);
+    }
+
+    .pad.wrong {
+      box-shadow: inset 0 0 0 1px rgba(255,120,120,0.7), 0 10px 22px rgba(255,60,60,0.45);
+      border-color: rgba(255,140,140,0.9);
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(111, 211, 245, 0.85);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .settings-panel {
+        padding: var(--space-3);
+        margin: var(--space-2);
+      }
+      
+      .page {
+        padding: var(--space-2);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <h1>Rhythm Reach</h1>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Settings Screen -->
+    <aside class="settings-panel panel active" data-screen="settings">
+      <h2>Session Settings</h2>
+
+      <div class="game-description">
+        <p>
+          <strong>How to play:</strong> Watch the glowing tiles. After the sequence finishes, 
+          repeat it by tapping the same tiles in order.
+        </p>
+        <p>
+          Tiles glow the same way during playback and when you tap them yourself.
+        </p>
+      </div>
+
+      <div class="stats-row">
+        <div class="metric-settings">
+          <div id="best" class="pb-value">0</div>
+          <div class="pb-label">Personal Best</div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="startLen">Starting Length</label>
+        <input class="input" id="startLen" type="number" min="1" max="9" value="3" inputmode="numeric">
+        <small class="setting-help">Number of tiles in the first sequence (1-9).</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="speed">Show Speed</label>
+        <select class="input" id="speed">
+          <option value="slow">Slow</option>
+          <option value="med" selected>Medium</option>
+          <option value="fast">Fast</option>
+        </select>
+        <small class="setting-help">How quickly the sequence plays back.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="roundGap">Wait Time Between Rounds</label>
+        <select class="input" id="roundGap">
+          <option value="1200">Short</option>
+          <option value="1500" selected>Medium</option>
+          <option value="2000">Long</option>
+        </select>
+        <small class="setting-help">How long to wait before each new pattern starts.</small>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="start">Start</button>
+      </div>
+    </aside>
+
+    <!-- Game Screen -->
+    <section class="game-container" data-screen="game">
+      <div class="hud panel">
+        <div class="hud-group">
+          <div id="score" class="hud-value">0</div>
+          <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="pb" class="hud-value">0</div>
+          <div class="hud-label">Best</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="time" class="hud-value">00:00</div>
+          <div class="hud-label">Time</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-secondary" id="pause">Pause</button>
+          <button class="btn" id="end">Exit</button>
+        </div>
+      </div>
+
+      <div class="panel grid-container">
+        <div class="grid" id="grid" aria-label="Rhythm pads">
+          <button class="pad" data-idx="1" aria-label="Pad 1">1</button>
+          <button class="pad" data-idx="2" aria-label="Pad 2">2</button>
+          <button class="pad" data-idx="3" aria-label="Pad 3">3</button>
+          <button class="pad" data-idx="4" aria-label="Pad 4">4</button>
+          <button class="pad" data-idx="5" aria-label="Pad 5">5</button>
+          <button class="pad" data-idx="6" aria-label="Pad 6">6</button>
+          <button class="pad" data-idx="7" aria-label="Pad 7">7</button>
+          <button class="pad" data-idx="8" aria-label="Pad 8">8</button>
+          <button class="pad" data-idx="9" aria-label="Pad 9">9</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ---------- Utilities ----------
+    const activeTimeouts = new Set();
+    const sleep = (ms) => new Promise(res => { const t=setTimeout(()=>{activeTimeouts.delete(t);res();},ms); activeTimeouts.add(t); });
+    function clearAllTimers(){ activeTimeouts.forEach(t=>clearTimeout(t)); activeTimeouts.clear(); }
+
+    // ---------- Elements ----------
+    const pads = Array.from(document.querySelectorAll('.pad'));
+
+    const startBtn = document.getElementById('start');
+    const pauseBtn = document.getElementById('pause');
+    const endBtn   = document.getElementById('end');
+
+    const startLenInput = document.getElementById('startLen');
+    const speedSelect   = document.getElementById('speed');
+    const roundGapSelect= document.getElementById('roundGap');
+
+    const scoreEl = document.getElementById('score');
+    const bestEl  = document.getElementById('best');
+    const pbEl    = document.getElementById('pb');
+    const timeEl  = document.getElementById('time');
+
+    // ---------- Screens ----------
+    function setScreen(which){
+      document.querySelectorAll('[data-screen]').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-screen="${which}"]`)?.classList.add('active');
+    }
+
+    // ---------- Lighting (single source of truth) ----------
+    const Light = (() => {
+      let lit = null;
+      let offTO = null;
+
+      function hardOff(){
+        if(offTO){ clearTimeout(offTO); offTO = null; }
+        if(lit !== null){
+          pads[lit-1]?.classList.remove('glow');
+          lit = null;
+        }
+      }
+
+      function flash(idx, duration=500){
+        return new Promise(res=>{
+          hardOff();
+          pads[idx-1]?.classList.add('glow');
+          lit = idx;
+          offTO = setTimeout(()=>{ offTO=null; hardOff(); res(); }, Math.max(80, Number(duration)||0));
+        });
+      }
+
+      function off(){ hardOff(); }
+      return { flash, off };
+    })();
+
+    // ---------- Game state ----------
+    const LS_KEY = 'FPR_v1_rhythm_best';
+    let running=false, paused=false, playingBack=false;
+    let score=0, best=0, rounds=0;
+    let seq=[], userIndex=0;
+    let playbackToken=0;
+
+    // Timer (simple elapsed)
+    let timerId = null, startTs = 0;
+    function startTimer(){
+      if(timerId) clearInterval(timerId);
+      startTs = Date.now();
+      timerId = setInterval(() => {
+        const s = Math.floor((Date.now()-startTs)/1000);
+        const mm = String(Math.floor(s/60)).padStart(2,'0');
+        const ss = String(s%60).padStart(2,'0');
+        timeEl.textContent = `${mm}:${ss}`;
+      }, 200);
+    }
+    function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+    // PB
+    function readPB(){
+      const v = Number(localStorage.getItem(LS_KEY)||'0');
+      best = Number.isFinite(v) ? v : 0;
+      bestEl.textContent = best; pbEl.textContent = best;
+    }
+    function writePB(v){ localStorage.setItem(LS_KEY, String(v)); readPB(); }
+
+    // Helpers
+    function randPad(){ return 1 + Math.floor(Math.random()*9); }
+    function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
+    function clearAllPadStates(){ pads.forEach(p => p.classList.remove('glow','wrong')); }
+
+    // Timings shared by playback and taps
+    function playbackTimings(){
+      const speed = speedSelect.value;
+      if(speed === 'slow') return { glow: 700, gap: 300 };
+      if(speed === 'fast') return { glow: 380, gap: 160 };
+      return { glow: 550, gap: 220 };
+    }
+
+    // ---------- Playback ----------
+    async function playSequence(){
+      const myToken = ++playbackToken;
+      playingBack = true;
+
+      Light.off(); clearAllPadStates();
+      const { glow, gap } = playbackTimings();
+      const roundDelay = Number(roundGapSelect.value) || 1500;
+
+      await sleep(roundDelay);
+      if(myToken !== playbackToken || !running){ playingBack=false; return; }
+
+      for(const idx of seq){
+        while(paused && myToken===playbackToken && running){ await sleep(40); }
+        if(myToken !== playbackToken || !running) break;
+
+        await Light.flash(idx, glow);
+        await sleep(gap);
+      }
+
+      Light.off();
+      playingBack = false;
+      userIndex = 0;
+    }
+
+    // ---------- User input ----------
+    function onUserPad(idx, pointerType='mouse'){
+      if(!running || paused || playingBack) return;
+
+      const expected = seq[userIndex];
+      if(idx === expected){
+        const { glow } = playbackTimings();
+        Light.flash(idx, glow);
+        if(navigator.vibrate){ try{ navigator.vibrate(15); }catch(_){} }
+
+        if (pointerType !== 'keyboard') {
+          const el = pads[idx-1];
+          setTimeout(()=> el?.blur(), glow + 10);
+        }
+
+        score += 10; scoreEl.textContent = String(score);
+        userIndex++;
+        if(userIndex >= seq.length){
+          setTimeout(() => {
+            Light.off(); clearAllPadStates();
+            rounds++; seq.push(randPad());
+            playSequence();
+          }, 500);
+        }
+      } else {
+        const el = pads[idx-1]; if(el){
+          el.classList.add('wrong');
+          const t = setTimeout(()=>{ el.classList.remove('wrong'); activeTimeouts.delete(t); }, 280);
+          activeTimeouts.add(t);
+        }
+        score = Math.max(0, score - 5); scoreEl.textContent = String(score);
+        userIndex = 0;
+      }
+    }
+
+    pads.forEach(p => {
+      p.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        onUserPad(Number(p.dataset.idx), e.pointerType || 'mouse');
+      });
+      p.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          onUserPad(Number(p.dataset.idx), 'keyboard');
+        }
+      });
+    });
+
+    // ---------- Session control ----------
+    function resetSessionState(){
+      running=false; paused=false; playingBack=false; ++playbackToken;
+      stopTimer(); clearAllTimers(); Light.off(); clearAllPadStates();
+      score=0; rounds=0; seq=[]; userIndex=0;
+      scoreEl.textContent='0'; timeEl.textContent='00:00';
+    }
+
+    async function startSession(){
+      resetSessionState(); readPB();
+
+      const startLen = clamp(Number(startLenInput.value)||3, 1, 9);
+      for(let i=0;i<startLen;i++) seq.push(randPad());
+
+      running = true; setScreen('game'); startTimer();
+      await playSequence();
+    }
+
+    function endSession(){
+      if(!running && !paused) return;
+      running=false; paused=false; playingBack=false; ++playbackToken;
+      stopTimer(); Light.off(); clearAllPadStates();
+      if(score>best) writePB(score);
+      setScreen('settings');
+    }
+
+    function togglePause(){
+      if(!running) return;
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    }
+
+    document.addEventListener('visibilitychange', () => { if(document.hidden){ Light.off(); } });
+
+    // ---------- Bindings ----------
+    startBtn.addEventListener('click', startSession);
+    endBtn.addEventListener('click', endSession);
+    pauseBtn.addEventListener('click', togglePause);
+
+    // ---------- Init ----------
+    readPB(); setScreen('settings');
+  </script>
+</body>
+</html>
