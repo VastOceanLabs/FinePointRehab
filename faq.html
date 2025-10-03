@@ -1,445 +1,624 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RVKCCWBFKE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-RVKCCWBFKE');
-</script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVKCCWBFKE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RVKCCWBFKE');
+    </script>
+    
     <title>Frequently Asked Questions - Fine Point Rehab</title>
+    
+    <!-- SEO Meta Tags -->
     <meta name="description" content="Find answers to common questions about Fine Point Rehab's rehabilitation exercises, usage guidelines, and technical support.">
+    
+    <!-- PWA and Icons -->
+    <link rel="canonical" href="https://finepointrehab.com/faq.html">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Fine Point Rehab">
+    
     <style>
+        /* Design Tokens - Matching index.html exactly */
+        :root {
+            --header-height: 90px;
+            
+            /* Light theme (default) */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --brand-blue: #2563eb;
+            --brand-aqua: #48cae4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius: 8px;
+            --radius-lg: 12px;
+            
+            /* Typography */
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            --line-height-tight: 1.25;
+            --line-height-normal: 1.5;
+            --line-height-relaxed: 1.75;
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+        }
+
+        /* Dark theme support */
+        [data-theme="dark"] {
+            --bg-primary: #1e293b;
+            --bg-secondary: #334155;
+            --bg-card: #475569;
+            --text-primary: #f9fafb;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --border-light: #64748b;
+        }
+
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #121d33;
-            color: white;
-            line-height: 1.6;
+            padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: var(--line-height-normal);
             min-height: 100vh;
+            font-size: var(--font-size-base);
         }
         
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0 0 var(--space-4) 0;
+            line-height: var(--line-height-tight);
+            font-weight: 600;
+        }
+        
+        h1 { font-size: var(--font-size-4xl); }
+        h2 { font-size: var(--font-size-2xl); }
+        h3 { font-size: var(--font-size-xl); }
+        h4 { font-size: var(--font-size-lg); }
+        
+        p {
+            margin: 0 0 var(--space-4) 0;
+            line-height: var(--line-height-relaxed);
+        }
+        
+        ul, ol {
+            margin: 0 0 var(--space-4) 0;
+            padding-left: var(--space-6);
+        }
+        
+        li {
+            margin-bottom: var(--space-2);
+            line-height: var(--line-height-relaxed);
+        }
+        
+        /* Layout */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 var(--space-3);
         }
         
+        /* Header - Matching index.html exactly */
         header {
-            text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        
-        nav {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.1rem;
-            transition: opacity 0.2s;
-            padding: 5px 0;
-        }
-        
-        nav a:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-        
-        nav a.active {
-            border-bottom: 2px solid rgba(72, 202, 228, 1);
-            font-weight: bold;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .page-content {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 40px;
-            margin: 40px auto;
-            max-width: 900px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .page-content h2 {
-            color: rgba(72, 202, 228, 1);
-            margin-top: 0;
-            font-size: 2rem;
-            margin-bottom: 30px;
-        }
-        
-        .faq-category {
-            margin-bottom: 40px;
-        }
-        
-        .faq-category h3 {
-            color: rgba(72, 202, 228, 0.9);
-            font-size: 1.5rem;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(72, 202, 228, 0.3);
-            padding-bottom: 10px;
-        }
-        
-        .faq-item {
-            margin-bottom: 25px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-        
-        .faq-question {
-            padding: 15px 20px;
-            background-color: rgba(72, 202, 228, 0.1);
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-        
-        .faq-question:hover {
-            background-color: rgba(72, 202, 228, 0.2);
-        }
-        
-        .faq-question i {
-            color: rgba(72, 202, 228, 0.9);
-            transition: transform 0.3s;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-        
-        .faq-question.active i {
-            transform: rotate(180deg);
-        }
-        
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-        }
-        
-        .faq-answer.show {
-            overflow: visible;
-        }
-        
-        /* Fallback for when JavaScript fails or content changes dynamically */
-        .faq-answer.show[style*="height: auto"] {
-            max-height: none !important;
-            height: auto !important;
-        }
-        
-        .faq-answer-content {
-            padding: 20px;
-        }
-        
-        .faq-answer p {
-            margin-top: 0;
-        }
-        
-        .faq-answer ul {
-            margin-top: 10px;
-            padding-left: 20px;
-        }
-        
-        .faq-answer ul li {
-            margin-bottom: 8px;
-        }
-        
-        .faq-categories-nav {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0 30px;
-            flex-wrap: wrap;
-        }
-        
-        .faq-categories-nav a {
-            padding: 8px 16px;
-            margin: 5px;
-            border-radius: 20px;
-            background-color: rgba(72, 202, 228, 0.1);
-            color: white;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .faq-categories-nav a:hover,
-        .faq-categories-nav a.active {
-            background-color: rgba(72, 202, 228, 0.3);
-        }
-        
-        .button {
-            display: inline-block;
-            background-color: rgba(72, 202, 228, 0.9);
-            color: #000000;
-            text-decoration: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .button:hover {
-            background-color: rgba(72, 202, 228, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
-        .contact-cta {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        footer {
-            text-align: center;
-            padding: 40px 0;
-            margin-top: 60px;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-        
-        .footer-logo {
-            font-size: 1.6rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-
-        .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: rgba(72, 202, 228, 1);
-            text-decoration: underline;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            margin: 15px 0;
-        }
-
-        .social-links a {
-            color: white;
-            margin: 0 10px;
-            font-size: 1.2rem;
-            transition: transform 0.2s;
-        }
-
-        .social-links a:hover {
-            transform: scale(1.2);
-        }
-        
-        .stars-container {
             position: fixed;
             top: 0;
             left: 0;
+            right: 0;
+            height: var(--header-height);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: var(--space-2) 0;
+        }
+        
+        [data-theme="dark"] header {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            text-align: center;
             width: 100%;
-            height: 100%;
-            z-index: -1;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+            margin: 0;
+            line-height: 1.2;
+            white-space: nowrap;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+        
+        .tagline {
+            display: none;
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+        }
+        
+        /* Navigation */
+        header nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        
+        header nav a:hover,
+        header nav a.active {
+            color: var(--brand-blue);
+            background: var(--bg-secondary);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 44px;
+            font-size: var(--font-size-base);
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Page header */
+        .page-header {
+            padding: var(--space-16) 0 var(--space-8);
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: var(--font-size-4xl);
+            color: var(--brand-blue);
+            margin-bottom: var(--space-4);
+        }
+        
+        .page-description {
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: var(--line-height-relaxed);
+        }
+        
+        /* FAQ Container */
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-3) var(--space-16);
+        }
+        
+        /* Category Navigation */
+        .faq-categories-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-bottom: var(--space-12);
+        }
+        
+        .category-tab {
+            padding: var(--space-2) var(--space-4);
+            border-radius: 50px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+            transition: all 0.2s ease;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        
+        .category-tab:hover,
+        .category-tab.active {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+            transform: translateY(-1px);
+        }
+        
+        /* FAQ Categories */
+        .faq-category {
+            margin-bottom: var(--space-12);
+            scroll-margin-top: calc(var(--header-height) + var(--space-4));
+        }
+        
+        .category-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            color: var(--brand-blue);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-2);
+            border-bottom: 2px solid var(--brand-blue);
+        }
+        
+        /* FAQ Accordion */
+        .faq {
+            display: grid;
+            gap: var(--space-4);
+        }
+        
+        .faq details {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            pointer-events: none;
+            transition: all 0.2s ease;
         }
         
-        .star {
+        .faq details:hover {
+            border-color: var(--brand-blue);
+        }
+        
+        .faq summary {
+            list-style: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            color: var(--text-primary);
+            padding: var(--space-4) var(--space-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+        
+        .faq summary:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .faq summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .faq summary::marker {
+            content: "";
+        }
+        
+        .faq summary::after {
+            content: "▼";
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            color: var(--brand-blue);
+            font-size: var(--font-size-sm);
+        }
+        
+        .faq details[open] summary::after {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer-content {
+            padding: var(--space-6);
+            color: var(--text-primary);
+            line-height: var(--line-height-relaxed);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+        
+        .faq-answer-content p:last-child,
+        .faq-answer-content ul:last-child,
+        .faq-answer-content ol:last-child {
+            margin-bottom: 0;
+        }
+        
+        .faq-answer-content strong {
+            font-weight: 600;
+            color: var(--brand-blue);
+        }
+        
+        /* Contact CTA */
+        .contact-cta {
+            text-align: center;
+            margin-top: var(--space-12);
+            padding: var(--space-8);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+        
+        .contact-cta h3 {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--space-3);
+            color: var(--text-primary);
+        }
+        
+        .contact-cta p {
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+        }
+        
+        /* Footer - Matching index.html */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: var(--space-12) 0 var(--space-8);
+            margin-top: var(--space-20);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-8);
+            margin-bottom: var(--space-8);
+        }
+        
+        .footer-section h4 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--space-4);
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: var(--space-2);
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--brand-blue);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+        
+        /* Skip link for accessibility */
+        .visually-hidden-focusable {
             position: absolute;
-            background-color: white;
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
-            opacity: 0.4;
+            top: -40px;
+            left: 6px;
+            width: 1px;
+            height: 1px;
+            padding: 8px 16px;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            background: var(--brand-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            z-index: 100;
         }
         
-        @media (max-width: 768px) {
-            .page-content {
-                padding: 20px;
-                margin: 20px auto;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            nav {
-                flex-wrap: wrap;
-            }
-            
-            nav a {
-                margin: 5px 10px;
-                font-size: 1rem;
-            }
-            
-            .faq-categories-nav {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .faq-categories-nav a {
-                width: 80%;
-                text-align: center;
-                margin: 3px 0;
-            }
-            
-            .faq-question {
-                padding: 12px 15px;
-                font-size: 1rem;
-                line-height: 1.4;
-            }
-            
-            .faq-question i {
-                margin-left: 8px;
-            }
-            
-            .faq-answer-content {
-                padding: 15px;
-            }
-            
-            .faq-answer p,
-            .faq-answer ul li {
-                font-size: 0.95rem;
-                line-height: 1.5;
-            }
-            
-            .page-content h2 {
-                font-size: 1.8rem;
-            }
-            
-            .faq-category h3 {
-                font-size: 1.3rem;
-            }
+        .visually-hidden-focusable:focus {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: auto;
+            height: auto;
+            padding: 8px 16px;
+            margin: 0;
+            overflow: visible;
+            clip: auto;
+            white-space: normal;
         }
         
-        @media (max-width: 480px) {
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            :root {
+                --header-height: 80px;
+            }
+            
+            header {
+                padding: 0;
+            }
+            
             .container {
-                padding: 10px;
+                padding: 0 var(--space-4);
             }
             
-            .page-content {
-                padding: 15px;
-                border-radius: 10px;
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                gap: var(--space-4);
+                text-align: left;
             }
             
-            h1 {
-                font-size: 1.8rem;
+            .logo {
+                font-size: var(--font-size-3xl);
             }
             
-            .subtitle {
-                font-size: 1rem;
+            header nav {
+                gap: var(--space-4);
+                justify-content: flex-end;
+                flex-wrap: nowrap;
+                width: auto;
             }
             
-            nav a {
-                margin: 3px 8px;
-                font-size: 0.9rem;
+            header nav a {
+                font-size: var(--font-size-base);
+                padding: var(--space-2) var(--space-4);
+                min-height: 44px;
             }
             
-            .faq-question {
-                padding: 10px 12px;
-                font-size: 0.95rem;
+            .tagline {
+                display: block;
+                margin: 0;
             }
             
-            .faq-answer-content {
-                padding: 12px;
+            .faq-container {
+                padding: var(--space-8) var(--space-4) var(--space-16);
             }
             
-            .faq-answer p,
-            .faq-answer ul li {
-                font-size: 0.9rem;
+            .footer-content {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             }
-            
-            .page-content h2 {
-                font-size: 1.6rem;
-                margin-bottom: 20px;
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                padding: 0 var(--space-6);
             }
-            
-            .faq-category h3 {
-                font-size: 1.2rem;
-                margin-top: 25px;
-                margin-bottom: 15px;
+        }
+        
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
+        }
+        
+        :focus-visible {
+            outline: 2px solid var(--brand-blue);
+            outline-offset: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="stars-container" id="stars-container"></div>
+    <a href="#main" class="visually-hidden-focusable">Skip to content</a>
     
-    <div class="container">
-        <header>
-            <h1>Fine Point Rehab</h1>
-            <div class="subtitle">Interactive exercises for upper limb function and motor skills</div>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="index.html#projects">Exercises</a>
-                <a href="about.html">About Us</a>
-                <a href="faq.html" class="active">FAQ</a>
-                <a href="contact.html">Contact</a>
-                <a href="privacy-policy.html">Privacy</a>
-                <a href="terms-of-service.html">Terms</a>
-            </nav>
-        </header>
-        
-        <div class="page-content">
-            <h2>Frequently Asked Questions</h2>
-            
-            <div class="faq-categories-nav">
-                <a href="#general" class="active">General</a>
-                <a href="#exercises">Exercises</a>
-                <a href="#clinical">Clinical Usage</a>
-                <a href="#technical">Technical Support</a>
-                <a href="#account">Account & Billing</a>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <a href="index.html" class="logo">Fine Point Rehab</a>
+                    <div class="tagline">Evidence-based digital rehabilitation platform</div>
+                </div>
+                <nav>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#exercises">Exercises</a>
+                    <a href="about.html">About</a>
+                    <a href="faq.html" class="active" aria-current="page">FAQ</a>
+                    <a href="contact.html">Contact</a>
+                </nav>
             </div>
-            
-            <div class="faq-category" id="general">
-                <h3>General Questions</h3>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Who can benefit from Fine Point Rehab exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+        </div>
+    </header>
+    
+    <main id="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>Frequently Asked Questions</h1>
+                <p class="page-description">
+                    Find answers to common questions about our therapeutic exercises, usage guidelines, and technical support.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-container">
+            <div class="faq-categories-nav">
+                <a href="#general" class="category-tab active">General</a>
+                <a href="#exercises" class="category-tab">Exercises</a>
+                <a href="#clinical" class="category-tab">Clinical Usage</a>
+                <a href="#technical" class="category-tab">Technical Support</a>
+                <a href="#account" class="category-tab">Account & Billing</a>
+            </div>
+
+            <!-- GENERAL -->
+            <section class="faq-category" id="general">
+                <h2 class="category-title">General Questions</h2>
+                <div class="faq">
+                    <details>
+                        <summary>Who can benefit from Fine Point Rehab exercises?</summary>
                         <div class="faq-answer-content">
                             <p>Our exercises are designed primarily for individuals recovering from:</p>
                             <ul>
@@ -451,59 +630,41 @@
                             </ul>
                             <p>The exercises can be beneficial for anyone looking to improve fine motor skills, hand-eye coordination, and cognitive function. They can be used as part of a home exercise program or under the guidance of a healthcare professional.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        How often should I use these exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>How often should I use these exercises?</summary>
                         <div class="faq-answer-content">
                             <p>For optimal results, we recommend following the guidance of your healthcare provider. Generally, short but frequent sessions (15-30 minutes, 3-5 times per week) are more beneficial than occasional long sessions.</p>
                             <p>Consistency is key in rehabilitation. Regular practice helps reinforce neural pathways and improve functional outcomes. However, it's important to avoid overexertion and to take breaks if you experience fatigue or discomfort.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Are these exercises a replacement for professional therapy?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Are these exercises a replacement for professional therapy?</summary>
                         <div class="faq-answer-content">
                             <p>No, our exercises are designed to complement, not replace, professional therapy. They can be used as part of a comprehensive rehabilitation program developed by healthcare professionals.</p>
                             <p>We strongly recommend using these exercises under the guidance of a physical therapist, occupational therapist, or other qualified healthcare provider who can assess your specific needs, set appropriate goals, and monitor your progress.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Is there scientific evidence supporting these exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Is there scientific evidence supporting these exercises?</summary>
                         <div class="faq-answer-content">
                             <p>Yes, our exercises are based on established principles of motor learning, neuroplasticity, and rehabilitation science. The specific activities incorporated into our digital exercises are adapted from evidence-based therapeutic techniques used by rehabilitation professionals.</p>
                             <p>Research has shown that gamified rehabilitation exercises can significantly improve adherence to home exercise programs and enhance motivation. Studies also support the effectiveness of repetitive, task-specific training in improving motor function following neurological injury.</p>
                             <p>We continually update our exercises based on the latest research and feedback from healthcare professionals.</p>
                         </div>
-                    </div>
+                    </details>
                 </div>
-            </div>
-            
-            <div class="faq-category" id="exercises">
-                <h3>About the Exercises</h3>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        What skills do the different exercises target?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+            </section>
+
+            <!-- EXERCISES -->
+            <section class="faq-category" id="exercises">
+                <h2 class="category-title">About the Exercises</h2>
+                <div class="faq">
+                    <details>
+                        <summary>What skills do the different exercises target?</summary>
                         <div class="faq-answer-content">
                             <p>Each exercise is designed to target specific skills:</p>
                             <ul>
@@ -513,22 +674,17 @@
                                 <li><strong>Rhythm Reach:</strong> Memory, sequential processing, and spatial awareness</li>
                                 <li><strong>Precision Drop:</strong> Hand-eye coordination, grasp and release skills, and accuracy</li>
                                 <li><strong>Cosmic Maze:</strong> Planning, controlled movement, and problem-solving</li>
-                                <li><strong>Mirror Match:</strong> Bilateral coordination, symmetrical movement, and motor control in both hands.</li>
-                                <li><strong>Sequence Builder:</strong> Executive function, planning skills, and sequential processing.</li>
-                                <li><strong>Sort &amp; Categorize:</strong> Visual discrimination, decision-making, and attention paired with motor tasks.</li>
-                                <li><strong>Visual Scanner:</strong> Visual attention, field-of-vision expansion, and visual search skills training.</li>
+                                <li><strong>Mirror Match:</strong> Bilateral coordination, symmetrical movement, and motor control in both hands</li>
+                                <li><strong>Sequence Builder:</strong> Executive function, planning skills, and sequential processing</li>
+                                <li><strong>Sort & Categorize:</strong> Visual discrimination, decision-making, and attention paired with motor tasks</li>
+                                <li><strong>Visual Scanner:</strong> Visual attention, field-of-vision expansion, and visual search skills training</li>
                             </ul>
                             <p>Many exercises offer multiple benefits and can be customized to target specific rehabilitation goals.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Can I customize the exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Can I customize the exercises?</summary>
                         <div class="faq-answer-content">
                             <p>Yes, all exercises include customization options to accommodate different ability levels and therapeutic goals. Common adjustable parameters include:</p>
                             <ul>
@@ -540,28 +696,18 @@
                             </ul>
                             <p>These settings allow you or your therapist to tailor the exercises to your specific needs and gradually increase the challenge as your skills improve.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        How do I track my progress?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>How do I track my progress?</summary>
                         <div class="faq-answer-content">
                             <p>Each exercise provides immediate feedback during and after sessions, including metrics such as accuracy, completion time, and score. Currently, these stats are shown at the end of each session but are not saved between sessions.</p>
                             <p>We are developing a progress tracking feature that will allow users to save their results and view performance trends over time. This feature will be available in a future update.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        What if an exercise is too difficult for me?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>What if an exercise is too difficult for me?</summary>
                         <div class="faq-answer-content">
                             <p>All exercises offer adjustable difficulty levels to accommodate a wide range of abilities. If you find an exercise too challenging:</p>
                             <ul>
@@ -572,19 +718,16 @@
                             </ul>
                             <p>Remember that rehabilitation is a journey. Starting with achievable challenges and gradually increasing difficulty as you improve is an effective approach. Consult with your healthcare provider for specific recommendations tailored to your needs.</p>
                         </div>
-                    </div>
+                    </details>
                 </div>
-            </div>
-            
-            <div class="faq-category" id="clinical">
-                <h3>Clinical Usage</h3>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        How can therapists incorporate these exercises into treatment plans?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+            </section>
+
+            <!-- CLINICAL -->
+            <section class="faq-category" id="clinical">
+                <h2 class="category-title">Clinical Usage</h2>
+                <div class="faq">
+                    <details>
+                        <summary>How can therapists incorporate these exercises into treatment plans?</summary>
                         <div class="faq-answer-content">
                             <p>Healthcare professionals can incorporate Fine Point Rehab exercises into treatment plans in several ways:</p>
                             <ul>
@@ -595,15 +738,10 @@
                             </ul>
                             <p>Therapists can select exercises that target specific functional goals, adjust settings to match the patient's abilities, and use the performance metrics to track progress over time.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Do you offer clinical documentation or reporting tools?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Do you offer clinical documentation or reporting tools?</summary>
                         <div class="faq-answer-content">
                             <p>Currently, we do not offer integrated clinical documentation or reporting tools. However, we are developing features specifically for healthcare professionals, including:</p>
                             <ul>
@@ -614,19 +752,16 @@
                             </ul>
                             <p>If you're a healthcare professional interested in these upcoming features, please contact us to join our clinical partners program for early access and input on development.</p>
                         </div>
-                    </div>
+                    </details>
                 </div>
-            </div>
-            
-            <div class="faq-category" id="technical">
-                <h3>Technical Support</h3>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        What devices and browsers are supported?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+            </section>
+
+            <!-- TECHNICAL -->
+            <section class="faq-category" id="technical">
+                <h2 class="category-title">Technical Support</h2>
+                <div class="faq">
+                    <details>
+                        <summary>What devices and browsers are supported?</summary>
                         <div class="faq-answer-content">
                             <p>Fine Point Rehab exercises are web-based and designed to work on a wide range of devices, including:</p>
                             <ul>
@@ -644,28 +779,18 @@
                             </ul>
                             <p>For the best experience, we recommend using the latest version of Google Chrome on a tablet or desktop device with a touchscreen.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Do I need an internet connection to use the exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Do I need an internet connection to use the exercises?</summary>
                         <div class="faq-answer-content">
                             <p>Yes, an internet connection is required to access and use the exercises initially. However, once the exercises are loaded, many of them can continue to function if your connection is temporarily interrupted.</p>
                             <p>We are developing offline functionality for a future update, which will allow users to download exercises for use without an internet connection.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        The exercises are running slowly or lagging. What can I do?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>The exercises are running slowly or lagging. What can I do?</summary>
                         <div class="faq-answer-content">
                             <p>If you're experiencing performance issues, try these troubleshooting steps:</p>
                             <ol>
@@ -679,17 +804,12 @@
                             </ol>
                             <p>If problems persist, please contact our technical support team with details about your device, browser, and the specific issues you're experiencing.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        How do I report a bug or technical issue?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>How do I report a bug or technical issue?</summary>
                         <div class="faq-answer-content">
-                            <p>If you encounter a bug or technical issue, please contact our support team at support@finepointrehab.com with the following information:</p>
+                            <p>If you encounter a bug or technical issue, please contact our support team at <a href="mailto:info@finepointrehab.com" style="color: var(--brand-blue); text-decoration: none;">info@finepointrehab.com</a> with the following information:</p>
                             <ul>
                                 <li>Description of the issue</li>
                                 <li>Steps to reproduce the problem</li>
@@ -700,19 +820,16 @@
                             </ul>
                             <p>Our technical team reviews all reports and works to resolve issues as quickly as possible. We appreciate your patience and feedback as we continue to improve our exercises.</p>
                         </div>
-                    </div>
+                    </details>
                 </div>
-            </div>
-            
-            <div class="faq-category" id="account">
-                <h3>Account & Billing</h3>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Do I need to create an account to use the exercises?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+            </section>
+
+            <!-- ACCOUNT -->
+            <section class="faq-category" id="account">
+                <h2 class="category-title">Account & Billing</h2>
+                <div class="faq">
+                    <details>
+                        <summary>Do I need to create an account to use the exercises?</summary>
                         <div class="faq-answer-content">
                             <p>Currently, our exercises are available without requiring an account. You can access and use all exercises directly through our website without signing up or logging in.</p>
                             <p>In the future, we plan to introduce optional user accounts that will enable additional features such as:</p>
@@ -724,184 +841,150 @@
                             </ul>
                             <p>We'll announce these features when they become available.</p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Are the exercises free to use?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
+                    </details>
+
+                    <details>
+                        <summary>Are the exercises free to use?</summary>
                         <div class="faq-answer-content">
                             <p>Yes, all exercises currently available on our website are free to use. We're committed to making rehabilitation resources accessible to everyone who needs them.</p>
                             <p>In the future, we may introduce premium features or additional exercises as part of a subscription model. However, our core set of exercises will remain free to ensure accessibility.</p>
-                            <p>For healthcare organizations or clinics interested in enterprise solutions with additional features, please contact us at partnerships@finepointrehab.com to discuss licensing options.</p>
+                            <p>For healthcare organizations or clinics interested in enterprise solutions with additional features, please contact us at <a href="mailto:info@finepointrehab.com" style="color: var(--brand-blue); text-decoration: none;">info@finepointrehab.com</a> to discuss licensing options.</p>
                         </div>
-                    </div>
+                    </details>
                 </div>
-            </div>
-            
+            </section>
+
             <div class="contact-cta">
                 <h3>Didn't find what you're looking for?</h3>
                 <p>Our team is here to help with any additional questions you may have.</p>
-                <a href="contact.html" class="button">Contact Us</a>
+                <a href="contact.html" class="btn btn-primary">Contact Us</a>
             </div>
         </div>
-    </div>
+    </main>
     
     <footer>
-        <div class="footer-logo">Fine Point Rehab</div>
-        <div class="social-links">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Fine Point Rehab</h4>
+                    <p>Professional digital rehabilitation platform supporting recovery through evidence-based therapeutic exercises.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Exercise Categories</h4>
+                    <ul class="footer-links">
+                        <li><a href="/exercises/bubble-exercise.html">Fine Motor Control</a></li>
+                        <li><a href="/exercises/comet-exercise.html">Dynamic Tracking</a></li>
+                        <li><a href="/exercises/trace-reveal-exercise.html">Controlled Movement</a></li>
+                        <li><a href="/exercises/rhythm-exercise.html">Cognitive-Motor</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About Our Platform</a></li>
+                        <li><a href="faq.html">Frequently Asked Questions</a></li>
+                        <li><a href="contact.html">Contact Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Fine Point Rehab. All rights reserved. | Supporting recovery through evidence-based digital therapeutics.</p>
+            </div>
         </div>
-        <div class="footer-links">
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact</a>
-            <a href="faq.html">FAQ</a>
-            <a href="privacy-policy.html">Privacy Policy</a>
-            <a href="terms-of-service.html">Terms of Service</a>
-        </div>
-        <p>&copy; 2025 Fine Point Rehab. All rights reserved.</p>
     </footer>
     
-    <!-- Font Awesome for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
-    
     <script>
-        // Create stars for background effect
-        const starsContainer = document.getElementById('stars-container');
-        const starsCount = 100;
-        
-        for (let i = 0; i < starsCount; i++) {
-            const star = document.createElement('div');
-            star.classList.add('star');
-            
-            // Random position
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            
-            // Random size
-            const size = Math.random() * 2 + 0.5;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            
-            // Random opacity
-            star.style.opacity = Math.random() * 0.7 + 0.1;
-            
-            starsContainer.appendChild(star);
-        }
-        
-        // Enhanced FAQ accordion functionality with dynamic height calculation
+        // Theme detection
         document.addEventListener('DOMContentLoaded', function() {
-            const faqQuestions = document.querySelectorAll('.faq-question');
-            
-            // Function to safely get content height
-            function getContentHeight(element) {
-                // Temporarily remove max-height and make visible to measure
-                const originalMaxHeight = element.style.maxHeight;
-                const originalOverflow = element.style.overflow;
-                
-                element.style.maxHeight = 'none';
-                element.style.overflow = 'visible';
-                const height = element.scrollHeight;
-                
-                // Restore original styles
-                element.style.maxHeight = originalMaxHeight;
-                element.style.overflow = originalOverflow;
-                
-                return height;
+            // Apply user's theme preference
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
             }
             
-            faqQuestions.forEach(question => {
-                question.addEventListener('click', function() {
-                    const answer = this.nextElementSibling;
-                    const isCurrentlyOpen = this.classList.contains('active');
-                    
-                    // Close all other FAQ items first
-                    faqQuestions.forEach(otherQuestion => {
-                        if (otherQuestion !== this) {
-                            otherQuestion.classList.remove('active');
-                            const otherAnswer = otherQuestion.nextElementSibling;
-                            otherAnswer.classList.remove('show');
-                            otherAnswer.style.maxHeight = '0px';
-                        }
-                    });
-                    
-                    // Toggle current item
-                    if (isCurrentlyOpen) {
-                        // Close this item
-                        this.classList.remove('active');
-                        answer.classList.remove('show');
-                        answer.style.maxHeight = '0px';
-                    } else {
-                        // Open this item
-                        this.classList.add('active');
-                        
-                        // Calculate the actual height needed
-                        const contentHeight = getContentHeight(answer);
-                        
-                        // Set the calculated height for smooth animation
-                        answer.style.maxHeight = contentHeight + 'px';
-                        
-                        // Add show class for overflow change
-                        answer.classList.add('show');
-                        
-                        // After animation completes, remove max-height constraint entirely
-                        // This ensures content can expand if needed (e.g., orientation change)
-                        setTimeout(() => {
-                            if (answer.classList.contains('show')) {
-                                answer.style.maxHeight = '';
-                                answer.style.height = 'auto';
-                            }
-                        }, 450);
+            // Respect reduced motion preference
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.documentElement.style.setProperty('--transition-duration', '0ms');
+            }
+            
+            // Category navigation
+            initializeCategoryNavigation();
+            
+            // Accordion behavior - close others when one opens
+            const allDetails = document.querySelectorAll('.faq details');
+            allDetails.forEach(detail => {
+                detail.addEventListener('toggle', function() {
+                    if (this.open) {
+                        allDetails.forEach(other => {
+                            if (other !== this) other.open = false;
+                        });
                     }
                 });
             });
-            
-            // Handle window resize to recalculate heights if needed
-            let resizeTimeout;
-            window.addEventListener('resize', function() {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    // Recalculate open FAQ heights
-                    const openAnswers = document.querySelectorAll('.faq-answer.show');
-                    openAnswers.forEach(answer => {
-                        if (answer.style.maxHeight && answer.style.maxHeight !== '') {
-                            const newHeight = getContentHeight(answer);
-                            answer.style.maxHeight = newHeight + 'px';
-                        }
-                    });
-                }, 250);
-            });
-            
-            // Category navigation
-            const categoryLinks = document.querySelectorAll('.faq-categories-nav a');
+        });
+        
+        // Category navigation with smooth scrolling
+        function initializeCategoryNavigation() {
+            const categoryLinks = document.querySelectorAll('.category-tab');
+            const headerHeight = document.querySelector('header')?.offsetHeight || 0;
             
             categoryLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Remove active class from all links
+                    // Update active state
                     categoryLinks.forEach(l => l.classList.remove('active'));
-                    
-                    // Add active class to clicked link
                     this.classList.add('active');
                     
-                    // Scroll to the target category
+                    // Smooth scroll to section
                     const targetId = this.getAttribute('href').substring(1);
                     const targetElement = document.getElementById(targetId);
                     
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 100,
-                        behavior: 'smooth'
-                    });
+                    if (targetElement) {
+                        const offset = targetElement.offsetTop - headerHeight - 20;
+                        window.scrollTo({
+                            top: offset,
+                            behavior: 'smooth'
+                        });
+                    }
                 });
             });
-        });
+            
+            // Update active tab based on scroll position
+            const observerOptions = {
+                rootMargin: `-${headerHeight + 20}px 0px -70% 0px`,
+                threshold: 0
+            };
+            
+            const categoryObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const categoryId = entry.target.id;
+                        const correspondingTab = document.querySelector(`[href="#${categoryId}"]`);
+                        
+                        if (correspondingTab) {
+                            categoryLinks.forEach(link => link.classList.remove('active'));
+                            correspondingTab.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.faq-category').forEach(category => {
+                categoryObserver.observe(category);
+            });
+        }
     </script>
 </body>
 </html>

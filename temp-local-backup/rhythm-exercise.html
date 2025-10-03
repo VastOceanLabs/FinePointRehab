@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rhythm Reach - Stroke Therapy Pattern Memory</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #121d33;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #game-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: #1c2a4e;
+            border: 2px solid rgba(111, 211, 245, 0.9);
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px;
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            z-index: 10;
+        }
+        
+        .pad {
+            background: #2a3a6e;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: transparent;
+        }
+        
+        .pad:active {
+            transform: scale(0.95);
+        }
+        
+        .pad.active {
+            background: radial-gradient(circle at center, rgba(111, 211, 245, 1), rgba(72, 202, 228, 0.8));
+            box-shadow: 0 0 15px rgba(111, 211, 245, 0.6);
+        }
+        
+        .pad.correct {
+            background: radial-gradient(circle at center, rgba(46, 204, 113, 1), rgba(39, 174, 96, 0.8));
+            animation: correctFlash 0.3s ease;
+        }
+        
+        .pad.incorrect {
+            background: radial-gradient(circle at center, rgba(231, 76, 60, 1), rgba(192, 57, 43, 0.8));
+            animation: incorrectShake 0.3s ease;
+        }
+        
+        @keyframes correctFlash {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes incorrectShake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #settings-panel h2 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        #settings-toggle {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #settings-toggle:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            background-color: rgba(0, 10, 30, 0.8);
+            color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+        }
+        
+        button {
+            background-color: rgba(111, 211, 245, 0.9);
+            color: #121d33;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #stats-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(8, 15, 35, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        #timer-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            background-color: rgba(111, 211, 245, 0.9);
+            width: 100%;
+            z-index: 20;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        #completion-message h2 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        #completion-scores {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .score-highlight {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        #status-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 15;
+        }
+        
+        #sequence-display {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 15;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            #game-area {
+                width: 280px;
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="timer-bar"></div>
+        
+        <div id="sequence-display">Round <span id="round-number">1</span></div>
+        <div id="status-message"></div>
+        
+        <div id="game-area"></div>
+        
+        <button id="settings-toggle">Settings</button>
+        
+        <div id="settings-panel">
+            <h2>Settings</h2>
+            <div class="settings-group">
+                <label class="settings-label">Starting Sequence Length:</label>
+                <select id="start-length">
+                    <option value="2">2 items (Easy)</option>
+                    <option value="3" selected>3 items (Medium)</option>
+                    <option value="4">4 items (Hard)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Speed:</label>
+                <select id="sequence-speed">
+                    <option value="slow" selected>Slow</option>
+                    <option value="medium">Medium</option>
+                    <option value="fast">Fast</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Session Duration (minutes):</label>
+                <input type="number" id="session-duration" min="1" max="10" value="2">
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Show Numbers on Pads:</label>
+                <select id="show-numbers">
+                    <option value="no" selected>No</option>
+                    <option value="yes">Yes</option>
+                </select>
+            </div>
+            
+            <button id="start-session">Start Session</button>
+        </div>
+        
+        <div id="stats-panel" class="hidden">
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="sequences" class="stat-value">0</div>
+                <div class="stat-label">Sequences Completed</div>
+            </div>
+            <div class="stat-box">
+                <div id="time-left" class="stat-value">2:00</div>
+                <div class="stat-label">Time Left</div>
+            </div>
+            <div class="stat-box">
+                <div id="accuracy" class="stat-value">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+        
+        <div id="completion-message" class="hidden">
+            <h2>Session Complete!</h2>
+            <div id="completion-scores">
+                <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
+                <p>Sequences Completed: <span id="final-sequences" class="score-highlight">0</span></p>
+                <p>Longest Sequence: <span id="final-longest" class="score-highlight">0</span></p>
+                <p>Accuracy: <span id="final-accuracy" class="score-highlight">0%</span></p>
+            </div>
+            <button id="restart-button">Start New Session</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game elements
+        const gameContainer = document.getElementById('game-container');
+        const gameArea = document.getElementById('game-area');
+        const timerBar = document.getElementById('timer-bar');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const statsPanel = document.getElementById('stats-panel');
+        const completionMessage = document.getElementById('completion-message');
+        const starsContainer = document.getElementById('stars-container');
+        const statusMessage = document.getElementById('status-message');
+        const sequenceDisplay = document.getElementById('sequence-display');
+        const roundNumber = document.getElementById('round-number');
+        
+        // Create stars for background effect
+        const starsCount = 50;
+        
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.opacity = Math.random() * 0.4 + 0.1;
+            starsContainer.appendChild(star);
+        }
+        
+        // Settings elements
+        const startLengthSelect = document.getElementById('start-length');
+        const sequenceSpeedSelect = document.getElementById('sequence-speed');
+        const sessionDurationInput = document.getElementById('session-duration');
+        const showNumbersSelect = document.getElementById('show-numbers');
+        const startSessionButton = document.getElementById('start-session');
+        const restartButton = document.getElementById('restart-button');
+        
+        // Stats elements
+        const scoreElement = document.getElementById('score');
+        const sequencesElement = document.getElementById('sequences');
+        const timeLeftElement = document.getElementById('time-left');
+        const accuracyElement = document.getElementById('accuracy');
+        
+        // Completion elements
+        const finalScoreElement = document.getElementById('final-score');
+        const finalSequencesElement = document.getElementById('final-sequences');
+        const finalLongestElement = document.getElementById('final-longest');
+        const finalAccuracyElement = document.getElementById('final-accuracy');
+        
+        // Game state variables
+        let isSessionActive = false;
+        let sessionDuration = 2 * 60 * 1000;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let score = 0;
+        let sequencesCompleted = 0;
+        let totalAttempts = 0;
+        let correctAttempts = 0;
+        let longestSequence = 0;
+        let pads = [];
+        let sequence = [];
+        let userIndex = 0;
+        let isPlayingSequence = false;
+        let currentRound = 1;
+        let sequenceSpeed = { slow: 800, medium: 600, fast: 400 };
+        let highlightDuration = { slow: 600, medium: 400, fast: 300 };
+        
+        // Create game pads
+        function createPads() {
+            gameArea.innerHTML = '';
+            pads = [];
+            
+            for (let i = 0; i < 9; i++) {
+                const pad = document.createElement('div');
+                pad.classList.add('pad');
+                pad.dataset.index = i;
+                
+                if (showNumbersSelect.value === 'yes') {
+                    pad.textContent = i + 1;
+                    pad.style.color = 'rgba(255, 255, 255, 0.7)';
+                }
+                
+                pad.addEventListener('click', handlePadClick);
+                pad.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    handlePadClick(e);
+                }, false);
+                
+                gameArea.appendChild(pad);
+                pads.push(pad);
+            }
+        }
+        
+        // Toggle settings panel
+        settingsToggle.addEventListener('click', () => {
+            if (!isSessionActive) {
+                settingsPanel.classList.toggle('hidden');
+            }
+        });
+        
+        // Start new session
+        startSessionButton.addEventListener('click', startSession);
+        restartButton.addEventListener('click', () => {
+            completionMessage.classList.add('hidden');
+            settingsPanel.classList.remove('hidden');
+        });
+        
+        // Initialize
+        createPads();
+        showSettings();
+        
+        function startSession() {
+            // Get settings
+            const startLength = parseInt(startLengthSelect.value);
+            sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
+            
+            // Reset game state
+            score = 0;
+            sequencesCompleted = 0;
+            totalAttempts = 0;
+            correctAttempts = 0;
+            longestSequence = 0;
+            timeRemaining = sessionDuration;
+            currentRound = 1;
+            sequence = [];
+            userIndex = 0;
+            
+            // Create pads with current settings
+            createPads();
+            
+            // Update UI
+            updateStats();
+            updateTimer();
+            roundNumber.textContent = currentRound;
+            
+            // Hide settings, show stats
+            settingsPanel.classList.add('hidden');
+            statsPanel.classList.remove('hidden');
+            
+            // Start timer
+            isSessionActive = true;
+            
+            timerInterval = setInterval(() => {
+                timeRemaining -= 100;
+                
+                // Update timer bar
+                const progress = timeRemaining / sessionDuration;
+                timerBar.style.width = `${progress * 100}%`;
+                
+                // Update time display
+                updateTimer();
+                
+                // Check if session is over
+                if (timeRemaining <= 0) {
+                    endSession();
+                }
+            }, 100);
+            
+            // Generate initial sequence
+            for (let i = 0; i < startLength; i++) {
+                sequence.push(Math.floor(Math.random() * 9));
+            }
+            
+            // Start game
+            setTimeout(() => playSequence(), 1000);
+        }
+        
+        function endSession() {
+            clearInterval(timerInterval);
+            isSessionActive = false;
+            
+            // Hide stats
+            statsPanel.classList.add('hidden');
+            
+            // Show completion message
+            finalScoreElement.textContent = score;
+            finalSequencesElement.textContent = sequencesCompleted;
+            finalLongestElement.textContent = longestSequence;
+            finalAccuracyElement.textContent = totalAttempts > 0 ? 
+                Math.round(correctAttempts / totalAttempts * 100) + '%' : '0%';
+            completionMessage.classList.remove('hidden');
+            
+            // Reset timer bar
+            timerBar.style.width = '0%';
+        }
+        
+        function playSequence() {
+            if (!isSessionActive) return;
+            
+            isPlayingSequence = true;
+            userIndex = 0;
+            
+            showStatus("Watch the sequence!", "#6fd3f5");
+            
+            let i = 0;
+            const speed = sequenceSpeed[sequenceSpeedSelect.value];
+            
+            const interval = setInterval(() => {
+                if (i >= sequence.length) {
+                    clearInterval(interval);
+                    isPlayingSequence = false;
+                    showStatus("Your turn!", "#2ecc71");
+                    return;
+                }
+                
+                highlightPad(sequence[i]);
+                i++;
+            }, speed);
+        }
+        
+        function highlightPad(index, isCorrect = null) {
+            const pad = pads[index];
+            const duration = highlightDuration[sequenceSpeedSelect.value];
+            
+            if (isCorrect === true) {
+                pad.classList.add('correct');
+                setTimeout(() => pad.classList.remove('correct'), duration);
+            } else if (isCorrect === false) {
+                pad.classList.add('incorrect');
+                setTimeout(() => pad.classList.remove('incorrect'), duration);
+            } else {
+                pad.classList.add('active');
+                setTimeout(() => pad.classList.remove('active'), duration);
+            }
+        }
+        
+        function handlePadClick(e) {
+            if (!isSessionActive || isPlayingSequence) return;
+            
+            const index = parseInt(e.target.dataset.index);
+            totalAttempts++;
+            
+            if (index === sequence[userIndex]) {
+                correctAttempts++;
+                highlightPad(index, true);
+                userIndex++;
+                
+                // Check if sequence completed
+                if (userIndex >= sequence.length) {
+                    sequencesCompleted++;
+                    score += sequence.length * 100;
+                    
+                    // Update longest sequence
+                    if (sequence.length > longestSequence) {
+                        longestSequence = sequence.length;
+                    }
+                    
+                    updateStats();
+                    showStatus("Correct! Well done!", "#2ecc71");
+                    
+                    // Move to next round
+                    setTimeout(() => {
+                        nextRound();
+                    }, 1000);
+                }
+            } else {
+                highlightPad(index, false);
+                showStatus("Oops! Let's try again.", "#e74c3c");
+                
+                // Deduct points but don't go below 0
+                score = Math.max(0, score - 50);
+                updateStats();
+                
+                // Reset and replay sequence
+                setTimeout(() => {
+                    userIndex = 0;
+                    playSequence();
+                }, 1000);
+            }
+        }
+        
+        function nextRound() {
+            currentRound++;
+            roundNumber.textContent = currentRound;
+            
+            // Add one more item to the sequence
+            sequence.push(Math.floor(Math.random() * 9));
+            
+            // Play the new sequence
+            setTimeout(() => playSequence(), 500);
+        }
+        
+        function showStatus(message, color) {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+            statusMessage.style.opacity = '1';
+            
+            setTimeout(() => {
+                statusMessage.style.opacity = '0';
+            }, 2000);
+        }
+        
+        function updateStats() {
+            scoreElement.textContent = score;
+            sequencesElement.textContent = sequencesCompleted;
+            accuracyElement.textContent = totalAttempts > 0 ? 
+                Math.round(correctAttempts / totalAttempts * 100) + '%' : '0%';
+        }
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60000);
+            const seconds = Math.floor((timeRemaining % 60000) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function showSettings() {
+            settingsPanel.classList.remove('hidden');
+            statsPanel.classList.add('hidden');
+            completionMessage.classList.add('hidden');
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Load/save settings with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings if they exist
+            if (localStorage.getItem('rhythmStartLength')) {
+                startLengthSelect.value = localStorage.getItem('rhythmStartLength');
+            }
+            
+            if (localStorage.getItem('rhythmSpeed')) {
+                sequenceSpeedSelect.value = localStorage.getItem('rhythmSpeed');
+            }
+            
+            if (localStorage.getItem('rhythmDuration')) {
+                sessionDurationInput.value = localStorage.getItem('rhythmDuration');
+            }
+            
+            if (localStorage.getItem('rhythmShowNumbers')) {
+                showNumbersSelect.value = localStorage.getItem('rhythmShowNumbers');
+            }
+            
+            // Save settings when they change
+            startLengthSelect.addEventListener('change', saveSettings);
+            sequenceSpeedSelect.addEventListener('change', saveSettings);
+            sessionDurationInput.addEventListener('change', saveSettings);
+            showNumbersSelect.addEventListener('change', saveSettings);
+        });
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('rhythmStartLength', startLengthSelect.value);
+            localStorage.setItem('rhythmSpeed', sequenceSpeedSelect.value);
+            localStorage.setItem('rhythmDuration', sessionDurationInput.value);
+            localStorage.setItem('rhythmShowNumbers', showNumbersSelect.value);
+        }
+    </script>
+</body>
+</html>

@@ -1,452 +1,993 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) with GDPR-compliant consent mode -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVKCCWBFKE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
+  
+  // Set default consent mode (GDPR-compliant)
+  gtag('consent', 'default', {
+    ad_user_data: 'denied',
+    ad_personalization: 'denied', 
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'granted',
+    security_storage: 'granted'
+  });
+  
   gtag('config', 'G-RVKCCWBFKE');
 </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Fine Point Rehab</title>
     <meta name="description" content="Learn how Fine Point Rehab protects your privacy and handles your personal information when using our rehabilitation exercises.">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://finepointrehab.com/privacy-policy.html">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/components.css">
+    
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Fine Point Rehab">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Theme Meta -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#2563eb">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e293b">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #121d33;
+        /* Page-specific styles - minimal, theme-aware */
+        .page-header {
+            background: var(--brand-gradient);
             color: white;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
             text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: var(--space-12) var(--space-4);
+            position: relative;
+            overflow: hidden;
         }
         
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-            letter-spacing: 1px;
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.3;
         }
         
-        nav {
-            margin-top: 20px;
+        .page-header > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-2);
+            letter-spacing: -0.025em;
+        }
+        
+        .page-subtitle {
+            font-size: var(--font-size-lg);
+            opacity: 0.9;
+            font-weight: var(--font-weight-normal);
+        }
+        
+        /* Navigation */
+        .main-nav {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-4) 0;
+            position: sticky;
+            top: 0;
+            z-index: var(--z-dropdown);
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        
+        [data-theme="dark"] .main-nav {
+            background-color: rgba(30, 41, 59, 0.95);
+        }
+        
+        .nav-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .nav-brand {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: 0.025em;
+        }
+        
+        .nav-brand:hover {
+            color: var(--brand-blue);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--space-2);
             flex-wrap: wrap;
         }
         
-        nav a {
-            color: white;
+        .nav-link {
+            padding: var(--space-2) var(--space-4);
+            color: var(--text-secondary);
             text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.1rem;
-            transition: opacity 0.2s;
-            padding: 5px 0;
+            border-radius: var(--radius);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--duration-fast) var(--easing);
+            min-height: var(--touch-target);
+            display: flex;
+            align-items: center;
         }
         
-        nav a:hover {
-            opacity: 0.8;
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+        
+        .nav-link.active {
+            color: var(--brand-blue);
+            background: rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Content Area */
+        .content-area {
+            background: var(--bg-secondary);
+            min-height: 60vh;
+            padding: var(--space-8) 0;
+        }
+        
+        .privacy-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .content-header {
+            background: var(--bg-secondary);
+            padding: var(--space-8);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .content-header h2 {
+            margin: 0 0 var(--space-4) 0;
+            color: var(--text-primary);
+        }
+        
+        .last-updated {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            font-style: italic;
+        }
+        
+        .content-body {
+            padding: var(--space-8);
+        }
+        
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .toc h3 {
+            margin: 0 0 var(--space-4) 0;
+            color: var(--brand-blue);
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: var(--space-6);
+        }
+        
+        .toc li {
+            margin-bottom: var(--space-2);
+        }
+        
+        .toc a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: var(--space-1) 0;
+            display: block;
+            border-radius: var(--radius);
+            transition: color var(--duration-fast) var(--easing);
+        }
+        
+        .toc a:hover {
+            color: var(--brand-blue);
             text-decoration: underline;
         }
         
-        nav a.active {
-            border-bottom: 2px solid rgba(72, 202, 228, 1);
-            font-weight: bold;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .page-content {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 40px;
-            margin: 40px auto;
-            max-width: 900px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .page-content h2 {
-            color: rgba(72, 202, 228, 1);
-            margin-top: 0;
-            font-size: 2rem;
-            margin-bottom: 30px;
-        }
-        
-        .page-content h3 {
-            color: rgba(72, 202, 228, 0.9);
-            font-size: 1.5rem;
-            margin-top: 40px;
-            margin-bottom: 15px;
-        }
-        
-        .page-content p {
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-        
-        .page-content ul, 
-        .page-content ol {
-            margin-bottom: 20px;
-            padding-left: 25px;
-        }
-        
-        .page-content li {
-            margin-bottom: 10px;
-        }
-        
-        .policy-toc {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .policy-toc h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        
-        .policy-toc ol {
-            margin-bottom: 0;
-        }
-        
-        .policy-toc a {
-            color: rgba(72, 202, 228, 0.9);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        
-        .policy-toc a:hover {
-            color: rgba(72, 202, 228, 1);
-            text-decoration: underline;
-        }
-        
+        /* Policy Sections */
         .policy-section {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: var(--space-8);
+            padding-bottom: var(--space-6);
+            border-bottom: 1px solid var(--border-light);
         }
         
         .policy-section:last-child {
             border-bottom: none;
+            margin-bottom: 0;
         }
         
-        .policy-date {
-            text-align: right;
-            font-style: italic;
-            margin-top: 40px;
-            color: rgba(255, 255, 255, 0.7);
+        .policy-section h3 {
+            color: var(--brand-blue);
+            margin-bottom: var(--space-4);
+            scroll-margin-top: var(--space-20);
         }
         
-        .button {
-            display: inline-block;
-            background-color: rgba(72, 202, 228, 0.9);
-            color: #000000;
-            text-decoration: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s;
+        .policy-section ul,
+        .policy-section ol {
+            padding-left: var(--space-6);
+        }
+        
+        .policy-section li {
+            margin-bottom: var(--space-3);
+        }
+        
+        .policy-section strong {
+            color: var(--text-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        /* Contact Section */
+        .contact-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
             text-align: center;
-            margin-top: 20px;
+            margin-top: var(--space-6);
         }
         
-        .button:hover {
-            background-color: rgba(72, 202, 228, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        /* Footer */
+        .main-footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            padding: var(--space-12) 0 var(--space-8);
+            margin-top: var(--space-16);
         }
         
-        footer {
+        .footer-content {
             text-align: center;
-            padding: 40px 0;
-            margin-top: 60px;
-            background-color: rgba(0, 0, 0, 0.4);
         }
         
-        .footer-logo {
-            font-size: 1.6rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+        .footer-brand {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
         }
         
         .footer-links {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            margin: 20px 0;
+            gap: var(--space-4);
+            margin: var(--space-6) 0;
         }
-
+        
         .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             text-decoration: none;
-            margin: 0 15px;
-            font-size: 0.9rem;
-            transition: color 0.2s;
+            font-size: var(--font-size-sm);
+            transition: color var(--duration-fast) var(--easing);
         }
-
+        
         .footer-links a:hover {
-            color: rgba(72, 202, 228, 1);
+            color: var(--brand-blue);
             text-decoration: underline;
         }
-
-        .social-links {
+        
+        .footer-social {
             display: flex;
             justify-content: center;
-            margin: 15px 0;
-        }
-
-        .social-links a {
-            color: white;
-            margin: 0 10px;
-            font-size: 1.2rem;
-            transition: transform 0.2s;
-        }
-
-        .social-links a:hover {
-            transform: scale(1.2);
+            gap: var(--space-4);
+            margin: var(--space-4) 0;
         }
         
-        .stars-container {
+        .footer-social a {
+            color: var(--text-muted);
+            font-size: var(--font-size-lg);
+            transition: all var(--duration-fast) var(--easing);
+            width: var(--touch-target);
+            height: var(--touch-target);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-full);
+        }
+        
+        .footer-social a:hover {
+            color: var(--brand-blue);
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+        }
+        
+        .copyright {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-6);
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: var(--radius);
+            padding: var(--space-2) var(--space-3);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--duration-fast) var(--easing);
+            min-height: var(--touch-target);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--hover);
+        }
+        
+        /* Skip Link */
+        .skip-link {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
+            top: -40px;
+            left: var(--space-2);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: var(--space-2) var(--space-4);
+            text-decoration: none;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            z-index: var(--z-tooltip);
+            transition: top var(--duration-fast) var(--easing);
         }
         
-        .star {
-            position: absolute;
-            background-color: white;
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
-            opacity: 0.4;
+        .skip-link:focus {
+            top: var(--space-2);
         }
         
-        @media (max-width: 768px) {
-            .page-content {
-                padding: 20px;
+        /* Mobile Responsive */
+        @media (max-width: 640px) {
+            .page-header {
+                padding: var(--space-8) var(--space-4);
             }
             
-            h1 {
-                font-size: 2rem;
+            .page-title {
+                font-size: var(--font-size-2xl);
             }
             
-            nav {
-                flex-wrap: wrap;
+            .nav-container {
+                flex-direction: column;
+                align-items: stretch;
             }
             
-            nav a {
-                margin: 5px 10px;
+            .nav-links {
+                justify-content: center;
+            }
+            
+            .nav-link {
+                flex: 1;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .content-body,
+            .content-header {
+                padding: var(--space-6);
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: var(--space-2);
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .main-nav,
+            .theme-toggle,
+            .footer-social,
+            .skip-link {
+                display: none;
+            }
+            
+            .privacy-content {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            .page-header {
+                background: none !important;
+                color: black !important;
+                border-bottom: 2px solid #ccc;
+            }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
-    <div class="stars-container" id="stars-container"></div>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     
-    <div class="container">
-        <header>
-            <h1>Fine Point Rehab</h1>
-            <div class="subtitle">Interactive exercises for upper limb function and motor skills</div>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="index.html#projects">Exercises</a>
-                <a href="about.html">About Us</a>
-                <a href="faq.html">FAQ</a>
-                <a href="contact.html">Contact</a>
-                <a href="privacy-policy.html" class="active">Privacy</a>
-                <a href="terms-of-service.html">Terms</a>
-            </nav>
-        </header>
-        
-        <div class="page-content">
-            <h2>Privacy Policy</h2>
-            
-            <div class="policy-toc">
-                <h3>Table of Contents</h3>
-                <ol>
-                    <li><a href="#introduction">Introduction</a></li>
-                    <li><a href="#information-collected">Information We Collect</a></li>
-                    <li><a href="#usage">How We Use Your Information</a></li>
-                    <li><a href="#sharing">Information Sharing and Disclosure</a></li>
-                    <li><a href="#local-storage">Local Storage</a></li>
-                    <li><a href="#data-security">Data Security</a></li>
-                    <li><a href="#user-rights">Your Rights and Choices</a></li>
-                    <li><a href="#children">Children's Privacy</a></li>
-                    <li><a href="#changes">Changes to This Privacy Policy</a></li>
-                    <li><a href="#contact">Contact Us</a></li>
-                </ol>
+    <!-- Navigation -->
+    <nav class="main-nav" aria-label="Main navigation">
+        <div class="container">
+            <div class="nav-container">
+                <a href="/index.html" class="nav-brand">Fine Point Rehab</a>
+                <div class="nav-links">
+                    <a href="/index.html" class="nav-link">Home</a>
+                    <a href="/index.html#exercises" class="nav-link">Exercises</a>
+                    <a href="/about.html" class="nav-link">About</a>
+                    <a href="/faq.html" class="nav-link">FAQ</a>
+                    <a href="/contact.html" class="nav-link">Contact</a>
+                    <a href="/privacy-policy.html" class="nav-link active" aria-current="page">Privacy</a>
+                    <a href="/terms-of-service.html" class="nav-link">Terms</a>
+                </div>
+                <button type="button" class="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-toggle-text">🌙 Dark</span>
+                </button>
             </div>
-            
-            <div id="introduction" class="policy-section">
-                <h3>1. Introduction</h3>
-                <p>Fine Point Rehab ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our rehabilitation exercises.</p>
-                <p>We respect your privacy and are committed to protecting it through our compliance with this policy. Please read this policy carefully to understand our practices regarding your information and how we will treat it. If you do not agree with our policies and practices, your choice is not to use our website. By accessing or using our website, you agree to this privacy policy.</p>
-            </div>
-            
-            <div id="information-collected" class="policy-section">
-                <h3>2. Information We Collect</h3>
-                <p>We collect very limited information from users of our website:</p>
-                <ul>
-                    <li><strong>Personal Information:</strong> When you contact us through our website, we may collect personal information such as your name, email address, and any other information you choose to provide.</li>
-                    <li><strong>Usage Data:</strong> Information about how you interact with our website, such as which exercises you use, the settings you select, and your performance metrics (e.g., scores, completion times) is stored locally on your device using localStorage and is not transmitted to our servers.</li>
-                    <li><strong>Basic Device Information:</strong> Some standard information about your browser and device is automatically collected by our web server when you visit our site, such as your IP address, which is used to maintain the security and operation of our website.</li>
-                </ul>
-                <p>We do not collect health information or medical data. The exercises are provided as tools for general use, and any performance data is stored only on your device and not accessible to us.</p>
-            </div>
-            
-            <div id="usage" class="policy-section">
-                <h3>3. How We Use Your Information</h3>
-                <p>We use the limited information we collect for the following purposes:</p>
-                <ul>
-                    <li>To provide and maintain our website and exercises</li>
-                    <li>To respond to your inquiries if you contact us</li>
-                    <li>To protect our website from unauthorized access or activities</li>
-                    <li>To comply with any applicable legal obligations</li>
-                </ul>
-                <p>Since most of your exercise data is stored only on your device, we do not use this information for analytics, profiling, or any other purposes.</p>
-            </div>
-            
-            <div id="sharing" class="policy-section">
-                <h3>4. Information Sharing and Disclosure</h3>
-                <p>We do not sell, trade, or otherwise transfer your personal information to outside parties. The only circumstances in which we might share information are:</p>
-                <ul>
-                    <li><strong>Service Providers:</strong> We may share basic information with service providers who help us operate our website (such as website hosting providers).</li>
-                    <li><strong>Legal Requirements:</strong> We may disclose information if required to do so by law or in response to valid requests by public authorities.</li>
-                </ul>
-                <p>Since your exercise data and preferences are stored locally on your device, we do not have access to this information and therefore cannot share it with third parties.</p>
-            </div>
-            
-            <div id="local-storage" class="policy-section">
-                <h3>5. Local Storage</h3>
-                <p>Our website uses localStorage, which is a technology that stores data locally on your device rather than on our servers. We use localStorage to:</p>
-                <ul>
-                    <li>Remember your exercise settings and preferences</li>
-                    <li>Store your performance data (scores, completion times, etc.)</li>
-                    <li>Provide a personalized experience without requiring user accounts</li>
-                </ul>
-                <p>This data remains on your device and is not transmitted to our servers. It persists until you clear your browser's localStorage or use your browser's privacy settings to delete it.</p>
-                <p>Most web browsers allow you to view and delete localStorage data through their privacy or security settings. Please refer to your browser's documentation for specific instructions.</p>
-            </div>
-            
-            <div id="data-security" class="policy-section">
-                <h3>6. Data Security</h3>
-                <p>We have implemented appropriate technical measures to protect the security of the limited information we collect. However, please be aware that no method of transmission over the Internet is 100% secure.</p>
-                <p>Our security measures include:</p>
-                <ul>
-                    <li>Use of secure HTTPS protocol for our website</li>
-                    <li>Regular security assessments and updates</li>
-                </ul>
-                <p>Since most of your data is stored locally on your device, the security of this information also depends on your device's security measures.</p>
-            </div>
-            
-            <div id="user-rights" class="policy-section">
-                <h3>7. Your Rights and Choices</h3>
-                <p>You have control over your information in the following ways:</p>
-                <ul>
-                    <li><strong>Local Data:</strong> You can clear your localStorage data through your browser settings at any time.</li>
-                    <li><strong>Communication:</strong> If you have contacted us and wish to have your information deleted, you can request this by emailing us.</li>
-                </ul>
-                <p>To exercise any of these rights, please contact us using the information provided in the "Contact Us" section below.</p>
-            </div>
-            
-            <div id="children" class="policy-section">
-                <h3>8. Children's Privacy</h3>
-                <p>Our website and exercises are not directed to children under the age of 16. We do not knowingly collect personal information from children under 16. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us.</p>
-            </div>
-            
-            <div id="changes" class="policy-section">
-                <h3>9. Changes to This Privacy Policy</h3>
-                <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
-            </div>
-            
-            <div id="contact" class="policy-section">
-                <h3>10. Contact Us</h3>
-                <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:</p>
-                <p>Email: info@finepointrehab.com</p>
-                <p>We will make every effort to respond to your inquiry promptly and address your concerns.</p>
-                <div style="text-align: center;">
-                    <a href="contact.html" class="button">Contact Us</a>
+        </div>
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">Privacy Policy</h1>
+            <p class="page-subtitle">Your privacy and data protection rights</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="content-area">
+        <div class="container">
+            <article class="privacy-content">
+                <div class="content-header">
+                    <h2>Privacy Policy</h2>
+                    <p class="last-updated">Last Updated: August 12, 2025</p>
+                </div>
+                
+                <div class="content-body">
+                    <!-- Table of Contents -->
+                    <div class="toc">
+                        <h3>Table of Contents</h3>
+                        <ol>
+                            <li><a href="#introduction">Introduction</a></li>
+                            <li><a href="#data-principles">Our Data Principles</a></li>
+                            <li><a href="#information-collected">Information We Collect</a></li>
+                            <li><a href="#local-storage">Local Storage & Data Control</a></li>
+                            <li><a href="#usage">How We Use Your Information</a></li>
+                            <li><a href="#sharing">Information Sharing and Disclosure</a></li>
+                            <li><a href="#user-rights">Your Rights and Choices</a></li>
+                            <li><a href="#data-security">Data Security</a></li>
+                            <li><a href="#future-features">Future Features</a></li>
+                            <li><a href="#gdpr-compliance">GDPR Compliance</a></li>
+                            <li><a href="#children">Children's Privacy</a></li>
+                            <li><a href="#changes">Changes to This Privacy Policy</a></li>
+                            <li><a href="#contact">Contact Us</a></li>
+                        </ol>
+                    </div>
+                    
+                    <!-- Policy Sections -->
+                    <section id="introduction" class="policy-section">
+                        <h3>1. Introduction</h3>
+                        <p>Fine Point Rehab ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our rehabilitation exercises.</p>
+                        <p>We respect your privacy and are committed to protecting it through our compliance with this policy. Please read this policy carefully to understand our practices regarding your information and how we will treat it. If you do not agree with our policies and practices, your choice is not to use our website. By accessing or using our website, you agree to this privacy policy.</p>
+                        <p><strong>Privacy-First Design:</strong> Our platform is designed with privacy as a fundamental principle. Most of your data never leaves your device, giving you complete control over your rehabilitation journey.</p>
+                    </section>
+                    
+                    <section id="data-principles" class="policy-section">
+                        <h3>2. Our Data Principles</h3>
+                        <p>We believe in transparent, user-controlled data practices:</p>
+                        <ul>
+                            <li><strong>Local-First Storage:</strong> Your exercise data, progress, and preferences are stored locally on your device, not on our servers.</li>
+                            <li><strong>Data Minimization:</strong> We collect only the minimum information necessary to provide our services.</li>
+                            <li><strong>User Control:</strong> You have complete control over your data and can export, delete, or modify it at any time.</li>
+                            <li><strong>Transparency:</strong> We clearly explain what data we collect, how we use it, and who we share it with.</li>
+                            <li><strong>No Tracking:</strong> We do not track you across other websites or build advertising profiles.</li>
+                            <li><strong>Optional Enhancement:</strong> Any data sharing for service improvement is optional and clearly disclosed.</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="information-collected" class="policy-section">
+                        <h3>3. Information We Collect</h3>
+                        <p>We collect very limited information from users of our website, adhering to data minimization principles:</p>
+                        
+                        <h4>Information Stored Locally on Your Device:</h4>
+                        <ul>
+                            <li><strong>Exercise Progress:</strong> Scores, completion times, difficulty levels, and performance metrics</li>
+                            <li><strong>User Preferences:</strong> Theme settings, audio preferences, exercise configurations</li>
+                            <li><strong>Achievement Data:</strong> Unlocked achievements, streak counters, point totals</li>
+                            <li><strong>Session History:</strong> Exercise completion records and practice statistics</li>
+                        </ul>
+                        <p><em>This data is stored using browser localStorage technology and never transmitted to our servers.</em></p>
+                        
+                        <h4>Information We May Collect:</h4>
+                        <ul>
+                            <li><strong>Contact Information:</strong> When you voluntarily contact us, we may collect your name, email address, and message content.</li>
+                            <li><strong>Technical Information:</strong> Basic server logs including IP addresses (anonymized), browser type, and access times for security and performance monitoring.</li>
+                            <li><strong>Analytics Data:</strong> Anonymized usage statistics through Google Analytics (with IP anonymization enabled) to understand how users interact with our website.</li>
+                        </ul>
+                        
+                        <p><strong>What We Don't Collect:</strong></p>
+                        <ul>
+                            <li>Health information or medical data</li>
+                            <li>Personal identifying information without your explicit consent</li>
+                            <li>Location data beyond general geographic region</li>
+                            <li>Social media profiles or external account information</li>
+                            <li>Detailed behavioral tracking or advertising profiles</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="local-storage" class="policy-section">
+                        <h3>4. Local Storage & Data Control</h3>
+                        <p>Our platform uses browser localStorage technology to provide you with complete control over your rehabilitation data:</p>
+                        
+                        <h4>How Local Storage Works:</h4>
+                        <ul>
+                            <li><strong>Device-Only Storage:</strong> All your exercise data remains on your device and is never transmitted to our servers</li>
+                            <li><strong>No Account Required:</strong> You can use all features without creating an account or providing personal information</li>
+                            <li><strong>Persistent Data:</strong> Your progress persists between sessions until you choose to clear it</li>
+                            <li><strong>Browser-Specific:</strong> Data is tied to your specific browser and device combination</li>
+                        </ul>
+                        
+                        <h4>Your Data Control Options:</h4>
+                        <ul>
+                            <li><strong>Export Your Data:</strong> Download all your progress data in JSON format for backup or transfer</li>
+                            <li><strong>Import Data:</strong> Restore your progress from a previously exported file</li>
+                            <li><strong>Clear Specific Data:</strong> Reset individual exercises, achievements, or preferences</li>
+                            <li><strong>Complete Reset:</strong> Clear all stored data and start fresh</li>
+                            <li><strong>Browser Controls:</strong> Use your browser's privacy settings to manage or delete localStorage</li>
+                        </ul>
+                        
+                        <h4>Data Portability:</h4>
+                        <p>You can export your data at any time in a machine-readable format (JSON). This exported data includes:</p>
+                        <ul>
+                            <li>All exercise scores and completion data</li>
+                            <li>Achievement unlocks and progress metrics</li>
+                            <li>User preferences and settings</li>
+                            <li>Session history and statistics</li>
+                        </ul>
+                        
+                        <h4>Data Retention:</h4>
+                        <p>Since data is stored locally on your device:</p>
+                        <ul>
+                            <li>Data persists until you actively delete it</li>
+                            <li>Clearing browser data will remove your progress</li>
+                            <li>We recommend periodic data exports for backup</li>
+                            <li>No automatic data expiration or deletion by us</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="usage" class="policy-section">
+                        <h3>5. How We Use Your Information</h3>
+                        <p>We use the limited information we collect for legitimate business purposes only:</p>
+                        
+                        <h4>Server-Side Information:</h4>
+                        <ul>
+                            <li>To provide and maintain our website and exercises</li>
+                            <li>To respond to your inquiries if you contact us</li>
+                            <li>To protect our website from unauthorized access or malicious activities</li>
+                            <li>To understand overall usage patterns and improve our services</li>
+                            <li>To comply with legal obligations</li>
+                        </ul>
+                        
+                        <h4>Local Device Information:</h4>
+                        <ul>
+                            <li>To save your exercise progress and preferences</li>
+                            <li>To provide personalized difficulty adjustments</li>
+                            <li>To track achievements and motivation features</li>
+                            <li>To enable data export and import functionality</li>
+                        </ul>
+                        
+                        <p><strong>Legal Basis (GDPR):</strong> We process your information based on:</p>
+                        <ul>
+                            <li><strong>Legitimate Interest:</strong> Website operation, security, and improvement</li>
+                            <li><strong>Consent:</strong> Contact form submissions and analytics (where required)</li>
+                            <li><strong>Contract Performance:</strong> Providing the rehabilitation services you request</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="sharing" class="policy-section">
+                        <h3>6. Information Sharing and Disclosure</h3>
+                        <p>We do not sell, trade, or otherwise transfer your personal information to outside parties. Limited sharing occurs only in these specific circumstances:</p>
+                        
+                        <h4>Service Providers:</h4>
+                        <ul>
+                            <li><strong>Website Hosting:</strong> Our hosting provider processes basic server logs</li>
+                            <li><strong>Google Analytics:</strong> Anonymized usage statistics for service improvement</li>
+                            <li><strong>Email Service:</strong> If you contact us, your message is processed through our email provider</li>
+                        </ul>
+                        
+                        <h4>Legal Requirements:</h4>
+                        <ul>
+                            <li>We may disclose information if required by law</li>
+                            <li>To respond to valid legal requests by public authorities</li>
+                            <li>To protect our rights, property, or safety</li>
+                            <li>To protect the rights, property, or safety of our users</li>
+                        </ul>
+                        
+                        <p><strong>Your Exercise Data:</strong> Since your exercise data and preferences are stored locally on your device, we do not have access to this information and therefore cannot share it with third parties under any circumstances.</p>
+                    </section>
+                    
+                    <section id="user-rights" class="policy-section">
+                        <h3>7. Your Rights and Choices</h3>
+                        <p>You have comprehensive control over your information and significant rights regarding your data:</p>
+                        
+                        <h4>Rights Regarding Local Data:</h4>
+                        <ul>
+                            <li><strong>Access:</strong> View all your stored data through browser developer tools or our export feature</li>
+                            <li><strong>Rectification:</strong> Modify any stored preferences or data directly in the application</li>
+                            <li><strong>Erasure:</strong> Delete specific data points or completely reset all stored information</li>
+                            <li><strong>Portability:</strong> Export your data in JSON format for transfer to other devices or services</li>
+                            <li><strong>Restriction:</strong> Disable specific features or data collection through application settings</li>
+                        </ul>
+                        
+                        <h4>Rights Regarding Server Data:</h4>
+                        <ul>
+                            <li><strong>Access:</strong> Request a copy of any personal information we hold about you</li>
+                            <li><strong>Rectification:</strong> Correct any inaccurate personal information</li>
+                            <li><strong>Erasure:</strong> Request deletion of your personal information (right to be forgotten)</li>
+                            <li><strong>Object:</strong> Object to processing of your personal information</li>
+                            <li><strong>Withdraw Consent:</strong> Withdraw consent for analytics or communications at any time</li>
+                        </ul>
+                        
+                        <h4>How to Exercise Your Rights:</h4>
+                        <ul>
+                            <li><strong>Local Data:</strong> Use the application's data management features or browser settings</li>
+                            <li><strong>Server Data:</strong> Contact us at info@finepointrehab.com with your request</li>
+                            <li><strong>Analytics Consent:</strong> Grant or withdraw consent for Google Analytics tracking</li>
+                            <li><strong>Analytics Opt-out:</strong> Install Google Analytics opt-out browser add-on</li>
+                            <li><strong>Browser Controls:</strong> Adjust privacy settings, clear cookies, or block tracking</li>
+                        </ul>
+                        
+                        <p><strong>Response Time:</strong> We will respond to rights requests within 30 days (as required by GDPR) and provide clear information about any actions taken.</p>
+                    </section>
+                    
+                    <section id="data-security" class="policy-section">
+                        <h3>8. Data Security</h3>
+                        <p>We implement comprehensive security measures to protect your information:</p>
+                        
+                        <h4>Technical Measures:</h4>
+                        <ul>
+                            <li><strong>HTTPS Encryption:</strong> All data transmission is encrypted using TLS/SSL</li>
+                            <li><strong>Secure Headers:</strong> Implementation of security headers to prevent common attacks</li>
+                            <li><strong>Regular Updates:</strong> Timely security patches and software updates</li>
+                            <li><strong>Access Controls:</strong> Limited access to any server-side data</li>
+                        </ul>
+                        
+                        <h4>Organizational Measures:</h4>
+                        <ul>
+                            <li><strong>Privacy by Design:</strong> Security considerations built into all development processes</li>
+                            <li><strong>Data Minimization:</strong> Collecting only necessary information</li>
+                            <li><strong>Regular Assessments:</strong> Periodic security and privacy reviews</li>
+                            <li><strong>Incident Response:</strong> Procedures for handling any security incidents</li>
+                        </ul>
+                        
+                        <h4>Local Data Security:</h4>
+                        <p>Since most of your data is stored locally on your device:</p>
+                        <ul>
+                            <li>Data security depends on your device's security measures</li>
+                            <li>Use device lock screens and security features</li>
+                            <li>Regular data exports provide backup protection</li>
+                            <li>No risk of server-side data breaches for your exercise data</li>
+                        </ul>
+                        
+                        <p><strong>Breach Notification:</strong> In the unlikely event of a data breach affecting any server-side information, we will notify affected users and relevant authorities within 72 hours as required by law.</p>
+                    </section>
+                    
+                    <section id="future-features" class="policy-section">
+                        <h3>9. Future Features</h3>
+                        <p>We may introduce optional account-based features in the future. These will be designed with the same privacy-first principles:</p>
+                        
+                        <h4>Potential Future Features:</h4>
+                        <ul>
+                            <li><strong>Optional Cloud Sync:</strong> Backup your progress across devices (with explicit consent)</li>
+                            <li><strong>Therapist Dashboard:</strong> Share progress with healthcare providers (with your permission)</li>
+                            <li><strong>Community Features:</strong> Connect with other users (with privacy controls)</li>
+                            <li><strong>Advanced Analytics:</strong> Enhanced progress tracking (with opt-in consent)</li>
+                        </ul>
+                        
+                        <h4>Privacy Commitments for Future Features:</h4>
+                        <ul>
+                            <li><strong>Always Optional:</strong> Account creation and cloud features will remain optional</li>
+                            <li><strong>Local-First:</strong> Local storage will continue to be the primary option</li>
+                            <li><strong>Explicit Consent:</strong> Clear opt-in consent for any new data collection</li>
+                            <li><strong>Data Portability:</strong> Easy export and deletion of any cloud-stored data</li>
+                            <li><strong>Granular Controls:</strong> Fine-grained privacy settings for sharing and sync</li>
+                        </ul>
+                        
+                        <p>Any future features will be introduced with updated privacy notices and clear user choice. Your current local-only experience will always remain available.</p>
+                    </section>
+                    
+                    <section id="gdpr-compliance" class="policy-section">
+                        <h3>10. GDPR Compliance</h3>
+                        <p>We are committed to compliance with the General Data Protection Regulation (GDPR) and similar privacy laws:</p>
+                        
+                        <h4>Lawful Basis for Processing:</h4>
+                        <ul>
+                            <li><strong>Legitimate Interest:</strong> Website operation, security monitoring, and service improvement</li>
+                            <li><strong>Consent:</strong> Contact forms, newsletter subscriptions, and optional analytics</li>
+                            <li><strong>Contract:</strong> Providing the rehabilitation services you request</li>
+                        </ul>
+                        
+                        <h4>Data Protection Principles:</h4>
+                        <ul>
+                            <li><strong>Lawfulness, Fairness, Transparency:</strong> Clear communication about data practices</li>
+                            <li><strong>Purpose Limitation:</strong> Data used only for stated purposes</li>
+                            <li><strong>Data Minimisation:</strong> Collecting only necessary information</li>
+                            <li><strong>Accuracy:</strong> Keeping data accurate and up to date</li>
+                            <li><strong>Storage Limitation:</strong> Retaining data only as long as necessary</li>
+                            <li><strong>Security:</strong> Appropriate technical and organizational measures</li>
+                            <li><strong>Accountability:</strong> Demonstrating compliance with data protection principles</li>
+                        </ul>
+                        
+                        <h4>International Data Transfers:</h4>
+                        <p>If you access our website from outside the United States:</p>
+                        <ul>
+                            <li>Your local exercise data never leaves your device</li>
+                            <li>Any server communication is encrypted and minimal</li>
+                            <li>Google Analytics may transfer anonymized data internationally</li>
+                            <li>We rely on Google's adequate safeguards for international transfers</li>
+                        </ul>
+                        
+                        <h4>Supervisory Authority:</h4>
+                        <p>You have the right to lodge a complaint with a supervisory authority, particularly in the EU member state of your habitual residence, place of work, or place of the alleged infringement if you believe our processing of your personal data violates GDPR.</p>
+                    </section>
+                    
+                    <section id="children" class="policy-section">
+                        <h3>11. Children's Privacy</h3>
+                        <p>We take children's privacy seriously and comply with applicable children's privacy laws:</p>
+                        
+                        <h4>Age Restrictions:</h4>
+                        <ul>
+                            <li>Our website and exercises are not directed to children under the age of 16</li>
+                            <li>We do not knowingly collect personal information from children under 16</li>
+                            <li>If you are under 16, please obtain parental consent before using our services</li>
+                        </ul>
+                        
+                        <h4>Parental Rights:</h4>
+                        <p>If you are a parent or guardian and believe your child has provided us with personal information:</p>
+                        <ul>
+                            <li>Contact us immediately at info@finepointrehab.com</li>
+                            <li>We will investigate and delete any such information promptly</li>
+                            <li>You can request access to any information we may hold about your child</li>
+                            <li>Local device data can be managed through browser settings</li>
+                        </ul>
+                        
+                        <h4>Safe Design:</h4>
+                        <ul>
+                            <li>No social features or communication capabilities</li>
+                            <li>No collection of location or contact information</li>
+                            <li>Local storage ensures no data sharing</li>
+                            <li>Educational and therapeutic focus without entertainment tracking</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="changes" class="policy-section">
+                        <h3>12. Changes to This Privacy Policy</h3>
+                        <p>We may update our Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors:</p>
+                        
+                        <h4>How We Handle Changes:</h4>
+                        <ul>
+                            <li><strong>Material Changes:</strong> We will provide prominent notice for significant changes that affect your rights</li>
+                            <li><strong>Notice Period:</strong> We will provide at least 30 days' notice for material changes</li>
+                            <li><strong>Continued Use:</strong> Continued use of our services after changes constitutes acceptance</li>
+                            <li><strong>Version Control:</strong> We maintain version history and clearly mark update dates</li>
+                        </ul>
+                        
+                        <h4>Notification Methods:</h4>
+                        <ul>
+                            <li>Updated "Last Updated" date on this page</li>
+                            <li>Prominent notice on our website for material changes</li>
+                            <li>Email notification if you have provided contact information</li>
+                            <li>In-application notification for significant policy changes</li>
+                        </ul>
+                        
+                        <p><strong>Your Options:</strong> If you disagree with any changes, you may stop using our services and delete any locally stored data. For material changes that expand data collection, we may seek additional consent.</p>
+                    </section>
+                    
+                    <section id="contact" class="policy-section">
+                        <h3>13. Contact Us</h3>
+                        <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, we encourage you to contact us:</p>
+                        
+                        <h4>Contact Information:</h4>
+                        <ul>
+                            <li><strong>Email:</strong> info@finepointrehab.com</li>
+                            <li><strong>Subject Line:</strong> Include "Privacy Policy" for faster response</li>
+                            <li><strong>Response Time:</strong> We aim to respond within 48 hours for general inquiries</li>
+                            <li><strong>Rights Requests:</strong> GDPR and privacy rights requests will be handled within 30 days</li>
+                        </ul>
+                        
+                        <h4>What to Include in Your Message:</h4>
+                        <ul>
+                            <li>Clear description of your question or request</li>
+                            <li>Specific section of this policy you're asking about</li>
+                            <li>Your preferred method and timeline for response</li>
+                            <li>Any relevant details that help us assist you</li>
+                        </ul>
+                        
+                        <h4>Data Protection Officer:</h4>
+                        <p>For complex privacy matters or formal complaints, you may request to speak with our data protection officer by including "DPO Request" in your email subject line.</p>
+                        
+                        <div class="contact-section">
+                            <h4>Need to Get in Touch?</h4>
+                            <p>Our team is here to help with any privacy questions, concerns, or rights requests. We're committed to transparent communication and prompt resolution of privacy matters.</p>
+                            <a href="/contact.html" class="btn btn-primary">Contact Us</a>
+                        </div>
+                    </section>
+                </div>
+            </article>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">Fine Point Rehab</div>
+                
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook (Coming Soon)" aria-disabled="true" tabindex="-1"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter (Coming Soon)" aria-disabled="true" tabindex="-1"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram (Coming Soon)" aria-disabled="true" tabindex="-1"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn (Coming Soon)" aria-disabled="true" tabindex="-1"><i class="fab fa-linkedin"></i></a>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="/about.html">About Us</a>
+                    <a href="/contact.html">Contact</a>
+                    <a href="/faq.html">FAQ</a>
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="/terms-of-service.html">Terms of Service</a>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2025 Fine Point Rehab. All rights reserved.</p>
                 </div>
             </div>
-            
-            <div class="policy-date">
-                <p>Last Updated: May 18, 2025</p>
-            </div>
         </div>
-    </div>
-    
-    <footer>
-        <div class="footer-logo">Fine Point Rehab</div>
-        <div class="social-links">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-        </div>
-        <div class="footer-links">
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact</a>
-            <a href="faq.html">FAQ</a>
-            <a href="privacy-policy.html">Privacy Policy</a>
-            <a href="terms-of-service.html">Terms of Service</a>
-        </div>
-        <p>&copy; 2025 Fine Point Rehab. All rights reserved.</p>
     </footer>
     
-    <!-- Font Awesome for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <!-- Essential JavaScript -->
+    <script src="/js/utils.js"></script>
     
     <script>
-        // Create stars for background effect
-        const starsContainer = document.getElementById('stars-container');
-        const starsCount = 100;
+        // Theme management with accessibility improvements
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('FPR_v1_theme', theme);
+            
+            const button = document.querySelector('.theme-toggle');
+            const label = document.querySelector('.theme-toggle-text');
+            
+            if (button) {
+                button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+            }
+            if (label) {
+                label.textContent = theme === 'light' ? '🌙 Dark' : '☀️ Light';
+            }
+        }
         
-        for (let i = 0; i < starsCount; i++) {
-            const star = document.createElement('div');
-            star.classList.add('star');
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        }
+        
+        // Initialize theme on load
+        function initTheme() {
+            const savedTheme = localStorage.getItem('FPR_v1_theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = savedTheme || systemTheme;
+            applyTheme(theme);
+        }
+        
+        // Smooth scrolling for anchor links with accessibility improvements
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (!href || href === '#') return;
+                
+                const target = document.querySelector(href);
+                if (!target) return;
+                
+                e.preventDefault();
+                
+                // Respect reduced motion preference
+                const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                target.scrollIntoView({
+                    behavior: prefersReduced ? 'auto' : 'smooth',
+                    block: 'start'
+                });
+                
+                // Make target focusable and focus it
+                if (!target.hasAttribute('tabindex')) {
+                    target.setAttribute('tabindex', '-1');
+                    // Clean up tabindex on blur to keep DOM clean
+                    target.addEventListener('blur', function() {
+                        this.removeAttribute('tabindex');
+                    }, { once: true });
+                }
+                target.focus({ preventScroll: true });
+            });
+        });
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('FPR_v1_theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+        
+        // Initialize theme and attach event listeners on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
             
-            // Random position
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            
-            // Random size
-            const size = Math.random() * 2 + 0.5;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            
-            // Random opacity
-            star.style.opacity = Math.random() * 0.7 + 0.1;
-            
-            starsContainer.appendChild(star);
+            // Attach theme toggle listener (CSP-friendly)
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+        });
+        
+        // Service Worker Registration (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js', {
+                        scope: '/',
+                        type: 'classic'
+                    });
+                    console.log('SW registered:', registration);
+                } catch (error) {
+                    console.log('SW registration failed:', error);
+                }
+            });
         }
     </script>
 </body>

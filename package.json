@@ -1,0 +1,80 @@
+{
+  "name": "finepointrehab",
+  "version": "1.0.0",
+  "description": "FinePointRehab - Gamified Fine Motor Skills Rehabilitation Platform",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Build process - copying files and optimizing'",
+    "start": "npm run dev"
+  },
+  "keywords": [
+    "rehabilitation",
+    "motor-skills",
+    "gamification",
+    "progressive-web-app",
+    "accessibility"
+  ],
+  "author": "FinePointRehab Team",
+  "license": "MIT",
+  "jest": {
+    "testEnvironment": "jsdom",
+    "globals": {
+      "__DEV__": true
+    },
+    "transform": {
+      "^.+\\.[jt]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(module-that-needs-to-be-transformed)/)"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/jest/setup.js"
+    ],
+    "testMatch": [
+      "<rootDir>/tests/jest/**/*.test.js",
+      "<rootDir>/tests/jest/**/*.spec.js"
+    ],
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/vendor/**",
+      "!**/node_modules/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "<rootDir>"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finepointrehab/platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/finepointrehab/platform/issues"
+  },
+  "homepage": "https://finepointrehab.github.io/platform"
+}

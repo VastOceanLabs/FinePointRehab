@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finger Isolation Exercise | Cognitive-Motor Training | Fine Point Rehab</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive finger isolation exercise that combines cognitive processing with fine motor skills. Improve finger independence, reaction time, and hand-eye coordination. Ideal for stroke rehabilitation, brain injury recovery, and fine motor skills therapy.">
+    <meta name="keywords" content="finger isolation, motor rehabilitation, dexterity training, finger independence, hand therapy, stroke rehabilitation, brain injury therapy, fine motor skills, hand coordination, cognitive-motor task">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Finger Isolation Exercise | Cognitive-Motor Training | Fine Point Rehab">
+    <meta property="og:description" content="Interactive finger isolation exercise combining cognitive processing with fine motor skills. Improve finger independence, reaction time, and hand-eye coordination.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finepointrehab.com/finger-isolation-exercise">
+    <meta property="og:image" content="https://finepointrehab.com/images/finger-isolation-preview.jpg">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #121d33;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #fingers-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1c2a4e;
+            border: 2px solid rgba(111, 211, 245, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            z-index: 10;
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            height: 400px;
+        }
+        
+        #suns-container {
+            position: relative; /* absolutely positioned suns will be offset from here */
+            width: 100%;
+            height: 100%; /* room for the arc */
+        }
+        
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at center, #FFE87C 10%, #FFA500 60%, #FF5722 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.8);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center center;
+        }
+        
+        .sun::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle at center, rgba(255, 232, 124, 0.3) 0%, rgba(255, 165, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .sun-rays {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            z-index: -1;
+        }
+        
+        .sun-ray {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 30px;
+            background: rgba(255, 232, 124, 0.6);
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+        
+        .finger-label {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #FFFFFF;
+            text-shadow: 0 0 8px #121d33;
+            width: 100%;
+            background: rgba(8, 15, 35, 0.5);
+            padding: 5px 0;
+            border-radius: 8px;
+        }
+        
+        .sun.active {
+            animation: sunExpand 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(255, 165, 0, 0.9);
+            z-index: 2;
+        }
+        
+        .sun.active .sun-rays {
+            animation: raysPulse 2s ease-in-out infinite;
+        }
+        
+        .sun.active::before {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes sunExpand {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes raysPulse {
+            0% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(1); }
+        }
+        
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.3); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+        
+        #challenge-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: rgba(8, 15, 35, 0.85);
+            border: 2px solid rgba(111, 211, 245, 0.5);
+            border-radius: 15px;
+            z-index: 20;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            max-width: 80%;
+        }
+        
+        #timer-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            background-color: rgba(111, 211, 245, 0.9);
+            width: 100%;
+            z-index: 20;
+        }
+        
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #settings-panel h2 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        #home-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #home-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #help-button {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #help-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            background-color: rgba(0, 10, 30, 0.8);
+            color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+        }
+        
+        button {
+            background-color: rgba(111, 211, 245, 0.9);
+            color: #121d33;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #stats-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(8, 15, 35, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        #completion-message h2 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        #completion-scores {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .score-highlight {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        #feedback-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        #feedback-message.show {
+            opacity: 1;
+        }
+
+        #feedback-message.correct {
+            background-color: rgba(46, 204, 113, 0.9);
+            color: white;
+        }
+
+        #feedback-message.incorrect {
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+        
+        /* Hand guide overlay - REMOVED */
+
+        
+        @media (max-width: 768px) {
+            .sun {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .finger-label {
+                font-size: 14px;
+                bottom: -36px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            #challenge-display {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .sun {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .finger-label {
+                font-size: 12px;
+                bottom: -32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="timer-bar"></div>
+        
+        <div id="challenge-display" class="hidden">Tap the glowing sun as quickly as you can!</div>
+        <div id="feedback-message"></div>
+        
+        <div id="fingers-area">
+            <div id="suns-container">
+                <!-- Suns will be created dynamically -->
+            </div>
+        </div>
+        
+        <button id="help-button">?</button>
+        <button id="home-button">Home</button>
+        
+        <div id="settings-panel">
+            <h2>Finger Isolation Exercise</h2>
+            <div class="settings-group">
+                <label class="settings-label">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (Slow)</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard (Fast)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Hand Selection:</label>
+                <select id="hand-selection">
+                    <option value="right" selected>Right Hand</option>
+                    <option value="left">Left Hand</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Session Duration (minutes):</label>
+                <input type="number" id="session-duration" min="1" max="10" value="3">
+            </div>
+            
+            <button id="start-session">Start Therapy Session</button>
+        </div>
+        
+        <div id="stats-panel" class="hidden">
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="taps-count" class="stat-value">0</div>
+                <div class="stat-label">Taps</div>
+            </div>
+            <div class="stat-box">
+                <div id="time-left" class="stat-value">3:00</div>
+                <div class="stat-label">Time Left</div>
+            </div>
+            <div class="stat-box">
+                <div id="reaction-time" class="stat-value">0.0s</div>
+                <div class="stat-label">Avg. Speed</div>
+            </div>
+        </div>
+        
+        <div id="completion-message" class="hidden">
+            <h2>Session Complete!</h2>
+            <div id="completion-scores">
+                <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
+                <p>Total Successful Taps: <span id="final-taps" class="score-highlight">0</span></p>
+                <p>Average Reaction Time: <span id="final-reaction" class="score-highlight">0.0s</span></p>
+            </div>
+            <button id="restart-button">Start New Session</button>
+        </div>
+        
+<!-- Hand guide element removed as requested -->
+    </div>
+    
+    <script>
+        // Game elements
+        const gameContainer = document.getElementById('game-container');
+        const fingersArea = document.getElementById('fingers-area');
+        const sunsContainer = document.getElementById('suns-container');
+        const timerBar = document.getElementById('timer-bar');
+        const settingsPanel = document.getElementById('settings-panel');
+        const statsPanel = document.getElementById('stats-panel');
+        const completionMessage = document.getElementById('completion-message');
+        const starsContainer = document.getElementById('stars-container');
+        const challengeDisplay = document.getElementById('challenge-display');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const helpButton = document.getElementById('help-button');
+        const handGuide = document.getElementById('hand-guide');
+        
+        // Create stars for background effect
+        const starsCount = 50;
+        
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.opacity = Math.random() * 0.4 + 0.1;
+            starsContainer.appendChild(star);
+        }
+        
+        // Settings elements
+        const difficultySelect = document.getElementById('difficulty');
+        const handSelectionSelect = document.getElementById('hand-selection');
+        const sessionDurationInput = document.getElementById('session-duration');
+        const startSessionButton = document.getElementById('start-session');
+        const restartButton = document.getElementById('restart-button');
+        
+        // Stats elements
+        const scoreElement = document.getElementById('score');
+        const tapsCountElement = document.getElementById('taps-count');
+        const timeLeftElement = document.getElementById('time-left');
+        const reactionTimeElement = document.getElementById('reaction-time');
+        
+        // Completion elements
+        const finalScoreElement = document.getElementById('final-score');
+        const finalTapsElement = document.getElementById('final-taps');
+        const finalReactionElement = document.getElementById('final-reaction');
+        
+        // Game state variables
+        let isSessionActive = false;
+        let sessionDuration = 3 * 60 * 1000;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let score = 0;
+        let tapsCount = 0;
+        let totalReactionTime = 0;
+        let currentActiveSun = null;
+        let activationTime = 0;
+        let sunActivationInterval = null;
+        let sunFingers = [];
+        let activationDelay = 3000; // Default delay between activations in ms
+        let nextActivationTimeout = null;
+        
+        // Finger data
+        const fingerData = {
+            thumb: { label: 'Thumb', position: 0 },
+            index: { label: 'Index', position: 1 },
+            middle: { label: 'Middle', position: 2 },
+            ring: { label: 'Ring', position: 3 },
+            little: { label: 'Little', position: 4 }
+        };
+        
+        // Help button functionality
+        helpButton.addEventListener('click', function() {
+            if (!isSessionActive) return;
+            
+            // Show instructions as a dialog or alert
+            alert("Finger Isolation Exercise Instructions:\n\n" +
+                  "1. Position your " + handSelectionSelect.value + " hand above the suns\n" +
+                  "2. When a sun glows and expands, tap it with the corresponding finger\n" +
+                  "3. Try to react as quickly as possible\n" +
+                  "4. Continue until the timer runs out");
+        });
+        
+        // Home button functionality
+        document.getElementById('home-button').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+        
+        // Start new session
+        startSessionButton.addEventListener('click', startSession);
+        restartButton.addEventListener('click', () => {
+            completionMessage.classList.add('hidden');
+            settingsPanel.classList.remove('hidden');
+        });
+        
+        function startSession() {
+            // Get settings
+            const difficulty = difficultySelect.value;
+            sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
+            const handSelection = handSelectionSelect.value;
+            
+            // Set activation delay based on difficulty
+            switch (difficulty) {
+                case 'easy': activationDelay = 4000; break;
+                case 'medium': activationDelay = 3000; break;
+                case 'hard': activationDelay = 2000; break;
+                default: activationDelay = 3000;
+            }
+            
+            // Focus mode removed as requested
+            
+            // Reset game state
+            score = 0;
+            tapsCount = 0;
+            totalReactionTime = 0;
+            timeRemaining = sessionDuration;
+            
+            // Clear any existing suns
+            sunsContainer.innerHTML = '';
+            sunFingers = [];
+            
+            // Create suns based on hand selection
+            const fingerOrder = (handSelection === 'left') 
+                ? ['little', 'ring', 'middle', 'index', 'thumb'] 
+                : ['thumb', 'index', 'middle', 'ring', 'little'];
+            
+            createSuns(fingerOrder);
+            
+            // Set up area size based on window size
+            const areaWidth = Math.min(800, window.innerWidth * 0.9);
+            const areaHeight = Math.min(600, window.innerHeight * 0.8);
+            fingersArea.style.width = `${areaWidth}px`;
+            fingersArea.style.height = `${areaHeight}px`;
+            
+            // Hide settings, show stats and challenge
+            settingsPanel.classList.add('hidden');
+            statsPanel.classList.remove('hidden');
+            challengeDisplay.classList.remove('hidden');
+            helpButton.classList.remove('hidden');
+            
+            // Update stats
+            updateStats();
+            updateTimer();
+            
+            // Start session
+            isSessionActive = true;
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                timeRemaining -= 100;
+                
+                // Update timer bar
+                const progress = timeRemaining / sessionDuration;
+                timerBar.style.width = `${progress * 100}%`;
+                
+                // Update time display
+                updateTimer();
+                
+                // Check if session is over
+                if (timeRemaining <= 0) {
+                    endSession();
+                }
+            }, 100);
+            
+            // Start sun activation cycle
+            scheduleSunActivation();
+        }
+        
+        // Helper function to get current sun size based on screen width
+        function getSunSize() {
+            if (window.innerWidth <= 480) return 50;
+            if (window.innerWidth <= 768) return 60;
+            return 80;
+        }
+        
+        function createSuns(fingerOrder) {
+            // Clear existing suns
+            sunsContainer.innerHTML = '';
+            sunFingers = [];
+            
+            // Get container dimensions
+            const containerRect = sunsContainer.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+            
+            // Get current sun size
+            const sunSize = getSunSize();
+            
+            // Simple horizontal arc parameters
+            const numSuns = fingerOrder.length;
+            const totalSpacing = containerWidth * 0.8; // Use 80% of container width
+            const startX = containerWidth * 0.1; // Start at 10% from left
+            const spacing = totalSpacing / (numSuns - 1); // Space between sun centers
+            const centerY = containerHeight / 2; // Vertical center
+            const arcHeight = 40; // Small arc height for gentle curve
+            
+            // Create the suns with finger labels
+            fingerOrder.forEach((fingerKey, index) => {
+                const finger = fingerData[fingerKey];
+                
+                // Create sun element
+                const sun = document.createElement('div');
+                sun.className = 'sun';
+                sun.dataset.finger = fingerKey;
+                
+                // Create sun rays
+                const sunRays = document.createElement('div');
+                sunRays.className = 'sun-rays';
+                
+                // Create 12 rays around the sun
+                for (let i = 0; i < 12; i++) {
+                    const ray = document.createElement('div');
+                    ray.className = 'sun-ray';
+                    ray.style.transform = `rotate(${i * 30}deg) translate(0, -20px)`;
+                    sunRays.appendChild(ray);
+                }
+                
+                sun.appendChild(sunRays);
+                
+                // Create finger label
+                const label = document.createElement('div');
+                label.className = 'finger-label';
+                label.textContent = finger.label;
+                sun.appendChild(label);
+                
+                // Calculate horizontal position
+                const x = startX + (index * spacing);
+                
+                // Create gentle upward arc using parabola
+                const progress = (index - (numSuns - 1) / 2) / ((numSuns - 1) / 2); // -1 to 1
+                const y = centerY - (arcHeight * (1 - progress * progress)); // Parabolic arc (middle fingers higher)
+                
+                // Position the sun
+                sun.style.left = `${x - sunSize / 2}px`;
+                sun.style.top = `${y - sunSize / 2}px`;
+                
+                // Add event listener
+                sun.addEventListener('mousedown', handleSunTap);
+                sun.addEventListener('touchstart', handleSunTap, { passive: true });
+                
+                sunsContainer.appendChild(sun);
+                sunFingers.push(sun);
+            });
+        }
+        
+        function scheduleSunActivation() {
+            // Clear any existing timeout
+            if (nextActivationTimeout) {
+                clearTimeout(nextActivationTimeout);
+            }
+            
+            // Schedule next activation
+            nextActivationTimeout = setTimeout(() => {
+                activateRandomSun();
+            }, 1500); // Initial delay before first activation
+        }
+        
+        function activateRandomSun() {
+            // Deactivate current sun if any
+            if (currentActiveSun) {
+                deactivateSun(currentActiveSun);
+            }
+            
+            // Select a random sun
+            const randomSun = sunFingers[Math.floor(Math.random() * sunFingers.length)];
+            
+            // Activate the sun
+            currentActiveSun = randomSun;
+            randomSun.classList.add('active');
+            activationTime = Date.now();
+            
+            // Set timeout to deactivate if not tapped (penalty)
+            sunActivationInterval = setTimeout(() => {
+                if (currentActiveSun) {
+                    // Penalty for missing the sun
+                    showFeedbackMessage("Too slow! Try again", "incorrect");
+                    
+                    deactivateSun(currentActiveSun);
+                    
+                    // Schedule next activation
+                    nextActivationTimeout = setTimeout(() => {
+                        activateRandomSun();
+                    }, 1000);
+                }
+            }, 5000); // Sun stays active for max 5 seconds
+        }
+        
+        function deactivateSun(sun) {
+            sun.classList.remove('active');
+            currentActiveSun = null;
+            clearTimeout(sunActivationInterval);
+        }
+        
+        function handleSunTap(e) {
+            if (!isSessionActive) return;
+            
+            const sun = this;
+            
+            // Check if this is the active sun
+            if (sun === currentActiveSun) {
+                // Calculate reaction time
+                const reactionTime = (Date.now() - activationTime) / 1000;
+                
+                // Update stats
+                tapsCount++;
+                totalReactionTime += reactionTime;
+                
+                // Award points based on reaction time
+                let points = 0;
+                if (reactionTime < 0.5) {
+                    points = 100;
+                    showFeedbackMessage("Perfect! Super fast!", "correct");
+                } else if (reactionTime < 1) {
+                    points = 75;
+                    showFeedbackMessage("Great! Very quick!", "correct");
+                } else if (reactionTime < 1.5) {
+                    points = 50;
+                    showFeedbackMessage("Good job!", "correct");
+                } else {
+                    points = 25;
+                    showFeedbackMessage("Nice tap!", "correct");
+                }
+                
+                score += points;
+                
+                // Deactivate the sun
+                deactivateSun(sun);
+                
+                // Update stats display
+                updateStats();
+                
+                // Schedule next activation
+                nextActivationTimeout = setTimeout(() => {
+                    activateRandomSun();
+                }, activationDelay * Math.random() + 500); // Random delay for unpredictability
+            } else if (currentActiveSun) {
+                // Wrong sun tapped while another is active
+                showFeedbackMessage("Wrong finger! Try again", "incorrect");
+            }
+        }
+        
+        function showFeedbackMessage(message, type) {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = ''; // Clear classes
+            feedbackMessage.classList.add(type);
+            feedbackMessage.classList.add('show');
+            
+            // Hide after delay
+            setTimeout(() => {
+                feedbackMessage.classList.remove('show');
+            }, 1500);
+        }
+        
+        function updateStats() {
+            scoreElement.textContent = score;
+            tapsCountElement.textContent = tapsCount;
+            
+            // Calculate and display average reaction time
+            const avgReaction = tapsCount > 0 ? (totalReactionTime / tapsCount).toFixed(2) : "0.00";
+            reactionTimeElement.textContent = `${avgReaction}s`;
+        }
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60000);
+            const seconds = Math.floor((timeRemaining % 60000) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function endSession() {
+            clearInterval(timerInterval);
+            isSessionActive = false;
+            
+            // Clear any active sun or scheduled activations
+            if (currentActiveSun) {
+                deactivateSun(currentActiveSun);
+            }
+            
+            if (nextActivationTimeout) {
+                clearTimeout(nextActivationTimeout);
+            }
+            
+            // Hide game elements
+            challengeDisplay.classList.add('hidden');
+            statsPanel.classList.add('hidden');
+            helpButton.classList.add('hidden');
+            
+            // Show completion message
+            finalScoreElement.textContent = score;
+            finalTapsElement.textContent = tapsCount;
+            
+            const avgReaction = tapsCount > 0 ? (totalReactionTime / tapsCount).toFixed(2) : "0.00";
+            finalReactionElement.textContent = `${avgReaction}s`;
+            
+            completionMessage.classList.remove('hidden');
+            
+            // Reset timer bar
+            timerBar.style.width = '0%';
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Function to reposition suns (useful for resize)
+        function repositionSuns() {
+            if (sunFingers.length === 0) return;
+            
+            const containerRect = sunsContainer.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+            const sunSize = getSunSize();
+            
+            // Simple horizontal arc parameters
+            const numSuns = sunFingers.length;
+            const totalSpacing = containerWidth * 0.8; // Use 80% of container width
+            const startX = containerWidth * 0.1; // Start at 10% from left
+            const spacing = totalSpacing / (numSuns - 1); // Space between sun centers
+            const centerY = containerHeight / 2; // Vertical center
+            const arcHeight = 40; // Small arc height for gentle curve
+            
+            sunFingers.forEach((sun, index) => {
+                // Calculate horizontal position
+                const x = startX + (index * spacing);
+                
+                // Create gentle upward arc using parabola
+                const progress = (index - (numSuns - 1) / 2) / ((numSuns - 1) / 2); // -1 to 1
+                const y = centerY - (arcHeight * (1 - progress * progress)); // Parabolic arc (middle fingers higher)
+                
+                sun.style.left = `${x - sunSize / 2}px`;
+                sun.style.top = `${y - sunSize / 2}px`;
+            });
+        }
+        
+        // Resize handler to adjust area size and reposition suns
+        window.addEventListener('resize', function() {
+            if (isSessionActive) {
+                const areaWidth = Math.min(800, window.innerWidth * 0.9);
+                const areaHeight = Math.min(600, window.innerHeight * 0.8);
+                fingersArea.style.width = `${areaWidth}px`;
+                fingersArea.style.height = `${areaHeight}px`;
+                
+                // Reposition suns based on new container size
+                repositionSuns();
+            }
+        });
+        
+        // Load/save settings with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings if they exist (with error handling)
+            try {
+                if (localStorage.getItem('fingerDifficulty')) {
+                    difficultySelect.value = localStorage.getItem('fingerDifficulty');
+                }
+                
+                if (localStorage.getItem('fingerHandSelection')) {
+                    handSelectionSelect.value = localStorage.getItem('fingerHandSelection');
+                }
+                
+                if (localStorage.getItem('fingerDuration')) {
+                    sessionDurationInput.value = localStorage.getItem('fingerDuration');
+                }
+            } catch (e) {
+                // localStorage not available, use default settings
+                console.log('localStorage not available, using default settings');
+            }
+            
+            // Save settings when they change
+            difficultySelect.addEventListener('change', saveSettings);
+            handSelectionSelect.addEventListener('change', saveSettings);
+            sessionDurationInput.addEventListener('change', saveSettings);
+        });
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            try {
+                localStorage.setItem('fingerDifficulty', difficultySelect.value);
+                localStorage.setItem('fingerHandSelection', handSelectionSelect.value);
+                localStorage.setItem('fingerDuration', sessionDurationInput.value);
+            } catch (e) {
+                // localStorage not available, settings won't persist
+                console.log('localStorage not available, settings will not persist');
+            }
+        }
+    </script>
+</body>
+</html>
