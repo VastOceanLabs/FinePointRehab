@@ -60,6 +60,18 @@
             --radius: 8px;
             --radius-lg: 12px;
             
+            /* Category colors */
+            --cat-motor: #10b981;
+            --cat-motor-bg: #d1fae5;
+            --cat-tracking: #8b5cf6;
+            --cat-tracking-bg: #ede9fe;
+            --cat-cognitive: #f59e0b;
+            --cat-cognitive-bg: #fef3c7;
+            --cat-coordination: #ec4899;
+            --cat-coordination-bg: #fce7f3;
+            --cat-visual: #06b6d4;
+            --cat-visual-bg: #cffafe;
+            
             /* Typography */
             --font-size-sm: 0.875rem;
             --font-size-base: 1rem;
@@ -88,12 +100,18 @@
         [data-theme="dark"] {
             --bg-primary: #1e293b;
             --bg-secondary: #334155;
-            --bg-card: #475569;
+            --bg-card: #1e293b;
             --text-primary: #f9fafb;
             --text-secondary: #cbd5e1;
             --text-muted: #94a3b8;
             --border: #475569;
             --border-light: #64748b;
+            
+            --cat-motor-bg: #064e3b;
+            --cat-tracking-bg: #4c1d95;
+            --cat-cognitive-bg: #78350f;
+            --cat-coordination-bg: #831843;
+            --cat-visual-bg: #164e63;
         }
 
         /* Base styles - Mobile-first */
@@ -151,6 +169,10 @@
             display: flex;
             align-items: center;
             padding: var(--space-2) 0;
+        }
+        
+        [data-theme="dark"] header {
+            background: rgba(30, 41, 59, 0.95);
         }
         
         .header-content {
@@ -247,86 +269,138 @@
             background: var(--brand-blue);
             color: white;
         }
-        
-        .btn-outline {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-outline:hover {
-            background: var(--bg-secondary);
-            border-color: var(--brand-blue);
-        }
-        
+
         /* Hero Section */
         .hero {
-            padding: var(--space-16) 0;
+            padding: var(--space-12) 0 var(--space-16);
             text-align: center;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(72, 202, 228, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
         }
         
         .hero h1 {
             font-size: var(--font-size-4xl);
-            margin-bottom: var(--space-6);
+            margin-bottom: var(--space-4);
             color: var(--text-primary);
         }
         
-        .hero p {
+        .hero-subtitle {
             font-size: var(--font-size-lg);
             color: var(--text-secondary);
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto var(--space-8);
         }
-        
-        /* Exercise Grid */
-        .exercise-grid {
+
+        /* Featured Exercises - Hero Tiles */
+        .featured-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-4);
-            margin-bottom: var(--space-8);
-        }
-        
-        .exercise-quick-access {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--space-3);
-            margin-bottom: var(--space-6);
+            max-width: 900px;
+            margin: 0 auto var(--space-6);
         }
         
-        /* Cards */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+        .featured-tile {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
             border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: white;
             overflow: hidden;
-            box-shadow: var(--shadow);
+            min-height: 120px;
             transition: all 0.3s ease;
         }
         
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--brand-blue);
+        .featured-tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
-        .card-content {
-            padding: var(--space-6);
+        .featured-tile:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
         }
         
-        .card-title {
-            font-size: var(--font-size-xl);
+        .featured-tile:hover::before {
+            opacity: 1;
+        }
+        
+        .featured-tile.bubble {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .featured-tile.bubble::before {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
+        }
+        
+        .featured-tile.comet {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+        .featured-tile.comet::before {
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+        }
+        
+        .featured-tile.trace {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .featured-tile.trace::before {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 50%, transparent);
+        }
+        
+        .featured-tile.rhythm {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .featured-tile.rhythm::before {
+            background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px);
+        }
+        
+        .featured-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-2);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .featured-tile h3 {
+            font-size: var(--font-size-base);
             font-weight: 600;
-            margin-bottom: var(--space-3);
-            color: var(--text-primary);
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
-        .card-description {
-            color: var(--text-secondary);
-            margin-bottom: var(--space-6);
-            line-height: var(--line-height-relaxed);
+        .featured-tile .play-hint {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+            margin-top: var(--space-1);
         }
-        
+
         /* Sections */
         section {
             padding: var(--space-16) 0;
@@ -335,12 +409,12 @@
         
         .section-header {
             text-align: center;
-            margin-bottom: var(--space-12);
+            margin-bottom: var(--space-8);
         }
         
         .section-title {
             font-size: var(--font-size-3xl);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-3);
         }
         
         .section-subtitle {
@@ -348,6 +422,285 @@
             color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
+        }
+
+        /* Category Filter Pills */
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-8);
+        }
+        
+        .filter-pill {
+            padding: var(--space-2) var(--space-4);
+            border-radius: 100px;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-pill:hover,
+        .filter-pill.active {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .filter-pill[data-category="motor"] { --pill-color: var(--cat-motor); }
+        .filter-pill[data-category="tracking"] { --pill-color: var(--cat-tracking); }
+        .filter-pill[data-category="cognitive"] { --pill-color: var(--cat-cognitive); }
+        .filter-pill[data-category="coordination"] { --pill-color: var(--cat-coordination); }
+        .filter-pill[data-category="visual"] { --pill-color: var(--cat-visual); }
+        
+        .filter-pill[data-category]:hover,
+        .filter-pill[data-category].active {
+            border-color: var(--pill-color);
+            color: var(--pill-color);
+            background: color-mix(in srgb, var(--pill-color) 10%, transparent);
+        }
+
+        /* Exercise Grid - Tiles */
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-4);
+        }
+        
+        /* Exercise Tile Card */
+        .exercise-tile {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .exercise-tile:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--brand-blue);
+        }
+        
+        .tile-preview {
+            position: relative;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Category-specific preview backgrounds */
+        .exercise-tile[data-category="motor"] .tile-preview {
+            background: linear-gradient(135deg, var(--cat-motor-bg) 0%, color-mix(in srgb, var(--cat-motor) 20%, var(--bg-card)) 100%);
+        }
+        .exercise-tile[data-category="tracking"] .tile-preview {
+            background: linear-gradient(135deg, var(--cat-tracking-bg) 0%, color-mix(in srgb, var(--cat-tracking) 20%, var(--bg-card)) 100%);
+        }
+        .exercise-tile[data-category="cognitive"] .tile-preview {
+            background: linear-gradient(135deg, var(--cat-cognitive-bg) 0%, color-mix(in srgb, var(--cat-cognitive) 20%, var(--bg-card)) 100%);
+        }
+        .exercise-tile[data-category="coordination"] .tile-preview {
+            background: linear-gradient(135deg, var(--cat-coordination-bg) 0%, color-mix(in srgb, var(--cat-coordination) 20%, var(--bg-card)) 100%);
+        }
+        .exercise-tile[data-category="visual"] .tile-preview {
+            background: linear-gradient(135deg, var(--cat-visual-bg) 0%, color-mix(in srgb, var(--cat-visual) 20%, var(--bg-card)) 100%);
+        }
+        
+        .tile-icon {
+            font-size: 3.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .exercise-tile:hover .tile-icon {
+            transform: scale(1.15);
+        }
+        
+        /* Animated preview elements */
+        .preview-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .exercise-tile:hover .preview-animation {
+            opacity: 1;
+        }
+        
+        /* Bubble animation */
+        .bubble-anim .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: float-bubble 3s ease-in-out infinite;
+        }
+        .bubble-anim .bubble:nth-child(1) { width: 20px; height: 20px; left: 20%; top: 60%; animation-delay: 0s; }
+        .bubble-anim .bubble:nth-child(2) { width: 15px; height: 15px; left: 70%; top: 70%; animation-delay: 0.5s; }
+        .bubble-anim .bubble:nth-child(3) { width: 25px; height: 25px; left: 50%; top: 80%; animation-delay: 1s; }
+        
+        @keyframes float-bubble {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+        }
+        
+        /* Comet animation */
+        .comet-anim .comet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.8), -20px 0 20px rgba(139, 92, 246, 0.4);
+            animation: fly-comet 2s linear infinite;
+        }
+        
+        @keyframes fly-comet {
+            0% { left: -10%; top: 80%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 110%; top: 20%; opacity: 0; }
+        }
+        
+        /* Play button overlay */
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .exercise-tile:hover .play-overlay {
+            opacity: 1;
+        }
+        
+        .play-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .exercise-tile:hover .play-button {
+            transform: scale(1);
+        }
+        
+        .play-button svg {
+            width: 24px;
+            height: 24px;
+            margin-left: 3px;
+            fill: var(--brand-blue);
+        }
+        
+        /* Category badge */
+        .category-badge {
+            position: absolute;
+            top: var(--space-3);
+            left: var(--space-3);
+            padding: var(--space-1) var(--space-3);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .exercise-tile[data-category="motor"] .category-badge {
+            background: var(--cat-motor);
+            color: white;
+        }
+        .exercise-tile[data-category="tracking"] .category-badge {
+            background: var(--cat-tracking);
+            color: white;
+        }
+        .exercise-tile[data-category="cognitive"] .category-badge {
+            background: var(--cat-cognitive);
+            color: white;
+        }
+        .exercise-tile[data-category="coordination"] .category-badge {
+            background: var(--cat-coordination);
+            color: white;
+        }
+        .exercise-tile[data-category="visual"] .category-badge {
+            background: var(--cat-visual);
+            color: white;
+        }
+        
+        .tile-content {
+            padding: var(--space-4) var(--space-4) var(--space-6);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tile-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--text-primary);
+        }
+        
+        .tile-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+            flex: 1;
+        }
+        
+        .tile-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .tile-cta {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--brand-blue);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .tile-cta svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+        
+        .exercise-tile:hover .tile-cta svg {
+            transform: translateX(4px);
         }
         
         /* Features */
@@ -375,12 +728,59 @@
             color: white;
         }
         
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, #1d4ed8 100%);
+            color: white;
+            text-align: center;
+            padding: var(--space-16) 0;
+            margin-top: var(--space-8);
+        }
+        
+        .cta-section h2 {
+            color: white;
+            margin-bottom: var(--space-4);
+        }
+        
+        .cta-section p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto var(--space-8);
+        }
+        
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            justify-content: center;
+        }
+        
+        .btn-white {
+            background: white;
+            color: var(--brand-blue);
+        }
+        
+        .btn-white:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-white {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-outline-white:hover {
+            background: white;
+            color: var(--brand-blue);
+        }
+        
         /* Footer */
         footer {
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             padding: var(--space-12) 0 var(--space-8);
-            margin-top: var(--space-20);
         }
         
         .footer-content {
@@ -469,8 +869,22 @@
                 font-size: 3.5rem;
             }
             
-            .exercise-quick-access {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            .featured-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: var(--space-4);
+            }
+            
+            .featured-tile {
+                min-height: 140px;
+                padding: var(--space-6);
+            }
+            
+            .featured-icon {
+                font-size: 2.5rem;
+            }
+            
+            .featured-tile h3 {
+                font-size: var(--font-size-lg);
             }
         }
         
@@ -480,7 +894,7 @@
             }
             
             .exercise-grid {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             }
         }
         
@@ -490,6 +904,10 @@
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
+            }
+            
+            .preview-animation {
+                display: none;
             }
         }
         
@@ -573,17 +991,35 @@
     <main id="main">
         <section class="hero">
             <div class="container">
-                <h1>Your Guided Path to Recovery</h1>
-                <p>Professional-grade therapeutic exercises designed to support upper limb rehabilitation, motor skills development, and cognitive function. Evidence-based, accessible, and always free.</p>
-                
-                <div class="exercise-quick-access">
-                    <a href="/exercises/bubble-exercise.html" class="btn btn-primary">Start Bubble Tap</a>
-                    <a href="/exercises/comet-exercise.html" class="btn btn-primary">Start Comet Tap</a>
-                    <a href="/exercises/trace-reveal-exercise.html" class="btn btn-primary">Start Trace & Reveal</a>
-                    <a href="/exercises/rhythm-exercise.html" class="btn btn-primary">Start Rhythm Reach</a>
+                <div class="hero-content">
+                    <h1>Your Guided Path to Recovery</h1>
+                    <p class="hero-subtitle">Professional-grade therapeutic exercises for upper limb rehabilitation, motor skills development, and cognitive function. Evidence-based, accessible, and always free.</p>
+                    
+                    <div class="featured-grid">
+                        <a href="/exercises/bubble-exercise.html" class="featured-tile bubble">
+                            <span class="featured-icon">🫧</span>
+                            <h3>Bubble Tap</h3>
+                            <span class="play-hint">Fine Motor</span>
+                        </a>
+                        <a href="/exercises/comet-exercise.html" class="featured-tile comet">
+                            <span class="featured-icon">☄️</span>
+                            <h3>Comet Tap</h3>
+                            <span class="play-hint">Tracking</span>
+                        </a>
+                        <a href="/exercises/trace-reveal-exercise.html" class="featured-tile trace">
+                            <span class="featured-icon">✨</span>
+                            <h3>Trace & Reveal</h3>
+                            <span class="play-hint">Control</span>
+                        </a>
+                        <a href="/exercises/rhythm-exercise.html" class="featured-tile rhythm">
+                            <span class="featured-icon">🎵</span>
+                            <h3>Rhythm Reach</h3>
+                            <span class="play-hint">Memory</span>
+                        </a>
+                    </div>
+                    
+                    <a href="#exercises" class="btn btn-secondary">Explore All 11 Exercises</a>
                 </div>
-                
-                <a href="#exercises" class="btn btn-secondary">View All Exercises</a>
             </div>
         </section>
         
@@ -591,97 +1027,279 @@
             <div class="container">
                 <div class="section-header">
                     <h2 class="section-title">Therapeutic Exercise Library</h2>
-                    <p class="section-subtitle">Clinically-informed exercises targeting specific rehabilitation goals. Each exercise is designed with adjustable difficulty levels to support progressive recovery.</p>
+                    <p class="section-subtitle">Clinically-informed exercises targeting specific rehabilitation goals with adjustable difficulty levels.</p>
+                </div>
+                
+                <div class="category-filter" role="group" aria-label="Filter exercises by category">
+                    <button class="filter-pill active" data-category="all">All Exercises</button>
+                    <button class="filter-pill" data-category="motor">Fine Motor</button>
+                    <button class="filter-pill" data-category="tracking">Tracking</button>
+                    <button class="filter-pill" data-category="cognitive">Cognitive</button>
+                    <button class="filter-pill" data-category="coordination">Coordination</button>
+                    <button class="filter-pill" data-category="visual">Visual</button>
                 </div>
                 
                 <div class="exercise-grid">
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Bubble Tap Exercise</h3>
-                            <p class="card-description">Enhances fine motor control, reaction time, and hand-eye coordination through interactive bubble tapping. Customizable timing and target sizes for progressive difficulty.</p>
-                            <a href="/exercises/bubble-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Bubble Tap -->
+                    <a href="/exercises/bubble-exercise.html" class="exercise-tile" data-category="motor">
+                        <div class="tile-preview">
+                            <span class="category-badge">Fine Motor</span>
+                            <span class="tile-icon">🫧</span>
+                            <div class="preview-animation bubble-anim">
+                                <div class="bubble"></div>
+                                <div class="bubble"></div>
+                                <div class="bubble"></div>
+                            </div>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Bubble Tap Exercise</h3>
+                            <p class="tile-description">Enhance fine motor control, reaction time, and hand-eye coordination through interactive bubble tapping with customizable timing.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Comet Tap Exercise</h3>
-                            <p class="card-description">Develops dynamic tracking skills and bilateral coordination through moving target interaction. Adjustable speeds support motor planning progression.</p>
-                            <a href="/exercises/comet-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Comet Tap -->
+                    <a href="/exercises/comet-exercise.html" class="exercise-tile" data-category="tracking">
+                        <div class="tile-preview">
+                            <span class="category-badge">Tracking</span>
+                            <span class="tile-icon">☄️</span>
+                            <div class="preview-animation comet-anim">
+                                <div class="comet"></div>
+                            </div>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Comet Tap Exercise</h3>
+                            <p class="tile-description">Develop dynamic tracking skills and bilateral coordination through moving target interaction with adjustable speeds.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Trace and Reveal</h3>
-                            <p class="card-description">Supports controlled movement patterns and sustained attention through guided tracing activities. Promotes motor learning and visual-motor integration.</p>
-                            <a href="/exercises/trace-reveal-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Trace and Reveal -->
+                    <a href="/exercises/trace-reveal-exercise.html" class="exercise-tile" data-category="motor">
+                        <div class="tile-preview">
+                            <span class="category-badge">Fine Motor</span>
+                            <span class="tile-icon">✨</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Trace and Reveal</h3>
+                            <p class="tile-description">Support controlled movement patterns and sustained attention through guided tracing activities for motor learning.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Letter & Number Trace</h3>
-                            <p class="card-description">Develops fine motor precision and letter/number formation through guided tracing activities. Adaptive difficulty levels and character sizing support handwriting rehabilitation and controlled movement patterns.</p>
-                            <a href="/exercises/letter-and-number-trace.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Letter & Number Trace -->
+                    <a href="/exercises/letter_and_number_trace.html" class="exercise-tile" data-category="motor">
+                        <div class="tile-preview">
+                            <span class="category-badge">Fine Motor</span>
+                            <span class="tile-icon">✏️</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Letter & Number Trace</h3>
+                            <p class="tile-description">Develop fine motor precision and letter/number formation through guided tracing for handwriting rehabilitation.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Rhythm Reach Exercise</h3>
-                            <p class="card-description">Targets working memory and sequential processing through pattern recognition and reproduction. Combines cognitive and motor skill development.</p>
-                            <a href="/exercises/rhythm-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Rhythm Reach -->
+                    <a href="/exercises/rhythm-exercise.html" class="exercise-tile" data-category="cognitive">
+                        <div class="tile-preview">
+                            <span class="category-badge">Cognitive</span>
+                            <span class="tile-icon">🎵</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Rhythm Reach Exercise</h3>
+                            <p class="tile-description">Target working memory and sequential processing through pattern recognition combining cognitive and motor skills.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Precision Drop Exercise</h3>
-                            <p class="card-description">Focuses on fine motor precision and spatial awareness through controlled drag-and-drop movements. Progressive difficulty supports skill refinement.</p>
-                            <a href="/exercises/precision-drop-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Precision Drop -->
+                    <a href="/exercises/precision-drop-exercise.html" class="exercise-tile" data-category="motor">
+                        <div class="tile-preview">
+                            <span class="category-badge">Fine Motor</span>
+                            <span class="tile-icon">🎯</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Precision Drop Exercise</h3>
+                            <p class="tile-description">Focus on fine motor precision and spatial awareness through controlled drag-and-drop movements with progressive difficulty.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Cosmic Maze Exercise</h3>
-                            <p class="card-description">Enhances motor planning and problem-solving through guided navigation tasks. Supports executive function and controlled movement patterns.</p>
-                            <a href="/exercises/maze-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Cosmic Maze -->
+                    <a href="/exercises/maze-exercise.html" class="exercise-tile" data-category="cognitive">
+                        <div class="tile-preview">
+                            <span class="category-badge">Cognitive</span>
+                            <span class="tile-icon">🌀</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Cosmic Maze Exercise</h3>
+                            <p class="tile-description">Enhance motor planning and problem-solving through guided navigation tasks supporting executive function.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Mirror Match Exercise</h3>
-                            <p class="card-description">Develops bilateral coordination and symmetrical movement patterns. Particularly beneficial for addressing motor asymmetries and promoting cross-body integration.</p>
-                            <a href="/exercises/mirror-match-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Mirror Match -->
+                    <a href="/exercises/mirror-match-exercise.html" class="exercise-tile" data-category="coordination">
+                        <div class="tile-preview">
+                            <span class="category-badge">Coordination</span>
+                            <span class="tile-icon">🪞</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Mirror Match Exercise</h3>
+                            <p class="tile-description">Develop bilateral coordination and symmetrical movement patterns for addressing motor asymmetries.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Sequence Builder Exercise</h3>
-                            <p class="card-description">Strengthens executive function, working memory, and sequential processing skills. Supports cognitive rehabilitation through progressive complexity.</p>
-                            <a href="/exercises/sequence-builder-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Sequence Builder -->
+                    <a href="/exercises/sequence-builder-exercise.html" class="exercise-tile" data-category="cognitive">
+                        <div class="tile-preview">
+                            <span class="category-badge">Cognitive</span>
+                            <span class="tile-icon">🧩</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Sequence Builder Exercise</h3>
+                            <p class="tile-description">Strengthen executive function, working memory, and sequential processing through progressive complexity challenges.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Sort & Categorize Exercise</h3>
-                            <p class="card-description">Improves visual discrimination, decision-making, and attention through classification tasks. Combines cognitive processing with motor control.</p>
-                            <a href="/exercises/sort-categorize-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Sort & Categorize -->
+                    <a href="/exercises/sort-categorize-exercise.html" class="exercise-tile" data-category="cognitive">
+                        <div class="tile-preview">
+                            <span class="category-badge">Cognitive</span>
+                            <span class="tile-icon">📦</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Sort & Categorize Exercise</h3>
+                            <p class="tile-description">Improve visual discrimination, decision-making, and attention through classification tasks with motor control.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Visual Scanner Exercise</h3>
-                            <p class="card-description">Enhances visual scanning patterns and field-of-vision awareness. Specifically designed for addressing visual neglect and improving search strategies.</p>
-                            <a href="/exercises/visual-scanner-exercise.html" class="btn btn-outline">Start Exercise</a>
+                    <!-- Visual Scanner -->
+                    <a href="/exercises/visual-scanner-exercise.html" class="exercise-tile" data-category="visual">
+                        <div class="tile-preview">
+                            <span class="category-badge">Visual</span>
+                            <span class="tile-icon">👁️</span>
+                            <div class="play-overlay">
+                                <div class="play-button">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="tile-content">
+                            <h3 class="tile-title">Visual Scanner Exercise</h3>
+                            <p class="tile-description">Enhance visual scanning patterns and field-of-vision awareness, designed for addressing visual neglect.</p>
+                            <div class="tile-footer">
+                                <span class="tile-cta">
+                                    Start Exercise
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -690,59 +1308,56 @@
             <div class="container">
                 <div class="section-header">
                     <h2 class="section-title">Why Choose Fine Point Rehab</h2>
-                    <p class="section-subtitle">Our platform combines clinical expertise with user-centered design to deliver effective, accessible rehabilitation tools.</p>
+                    <p class="section-subtitle">Clinical expertise meets user-centered design for effective, accessible rehabilitation.</p>
                 </div>
                 
                 <div class="features">
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">🎯</div>
                         <h3>Evidence-Based Design</h3>
-                        <p>Each exercise is grounded in rehabilitation science and designed with input from healthcare professionals to target specific therapeutic goals.</p>
+                        <p>Each exercise is grounded in rehabilitation science and designed with healthcare professional input.</p>
                     </div>
                     
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">📱</div>
                         <h3>Mobile-Optimized</h3>
-                        <p>Responsive design ensures optimal performance across all devices, from smartphones to tablets, supporting therapy wherever you are.</p>
+                        <p>Responsive design ensures optimal performance across all devices, supporting therapy anywhere.</p>
                     </div>
                     
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">⚙️</div>
                         <h3>Adaptive Difficulty</h3>
-                        <p>Customizable settings allow you to adjust challenge levels, ensuring exercises remain engaging and appropriately challenging.</p>
+                        <p>Customizable settings allow you to adjust challenge levels for appropriate progression.</p>
                     </div>
                     
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">🔒</div>
                         <h3>Privacy-First</h3>
-                        <p>All data remains on your device. No accounts required, no personal information collected. Your privacy is our priority.</p>
+                        <p>All data remains on your device. No accounts required, no personal information collected.</p>
                     </div>
                     
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">♿</div>
                         <h3>Accessibility Built-In</h3>
-                        <p>Designed with universal access in mind, featuring high contrast options, large touch targets, and screen reader compatibility.</p>
+                        <p>High contrast options, large touch targets, and screen reader compatibility included.</p>
                     </div>
                     
                     <div class="feature">
                         <div class="feature-icon" aria-hidden="true">🆓</div>
                         <h3>Always Free</h3>
-                        <p>Full access to all exercises and features at no cost. Healthcare should be accessible to everyone, regardless of financial circumstances.</p>
+                        <p>Full access to all exercises at no cost. Healthcare should be accessible to everyone.</p>
                     </div>
                 </div>
             </div>
         </section>
         
-        <section id="getting-started" style="background: var(--bg-secondary);">
+        <section class="cta-section">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Begin Your Recovery Journey</h2>
-                    <p class="section-subtitle">Start with any exercise that matches your current abilities. Progress at your own pace with adjustable difficulty levels.</p>
-                </div>
-                
-                <div style="text-align: center;">
-                    <a href="/exercises/bubble-exercise.html" class="btn btn-primary" style="margin: var(--space-2);">Try Your First Exercise</a>
-                    <a href="about.html" class="btn btn-secondary" style="margin: var(--space-2);">Learn More About Our Approach</a>
+                <h2>Begin Your Recovery Journey</h2>
+                <p>Start with any exercise that matches your current abilities. Progress at your own pace with adjustable difficulty levels.</p>
+                <div class="cta-buttons">
+                    <a href="/exercises/bubble-exercise.html" class="btn btn-white">Try Your First Exercise</a>
+                    <a href="about.html" class="btn btn-outline-white">Learn More About Our Approach</a>
                 </div>
             </div>
         </section>
@@ -804,6 +1419,30 @@
                 document.documentElement.style.setProperty('--transition-duration', '0ms');
             }
             
+            // Category filter functionality
+            const filterPills = document.querySelectorAll('.filter-pill');
+            const exerciseTiles = document.querySelectorAll('.exercise-tile');
+            
+            filterPills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    
+                    // Update active state
+                    filterPills.forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter tiles
+                    exerciseTiles.forEach(tile => {
+                        if (category === 'all' || tile.dataset.category === category) {
+                            tile.style.display = '';
+                            tile.style.animation = 'fadeIn 0.3s ease';
+                        } else {
+                            tile.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
             // Smooth scrolling for internal links with error handling
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
@@ -821,6 +1460,16 @@
                 });
             });
         });
+        
+        // Add fadeIn animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
