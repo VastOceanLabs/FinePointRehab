@@ -18,7 +18,20 @@
     --panel: rgba(10,16,36,.9);
     --panel-border: rgba(255,255,255,.08);
     --text: #eaf6ff;
+    --gold: #ffd700;
+    --combo-glow: rgba(255,215,0,.6);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
   }
+  
+  /* Prevent iOS rubber-banding / bounce scroll */
+  html, body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+  }
+  
   body{ margin:0; color:var(--text);
     background:
       radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
@@ -26,8 +39,19 @@
       linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
     min-height: calc(var(--vh) * 100);
     touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
-  body.playing { overflow: hidden; }
+  body.playing { 
+    overflow: hidden; 
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
+      radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+  }
   body.playing header.app { display: none; }
 
   header.app{
@@ -97,15 +121,60 @@
               border-radius:999px; background: rgba(255,255,255,.06); color:var(--text); cursor:pointer; white-space:nowrap; }
   .btn-ghost:hover{ background: rgba(255,255,255,.12); }
 
+  /* Combo display */
+  .combo-wrap{ display:flex; flex-direction:column; align-items:center; min-width: 70px; }
+  .combo-wrap .v{ font-size:18px; transition: all 0.15s ease; }
+  .combo-wrap.hot .v{ color: var(--gold); text-shadow: 0 0 12px var(--combo-glow); transform: scale(1.1); }
+  .combo-wrap.fire .v{ color: #ff6b35; text-shadow: 0 0 16px rgba(255,107,53,.8); transform: scale(1.15); }
+  .combo-multiplier{ font-size:10px; color: var(--gold); opacity: 0; transition: opacity 0.2s; }
+  .combo-wrap.hot .combo-multiplier, .combo-wrap.fire .combo-multiplier{ opacity: 1; }
+
+  /* Best combo indicator */
+  .best-combo{ font-size: 9px; color: rgba(255,215,0,.7); margin-top: 2px; }
+
   /* Immersive */
   body.playing .layout{ grid-template-columns: 1fr; padding:0; height: calc(var(--vh) * 100); }
   body.playing #settings{ display:none; }
   body.playing .right{ height: calc(var(--vh) * 100); }
-  body.playing .frame{ border:none; border-radius:0; height: calc(var(--vh) * 100); box-shadow: none; background: transparent; }
-  body.playing canvas#stage{ width:100vw; height: calc(var(--vh) * 100); max-height:none; }
+  body.playing .frame{ 
+    border:none; 
+    border-radius:0; 
+    height: calc(var(--vh) * 100); 
+    box-shadow: none; 
+    background: radial-gradient(ellipse at 50% 40%, rgba(15,22,48,1) 0%, rgba(7,11,22,1) 100%);
+    padding-bottom: var(--safe-bottom);
+  }
+  body.playing canvas#stage{ 
+    width:100vw; 
+    height: calc(var(--vh) * 100); 
+    max-height:none; 
+    background: transparent; 
+  }
   body.playing .hud{
-    position:absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px; right: 10px; margin:0;
+    position:absolute; 
+    top: calc(var(--safe-top) + 10px); 
+    left: calc(var(--safe-left) + 10px); 
+    right: calc(var(--safe-right) + 10px); 
+    margin:0;
     background: linear-gradient(180deg, rgba(6,10,24,.65), rgba(6,10,24,.35)); border: 1px solid rgba(255,255,255,.12);
+  }
+  
+  /* Ensure canvas respects safe areas on iPad */
+  body.playing .frame{
+    padding-bottom: var(--safe-bottom);
+  }
+
+  /* Countdown overlay */
+  #countdown{ position:absolute; inset:0; display:grid; place-items:center; background: rgba(0,0,0,.7);
+              backdrop-filter: blur(8px); z-index:20; }
+  #countdown .count-num{ font-size: clamp(80px, 20vw, 160px); font-weight:900; color: var(--accent);
+                         text-shadow: 0 0 40px rgba(111,211,245,.8), 0 0 80px rgba(111,211,245,.4);
+                         animation: countPulse 0.5s ease-out; }
+  #countdown .count-text{ font-size: 18px; margin-top: 10px; opacity: 0.8; }
+  @keyframes countPulse{
+    0%{ transform: scale(1.4); opacity: 0; }
+    50%{ opacity: 1; }
+    100%{ transform: scale(1); opacity: 1; }
   }
 
   /* Completion modal */
@@ -114,11 +183,43 @@
   #doneCard{ max-width:min(520px, 92vw); max-height:80vh; overflow:auto; padding:22px; }
   #done h2{ margin-top:0; color:var(--accent); }
   .hi{ color:#9ee7ff; font-weight:900; }
+  .new-best{ color: var(--gold) !important; }
   .hidden{ display:none !important; }
   :focus-visible{ outline: 3px solid rgba(111,211,245,.85); outline-offset:2px; }
 
-  /* Settings primary button row (single Start button) */
+  /* New best celebration */
+  .celebration{ position: absolute; top: 0; font-size: 14px; color: var(--gold); 
+                animation: celebrateBounce 0.6s ease-out; }
+  @keyframes celebrateBounce{
+    0%{ transform: translateY(0) scale(0.5); opacity: 0; }
+    50%{ transform: translateY(-10px) scale(1.2); opacity: 1; }
+    100%{ transform: translateY(-5px) scale(1); opacity: 1; }
+  }
+
+  /* Stats grid in completion */
+  .stats-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .stat-item{ background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+              border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-item .stat-val{ font-size: 24px; font-weight: 900; color: #bfe6ff; }
+  .stat-item .stat-label{ font-size: 11px; opacity: 0.8; margin-top: 4px; }
+  .stat-item.highlight{ border-color: var(--gold); background: rgba(255,215,0,.08); }
+  .stat-item.highlight .stat-val{ color: var(--gold); }
+
+  /* Miss flash effect */
+  .miss-flash{ position: absolute; pointer-events: none; z-index: 5; }
+  .miss-flash.edge-top{ top: 0; left: 0; right: 0; height: 4px; 
+                        background: linear-gradient(180deg, rgba(255,80,80,.8), transparent); }
+  .miss-flash.edge-bottom{ bottom: 0; left: 0; right: 0; height: 4px;
+                           background: linear-gradient(0deg, rgba(255,80,80,.8), transparent); }
+  .miss-flash.edge-left{ top: 0; bottom: 0; left: 0; width: 4px;
+                         background: linear-gradient(90deg, rgba(255,80,80,.8), transparent); }
+  .miss-flash.edge-right{ top: 0; bottom: 0; right: 0; width: 4px;
+                          background: linear-gradient(270deg, rgba(255,80,80,.8), transparent); }
+  @keyframes flashFade{ 0%{ opacity:1; } 100%{ opacity:0; } }
+
+  /* Settings primary button row */
   .settings-actions { display:grid; grid-template-columns: 1fr; gap:10px; margin-top:12px; }
+  .settings-actions.two-col{ grid-template-columns: 1fr 1fr; }
 </style>
 </head>
 <body>
@@ -131,13 +232,17 @@
     <!-- SETTINGS -->
     <aside id="settings" class="panel" aria-label="Settings">
       <h2>Settings</h2>
-      <div class="desc"><strong>How to play:</strong> tap a glowing comet before it escapes. Smaller &amp; faster = harder (more points).</div>
+      <div class="desc"><strong>How to play:</strong> Tap glowing comets before they escape! Build combos for bonus points. Smaller &amp; faster = harder (more points).</div>
 
       <!-- Stats (shows PB on settings) -->
       <div class="stats-row" role="region" aria-label="Player stats">
         <div class="metric" aria-live="polite">
           <div id="pbSettings" class="v">0</div>
           <div class="t">Personal Best</div>
+        </div>
+        <div class="metric" aria-live="polite">
+          <div id="bestComboSettings" class="v">0</div>
+          <div class="t">Best Combo</div>
         </div>
       </div>
 
@@ -171,7 +276,6 @@
         </select>
       </div>
 
-      <!-- Only Start here (Pause/Restart removed from settings) -->
       <div class="settings-actions">
         <button id="start" class="btn btn-primary" type="button">Start</button>
       </div>
@@ -181,7 +285,12 @@
     <section class="right" aria-label="Game area">
       <div class="hud" role="region" aria-label="Session HUD">
         <div class="metric" aria-live="polite"><div id="score" class="v">0</div><div class="t">Score</div></div>
-        <div class="metric" aria-live="polite"><div id="pb" class="v">0</div><div class="t">Personal Best</div></div>
+        <div class="metric combo-wrap" aria-live="polite">
+          <div id="combo" class="v">0</div>
+          <div class="t">Combo</div>
+          <div id="comboMult" class="combo-multiplier">×1.0</div>
+        </div>
+        <div class="metric" aria-live="polite"><div id="pb" class="v">0</div><div class="t">Best</div></div>
         <div class="metric" aria-live="polite"><div id="time" class="v">02:00</div><div class="t">Time</div></div>
         <div class="actions">
           <button id="pauseHud" class="btn-ghost" type="button" aria-label="Pause or resume">Pause</button>
@@ -191,18 +300,56 @@
 
       <div class="frame panel">
         <canvas id="stage" width="1280" height="720" aria-label="Game stage"></canvas>
+        <!-- Miss flash elements -->
+        <div id="flashTop" class="miss-flash edge-top hidden"></div>
+        <div id="flashBottom" class="miss-flash edge-bottom hidden"></div>
+        <div id="flashLeft" class="miss-flash edge-left hidden"></div>
+        <div id="flashRight" class="miss-flash edge-right hidden"></div>
+      </div>
+
+      <!-- Countdown overlay -->
+      <div id="countdown" class="hidden" role="alert" aria-live="assertive">
+        <div style="text-align:center;">
+          <div id="countNum" class="count-num">3</div>
+          <div class="count-text">Get ready...</div>
+        </div>
       </div>
 
       <!-- Completion -->
       <div id="done" class="hidden" role="dialog" aria-modal="true" aria-labelledby="doneT">
         <div id="doneCard" class="panel">
           <h2 id="doneT">Session Complete!</h2>
-          <p>Final Score: <span id="fScore" class="hi">0</span></p>
-          <p>Comets Tapped: <span id="fTaps" class="hi">0</span></p>
-          <p>Accuracy: <span id="fAcc" class="hi">0%</span></p>
-          <p>Average Response Time: <span id="fAvg" class="hi">0.00s</span></p>
-          <div class="settings-actions" style="grid-template-columns:1fr 1fr;">
-            <button id="doneBtn" class="btn btn-primary" type="button">Start New Session</button>
+          <div id="newBestBanner" class="hidden" style="text-align:center; margin-bottom:12px;">
+            <span style="color:var(--gold); font-weight:900; font-size:18px;">🎉 NEW PERSONAL BEST! 🎉</span>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item" id="scoreStatItem">
+              <div id="fScore" class="stat-val">0</div>
+              <div class="stat-label">Final Score</div>
+            </div>
+            <div class="stat-item">
+              <div id="fTaps" class="stat-val">0</div>
+              <div class="stat-label">Comets Tapped</div>
+            </div>
+            <div class="stat-item">
+              <div id="fAcc" class="stat-val">0%</div>
+              <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+              <div id="fAvg" class="stat-val">0.00s</div>
+              <div class="stat-label">Avg Response</div>
+            </div>
+            <div class="stat-item">
+              <div id="fBestCombo" class="stat-val">0</div>
+              <div class="stat-label">Best Combo</div>
+            </div>
+            <div class="stat-item">
+              <div id="fComboBonus" class="stat-val">0</div>
+              <div class="stat-label">Combo Bonus Pts</div>
+            </div>
+          </div>
+          <div class="settings-actions two-col">
+            <button id="doneBtn" class="btn btn-primary" type="button">Play Again</button>
             <button id="homeBtn" class="btn" type="button">Home</button>
           </div>
         </div>
@@ -219,8 +366,8 @@
   const now = ()=>performance.now();
 
   const startBtn = $('#start'),
-        pauseBtn = $('#pause'),           // (doesn't exist in settings anymore)
-        restartBtn = $('#restart'),       // (doesn't exist in settings anymore)
+        pauseBtn = $('#pause'),
+        restartBtn = $('#restart'),
         doneBtn = $('#doneBtn'),
         homeBtn = $('#homeBtn');
   const pauseHudBtn = $('#pauseHud'), exitHudBtn = $('#exitHud');
@@ -228,8 +375,19 @@
 
   const durIn = $('#dur'), sizeSel = $('#size'), spdSel = $('#spd'), spawnSel = $('#spawn');
   const scoreEl = $('#score'), pbEl = $('#pb'), timeEl = $('#time'), pbSettingsEl = $('#pbSettings');
+  const comboEl = $('#combo'), comboMultEl = $('#comboMult'), comboWrap = $('.combo-wrap');
+  const bestComboSettingsEl = $('#bestComboSettings');
   const doneModal = $('#done'), fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
+  const fBestCombo = $('#fBestCombo'), fComboBonus = $('#fComboBonus');
+  const newBestBanner = $('#newBestBanner'), scoreStatItem = $('#scoreStatItem');
   const canvas = $('#stage'); const ctx = canvas.getContext('2d'); const hud = document.querySelector('.hud');
+  const countdownOverlay = $('#countdown'), countNum = $('#countNum');
+
+  // Miss flash elements
+  const flashEls = {
+    top: $('#flashTop'), bottom: $('#flashBottom'),
+    left: $('#flashLeft'), right: $('#flashRight')
+  };
 
   // ===== DPR & geometry =====
   let DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
@@ -270,22 +428,41 @@
     { count: 25, speed: .12, stars: [], alpha:1.0 }
   ];
   function initStars(){
+    const W = canvas.width/DPR, H = canvas.height/DPR;
     layers.forEach((L,i)=>{
       L.stars = Array.from({length:L.count}, () => ({
-        x: Math.random()*canvas.width/DPR,
-        y: Math.random()*canvas.height/DPR,
+        x: Math.random()*W,
+        y: Math.random()*H,
         r: Math.random()*(i+1)*.8 + .5,
         tw: Math.random()*2*Math.PI
       }));
     });
   }
   initStars();
+  
+  // Reinitialize stars when canvas size changes significantly
+  function reinitStarsIfNeeded(){
+    const W = canvas.width/DPR, H = canvas.height/DPR;
+    layers.forEach((L,i)=>{
+      L.stars.forEach(s => {
+        // If star is outside current canvas bounds, reposition it
+        if (s.y > H) s.y = Math.random() * H;
+        if (s.x > W) s.x = Math.random() * W;
+      });
+    });
+  }
+  
   function drawStars(dt){
+    const W = canvas.width/DPR, H = canvas.height/DPR;
     layers.forEach(L=>{
       ctx.save(); ctx.globalAlpha = L.alpha;
       L.stars.forEach(s=>{
         s.x -= L.speed * dt * 0.06;
-        if (s.x < -4) s.x = canvas.width/DPR + 4, s.y = playArea.y0 + Math.random()*playArea.h;
+        // When star exits left, wrap to right at random Y across full canvas height
+        if (s.x < -4) {
+          s.x = W + 4;
+          s.y = Math.random() * H;
+        }
         s.tw += dt*0.002;
         const o = 0.65 + Math.sin(s.tw)*0.35;
         ctx.fillStyle = `rgba(255,255,255,${o})`;
@@ -297,24 +474,82 @@
 
   // ===== Game State =====
   const sizeMap = { small: 16, medium: 22, large: 28 };
-  const speedMap = { slow: 90, medium: 150, fast: 240 };
-  const spawnMap = { slow: 2000, medium: 1500, fast: 1000, vfast: 500 }; // ref only
+  const speedMap = { slow: 55, medium: 90, fast: 140 };
+  const spawnMap = { slow: 2000, medium: 1500, fast: 1000, vfast: 500 };
 
   let running=false, paused=false;
   let durationMs=120000, timeLeft=0, lastTick=0, lastSpawn=0;
   let score=0, taps=0, misses=0, totalRT=0;
+  let combo=0, bestCombo=0, comboBonus=0;
   let comets=[], particles=[], popups=[];
   let shakeT=0, hueBase=(160+Math.random()*60);
+  let savedSettings = null; // For quick restart
 
   const PB_KEY='comet:best';
+  const BEST_COMBO_KEY='comet:bestCombo';
   const getPB=()=>parseInt(localStorage.getItem(PB_KEY)||'0',10);
   const setPB=(v)=>localStorage.setItem(PB_KEY,String(v));
+  const getBestCombo=()=>parseInt(localStorage.getItem(BEST_COMBO_KEY)||'0',10);
+  const setBestCombo=(v)=>localStorage.setItem(BEST_COMBO_KEY,String(v));
+  
   function refreshPB(){
     const pbv = getPB();
+    const bcv = getBestCombo();
     if (pbEl) pbEl.textContent = pbv;
     if (pbSettingsEl) pbSettingsEl.textContent = pbv;
+    if (bestComboSettingsEl) bestComboSettingsEl.textContent = bcv;
   }
   refreshPB();
+
+  // ===== Combo System =====
+  function updateComboUI(){
+    comboEl.textContent = combo;
+    const mult = getComboMultiplier();
+    comboMultEl.textContent = `×${mult.toFixed(1)}`;
+    
+    // Visual states
+    comboWrap.classList.remove('hot', 'fire');
+    if (combo >= 15) comboWrap.classList.add('fire');
+    else if (combo >= 5) comboWrap.classList.add('hot');
+  }
+
+  function getComboMultiplier(){
+    if (combo < 3) return 1.0;
+    if (combo < 5) return 1.2;
+    if (combo < 10) return 1.5;
+    if (combo < 15) return 1.8;
+    if (combo < 25) return 2.0;
+    return 2.5;
+  }
+
+  function resetCombo(){
+    combo = 0;
+    updateComboUI();
+  }
+
+  function incrementCombo(){
+    combo++;
+    if (combo > bestCombo) bestCombo = combo;
+    updateComboUI();
+    
+    // Milestone popups
+    if (combo === 5) addCenterPopup('🔥 5 COMBO!');
+    else if (combo === 10) addCenterPopup('⚡ 10 COMBO!');
+    else if (combo === 15) addCenterPopup('💫 15 COMBO!');
+    else if (combo === 25) addCenterPopup('🌟 25 COMBO!');
+    else if (combo === 50) addCenterPopup('👑 50 COMBO!');
+  }
+
+  // ===== Miss Flash Effect =====
+  function showMissFlash(side){
+    const el = flashEls[side];
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.style.animation = 'none';
+    el.offsetHeight; // Trigger reflow
+    el.style.animation = 'flashFade 0.3s ease-out forwards';
+    setTimeout(() => el.classList.add('hidden'), 300);
+  }
 
   // ===== Spawning: edge → opposite edge =====
   function spawnOppositeEdge(){
@@ -340,20 +575,20 @@
         ty = clamp(y + (Math.random()<0.5? -1:1) * (minDy + Math.random()*0.2*H), Y0+pad, Y0+H-pad);
       }
     }
-    return { x, y, tx, ty };
+    return { x, y, tx, ty, spawnSide: side };
   }
 
   function spawnComet(){
     if (playArea.w <= 0 || playArea.h <= 0) return;
     const r = sizeMap[sizeSel.value];
     const spd = speedMap[spdSel.value]*(.85 + Math.random()*.4);
-    const {x,y,tx,ty} = spawnOppositeEdge();
+    const {x,y,tx,ty,spawnSide} = spawnOppositeEdge();
 
     let vx = tx - x, vy = ty - y;
     const len = Math.hypot(vx,vy) || 1; vx/=len; vy/=len;
 
     const hue = (hueBase + Math.random()*60) % 360;
-    comets.push({ x, y, vx, vy, r, spd, hue, born: now(), trail: [] });
+    comets.push({ x, y, vx, vy, r, spd, hue, born: now(), trail: [], spawnSide });
   }
 
   function updateComets(dt){
@@ -362,15 +597,34 @@
     comets.forEach(c=>{
       c.x += c.vx*c.spd*px;
       c.y += c.vy*c.spd*px;
-      // trail: keep more points for a clearer tail
       c.trail.push({ x:c.x - c.vx*8, y:c.y - c.vy*8, life: 1, hue:c.hue });
       if (c.trail.length>28) c.trail.shift();
       c.trail.forEach(t=>t.life -= 0.025*px*60);
     });
     const margin = 60;
     const before = comets.length;
+    
+    // Track which comets escaped and from which side
+    const escaped = comets.filter(c => 
+      c.x <= X0 - margin || c.x >= X0 + W + margin || 
+      c.y <= Y0 - margin || c.y >= Y0 + H + margin
+    );
+    
     comets = comets.filter(c => c.x > X0 - margin && c.x < X0 + W + margin && c.y > Y0 - margin && c.y < Y0 + H + margin);
-    misses += Math.max(0, before - comets.length);
+    
+    const missCount = Math.max(0, before - comets.length);
+    if (missCount > 0) {
+      misses += missCount;
+      resetCombo(); // Break combo on miss
+      
+      // Show flash on escape side
+      escaped.forEach(c => {
+        if (c.y <= Y0 - margin + 10) showMissFlash('top');
+        else if (c.y >= Y0 + H + margin - 10) showMissFlash('bottom');
+        else if (c.x <= X0 - margin + 10) showMissFlash('left');
+        else if (c.x >= X0 + W + margin - 10) showMissFlash('right');
+      });
+    }
   }
 
   // ===== Particles & Popups =====
@@ -378,19 +632,22 @@
     for (let i=0;i<24;i++){
       particles.push({ x, y, vx: rnd(-2.4,2.4), vy: rnd(-2.4,2.4), life: 1, r: rnd(1,2.6), hue: hue + rnd(-10,10) });
     }
-    // no popup here; popups only come from taps (numbers only)
     shakeT = 120;
   }
 
-  // smarter popup creation (stagger near-collocated popups)
   function addPopup(x, y, text){
     const nearby = popups.filter(p => p.life > 0.45 && Math.hypot(p.x - x, p.y - y) < 64).length;
     const offsetY = -nearby * 18;
     const offsetX = (nearby % 2 ? -1 : 1) * (6 + nearby * 2);
-    popups.push({ x, y, life:1, text, oX: offsetX, oY: offsetY });
+    popups.push({ x, y, life:1, text, oX: offsetX, oY: offsetY, isCenter: false });
   }
 
-  // rounded rect helper for popup background
+  function addCenterPopup(text){
+    const cx = playArea.x0 + playArea.w / 2;
+    const cy = playArea.y0 + playArea.h / 2;
+    popups.push({ x: cx, y: cy, life: 1.2, text, oX: 0, oY: 0, isCenter: true, scale: 1.5 });
+  }
+
   function roundRect(ctx, x, y, w, h, r){
     const rr = Math.min(r, h/2, w/2);
     ctx.beginPath();
@@ -406,26 +663,28 @@
     const px = dt/1000;
     particles.forEach(p=>{ p.x += p.vx*60*px; p.y += p.vy*60*px; p.vy += 0.2; p.life -= 1.6*px; });
     particles = particles.filter(p=>p.life>0);
-    popups.forEach(s=>{ s.y -= 24*px; s.life -= 1*px; });
+    popups.forEach(s=>{ s.y -= (s.isCenter ? 12 : 24)*px; s.life -= (s.isCenter ? 0.7 : 1)*px; });
     popups = popups.filter(s=>s.life>0);
   }
 
-  // Popup rendering with readable pill background
   function drawPopups(){
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '900 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
 
     popups.forEach(s=>{
       const a = Math.max(0, Math.min(1, s.life));
       const x = s.x + (s.oX || 0);
       const y = s.y + (s.oY || 0);
       const text = s.text;
+      const scale = s.scale || 1;
+      const fontSize = Math.round(18 * scale);
+
+      ctx.font = `900 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
 
       const m = ctx.measureText(text);
-      const w = Math.ceil(m.width) + 14;
-      const h = 24;
+      const w = Math.ceil(m.width) + 14 * scale;
+      const h = 24 * scale;
       const rx = x - w/2;
       const ry = y - h/2;
 
@@ -433,16 +692,16 @@
       ctx.globalAlpha = 0.85 * a;
       ctx.shadowColor = 'rgba(0,0,0,0.5)';
       ctx.shadowBlur = 12;
-      ctx.fillStyle = 'rgba(10,16,36,0.75)';
+      ctx.fillStyle = s.isCenter ? 'rgba(20,10,40,0.85)' : 'rgba(10,16,36,0.75)';
       roundRect(ctx, rx, ry, w, h, 10);
       ctx.fill();
       ctx.restore();
 
       ctx.save();
       ctx.globalAlpha = a;
-      ctx.shadowColor = 'rgba(170,220,255,0.9)';
+      ctx.shadowColor = s.isCenter ? 'rgba(255,215,0,0.9)' : 'rgba(170,220,255,0.9)';
       ctx.shadowBlur = 10;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = s.isCenter ? '#ffd700' : '#ffffff';
       ctx.fillText(text, x, y);
       ctx.restore();
     });
@@ -466,19 +725,47 @@
         e.preventDefault();
         comets.splice(i,1);
         taps++;
+        incrementCombo();
+        
         const rt = now() - c.born; totalRT += rt;
         const sizeB = sizeSel.value==='small'?1.6 : sizeSel.value==='medium'?1.2 : 1.0;
         const speedB = spdSel.value==='fast'?1.6 : spdSel.value==='medium'?1.2 : 1.0;
-        const pts = Math.floor(10 * sizeB * speedB * clamp(3000/rt, 0.8, 6));
+        const basePoints = Math.floor(10 * sizeB * speedB * clamp(3000/rt, 0.8, 6));
+        
+        // Apply combo multiplier
+        const mult = getComboMultiplier();
+        const bonusPts = Math.floor(basePoints * (mult - 1));
+        comboBonus += bonusPts;
+        const pts = basePoints + bonusPts;
+        
         score += pts; scoreEl.textContent = String(score);
-        addPopup(c.x, c.y, String(pts)); // number only
+        
+        // Show points with combo indicator if multiplied
+        const popupText = mult > 1 ? `+${pts} ×${mult.toFixed(1)}` : `+${pts}`;
+        addPopup(c.x, c.y, popupText);
         burst(c.x,c.y,c.hue);
+        
+        // Haptic feedback if available
+        if (navigator.vibrate) navigator.vibrate(10);
+        
         break;
       }
     }
   }
   canvas.addEventListener('click', onTap);
   canvas.addEventListener('touchstart', onTap, {passive:false});
+  
+  // Prevent default touch behaviors on canvas (stops iPad gestures interfering)
+  canvas.addEventListener('touchmove', (e) => { if (running) e.preventDefault(); }, {passive:false});
+  canvas.addEventListener('touchend', (e) => { if (running) e.preventDefault(); }, {passive:false});
+  
+  // Prevent double-tap zoom on iOS
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, {passive:false});
 
   // ===== Timer/UI helpers =====
   function fmtTime(ms){
@@ -489,21 +776,44 @@
   }
   function updateTimeUI(){ timeEl.textContent = fmtTime(timeLeft); }
 
-  async function enterFullscreen(){
-    try{
-      const el = document.documentElement;
-      if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
-      else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-    }catch{}
+  // Immersive mode without fullscreen API (avoids Safari security warnings)
+  function toImmersive(){ 
+    document.body.classList.add('playing'); 
+    window.scrollTo({ top: 0, behavior: 'instant' }); 
   }
-  async function exitFullscreen(){
-    try{
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else if (document.webkitFullscreenElement) await document.webkitExitFullscreen();
-    }catch{}
+  function fromImmersive(){ 
+    document.body.classList.remove('playing'); 
   }
-  function toImmersive(){ document.body.classList.add('playing'); window.scrollTo({ top: 0 }); enterFullscreen(); }
-  function fromImmersive(){ document.body.classList.remove('playing'); exitFullscreen(); }
+
+  // ===== Countdown =====
+  function showCountdown(callback){
+    countdownOverlay.classList.remove('hidden');
+    let count = 3;
+    countNum.textContent = count;
+    countNum.style.animation = 'none';
+    countNum.offsetHeight;
+    countNum.style.animation = 'countPulse 0.5s ease-out';
+    
+    const interval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countNum.textContent = count;
+        countNum.style.animation = 'none';
+        countNum.offsetHeight;
+        countNum.style.animation = 'countPulse 0.5s ease-out';
+      } else {
+        countNum.textContent = 'GO!';
+        countNum.style.animation = 'none';
+        countNum.offsetHeight;
+        countNum.style.animation = 'countPulse 0.5s ease-out';
+        setTimeout(() => {
+          countdownOverlay.classList.add('hidden');
+          callback();
+        }, 400);
+        clearInterval(interval);
+      }
+    }, 600);
+  }
 
   // ===== Lifecycle =====
   function startSession(){
@@ -511,25 +821,57 @@
     durationMs = Number.isFinite(mins) && mins>0 ? mins*60*1000 : 120000;
     timeLeft = durationMs; updateTimeUI();
 
+    // Save settings for quick restart
+    savedSettings = {
+      dur: durIn.value,
+      size: sizeSel.value,
+      spd: spdSel.value,
+      spawn: spawnSel.value
+    };
+
     toImmersive();
 
     requestAnimationFrame(()=>{
       fit(); refreshGeometry();
+      initStars(); // Reinitialize stars for the new canvas size
 
-      running=true; paused=false; score=0; taps=0; misses=0; totalRT=0;
-      scoreEl.textContent='0'; hueBase = (160+Math.random()*60);
+      // Show countdown, then start
+      showCountdown(() => {
+        running=true; paused=false; score=0; taps=0; misses=0; totalRT=0;
+        combo=0; bestCombo=0; comboBonus=0;
+        scoreEl.textContent='0'; hueBase = (160+Math.random()*60);
+        updateComboUI();
 
-      if (pauseBtn){ pauseBtn.disabled=false; pauseBtn.textContent='Pause'; }
-      if (restartBtn){ restartBtn.disabled=false; }
-      if (pauseHudBtn){ pauseHudBtn.textContent='Pause'; }
+        if (pauseBtn){ pauseBtn.disabled=false; pauseBtn.textContent='Pause'; }
+        if (restartBtn){ restartBtn.disabled=false; }
+        if (pauseHudBtn){ pauseHudBtn.textContent='Pause'; }
 
-      lastTick = performance.now();
-      lastSpawn = -1e9;
-      spawnComet();
+        lastTick = performance.now();
+        lastSpawn = -1e9;
+        spawnComet();
 
-      requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
+      });
     });
   }
+
+  function quickRestart(){
+    // Restart with same settings immediately
+    running=false; paused=false;
+    doneModal.classList.add('hidden');
+    comets.length=0; particles.length=0; popups.length=0;
+    
+    // Restore saved settings
+    if (savedSettings) {
+      durIn.value = savedSettings.dur;
+      sizeSel.value = savedSettings.size;
+      spdSel.value = savedSettings.spd;
+      spawnSel.value = savedSettings.spawn;
+    }
+    
+    setTimeout(startSession, 50);
+  }
+
   function pauseSession(){ if (!running||paused) return; paused=true; if (pauseBtn){ pauseBtn.textContent='Resume'; } if (pauseHudBtn){ pauseHudBtn.textContent='Resume'; } }
   function resumeSession(){ if (!running||!paused) return; paused=false; if (pauseBtn){ pauseBtn.textContent='Pause'; } if (pauseHudBtn){ pauseHudBtn.textContent='Pause'; } lastTick = performance.now(); requestAnimationFrame(loop); }
   function restartSession(){
@@ -538,6 +880,7 @@
     if (restartBtn){ restartBtn.disabled=true; }
     doneModal.classList.add('hidden');
     comets.length=0; particles.length=0; popups.length=0; timeLeft=0; updateTimeUI(); scoreEl.textContent='0';
+    combo=0; updateComboUI();
     fromImmersive();
     fit(); refreshGeometry();
   }
@@ -545,8 +888,29 @@
     running=false; paused=false;
     const acc = taps+misses>0 ? Math.round((taps/(taps+misses))*100) : 0;
     const avg = taps>0 ? (totalRT/taps/1000).toFixed(2) : '0.00';
-    if (score>getPB()){ setPB(score); refreshPB(); }
-    fScore.textContent=score; fTaps.textContent=taps; fAcc.textContent=acc+'%'; fAvg.textContent=avg;
+    
+    const isNewBest = score > getPB();
+    if (isNewBest){ setPB(score); }
+    if (bestCombo > getBestCombo()){ setBestCombo(bestCombo); }
+    refreshPB();
+    
+    // Update completion modal
+    fScore.textContent = score;
+    fTaps.textContent = taps;
+    fAcc.textContent = acc+'%';
+    fAvg.textContent = avg + 's';
+    fBestCombo.textContent = bestCombo;
+    fComboBonus.textContent = comboBonus;
+    
+    // Highlight new best
+    if (isNewBest) {
+      newBestBanner.classList.remove('hidden');
+      scoreStatItem.classList.add('highlight');
+    } else {
+      newBestBanner.classList.add('hidden');
+      scoreStatItem.classList.remove('highlight');
+    }
+    
     doneModal.classList.remove('hidden');
     if (pauseBtn){ pauseBtn.disabled=true; }
   }
@@ -555,7 +919,6 @@
   function drawComet(c){
     ctx.save(); ctx.globalCompositeOperation='lighter';
 
-    // brighter, longer trail
     c.trail.forEach((t,i)=>{
       const alpha = Math.max(0, Math.min(1, t.life)) * (0.35 + 0.65 * (i/28));
       const grad = ctx.createLinearGradient(c.x, c.y, t.x, t.y);
@@ -565,12 +928,10 @@
       ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(t.x, t.y); ctx.stroke();
     });
 
-    // outer glow
     const g1 = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r*2.4);
     g1.addColorStop(0, `hsla(${c.hue},95%,85%,.9)`); g1.addColorStop(1, `hsla(${c.hue},95%,50%,0)`);
     ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*2.4,0,Math.PI*2); ctx.fill();
 
-    // core
     const g2 = ctx.createRadialGradient(c.x- c.r*0.4, c.y- c.r*0.4, 0, c.x, c.y, c.r);
     g2.addColorStop(0, '#fff'); g2.addColorStop(0.35, `hsla(${c.hue},95%,78%,1)`); g2.addColorStop(0.9, `hsla(${c.hue},95%,45%,.9)`); g2.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
@@ -606,8 +967,9 @@
     updateComets(dt);
     updateParticles(dt);
 
-    // draw
-    ctx.clearRect(0,0,canvas.width/DPR,canvas.height/DPR);
+    // Fill with dark cosmic background instead of clearing to transparent
+    ctx.fillStyle = '#070b16';
+    ctx.fillRect(0,0,canvas.width/DPR,canvas.height/DPR);
     drawStars(dt);
     comets.forEach(drawComet);
     drawParticles();
@@ -618,8 +980,8 @@
   startBtn.addEventListener('click', ()=>{ if (!running) startSession(); });
   if (pauseBtn){ pauseBtn.addEventListener('click', ()=>{ if (!running) return; paused?resumeSession():pauseSession(); }); }
   if (restartBtn){ restartBtn.addEventListener('click', restartSession); }
-  doneBtn?.addEventListener('click', ()=>{ doneModal.classList.add('hidden'); restartSession(); setTimeout(startSession, 120); });
-  homeBtn?.addEventListener('click', ()=>{ window.location.href = '/'; });
+  doneBtn?.addEventListener('click', quickRestart);
+  homeBtn?.addEventListener('click', ()=>{ restartSession(); });
   pauseHudBtn.addEventListener('click', ()=>{ if (!running) return; paused?resumeSession():pauseSession(); });
   exitHudBtn.addEventListener('click', ()=>{ if (running){ endSession(); } restartSession(); });
 })();

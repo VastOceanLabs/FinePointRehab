@@ -18,6 +18,8 @@
       --error: #ff6b6b;
       --error-bg: #2d1b1b;
       --border: #374151;
+      --gold: #ffd700;
+      --streak-orange: #ff9500;
       --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
       --radius: 8px;
       --radius-lg: 12px;
@@ -32,6 +34,8 @@
       --font-size-base: 16px;
       --font-size-lg: 20px;
       --font-size-xl: 24px;
+      --font-size-2xl: 32px;
+      --font-size-3xl: 48px;
       --font-weight-semibold: 600;
       --font-weight-bold: 700;
       --duration-fast: 150ms;
@@ -143,7 +147,7 @@
     }
 
     .settings-panel {
-      max-width: 480px;
+      max-width: 520px;
       margin: 0 auto;
       padding-top: var(--space-6);
     }
@@ -199,6 +203,67 @@
       color: var(--text-secondary);
     }
 
+    /* Session History Chart */
+    .history-section {
+      margin-bottom: var(--space-4);
+      padding: var(--space-3);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .history-section h3 {
+      margin: 0 0 var(--space-2);
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .sparkline-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 50px;
+      padding: var(--space-2) 0;
+    }
+
+    .sparkline-bar {
+      width: 20px;
+      background: linear-gradient(to top, var(--brand-aqua), rgba(111, 211, 245, 0.4));
+      border-radius: 3px 3px 0 0;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sparkline-bar:hover {
+      background: linear-gradient(to top, var(--gold), rgba(255, 215, 0, 0.6));
+    }
+
+    .sparkline-bar::after {
+      content: attr(data-score);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .sparkline-bar:hover::after {
+      opacity: 1;
+    }
+
+    .no-history {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: var(--font-size-xs);
+      padding: var(--space-2);
+    }
+
     .settings-group {
       margin-bottom: var(--space-4);
     }
@@ -215,6 +280,47 @@
       font-size: var(--font-size-xs);
       margin-top: var(--space-1);
       font-style: italic;
+    }
+
+    /* Toggle Switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background: var(--brand-aqua);
+      border-color: var(--brand-aqua);
+    }
+
+    .toggle-switch.active::after {
+      left: 24px;
+      background: white;
     }
 
     .right-col {
@@ -281,6 +387,73 @@
       color: var(--text-secondary);
     }
 
+    /* Streak Display */
+    .streak-display {
+      position: absolute;
+      top: 50%;
+      right: var(--space-4);
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-2);
+      background: linear-gradient(135deg, rgba(255, 149, 0, 0.2), rgba(255, 215, 0, 0.1));
+      border: 1px solid var(--streak-orange);
+      border-radius: var(--radius);
+      font-weight: var(--font-weight-bold);
+      color: var(--streak-orange);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .streak-display.visible {
+      opacity: 1;
+    }
+
+    .streak-display.multiplier-2x {
+      color: var(--streak-orange);
+      border-color: var(--streak-orange);
+      box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+    }
+
+    .streak-display.multiplier-3x {
+      color: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      animation: streakPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes streakPulse {
+      0%, 100% { transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-50%) scale(1.05); }
+    }
+
+    .streak-icon {
+      font-size: 16px;
+    }
+
+    .streak-count {
+      font-size: 14px;
+    }
+
+    .multiplier-badge {
+      font-size: 11px;
+      padding: 2px 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      margin-left: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .streak-display {
+        position: static;
+        transform: none;
+        margin: 0 auto;
+        grid-column: 1 / -1;
+        justify-self: center;
+      }
+    }
+
     .timer-bar {
       position: absolute;
       top: 0;
@@ -316,6 +489,11 @@
       z-index: 20;
       max-width: 90%;
       pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .instructions.fade-out {
+      opacity: 0;
     }
 
     #game-container {
@@ -357,6 +535,45 @@
       background: rgba(111, 211, 245, 0.05);
     }
 
+    /* Countdown Overlay */
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 14, 26, 0.9);
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .countdown-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-number {
+      font-size: 120px;
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 40px rgba(111, 211, 245, 0.6);
+      animation: countdownPop 0.5s ease-out;
+    }
+
+    .countdown-text {
+      font-size: var(--font-size-lg);
+      color: var(--text-secondary);
+      margin-top: var(--space-2);
+    }
+
+    @keyframes countdownPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     .visual-object {
       position: absolute;
       width: 50px;
@@ -372,6 +589,13 @@
       transition: all var(--duration-fast) var(--easing);
       box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
       z-index: 10;
+      opacity: 0;
+      animation: targetFadeIn 0.25s ease-out forwards;
+    }
+
+    @keyframes targetFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .visual-object:hover {
@@ -393,6 +617,19 @@
       background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--error));
       box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
       animation: incorrectShake 0.4s ease;
+    }
+
+    /* Golden bonus target */
+    .visual-object.golden {
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--gold));
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+      animation: targetFadeIn 0.25s ease-out forwards, goldenGlow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes goldenGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+      50% { box-shadow: 0 0 35px rgba(255, 215, 0, 0.9); }
     }
 
     @keyframes correctPulse {
@@ -437,6 +674,37 @@
       background: rgba(111, 211, 245, 0.2);
       border-radius: var(--radius-full);
       border: 1px solid var(--brand-aqua);
+    }
+
+    /* Reaction Time Flash */
+    .reaction-flash {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--success);
+      text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .reaction-flash.show {
+      animation: reactionPop 1s ease-out forwards;
+    }
+
+    .reaction-flash.fast {
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    @keyframes reactionPop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      80% { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
     }
 
     .stats-display {
@@ -589,6 +857,77 @@
       font-weight: var(--font-weight-bold);
     }
 
+    .new-pb-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), #ffaa00);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: var(--radius);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-bold);
+      margin-left: var(--space-2);
+      animation: pbBounce 0.5s ease;
+    }
+
+    @keyframes pbBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .comparison-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-xs);
+      margin-left: var(--space-2);
+    }
+
+    .comparison-stat.improved {
+      color: var(--success);
+    }
+
+    .comparison-stat.declined {
+      color: var(--error);
+    }
+
+    .achievement-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 149, 0, 0.1));
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      z-index: 1200;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.4s ease;
+    }
+
+    .achievement-toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .achievement-icon {
+      font-size: 32px;
+    }
+
+    .achievement-text h4 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    .achievement-text p {
+      margin: 2px 0 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
     .celebrate {
       animation: celebrate 900ms ease-out 1;
     }
@@ -606,8 +945,14 @@
     @media (prefers-reduced-motion: reduce) {
       .visual-object.correct,
       .visual-object.incorrect,
-      .celebrate { 
+      .celebrate,
+      .visual-object,
+      .countdown-number { 
         animation: none; 
+      }
+      
+      .visual-object {
+        opacity: 1;
       }
     }
 
@@ -658,6 +1003,25 @@
         top: 55px;
         max-width: 85%;
       }
+
+      .countdown-number {
+        font-size: 80px;
+      }
+
+      .reaction-flash {
+        font-size: var(--font-size-xl);
+      }
+
+      .achievement-toast {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        transform: translateY(100%);
+      }
+
+      .achievement-toast.show {
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -686,6 +1050,16 @@
           <div id="pb-settings" class="pb-value">0</div>
           <div class="pb-label">Personal Best</div>
         </div>
+        <div class="metric-settings">
+          <div id="sessions-count" class="pb-value">0</div>
+          <div class="pb-label">Sessions</div>
+        </div>
+      </div>
+
+      <!-- Session History Sparkline -->
+      <div class="history-section" id="history-section">
+        <h3>Recent Performance</h3>
+        <div class="sparkline-container" id="sparkline"></div>
       </div>
 
       <div class="settings-group">
@@ -717,6 +1091,7 @@
           <option value="letters">Letters – alphabet characters</option>
           <option value="numbers">Numbers – numeric digits</option>
           <option value="emoji">Emoji – colorful icons and faces</option>
+          <option value="highcontrast">High Contrast – distinct shapes (colorblind friendly)</option>
         </select>
         <small class="setting-help">Different object types challenge various visual processing skills.</small>
       </div>
@@ -725,6 +1100,18 @@
         <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
         <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
         <small class="setting-help">1–10 minutes recommended.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label">Options</label>
+        <div class="toggle-row">
+          <span>Sound Effects</span>
+          <div class="toggle-switch" id="sound-toggle" role="switch" aria-checked="true" tabindex="0"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Bonus Targets (3x points)</span>
+          <div class="toggle-switch active" id="bonus-toggle" role="switch" aria-checked="true" tabindex="0"></div>
+        </div>
       </div>
 
       <div class="controls">
@@ -757,6 +1144,12 @@
           <div class="hud-label">Time Left</div>
         </div>
 
+        <div class="streak-display" id="streak-display">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count" id="streak-count">0</span>
+          <span class="multiplier-badge" id="multiplier-badge">1x</span>
+        </div>
+
         <div class="controls">
           <button id="pause-session" class="btn btn-secondary">Pause</button>
           <button id="end-session" class="btn">End</button>
@@ -765,6 +1158,14 @@
 
       <div class="panel" id="game-container">
         <div id="stars-container"></div>
+
+        <!-- Countdown Overlay -->
+        <div class="countdown-overlay" id="countdown-overlay">
+          <div style="text-align: center;">
+            <div class="countdown-number" id="countdown-number">3</div>
+            <div class="countdown-text">Get ready...</div>
+          </div>
+        </div>
 
         <div class="target-display" id="target-display">
           <span>Find:</span>
@@ -780,6 +1181,9 @@
         </div>
 
         <div class="focus-overlay" id="focus-overlay"></div>
+
+        <!-- Reaction Time Flash -->
+        <div class="reaction-flash" id="reaction-flash"></div>
 
         <div class="stats-display" id="stats-display">
           <div class="stat-item">
@@ -802,8 +1206,9 @@
     <div id="completion-scores">
       <p>Targets Found: <span id="final-hits" class="score-highlight">0</span></p>
       <p>Success Rate: <span id="final-accuracy" class="score-highlight">0%</span></p>
-      <p>Average Reaction Time: <span id="final-reaction" class="score-highlight">0ms</span></p>
-      <p>Visual Performance Score: <span id="final-score" class="score-highlight">0</span></p>
+      <p>Average Reaction Time: <span id="final-reaction" class="score-highlight">0ms</span><span id="reaction-comparison" class="comparison-stat"></span></p>
+      <p>Best Streak: <span id="final-streak" class="score-highlight">0</span> 🔥</p>
+      <p>Visual Performance Score: <span id="final-score" class="score-highlight">0</span><span id="pb-badge"></span></p>
       <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
     </div>
     <div class="controls">
@@ -812,8 +1217,20 @@
     </div>
   </div>
 
+  <!-- Achievement Toast -->
+  <div class="achievement-toast" id="achievement-toast">
+    <div class="achievement-icon" id="achievement-icon">🏆</div>
+    <div class="achievement-text">
+      <h4 id="achievement-title">Achievement Unlocked!</h4>
+      <p id="achievement-desc">Description here</p>
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // ============================================
+      // STORAGE UTILITIES
+      // ============================================
       const storage = {
         get: (key, defaultValue) => {
           try {
@@ -832,6 +1249,111 @@
         }
       };
 
+      // ============================================
+      // AUDIO SYSTEM
+      // ============================================
+      const AudioSystem = {
+        enabled: true,
+        context: null,
+        
+        init() {
+          try {
+            this.context = new (window.AudioContext || window.webkitAudioContext)();
+          } catch (e) {
+            console.warn('Web Audio not supported');
+          }
+        },
+
+        play(type) {
+          if (!this.enabled || !this.context) return;
+          
+          // Resume context if suspended (autoplay policy)
+          if (this.context.state === 'suspended') {
+            this.context.resume();
+          }
+
+          const osc = this.context.createOscillator();
+          const gain = this.context.createGain();
+          osc.connect(gain);
+          gain.connect(this.context.destination);
+
+          const now = this.context.currentTime;
+
+          switch (type) {
+            case 'correct':
+              osc.frequency.setValueAtTime(523.25, now); // C5
+              osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+              gain.gain.setValueAtTime(0.3, now);
+              gain.gain.exponentialDecayTo ? gain.gain.exponentialDecayTo(0.01, now + 0.3) : gain.gain.setValueAtTime(0.01, now + 0.3);
+              osc.start(now);
+              osc.stop(now + 0.3);
+              break;
+              
+            case 'incorrect':
+              osc.frequency.setValueAtTime(200, now);
+              osc.type = 'sawtooth';
+              gain.gain.setValueAtTime(0.2, now);
+              gain.gain.setValueAtTime(0.01, now + 0.15);
+              osc.start(now);
+              osc.stop(now + 0.15);
+              break;
+              
+            case 'bonus':
+              osc.frequency.setValueAtTime(523.25, now);
+              osc.frequency.setValueAtTime(659.25, now + 0.08);
+              osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+              gain.gain.setValueAtTime(0.3, now);
+              gain.gain.setValueAtTime(0.01, now + 0.4);
+              osc.start(now);
+              osc.stop(now + 0.4);
+              break;
+
+            case 'countdown':
+              osc.frequency.setValueAtTime(440, now);
+              gain.gain.setValueAtTime(0.2, now);
+              gain.gain.setValueAtTime(0.01, now + 0.1);
+              osc.start(now);
+              osc.stop(now + 0.1);
+              break;
+
+            case 'start':
+              osc.frequency.setValueAtTime(523.25, now);
+              osc.frequency.setValueAtTime(783.99, now + 0.1);
+              gain.gain.setValueAtTime(0.3, now);
+              gain.gain.setValueAtTime(0.01, now + 0.3);
+              osc.start(now);
+              osc.stop(now + 0.3);
+              break;
+
+            case 'achievement':
+              // Fanfare-like sound
+              const osc2 = this.context.createOscillator();
+              const gain2 = this.context.createGain();
+              osc2.connect(gain2);
+              gain2.connect(this.context.destination);
+              
+              osc.frequency.setValueAtTime(523.25, now);
+              osc2.frequency.setValueAtTime(659.25, now);
+              osc.frequency.setValueAtTime(783.99, now + 0.15);
+              osc2.frequency.setValueAtTime(987.77, now + 0.15);
+              
+              gain.gain.setValueAtTime(0.25, now);
+              gain2.gain.setValueAtTime(0.25, now);
+              gain.gain.setValueAtTime(0.01, now + 0.5);
+              gain2.gain.setValueAtTime(0.01, now + 0.5);
+              
+              osc.start(now);
+              osc2.start(now);
+              osc.stop(now + 0.5);
+              osc2.stop(now + 0.5);
+              break;
+          }
+        }
+      };
+
+      // ============================================
+      // STAR BACKGROUND
+      // ============================================
       function generateStars(container, count = 150) {
         if (!container) return;
         container.innerHTML = '';
@@ -849,11 +1371,15 @@
         }
       }
 
+      // ============================================
+      // DOM ELEMENTS
+      // ============================================
       const starsContainer = document.getElementById('stars-container');
       const timerBarEl = document.getElementById('timer-bar');
       const hudScore = document.getElementById('hud-score');
       const hudPB = document.getElementById('hud-pb');
       const pbSettingsEl = document.getElementById('pb-settings');
+      const sessionsCountEl = document.getElementById('sessions-count');
       const hudHits = document.getElementById('hud-hits');
       const hudTime = document.getElementById('hud-time');
       const instructions = document.getElementById('instructions');
@@ -865,6 +1391,12 @@
       const accuracyDisplay = document.getElementById('accuracy-display');
       const reactionDisplay = document.getElementById('reaction-display');
       const feedbackMessage = document.getElementById('feedback-message');
+      const reactionFlash = document.getElementById('reaction-flash');
+      const countdownOverlay = document.getElementById('countdown-overlay');
+      const countdownNumber = document.getElementById('countdown-number');
+      const streakDisplay = document.getElementById('streak-display');
+      const streakCountEl = document.getElementById('streak-count');
+      const multiplierBadge = document.getElementById('multiplier-badge');
       const startBtn = document.getElementById('start-session');
       const pauseBtn = document.getElementById('pause-session');
       const restartBtn = document.getElementById('restart-session');
@@ -873,27 +1405,103 @@
       const finalHitsEl = document.getElementById('final-hits');
       const finalAccuracyEl = document.getElementById('final-accuracy');
       const finalReactionEl = document.getElementById('final-reaction');
+      const finalStreakEl = document.getElementById('final-streak');
       const finalScoreEl = document.getElementById('final-score');
       const finalXPEl = document.getElementById('final-xp');
+      const pbBadgeEl = document.getElementById('pb-badge');
+      const reactionComparisonEl = document.getElementById('reaction-comparison');
       const completeClose = document.getElementById('close-complete');
       const restartModalBtn = document.getElementById('restart-button');
       const difficultySelect = document.getElementById('difficulty');
       const focusAreaSelect = document.getElementById('focus-area');
       const objectTypeSelect = document.getElementById('object-type');
       const sessionDurationInp = document.getElementById('session-duration');
+      const soundToggle = document.getElementById('sound-toggle');
+      const bonusToggle = document.getElementById('bonus-toggle');
+      const sparklineContainer = document.getElementById('sparkline');
+      const achievementToast = document.getElementById('achievement-toast');
+      const achievementIcon = document.getElementById('achievement-icon');
+      const achievementTitle = document.getElementById('achievement-title');
+      const achievementDesc = document.getElementById('achievement-desc');
 
       generateStars(starsContainer, 150);
+      AudioSystem.init();
 
+      // ============================================
+      // PERSONAL BEST & SESSION HISTORY
+      // ============================================
       const PB_KEY = 'visual-scanner:best';
+      const HISTORY_KEY = 'visual-scanner:history';
+      const ACHIEVEMENTS_KEY = 'visual-scanner:achievements';
+
       const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
       const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
+
+      function getSessionHistory() {
+        return storage.get(HISTORY_KEY, []);
+      }
+
+      function addSessionToHistory(sessionData) {
+        const history = getSessionHistory();
+        history.push({
+          ...sessionData,
+          timestamp: Date.now()
+        });
+        // Keep last 10 sessions
+        if (history.length > 10) history.shift();
+        storage.set(HISTORY_KEY, history);
+      }
+
+      function getUnlockedAchievements() {
+        return storage.get(ACHIEVEMENTS_KEY, []);
+      }
+
+      function unlockAchievement(id) {
+        const unlocked = getUnlockedAchievements();
+        if (!unlocked.includes(id)) {
+          unlocked.push(id);
+          storage.set(ACHIEVEMENTS_KEY, unlocked);
+          return true;
+        }
+        return false;
+      }
 
       function updatePersonalBest() {
         const pb = getPB();
         if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
         if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
+        
+        const history = getSessionHistory();
+        if (sessionsCountEl) sessionsCountEl.textContent = String(history.length);
       }
 
+      function renderSparkline() {
+        if (!sparklineContainer) return;
+        
+        const history = getSessionHistory();
+        sparklineContainer.innerHTML = '';
+        
+        if (history.length === 0) {
+          sparklineContainer.innerHTML = '<div class="no-history">No sessions yet. Start playing to track progress!</div>';
+          return;
+        }
+
+        const maxScore = Math.max(...history.map(h => h.score), 100);
+        
+        history.forEach((session, index) => {
+          const bar = document.createElement('div');
+          bar.className = 'sparkline-bar';
+          const height = Math.max(5, (session.score / maxScore) * 45);
+          bar.style.height = height + 'px';
+          bar.dataset.score = session.score;
+          bar.title = `Session ${index + 1}: ${session.score} pts`;
+          sparklineContainer.appendChild(bar);
+        });
+      }
+
+      // ============================================
+      // GAME STATE
+      // ============================================
       let isSessionActive = false;
       let isPaused = false;
       let sessionMs = 3 * 60 * 1000;
@@ -908,14 +1516,96 @@
       let targetElement = null;
       let distractorElements = [];
       let placedPositions = [];
+      let streak = 0;
+      let bestStreak = 0;
+      let multiplier = 1;
+      let isGoldenTarget = false;
+      let instructionsFaded = false;
+      let tabHidden = false;
 
       const TARGET_SETS = {
         shapes: ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠', '⭐', '💎', '🔺', '🔸', '🔹', '⬛'],
         letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         numbers: '0123456789'.split(''),
-        emoji: ['😀', '😎', '🎯', '🎨', '🎵', '🎭', '🎊', '🎈', '🌟', '🌈', '🔥', '⚡']
+        emoji: ['😀', '😎', '🎯', '🎨', '🎵', '🎭', '🎊', '🎈', '🌟', '🌈', '🔥', '⚡'],
+        highcontrast: ['★', '●', '▲', '■', '◆', '✦', '✚', '◯', '△', '□', '◇', '✖']
       };
 
+      // ============================================
+      // ACHIEVEMENTS DEFINITIONS
+      // ============================================
+      const ACHIEVEMENTS = {
+        sharp_eye: {
+          id: 'sharp_eye',
+          icon: '👁️',
+          title: 'Sharp Eye',
+          desc: '10 consecutive correct finds',
+          check: () => streak >= 10
+        },
+        speed_demon: {
+          id: 'speed_demon',
+          icon: '⚡',
+          title: 'Speed Demon',
+          desc: 'Average reaction under 800ms',
+          check: () => {
+            if (reactionTimes.length < 5) return false;
+            const avg = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            return avg < 800;
+          }
+        },
+        perfect_ten: {
+          id: 'perfect_ten',
+          icon: '💯',
+          title: 'Perfect Ten',
+          desc: '100% accuracy with 10+ finds',
+          check: () => hits >= 10 && attempts > 0 && (hits / attempts) === 1
+        },
+        golden_hunter: {
+          id: 'golden_hunter',
+          icon: '🏆',
+          title: 'Golden Hunter',
+          desc: 'Find 5 golden bonus targets',
+          check: () => false // Tracked separately
+        },
+        marathon: {
+          id: 'marathon',
+          icon: '🏃',
+          title: 'Marathon Runner',
+          desc: 'Complete 10 sessions',
+          check: () => getSessionHistory().length >= 10
+        }
+      };
+
+      let goldenTargetsFound = 0;
+
+      function showAchievement(achievement) {
+        if (!achievementToast) return;
+        
+        achievementIcon.textContent = achievement.icon;
+        achievementTitle.textContent = achievement.title;
+        achievementDesc.textContent = achievement.desc;
+        
+        achievementToast.classList.add('show');
+        AudioSystem.play('achievement');
+        
+        setTimeout(() => {
+          achievementToast.classList.remove('show');
+        }, 4000);
+      }
+
+      function checkAchievements() {
+        Object.values(ACHIEVEMENTS).forEach(achievement => {
+          if (achievement.check && achievement.check()) {
+            if (unlockAchievement(achievement.id)) {
+              setTimeout(() => showAchievement(achievement), 500);
+            }
+          }
+        });
+      }
+
+      // ============================================
+      // UI HELPERS
+      // ============================================
       function showFeedback(message, type) {
         if (!feedbackMessage) return;
         feedbackMessage.textContent = message;
@@ -924,11 +1614,49 @@
         setTimeout(() => feedbackMessage.classList.add('hidden'), 1000);
       }
 
+      function showReactionTime(ms) {
+        if (!reactionFlash) return;
+        
+        const isFast = ms < 800;
+        reactionFlash.textContent = `${ms}ms`;
+        reactionFlash.className = 'reaction-flash show' + (isFast ? ' fast' : '');
+        
+        setTimeout(() => {
+          reactionFlash.classList.remove('show');
+        }, 1000);
+      }
+
+      function updateStreakDisplay() {
+        if (!streakDisplay) return;
+        
+        if (streak >= 3) {
+          streakDisplay.classList.add('visible');
+          streakCountEl.textContent = streak;
+          
+          if (streak >= 6) {
+            multiplier = 3;
+            streakDisplay.className = 'streak-display visible multiplier-3x';
+            multiplierBadge.textContent = '3x';
+          } else {
+            multiplier = 2;
+            streakDisplay.className = 'streak-display visible multiplier-2x';
+            multiplierBadge.textContent = '2x';
+          }
+        } else {
+          multiplier = 1;
+          streakDisplay.classList.remove('visible');
+          streakDisplay.className = 'streak-display';
+          multiplierBadge.textContent = '1x';
+        }
+      }
+
       function saveSettings() {
         if (difficultySelect) storage.set('scannerDifficulty', difficultySelect.value);
         if (focusAreaSelect) storage.set('scannerFocusArea', focusAreaSelect.value);
         if (objectTypeSelect) storage.set('scannerObjectType', objectTypeSelect.value);
         if (sessionDurationInp) storage.set('scannerSessionDuration', sessionDurationInp.value);
+        storage.set('scannerSoundEnabled', AudioSystem.enabled);
+        storage.set('scannerBonusEnabled', bonusToggle?.classList.contains('active'));
       }
 
       function loadSettings() {
@@ -936,7 +1664,19 @@
         if (focusAreaSelect) focusAreaSelect.value = storage.get('scannerFocusArea', 'none');
         if (objectTypeSelect) objectTypeSelect.value = storage.get('scannerObjectType', 'shapes');
         if (sessionDurationInp) sessionDurationInp.value = storage.get('scannerSessionDuration', 3);
+        
+        AudioSystem.enabled = storage.get('scannerSoundEnabled', true);
+        if (soundToggle) {
+          soundToggle.classList.toggle('active', AudioSystem.enabled);
+        }
+        
+        const bonusEnabled = storage.get('scannerBonusEnabled', true);
+        if (bonusToggle) {
+          bonusToggle.classList.toggle('active', bonusEnabled);
+        }
+        
         updatePersonalBest();
+        renderSparkline();
       }
 
       function updateHUD() {
@@ -957,6 +1697,8 @@
 
       function startTimer() {
         timerInterval = setInterval(() => {
+          if (tabHidden) return; // Don't tick when tab is hidden
+          
           timeRemaining -= 100;
           const progress = Math.max(0, timeRemaining / sessionMs);
           if (timerBarEl) timerBarEl.style.width = `${progress * 100}%`;
@@ -990,6 +1732,9 @@
         }
       }
 
+      // ============================================
+      // TARGET MANAGEMENT
+      // ============================================
       function pickTarget() {
         const type = objectTypeSelect?.value || 'shapes';
         const targets = TARGET_SETS[type] || TARGET_SETS.shapes;
@@ -1009,7 +1754,6 @@
         return selected;
       }
 
-      // FIXED: Better collision detection and positioning
       function checkCollision(x, y, objectSize, existingPositions, minDistance = 70) {
         for (const pos of existingPositions) {
           const dx = x - pos.x;
@@ -1055,7 +1799,6 @@
           }
         }
 
-        // Ensure valid bounds
         if (bounds.right <= bounds.left || bounds.bottom <= bounds.top) {
           bounds = {
             left: padding,
@@ -1065,7 +1808,6 @@
           };
         }
 
-        // Try to find a non-colliding position (max 50 attempts)
         let attempts = 0;
         let position;
         do {
@@ -1097,11 +1839,15 @@
         currentTarget = pickTarget();
         targetStartTime = Date.now();
         
+        // Check for golden bonus target
+        const bonusEnabled = bonusToggle?.classList.contains('active');
+        isGoldenTarget = bonusEnabled && Math.random() < 0.1; // 10% chance
+        
         if (targetIcon) targetIcon.textContent = currentTarget;
 
         // Create target element
         targetElement = document.createElement('div');
-        targetElement.className = 'visual-object';
+        targetElement.className = 'visual-object' + (isGoldenTarget ? ' golden' : '');
         targetElement.textContent = currentTarget;
         targetElement.dataset.isTarget = 'true';
 
@@ -1153,10 +1899,49 @@
         
         hits++;
         attempts++;
-        score += 100;
+        streak++;
+        if (streak > bestStreak) bestStreak = streak;
+        
+        updateStreakDisplay();
+        
+        // Calculate points with multiplier and bonus
+        let points = 100 * multiplier;
+        if (isGoldenTarget) {
+          points *= 3;
+          goldenTargetsFound++;
+          AudioSystem.play('bonus');
+          showFeedback('GOLDEN! +' + points, 'success');
+          
+          // Check golden hunter achievement
+          if (goldenTargetsFound >= 5) {
+            if (unlockAchievement('golden_hunter')) {
+              setTimeout(() => showAchievement(ACHIEVEMENTS.golden_hunter), 500);
+            }
+          }
+        } else {
+          AudioSystem.play('correct');
+          if (multiplier > 1) {
+            showFeedback(`Found it! x${multiplier}`, 'success');
+          } else {
+            showFeedback('Found it!', 'success');
+          }
+        }
+        
+        // Quick find bonus
+        if (reactionTime < 1000) {
+          points += 25;
+        }
+        
+        score += points;
         
         e.target.classList.add('correct');
-        showFeedback('Found it!', 'success');
+        showReactionTime(reactionTime);
+        
+        // Fade out instructions after first success
+        if (!instructionsFaded && instructions) {
+          instructions.classList.add('fade-out');
+          instructionsFaded = true;
+        }
         
         if (scanArea) scanArea.classList.add('celebrate');
         setTimeout(() => {
@@ -1164,12 +1949,13 @@
         }, 900);
 
         updateHUD();
+        checkAchievements();
         
         setTimeout(() => {
           if (isSessionActive) {
             spawnTarget();
           }
-        }, 1000);
+        }, 800);
       }
 
       function handleDistractorClick(e) {
@@ -1177,9 +1963,13 @@
         e.preventDefault();
         
         attempts++;
+        streak = 0;
+        updateStreakDisplay();
+        
         score = Math.max(0, score - 10);
         
         e.target.classList.add('incorrect');
+        AudioSystem.play('incorrect');
         showFeedback('Wrong target!', 'error');
         
         updateHUD();
@@ -1187,6 +1977,41 @@
         setTimeout(() => {
           e.target.classList.remove('incorrect');
         }, 400);
+      }
+
+      // ============================================
+      // SESSION MANAGEMENT
+      // ============================================
+      function runCountdown(callback) {
+        if (!countdownOverlay || !countdownNumber) {
+          callback();
+          return;
+        }
+
+        countdownOverlay.classList.add('visible');
+        let count = 3;
+        
+        function tick() {
+          countdownNumber.textContent = count;
+          countdownNumber.style.animation = 'none';
+          countdownNumber.offsetHeight; // Trigger reflow
+          countdownNumber.style.animation = 'countdownPop 0.5s ease-out';
+          
+          AudioSystem.play('countdown');
+          
+          if (count > 1) {
+            count--;
+            setTimeout(tick, 1000);
+          } else {
+            setTimeout(() => {
+              countdownOverlay.classList.remove('visible');
+              AudioSystem.play('start');
+              callback();
+            }, 800);
+          }
+        }
+        
+        tick();
       }
 
       function startSession() {
@@ -1202,24 +2027,34 @@
         currentTarget = null;
         timeRemaining = sessionMs;
         isPaused = false;
+        streak = 0;
+        bestStreak = 0;
+        multiplier = 1;
+        goldenTargetsFound = 0;
+        instructionsFaded = false;
 
         if (scanArea) {
           scanArea.innerHTML = '';
           scanArea.classList.remove('active');
         }
 
+        if (instructions) {
+          instructions.classList.remove('fade-out');
+        }
+
         updateHUD();
+        updateStreakDisplay();
         setScreen('game');
         saveSettings();
         updateFocusArea();
 
-        isSessionActive = true;
-        startTimer();
-        updatePersonalBest();
-
-        setTimeout(() => {
+        // Run countdown then start
+        runCountdown(() => {
+          isSessionActive = true;
+          startTimer();
+          updatePersonalBest();
           spawnTarget();
-        }, 500);
+        });
       }
 
       function endSession() {
@@ -1233,6 +2068,22 @@
         const accuracy = attempts > 0 ? Math.round((hits / attempts) * 100) : 0;
         const avgReaction = reactionTimes.length > 0 ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length) : 0;
 
+        // Save session to history
+        const previousHistory = getSessionHistory();
+        const previousAvgReaction = previousHistory.length > 0 
+          ? previousHistory[previousHistory.length - 1].avgReaction 
+          : null;
+
+        addSessionToHistory({
+          score,
+          hits,
+          accuracy,
+          avgReaction,
+          bestStreak,
+          difficulty: difficultySelect?.value || 'medium'
+        });
+
+        // Check for new PB
         const previousPB = getPB();
         let isNewPB = false;
         if (score > previousPB) {
@@ -1241,16 +2092,48 @@
           updatePersonalBest();
         }
 
+        // Update completion modal
         if (finalHitsEl) finalHitsEl.textContent = `${hits}`;
         if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
         if (finalReactionEl) finalReactionEl.textContent = `${avgReaction}ms`;
+        if (finalStreakEl) finalStreakEl.textContent = `${bestStreak}`;
         if (finalScoreEl) finalScoreEl.textContent = `${score}`;
         if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
 
+        // Show PB badge if new record
+        if (pbBadgeEl) {
+          pbBadgeEl.innerHTML = isNewPB ? '<span class="new-pb-badge">NEW PB!</span>' : '';
+        }
+
+        // Show reaction time comparison
+        if (reactionComparisonEl && previousAvgReaction !== null && avgReaction > 0) {
+          const diff = previousAvgReaction - avgReaction;
+          if (Math.abs(diff) > 10) {
+            if (diff > 0) {
+              reactionComparisonEl.className = 'comparison-stat improved';
+              reactionComparisonEl.innerHTML = `↓${diff}ms faster`;
+            } else {
+              reactionComparisonEl.className = 'comparison-stat declined';
+              reactionComparisonEl.innerHTML = `↑${Math.abs(diff)}ms slower`;
+            }
+          } else {
+            reactionComparisonEl.innerHTML = '';
+          }
+        } else if (reactionComparisonEl) {
+          reactionComparisonEl.innerHTML = '';
+        }
+
+        // Check achievements at end of session
+        checkAchievements();
+
         if (completionModal) completionModal.classList.add('show');
+        renderSparkline();
         setScreen('settings');
       }
 
+      // ============================================
+      // EVENT LISTENERS
+      // ============================================
       if (startBtn) startBtn.addEventListener('click', startSession);
       if (difficultySelect) difficultySelect.addEventListener('change', saveSettings);
       if (focusAreaSelect) focusAreaSelect.addEventListener('change', () => {
@@ -1259,6 +2142,39 @@
       });
       if (objectTypeSelect) objectTypeSelect.addEventListener('change', saveSettings);
       if (sessionDurationInp) sessionDurationInp.addEventListener('input', saveSettings);
+
+      // Toggle switches
+      if (soundToggle) {
+        soundToggle.addEventListener('click', () => {
+          soundToggle.classList.toggle('active');
+          AudioSystem.enabled = soundToggle.classList.contains('active');
+          saveSettings();
+          if (AudioSystem.enabled) {
+            AudioSystem.play('correct'); // Play a sound to confirm it's on
+          }
+        });
+        
+        soundToggle.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            soundToggle.click();
+          }
+        });
+      }
+
+      if (bonusToggle) {
+        bonusToggle.addEventListener('click', () => {
+          bonusToggle.classList.toggle('active');
+          saveSettings();
+        });
+        
+        bonusToggle.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            bonusToggle.click();
+          }
+        });
+      }
 
       if (pauseBtn) pauseBtn.addEventListener('click', () => {
         if (!isSessionActive) return;
@@ -1293,6 +2209,24 @@
         setScreen('settings');
       });
 
+      // Tab visibility handling - pause timer when tab is hidden
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isSessionActive && !isPaused) {
+          tabHidden = true;
+          // Auto-pause when tab hidden
+          isPaused = true;
+          stopTimer();
+          if (scanArea) scanArea.style.filter = 'grayscale(0.5) brightness(0.7)';
+          if (pauseBtn) pauseBtn.textContent = 'Resume';
+        } else if (!document.hidden && tabHidden) {
+          tabHidden = false;
+          // Don't auto-resume, user must click resume
+        }
+      });
+
+      // ============================================
+      // INITIALIZATION
+      // ============================================
       loadSettings();
       updateHUD();
       updateFocusArea();

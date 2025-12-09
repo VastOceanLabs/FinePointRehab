@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Rhythm Reach | Fine Point Rehab</title>
   <meta name="description" content="Repeat the rhythm pattern by tapping the pads. Mobile-first, accessible therapy exercise." />
+  
+  <!-- iOS Web App Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rhythm Reach" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  
+  <!-- Security - no external resources, all inline -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" />
+  
+  <!-- Prevent phone number detection that can trigger warnings -->
+  <meta name="format-detection" content="telephone=no" />
 
   <style>
     :root {
@@ -17,6 +29,7 @@
       --brand-aqua: #6fd3f5;
       --success: #4caf50;
       --error: #ff6b6b;
+      --warning: #ffc107;
       --border: #374151;
       --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
       --radius: 8px;
@@ -28,9 +41,12 @@
       --space-4: 16px;
       --space-6: 24px;
       --font-size-xs: 12px;
+      --font-size-sm: 14px;
       --font-size-base: 16px;
       --font-size-lg: 20px;
       --font-size-xl: 24px;
+      --font-size-2xl: 32px;
+      --font-size-3xl: 48px;
       --font-weight-semibold: 600;
       --font-weight-bold: 700;
       --duration-fast: 150ms;
@@ -247,6 +263,21 @@
       flex-wrap: wrap;
     }
 
+    /* Checkbox styling */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--brand-aqua);
+      cursor: pointer;
+    }
+
     /* Game screen */
     .game-container {
       display: grid;
@@ -280,6 +311,198 @@
       opacity: 0.9;
     }
 
+    /* Status indicator */
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-lg);
+      transition: all 0.3s var(--ease);
+      min-height: 56px;
+    }
+
+    .status-bar.watching {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.15));
+      border: 2px solid var(--warning);
+      color: var(--warning);
+    }
+
+    .status-bar.your-turn {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.15));
+      border: 2px solid var(--success);
+      color: var(--success);
+      animation: pulse-green 1.5s ease-in-out infinite;
+    }
+
+    .status-bar.countdown {
+      background: linear-gradient(135deg, rgba(111, 211, 245, 0.2), rgba(79, 195, 247, 0.15));
+      border: 2px solid var(--brand-aqua);
+      color: var(--brand-aqua);
+    }
+
+    .status-bar.success {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(56, 142, 60, 0.2));
+      border: 2px solid var(--success);
+      color: var(--success);
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+    }
+
+    .status-icon {
+      font-size: var(--font-size-xl);
+    }
+
+    .progress-indicator {
+      font-size: var(--font-size-sm);
+      opacity: 0.9;
+      margin-left: var(--space-2);
+    }
+
+    /* Countdown overlay */
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 26, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .countdown-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-number {
+      font-size: 120px;
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 40px rgba(111, 211, 245, 0.8);
+      animation: countdown-pop 0.5s ease-out;
+    }
+
+    @keyframes countdown-pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Success message */
+    .success-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--success);
+      text-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .success-message.show {
+      animation: success-pop 0.8s ease-out forwards;
+    }
+
+    @keyframes success-pop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-30px); }
+    }
+
+    /* Summary screen */
+    .summary-panel {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: var(--space-6);
+      text-align: center;
+    }
+
+    .summary-panel h2 {
+      margin: 0 0 var(--space-6);
+      font-size: var(--font-size-xl);
+      color: var(--brand-aqua);
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .summary-stat {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+
+    .summary-stat-value {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 8px rgba(111, 211, 245, 0.5);
+    }
+
+    .summary-stat-label {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-top: var(--space-1);
+    }
+
+    .summary-stat.highlight {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(111, 211, 245, 0.15), rgba(79, 195, 247, 0.1));
+      border-color: var(--brand-aqua);
+    }
+
+    .summary-stat.new-pb {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.15));
+      border-color: var(--success);
+    }
+
+    .summary-stat.new-pb .summary-stat-value {
+      color: var(--success);
+    }
+
+    .new-pb-badge {
+      display: inline-block;
+      background: var(--success);
+      color: #000;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-bold);
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: var(--space-2);
+      animation: bounce 0.5s ease infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-3px); }
+    }
+
+    .summary-controls {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 768px) {
       .hud {
         grid-template-columns: 1fr 1fr 1fr;
@@ -304,6 +527,24 @@
         padding: 6px 12px;
         font-size: 13px;
       }
+
+      .status-bar {
+        font-size: var(--font-size-base);
+        padding: var(--space-2) var(--space-3);
+        min-height: 48px;
+      }
+
+      .countdown-number {
+        font-size: 80px;
+      }
+
+      .summary-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-stat.highlight {
+        grid-column: 1;
+      }
     }
 
     .grid-container {
@@ -311,6 +552,7 @@
       justify-content: center;
       align-items: center;
       padding: var(--space-4);
+      position: relative;
     }
 
     .grid {
@@ -425,6 +667,11 @@
     </div>
   </header>
 
+  <!-- Countdown Overlay -->
+  <div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-number" id="countdownNumber">3</div>
+  </div>
+
   <main class="page">
     <!-- Settings Screen -->
     <aside class="settings-panel panel active" data-screen="settings">
@@ -473,6 +720,14 @@
         <small class="setting-help">How long to wait before each new pattern starts.</small>
       </div>
 
+      <div class="settings-group">
+        <label class="checkbox-group">
+          <input type="checkbox" id="soundEnabled" checked>
+          <span>Enable sound effects</span>
+        </label>
+        <small class="setting-help">Play tones when tiles light up (helps with memory).</small>
+      </div>
+
       <div class="controls">
         <button class="btn btn-primary" id="start">Start</button>
       </div>
@@ -484,6 +739,11 @@
         <div class="hud-group">
           <div id="score" class="hud-value">0</div>
           <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="round" class="hud-value">1</div>
+          <div class="hud-label">Round</div>
         </div>
 
         <div class="hud-group">
@@ -502,7 +762,15 @@
         </div>
       </div>
 
+      <!-- Status Bar -->
+      <div class="status-bar watching" id="statusBar">
+        <span class="status-icon" id="statusIcon">👀</span>
+        <span id="statusText">Get ready...</span>
+        <span class="progress-indicator" id="progressIndicator"></span>
+      </div>
+
       <div class="panel grid-container">
+        <div class="success-message" id="successMessage">Perfect! 🎉</div>
         <div class="grid" id="grid" aria-label="Rhythm pads">
           <button class="pad" data-idx="1" aria-label="Pad 1">1</button>
           <button class="pad" data-idx="2" aria-label="Pad 2">2</button>
@@ -516,9 +784,185 @@
         </div>
       </div>
     </section>
+
+    <!-- Summary Screen -->
+    <section class="summary-panel panel" data-screen="summary">
+      <h2>Session Complete!</h2>
+
+      <div class="summary-stats">
+        <div class="summary-stat highlight" id="summaryScoreStat">
+          <div class="summary-stat-value" id="summaryScore">0</div>
+          <div class="summary-stat-label">Final Score</div>
+        </div>
+
+        <div class="summary-stat">
+          <div class="summary-stat-value" id="summaryRounds">0</div>
+          <div class="summary-stat-label">Rounds Completed</div>
+        </div>
+
+        <div class="summary-stat">
+          <div class="summary-stat-value" id="summaryAccuracy">0%</div>
+          <div class="summary-stat-label">Accuracy</div>
+        </div>
+
+        <div class="summary-stat">
+          <div class="summary-stat-value" id="summaryTime">00:00</div>
+          <div class="summary-stat-label">Time Played</div>
+        </div>
+
+        <div class="summary-stat">
+          <div class="summary-stat-value" id="summaryBest">0</div>
+          <div class="summary-stat-label">Personal Best</div>
+        </div>
+      </div>
+
+      <div class="summary-controls">
+        <button class="btn btn-primary" id="playAgain">Play Again</button>
+        <button class="btn btn-secondary" id="backToSettings">Settings</button>
+      </div>
+    </section>
   </main>
 
   <script>
+    // ---------- Audio System ----------
+    const Audio = (() => {
+      let ctx = null;
+      let enabled = true;
+      let initialized = false;
+
+      // Pentatonic scale frequencies for pleasant sounds
+      const frequencies = [
+        261.63, // C4 - pad 1
+        293.66, // D4 - pad 2
+        329.63, // E4 - pad 3
+        392.00, // G4 - pad 4
+        440.00, // A4 - pad 5
+        523.25, // C5 - pad 6
+        587.33, // D5 - pad 7
+        659.25, // E5 - pad 8
+        783.99, // G5 - pad 9
+      ];
+
+      function init() {
+        if (initialized) return;
+        
+        try {
+          // Create audio context only on user gesture (required by iOS Safari)
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) {
+            console.warn('Web Audio API not supported');
+            return;
+          }
+          
+          ctx = new AudioContextClass();
+          
+          // iOS Safari requires resume after user interaction
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+          
+          initialized = true;
+        } catch (e) {
+          console.warn('Audio initialization failed:', e);
+        }
+      }
+
+      function playTone(padIndex, duration = 200) {
+        if (!enabled || !ctx || !initialized) return;
+        
+        // Ensure context is running (iOS Safari requirement)
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.type = 'sine';
+          osc.frequency.value = frequencies[padIndex - 1] || 440;
+          
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
+          
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + duration / 1000);
+        } catch (e) {
+          console.warn('Audio playback failed:', e);
+        }
+      }
+
+      function playError() {
+        if (!enabled || !ctx || !initialized) return;
+        
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.type = 'sawtooth';
+          osc.frequency.value = 150;
+          
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+          
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.15);
+        } catch (e) {
+          console.warn('Audio playback failed:', e);
+        }
+      }
+
+      function playSuccess() {
+        if (!enabled || !ctx || !initialized) return;
+        
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        
+        // Play a quick ascending arpeggio
+        [0, 100, 200].forEach((delay, i) => {
+          setTimeout(() => {
+            try {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              
+              osc.type = 'sine';
+              osc.frequency.value = [523.25, 659.25, 783.99][i];
+              
+              gain.gain.setValueAtTime(0.25, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+              
+              osc.start(ctx.currentTime);
+              osc.stop(ctx.currentTime + 0.15);
+            } catch (e) {}
+          }, delay);
+        });
+      }
+
+      function setEnabled(val) {
+        enabled = val;
+      }
+
+      function isEnabled() {
+        return enabled;
+      }
+
+      return { init, playTone, playError, playSuccess, setEnabled, isEnabled };
+    })();
+
     // ---------- Utilities ----------
     const activeTimeouts = new Set();
     const sleep = (ms) => new Promise(res => { const t=setTimeout(()=>{activeTimeouts.delete(t);res();},ms); activeTimeouts.add(t); });
@@ -530,20 +974,88 @@
     const startBtn = document.getElementById('start');
     const pauseBtn = document.getElementById('pause');
     const endBtn   = document.getElementById('end');
+    const playAgainBtn = document.getElementById('playAgain');
+    const backToSettingsBtn = document.getElementById('backToSettings');
 
     const startLenInput = document.getElementById('startLen');
     const speedSelect   = document.getElementById('speed');
     const roundGapSelect= document.getElementById('roundGap');
+    const soundEnabledCheck = document.getElementById('soundEnabled');
 
     const scoreEl = document.getElementById('score');
     const bestEl  = document.getElementById('best');
     const pbEl    = document.getElementById('pb');
     const timeEl  = document.getElementById('time');
+    const roundEl = document.getElementById('round');
+
+    const statusBar = document.getElementById('statusBar');
+    const statusIcon = document.getElementById('statusIcon');
+    const statusText = document.getElementById('statusText');
+    const progressIndicator = document.getElementById('progressIndicator');
+
+    const countdownOverlay = document.getElementById('countdownOverlay');
+    const countdownNumber = document.getElementById('countdownNumber');
+
+    const successMessage = document.getElementById('successMessage');
+
+    // Summary elements
+    const summaryScore = document.getElementById('summaryScore');
+    const summaryRounds = document.getElementById('summaryRounds');
+    const summaryAccuracy = document.getElementById('summaryAccuracy');
+    const summaryTime = document.getElementById('summaryTime');
+    const summaryBest = document.getElementById('summaryBest');
+    const summaryScoreStat = document.getElementById('summaryScoreStat');
 
     // ---------- Screens ----------
     function setScreen(which){
       document.querySelectorAll('[data-screen]').forEach(el => el.classList.remove('active'));
       document.querySelector(`[data-screen="${which}"]`)?.classList.add('active');
+    }
+
+    // ---------- Status Bar ----------
+    function setStatus(type, text, progress = '') {
+      statusBar.className = 'status-bar ' + type;
+      statusText.textContent = text;
+      progressIndicator.textContent = progress;
+      
+      const icons = {
+        'watching': '👀',
+        'your-turn': '👆',
+        'countdown': '⏱️',
+        'success': '✨'
+      };
+      statusIcon.textContent = icons[type] || '👀';
+    }
+
+    // ---------- Countdown ----------
+    async function showCountdown() {
+      countdownOverlay.classList.add('active');
+      
+      for (let i = 3; i >= 1; i--) {
+        countdownNumber.textContent = i;
+        countdownNumber.style.animation = 'none';
+        countdownNumber.offsetHeight; // Trigger reflow
+        countdownNumber.style.animation = 'countdown-pop 0.5s ease-out';
+        await sleep(800);
+      }
+      
+      countdownNumber.textContent = 'Go!';
+      countdownNumber.style.animation = 'none';
+      countdownNumber.offsetHeight;
+      countdownNumber.style.animation = 'countdown-pop 0.5s ease-out';
+      await sleep(500);
+      
+      countdownOverlay.classList.remove('active');
+    }
+
+    // ---------- Success Message ----------
+    function showSuccess() {
+      const messages = ['Perfect! 🎉', 'Nice! ⭐', 'Great! 💫', 'Awesome! 🌟'];
+      successMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
+      successMessage.classList.remove('show');
+      successMessage.offsetHeight;
+      successMessage.classList.add('show');
+      Audio.playSuccess();
     }
 
     // ---------- Lighting (single source of truth) ----------
@@ -559,11 +1071,12 @@
         }
       }
 
-      function flash(idx, duration=500){
+      function flash(idx, duration=500, playSound=true){
         return new Promise(res=>{
           hardOff();
           pads[idx-1]?.classList.add('glow');
           lit = idx;
+          if (playSound) Audio.playTone(idx, duration);
           offTO = setTimeout(()=>{ offTO=null; hardOff(); res(); }, Math.max(80, Number(duration)||0));
         });
       }
@@ -578,6 +1091,8 @@
     let score=0, best=0, rounds=0;
     let seq=[], userIndex=0;
     let playbackToken=0;
+    let correctTaps = 0, totalTaps = 0;
+    let finalTimeStr = '00:00';
 
     // Timer (simple elapsed)
     let timerId = null, startTs = 0;
@@ -589,6 +1104,7 @@
         const mm = String(Math.floor(s/60)).padStart(2,'0');
         const ss = String(s%60).padStart(2,'0');
         timeEl.textContent = `${mm}:${ss}`;
+        finalTimeStr = `${mm}:${ss}`;
       }, 200);
     }
     function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
@@ -623,13 +1139,19 @@
       const { glow, gap } = playbackTimings();
       const roundDelay = Number(roundGapSelect.value) || 1500;
 
+      setStatus('watching', 'Watch the sequence...', '');
+      
       await sleep(roundDelay);
       if(myToken !== playbackToken || !running){ playingBack=false; return; }
 
+      let stepNum = 0;
       for(const idx of seq){
         while(paused && myToken===playbackToken && running){ await sleep(40); }
         if(myToken !== playbackToken || !running) break;
 
+        stepNum++;
+        setStatus('watching', 'Watch the sequence...', `${stepNum}/${seq.length}`);
+        
         await Light.flash(idx, glow);
         await sleep(gap);
       }
@@ -637,17 +1159,27 @@
       Light.off();
       playingBack = false;
       userIndex = 0;
+      
+      if(myToken === playbackToken && running) {
+        setStatus('your-turn', 'Your turn!', `0/${seq.length}`);
+      }
     }
 
     // ---------- User input ----------
     function onUserPad(idx, pointerType='mouse'){
       if(!running || paused || playingBack) return;
 
+      totalTaps++;
+      
       const expected = seq[userIndex];
       if(idx === expected){
+        correctTaps++;
         const { glow } = playbackTimings();
         Light.flash(idx, glow);
-        if(navigator.vibrate){ try{ navigator.vibrate(15); }catch(_){} }
+        // Haptic feedback (Android only - iOS doesn't support navigator.vibrate)
+        if(navigator.vibrate && !/iPad|iPhone|iPod/.test(navigator.userAgent)){ 
+          try{ navigator.vibrate(15); }catch(_){} 
+        }
 
         if (pointerType !== 'keyboard') {
           const el = pads[idx-1];
@@ -656,14 +1188,21 @@
 
         score += 10; scoreEl.textContent = String(score);
         userIndex++;
+        
+        setStatus('your-turn', 'Your turn!', `${userIndex}/${seq.length}`);
+        
         if(userIndex >= seq.length){
+          showSuccess();
           setTimeout(() => {
             Light.off(); clearAllPadStates();
-            rounds++; seq.push(randPad());
+            rounds++; 
+            roundEl.textContent = String(rounds);
+            seq.push(randPad());
             playSequence();
-          }, 500);
+          }, 700);
         }
       } else {
+        Audio.playError();
         const el = pads[idx-1]; if(el){
           el.classList.add('wrong');
           const t = setTimeout(()=>{ el.classList.remove('wrong'); activeTimeouts.delete(t); }, 280);
@@ -671,6 +1210,7 @@
         }
         score = Math.max(0, score - 5); scoreEl.textContent = String(score);
         userIndex = 0;
+        setStatus('your-turn', 'Try again from start!', `0/${seq.length}`);
       }
     }
 
@@ -687,21 +1227,64 @@
       });
     });
 
+    // ---------- Summary Screen ----------
+    function showSummary() {
+      const isNewPB = score > best;
+      if (isNewPB) writePB(score);
+      
+      summaryScore.textContent = score;
+      summaryRounds.textContent = rounds;
+      summaryTime.textContent = finalTimeStr;
+      summaryBest.textContent = Math.max(score, best);
+      
+      const accuracy = totalTaps > 0 ? Math.round((correctTaps / totalTaps) * 100) : 0;
+      summaryAccuracy.textContent = accuracy + '%';
+      
+      // Highlight if new PB
+      summaryScoreStat.classList.remove('new-pb');
+      const existingBadge = summaryScoreStat.querySelector('.new-pb-badge');
+      if (existingBadge) existingBadge.remove();
+      
+      if (isNewPB && score > 0) {
+        summaryScoreStat.classList.add('new-pb');
+        const badge = document.createElement('div');
+        badge.className = 'new-pb-badge';
+        badge.textContent = '🏆 NEW BEST!';
+        summaryScoreStat.appendChild(badge);
+      }
+      
+      setScreen('summary');
+    }
+
     // ---------- Session control ----------
     function resetSessionState(){
       running=false; paused=false; playingBack=false; ++playbackToken;
       stopTimer(); clearAllTimers(); Light.off(); clearAllPadStates();
       score=0; rounds=0; seq=[]; userIndex=0;
-      scoreEl.textContent='0'; timeEl.textContent='00:00';
+      correctTaps=0; totalTaps=0; finalTimeStr='00:00';
+      scoreEl.textContent='0'; timeEl.textContent='00:00'; roundEl.textContent='1';
+      pauseBtn.textContent = 'Pause';
     }
 
     async function startSession(){
       resetSessionState(); readPB();
+      
+      // Initialize audio on user interaction
+      Audio.init();
+      Audio.setEnabled(soundEnabledCheck.checked);
 
       const startLen = clamp(Number(startLenInput.value)||3, 1, 9);
       for(let i=0;i<startLen;i++) seq.push(randPad());
 
-      running = true; setScreen('game'); startTimer();
+      setScreen('game');
+      
+      // Show countdown
+      await showCountdown();
+      
+      running = true; 
+      rounds = 1;
+      roundEl.textContent = '1';
+      startTimer();
       await playSequence();
     }
 
@@ -709,8 +1292,7 @@
       if(!running && !paused) return;
       running=false; paused=false; playingBack=false; ++playbackToken;
       stopTimer(); Light.off(); clearAllPadStates();
-      if(score>best) writePB(score);
-      setScreen('settings');
+      showSummary();
     }
 
     function togglePause(){
@@ -725,6 +1307,12 @@
     startBtn.addEventListener('click', startSession);
     endBtn.addEventListener('click', endSession);
     pauseBtn.addEventListener('click', togglePause);
+    playAgainBtn.addEventListener('click', startSession);
+    backToSettingsBtn.addEventListener('click', () => setScreen('settings'));
+    
+    soundEnabledCheck.addEventListener('change', () => {
+      Audio.setEnabled(soundEnabledCheck.checked);
+    });
 
     // ---------- Init ----------
     readPB(); setScreen('settings');

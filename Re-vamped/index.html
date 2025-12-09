@@ -232,6 +232,50 @@
             background: var(--bg-secondary);
         }
         
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--space-2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .theme-toggle:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+            background: var(--bg-secondary);
+        }
+        
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .theme-toggle .sun-icon {
+            display: none;
+        }
+        
+        .theme-toggle .moon-icon {
+            display: block;
+        }
+        
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            display: block;
+        }
+        
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            display: none;
+        }
+        
         /* Buttons */
         .btn {
             display: inline-flex;
@@ -348,6 +392,18 @@
         .featured-tile:hover {
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Mobile touch feedback */
+        .featured-tile:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (hover: none) {
+            .featured-tile:active::before {
+                opacity: 1;
+            }
         }
         
         .featured-tile:hover::before {
@@ -490,6 +546,27 @@
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
             border-color: var(--brand-blue);
+        }
+        
+        /* Mobile touch feedback */
+        .exercise-tile:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: var(--shadow);
+        }
+        
+        @media (hover: none) {
+            .exercise-tile:active {
+                border-color: var(--brand-blue);
+                background: var(--bg-secondary);
+            }
+            
+            .exercise-tile:active .play-overlay {
+                opacity: 1;
+            }
+            
+            .exercise-tile:active .tile-icon {
+                transform: scale(1.1);
+            }
         }
         
         .tile-preview {
@@ -983,6 +1060,22 @@
                     <a href="about.html">About</a>
                     <a href="faq.html">FAQ</a>
                     <a href="contact.html">Contact</a>
+                    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
                 </nav>
             </div>
         </div>
@@ -1406,13 +1499,42 @@
     </footer>
     
     <script>
-        // Theme detection and accessibility
+        // Theme detection and toggle
         document.addEventListener('DOMContentLoaded', function() {
-            // Apply user's theme preference
-            if (localStorage.getItem('theme') === 'dark' || 
-                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            // Apply user's saved theme or system preference
+            function getPreferredTheme() {
+                const saved = localStorage.getItem('theme');
+                if (saved) return saved;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
+            
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                localStorage.setItem('theme', theme);
+            }
+            
+            // Initialize theme
+            setTheme(getPreferredTheme());
+            
+            // Toggle theme on button click
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    setTheme(e.matches ? 'dark' : 'light');
+                }
+            });
             
             // Respect reduced motion preference
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

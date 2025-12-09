@@ -14,6 +14,7 @@
       --text-secondary: #b8c5d1;
       --text-muted: #8a96a3;
       --brand-aqua: #6fd3f5;
+      --brand-gold: #ffd700;
       --success: #4caf50;
       --error: #ff6b6b;
       --error-bg: #2d1b1b;
@@ -217,6 +218,12 @@
       font-style: italic;
     }
 
+    .settings-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+
     .right-col {
       display: grid;
       grid-template-rows: auto 1fr;
@@ -225,8 +232,7 @@
 
     .hud {
       display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 1fr;
+      grid-template-columns: repeat(5, 1fr) auto;
       gap: var(--space-2);
       align-items: center;
       position: relative;
@@ -250,6 +256,54 @@
       color: var(--text-secondary);
     }
 
+    .streak-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .streak-value {
+      color: var(--brand-gold);
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+
+    .streak-fire {
+      font-size: 18px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .streak-fire.active {
+      opacity: 1;
+      animation: flamePulse 0.5s ease infinite;
+    }
+
+    @keyframes flamePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .multiplier-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--brand-gold);
+      color: #000;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.2s ease;
+    }
+
+    .multiplier-badge.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
     .timer-bar {
       position: absolute;
       top: 0;
@@ -261,6 +315,20 @@
       transition: width .1s linear;
       border-top-left-radius: var(--radius);
       border-top-right-radius: var(--radius);
+    }
+
+    .timer-bar.warning {
+      background: linear-gradient(90deg, var(--brand-gold), rgba(255, 215, 0, 0.35));
+    }
+
+    .timer-bar.danger {
+      background: linear-gradient(90deg, var(--error), rgba(255, 107, 107, 0.35));
+      animation: dangerPulse 0.5s ease infinite;
+    }
+
+    @keyframes dangerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     .controls {
@@ -339,6 +407,16 @@
       border: 2px solid rgba(255, 255, 255, 0.2);
       touch-action: none;
       user-select: none;
+      opacity: 0;
+      transform: scale(0.5);
+      animation: objectAppear 0.4s ease forwards;
+    }
+
+    @keyframes objectAppear {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .sort-object.number-type {
@@ -377,6 +455,28 @@
       opacity: 0.25;
     }
 
+    .sort-object.selected {
+      box-shadow: 0 0 0 4px var(--brand-gold), 0 0 25px rgba(255, 215, 0, 0.6);
+      transform: scale(1.1);
+      z-index: 10;
+      animation: selectedPulse 1s ease infinite;
+    }
+
+    @keyframes selectedPulse {
+      0%, 100% { box-shadow: 0 0 0 4px var(--brand-gold), 0 0 25px rgba(255, 215, 0, 0.6); }
+      50% { box-shadow: 0 0 0 6px var(--brand-gold), 0 0 35px rgba(255, 215, 0, 0.8); }
+    }
+
+    .sort-object.sorting-out {
+      animation: sortOut 0.4s ease forwards;
+    }
+
+    @keyframes sortOut {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
     .object-clone {
       position: absolute;
       opacity: 0.85;
@@ -398,6 +498,7 @@
       transition: all var(--duration-fast) var(--easing);
       background: rgba(8, 15, 35, 0.4);
       position: relative;
+      cursor: pointer;
     }
 
     .category-box.highlight {
@@ -406,6 +507,16 @@
       transform: scale(1.05);
       border-color: var(--brand-aqua);
       border-style: solid;
+    }
+
+    .category-box.selectable {
+      border-color: var(--brand-gold);
+      animation: categoryReady 1s ease infinite;
+    }
+
+    @keyframes categoryReady {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+      50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
     }
 
     .category-box.correct {
@@ -420,6 +531,26 @@
       background: rgba(255, 107, 107, 0.15);
       box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
       animation: incorrectShake 0.5s ease;
+    }
+
+    .category-received {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .category-received.show {
+      animation: receivedPop 0.6s ease forwards;
+    }
+
+    @keyframes receivedPop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      30% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-20px); }
     }
 
     @keyframes correctPulse {
@@ -508,6 +639,36 @@
       color: var(--error);
     }
 
+    .feedback-message.streak {
+      border-color: var(--brand-gold);
+      color: var(--brand-gold);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .bonus-points {
+      position: absolute;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--brand-gold);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 101;
+    }
+
+    .bonus-points.show {
+      animation: bonusFloat 1s ease forwards;
+    }
+
+    @keyframes bonusFloat {
+      0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+      20% { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1.2); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-50px) scale(1); }
+    }
+
     .challenge-display {
       position: absolute;
       top: var(--space-2);
@@ -524,6 +685,23 @@
       backdrop-filter: blur(8px);
       box-shadow: var(--shadow-lg);
       font-size: 14px;
+    }
+
+    .tap-hint {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(15, 22, 41, 0.9);
+      padding: 4px 8px;
+      border-radius: var(--radius);
+      z-index: 20;
+      display: none;
+    }
+
+    .tap-mode-active .tap-hint {
+      display: block;
     }
 
     .progress-container {
@@ -548,6 +726,7 @@
       background: rgba(148, 163, 184, 0.2);
       border-radius: var(--radius-full);
       overflow: hidden;
+      position: relative;
     }
 
     .progress-fill {
@@ -555,6 +734,14 @@
       width: 0%;
       background: linear-gradient(90deg, var(--brand-aqua), var(--success));
       transition: width 0.3s ease;
+    }
+
+    .progress-milestone {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .progress-text {
@@ -591,6 +778,68 @@
       }
     }
 
+    .completion-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin: var(--space-4) 0;
+    }
+
+    .completion-stat {
+      background: var(--bg-tertiary);
+      padding: var(--space-3);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .completion-stat-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+    }
+
+    .completion-stat-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      margin-top: var(--space-1);
+    }
+
+    .new-pb-badge {
+      display: inline-block;
+      background: var(--brand-gold);
+      color: #000;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: var(--space-3);
+      animation: pbPulse 1s ease infinite;
+    }
+
+    @keyframes pbPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+    }
+
+    .achievements-earned {
+      margin-top: var(--space-3);
+      padding: var(--space-3);
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: var(--radius);
+    }
+
+    .achievement-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-tertiary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 4px;
+      font-size: 13px;
+    }
+
     .score-highlight {
       color: var(--brand-aqua);
       font-weight: var(--font-weight-bold);
@@ -606,6 +855,38 @@
       100% { box-shadow: 0 0 20px rgba(111,211,245,.2); }
     }
 
+    /* Particle effects container */
+    .particles-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .particle.correct {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .particle.streak {
+      background: var(--brand-gold);
+      box-shadow: 0 0 6px var(--brand-gold);
+    }
+
+    @keyframes particleBurst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
     .hidden {
       display: none !important;
     }
@@ -613,14 +894,21 @@
     @media (prefers-reduced-motion: reduce) {
       .category-box.correct,
       .category-box.incorrect,
-      .celebrate { 
+      .celebrate,
+      .sort-object,
+      .streak-fire.active,
+      .particle { 
         animation: none; 
+      }
+      .sort-object {
+        opacity: 1;
+        transform: scale(1);
       }
     }
 
     @media (max-width: 768px) {
       .hud {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
         grid-auto-flow: row;
         gap: var(--space-1);
         padding: var(--space-2);
@@ -649,27 +937,31 @@
       }
       
       .sort-object {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
+        width: 65px;
+        height: 65px;
+        font-size: 26px;
       }
       
       .category-box {
-        width: 110px;
-        height: 110px;
+        width: 100px;
+        height: 100px;
       }
       
       .category-icon {
-        font-size: 30px;
+        font-size: 28px;
       }
       
       .category-label {
-        font-size: 14px;
+        font-size: 13px;
       }
       
       .settings-panel {
         padding: var(--space-3);
         margin: var(--space-2);
+      }
+      
+      .settings-row {
+        grid-template-columns: 1fr;
       }
       
       .page {
@@ -690,6 +982,19 @@
       .challenge-display {
         font-size: 13px;
         padding: 4px 10px;
+      }
+
+      .completion-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-2);
+      }
+
+      .completion-stat {
+        padding: var(--space-2);
+      }
+
+      .completion-stat-value {
+        font-size: var(--font-size-lg);
       }
     }
   </style>
@@ -719,6 +1024,10 @@
           <div id="pb-settings" class="pb-value">0</div>
           <div class="pb-label">Personal Best</div>
         </div>
+        <div class="metric-settings">
+          <div id="best-streak-settings" class="pb-value">0</div>
+          <div class="pb-label">Best Streak</div>
+        </div>
       </div>
 
       <div class="settings-group">
@@ -742,35 +1051,51 @@
         <small class="setting-help">Different categories challenge different cognitive skills.</small>
       </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="objects-count">Objects Per Round</label>
-        <select class="input" id="objects-count">
-          <option value="6">Few — 6 objects per round</option>
-          <option value="9" selected>Medium — 9 objects per round</option>
-          <option value="12">Many — 12 objects per round</option>
-        </select>
-        <small class="setting-help">More objects increase working memory demands.</small>
+      <div class="settings-row">
+        <div class="settings-group">
+          <label class="settings-label" for="objects-count">Objects Per Round</label>
+          <select class="input" id="objects-count">
+            <option value="6">Few — 6 objects</option>
+            <option value="9" selected>Medium — 9 objects</option>
+            <option value="12">Many — 12 objects</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" for="session-duration">Duration (min)</label>
+          <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-group">
+          <label class="settings-label" for="hint-setting">Category Hints</label>
+          <select class="input" id="hint-setting">
+            <option value="off">Off</option>
+            <option value="hover" selected>On Hover</option>
+            <option value="always">Always</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" for="input-mode">Input Mode</label>
+          <select class="input" id="input-mode">
+            <option value="drag" selected>Drag & Drop</option>
+            <option value="tap">Tap to Place</option>
+          </select>
+          <small class="setting-help">Tap mode is easier for touch screens.</small>
+        </div>
       </div>
 
       <div class="settings-group">
-        <label class="settings-label" for="hint-setting">Category Hints</label>
-        <select class="input" id="hint-setting">
-          <option value="off">Off — no hints shown</option>
-          <option value="hover" selected>On Hover — hints when hovering</option>
-          <option value="always">Always — hints always visible</option>
-        </select>
-        <small class="setting-help">Hints can assist with learning category rules.</small>
-      </div>
-
-      <div class="settings-group">
-        <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
-        <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
-        <small class="setting-help">1–10 minutes recommended.</small>
+        <label class="settings-label">
+          <input type="checkbox" id="sound-enabled" checked style="margin-right: 8px;">
+          Sound Effects
+        </label>
       </div>
 
       <div class="controls">
-        <button id="start-session" class="btn btn-primary">Start</button>
-        <button id="restart-session" class="btn">Restart</button>
+        <button id="start-session" class="btn btn-primary">Start Session</button>
       </div>
     </aside>
 
@@ -783,9 +1108,18 @@
           <div class="hud-label">Score</div>
         </div>
 
+        <div class="hud-group" style="position: relative;">
+          <div class="streak-display">
+            <span id="streak-fire" class="streak-fire">🔥</span>
+            <span id="hud-streak" class="hud-value streak-value">0</span>
+          </div>
+          <div class="hud-label">Streak</div>
+          <div id="multiplier-badge" class="multiplier-badge">x2</div>
+        </div>
+
         <div class="hud-group">
-          <div id="hud-pb" class="hud-value">0</div>
-          <div class="hud-label">Personal Best</div>
+          <div id="hud-accuracy" class="hud-value">100%</div>
+          <div class="hud-label">Accuracy</div>
         </div>
 
         <div class="hud-group">
@@ -795,7 +1129,7 @@
 
         <div class="hud-group">
           <div id="hud-time" class="hud-value">3:00</div>
-          <div class="hud-label">Time Left</div>
+          <div class="hud-label">Time</div>
         </div>
 
         <div class="controls">
@@ -806,10 +1140,13 @@
 
       <div class="panel" id="game-container">
         <div id="stars-container"></div>
+        <div id="particles-container" class="particles-container"></div>
 
         <div class="challenge-display" id="challenge-display">
           Sort the objects by their categories
         </div>
+
+        <div class="tap-hint" id="tap-hint">Tap object, then tap category</div>
 
         <p class="instructions" id="instructions">
           Drag and drop objects into their matching category boxes below.
@@ -821,49 +1158,225 @@
 
         <div class="progress-container" id="progress-container">
           <div class="progress-bar">
+            <div class="progress-milestone" style="left: 25%;"></div>
+            <div class="progress-milestone" style="left: 50%;"></div>
+            <div class="progress-milestone" style="left: 75%;"></div>
             <div class="progress-fill" id="progress-fill"></div>
           </div>
           <div class="progress-text" id="progress-text">0/0</div>
         </div>
 
         <div class="feedback-message hidden" id="feedback-message" role="status" aria-live="polite"></div>
+        <div class="bonus-points" id="bonus-points"></div>
       </div>
     </section>
   </main>
 
   <div id="completion-message" class="completion panel">
-    <h2>Therapy Session Complete!</h2>
-    <div id="completion-scores">
-      <p>Rounds Completed: <span id="final-rounds" class="score-highlight">0</span></p>
-      <p>Success Rate: <span id="final-accuracy" class="score-highlight">0%</span></p>
-      <p>Cognitive Performance Score: <span id="final-score" class="score-highlight">0</span></p>
-      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
+    <div id="new-pb-badge" class="new-pb-badge hidden">🏆 NEW PERSONAL BEST!</div>
+    <h2>Session Complete!</h2>
+    
+    <div class="completion-stats">
+      <div class="completion-stat">
+        <div id="final-score" class="completion-stat-value">0</div>
+        <div class="completion-stat-label">Final Score</div>
+      </div>
+      <div class="completion-stat">
+        <div id="final-accuracy" class="completion-stat-value">0%</div>
+        <div class="completion-stat-label">Accuracy</div>
+      </div>
+      <div class="completion-stat">
+        <div id="final-rounds" class="completion-stat-value">0</div>
+        <div class="completion-stat-label">Rounds</div>
+      </div>
+      <div class="completion-stat">
+        <div id="final-streak" class="completion-stat-value">0</div>
+        <div class="completion-stat-label">Best Streak</div>
+      </div>
     </div>
+
+    <div id="achievements-container" class="achievements-earned hidden">
+      <strong>🎖️ Achievements Earned:</strong>
+      <div id="achievements-list"></div>
+    </div>
+
+    <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
+
     <div class="controls">
-      <button id="restart-button" class="btn btn-primary">Start New Therapy Session</button>
+      <button id="restart-button" class="btn btn-primary">Play Again</button>
       <button class="btn" id="close-complete">Close</button>
     </div>
   </div>
 
   <script>
+    // ============ STORAGE ============
+    // Robust storage system that handles iOS full-screen mode and blocked storage
     const storage = {
-      get: (key, defaultValue) => {
+      _memoryFallback: {},
+      _storageAvailable: null,
+      
+      _checkAvailability() {
+        if (this._storageAvailable !== null) return this._storageAvailable;
         try {
-          const item = localStorage.getItem(key);
-          return item ? JSON.parse(item) : defaultValue;
+          const testKey = '__storage_test__';
+          localStorage.setItem(testKey, testKey);
+          localStorage.removeItem(testKey);
+          this._storageAvailable = true;
+        } catch (e) {
+          this._storageAvailable = false;
+        }
+        return this._storageAvailable;
+      },
+      
+      get(key, defaultValue) {
+        try {
+          if (this._checkAvailability()) {
+            const item = localStorage.getItem(key);
+            return item !== null ? JSON.parse(item) : defaultValue;
+          }
+          return key in this._memoryFallback ? this._memoryFallback[key] : defaultValue;
         } catch {
-          return defaultValue;
+          return key in this._memoryFallback ? this._memoryFallback[key] : defaultValue;
         }
       },
-      set: (key, value) => {
+      
+      set(key, value) {
+        this._memoryFallback[key] = value;
         try {
-          localStorage.setItem(key, JSON.stringify(value));
+          if (this._checkAvailability()) {
+            localStorage.setItem(key, JSON.stringify(value));
+          }
         } catch (e) {
-          console.error('Storage error:', e);
+          // Silent fail - data is still in memory fallback
+        }
+      },
+      
+      remove(key) {
+        delete this._memoryFallback[key];
+        try {
+          if (this._checkAvailability()) {
+            localStorage.removeItem(key);
+          }
+        } catch (e) {
+          // Silent fail
         }
       }
     };
 
+    // ============ AUDIO SYSTEM ============
+    const AudioSystem = {
+      enabled: true,
+      ctx: null,
+      
+      init() {
+        // Defer AudioContext creation until user interaction (required by iOS)
+      },
+      
+      _ensureContext() {
+        if (!this.ctx) {
+          try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          } catch (e) {
+            // Web Audio not supported
+          }
+        }
+        return this.ctx;
+      },
+      
+      resume() {
+        const ctx = this._ensureContext();
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+      },
+      
+      playTone(frequency, duration, type = 'sine', volume = 0.3) {
+        if (!this.enabled) return;
+        const ctx = this._ensureContext();
+        if (!ctx) return;
+        
+        try {
+          this.resume();
+          
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          
+          oscillator.frequency.value = frequency;
+          oscillator.type = type;
+          
+          gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+          
+          oscillator.start(ctx.currentTime);
+          oscillator.stop(ctx.currentTime + duration);
+        } catch (e) {
+          // Audio playback failed, silent fail
+        }
+      },
+      
+      correct() {
+        this.playTone(523.25, 0.1, 'sine', 0.2);
+        setTimeout(() => this.playTone(659.25, 0.15, 'sine', 0.2), 80);
+      },
+      
+      incorrect() {
+        this.playTone(200, 0.2, 'square', 0.15);
+      },
+      
+      streak(level) {
+        const baseFreq = 523.25;
+        this.playTone(baseFreq, 0.08, 'sine', 0.2);
+        setTimeout(() => this.playTone(baseFreq * 1.25, 0.08, 'sine', 0.2), 60);
+        setTimeout(() => this.playTone(baseFreq * 1.5, 0.12, 'sine', 0.25), 120);
+        if (level >= 5) {
+          setTimeout(() => this.playTone(baseFreq * 2, 0.15, 'sine', 0.25), 180);
+        }
+      },
+      
+      roundComplete() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 0.15, 'sine', 0.2), i * 100);
+        });
+      },
+      
+      sessionComplete() {
+        const melody = [523.25, 659.25, 783.99, 659.25, 783.99, 1046.50];
+        melody.forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 0.2, 'sine', 0.25), i * 150);
+        });
+      }
+    };
+
+    // ============ PARTICLE SYSTEM ============
+    function createParticles(x, y, type = 'correct', count = 8) {
+      const container = document.getElementById('particles-container');
+      if (!container) return;
+      
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = `particle ${type}`;
+        
+        const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+        const distance = 50 + Math.random() * 50;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        particle.style.animation = `particleBurst 0.6s ease forwards`;
+        
+        container.appendChild(particle);
+        setTimeout(() => particle.remove(), 600);
+      }
+    }
+
+    // ============ STARS BACKGROUND ============
     function generateStars(container, count = 150) {
       if (!container) return;
       container.innerHTML = '';
@@ -881,11 +1394,16 @@
       }
     }
 
+    // ============ DOM ELEMENTS ============
     const starsContainer = document.getElementById('stars-container');
     const timerBarEl = document.getElementById('timer-bar');
     const hudScore = document.getElementById('hud-score');
-    const hudPB = document.getElementById('hud-pb');
+    const hudStreak = document.getElementById('hud-streak');
+    const hudAccuracy = document.getElementById('hud-accuracy');
+    const streakFire = document.getElementById('streak-fire');
+    const multiplierBadge = document.getElementById('multiplier-badge');
     const pbSettingsEl = document.getElementById('pb-settings');
+    const bestStreakSettingsEl = document.getElementById('best-streak-settings');
     const hudRounds = document.getElementById('hud-rounds');
     const hudTime = document.getElementById('hud-time');
     const instructions = document.getElementById('instructions');
@@ -893,18 +1411,23 @@
     const categoriesContainer = document.getElementById('categories-container');
     const challengeDisplay = document.getElementById('challenge-display');
     const feedbackMessage = document.getElementById('feedback-message');
+    const bonusPointsEl = document.getElementById('bonus-points');
     const progressContainer = document.getElementById('progress-container');
     const progressFill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
+    const tapHint = document.getElementById('tap-hint');
     const startBtn = document.getElementById('start-session');
     const pauseBtn = document.getElementById('pause-session');
-    const restartBtn = document.getElementById('restart-session');
     const endBtn = document.getElementById('end-session');
     const completionModal = document.getElementById('completion-message');
     const finalRoundsEl = document.getElementById('final-rounds');
     const finalAccuracyEl = document.getElementById('final-accuracy');
     const finalScoreEl = document.getElementById('final-score');
+    const finalStreakEl = document.getElementById('final-streak');
     const finalXPEl = document.getElementById('final-xp');
+    const newPbBadge = document.getElementById('new-pb-badge');
+    const achievementsContainer = document.getElementById('achievements-container');
+    const achievementsList = document.getElementById('achievements-list');
     const completeClose = document.getElementById('close-complete');
     const restartModalBtn = document.getElementById('restart-button');
     const difficultySelect = document.getElementById('difficulty');
@@ -912,19 +1435,40 @@
     const objectsCountSelect = document.getElementById('objects-count');
     const hintSettingSelect = document.getElementById('hint-setting');
     const sessionDurationInp = document.getElementById('session-duration');
+    const inputModeSelect = document.getElementById('input-mode');
+    const soundEnabledCheckbox = document.getElementById('sound-enabled');
+    const gameContainer = document.getElementById('game-container');
 
     generateStars(starsContainer, 150);
 
+    // ============ STORAGE KEYS ============
     const PB_KEY = 'sort-categorize:best';
-    const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
-    const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
+    const STREAK_KEY = 'sort-categorize:bestStreak';
+    const ACHIEVEMENTS_KEY = 'sort-categorize:achievements';
+
+    const getPB = () => storage.get(PB_KEY, 0);
+    const setPB = (val) => storage.set(PB_KEY, val);
+    const getBestStreak = () => storage.get(STREAK_KEY, 0);
+    const setBestStreak = (val) => storage.set(STREAK_KEY, val);
+    const getAchievements = () => storage.get(ACHIEVEMENTS_KEY, []);
+    const addAchievement = (id) => {
+      const achievements = getAchievements();
+      if (!achievements.includes(id)) {
+        achievements.push(id);
+        storage.set(ACHIEVEMENTS_KEY, achievements);
+        return true;
+      }
+      return false;
+    };
 
     function updatePersonalBest() {
       const pb = getPB();
-      if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
+      const bestStreak = getBestStreak();
       if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
+      if (bestStreakSettingsEl) bestStreakSettingsEl.textContent = bestStreak ? String(bestStreak) : '0';
     }
 
+    // ============ GAME STATE ============
     let isSessionActive = false;
     let isPaused = false;
     let sessionMs = 3 * 60 * 1000;
@@ -934,6 +1478,8 @@
     let rounds = 0;
     let attempts = 0;
     let correct = 0;
+    let streak = 0;
+    let maxStreak = 0;
     let totalInRound = 0;
     let placedInRound = 0;
     let dragging = null;
@@ -943,11 +1489,77 @@
     let currentObjects = [];
     let globalMoveHandler = null;
     let globalUpHandler = null;
+    let selectedObject = null;
+    let inputMode = 'drag';
+    let sessionAchievements = [];
 
+    // ============ FEEDBACK MESSAGES ============
+    const correctMessages = [
+      'Perfect!', 'Great!', 'Excellent!', 'Nice one!', 'Spot on!', 
+      'Well done!', 'Brilliant!', 'Correct!', 'You got it!', 'Awesome!'
+    ];
+    
+    const incorrectMessages = [
+      'Try again!', 'Not quite!', 'Oops!', 'Close!', 'Keep trying!'
+    ];
+    
+    const streakMessages = {
+      3: '🔥 On Fire!',
+      5: '⚡ Unstoppable!',
+      7: '🌟 Amazing!',
+      10: '💎 Legendary!'
+    };
+
+    // ============ ACHIEVEMENTS ============
+    const achievementDefs = {
+      firstPerfect: { id: 'firstPerfect', name: 'First Steps', icon: '🎯', desc: 'Complete your first round' },
+      streak5: { id: 'streak5', name: 'Hot Streak', icon: '🔥', desc: 'Get 5 correct in a row' },
+      streak10: { id: 'streak10', name: 'On Fire', icon: '⚡', desc: 'Get 10 correct in a row' },
+      perfectRound: { id: 'perfectRound', name: 'Flawless', icon: '💎', desc: 'Complete a round with 100% accuracy' },
+      speed5: { id: 'speed5', name: 'Speed Demon', icon: '🚀', desc: 'Sort 5 objects in 10 seconds' },
+      score100: { id: 'score100', name: 'Century', icon: '💯', desc: 'Score 100 points in a session' },
+      rounds5: { id: 'rounds5', name: 'Dedicated', icon: '🏆', desc: 'Complete 5 rounds in a session' }
+    };
+
+    let speedTracker = { count: 0, startTime: 0 };
+
+    function checkAchievements() {
+      const newAchievements = [];
+      
+      if (rounds >= 1 && addAchievement('firstPerfect')) {
+        newAchievements.push(achievementDefs.firstPerfect);
+      }
+      if (maxStreak >= 5 && addAchievement('streak5')) {
+        newAchievements.push(achievementDefs.streak5);
+      }
+      if (maxStreak >= 10 && addAchievement('streak10')) {
+        newAchievements.push(achievementDefs.streak10);
+      }
+      if (score >= 100 && addAchievement('score100')) {
+        newAchievements.push(achievementDefs.score100);
+      }
+      if (rounds >= 5 && addAchievement('rounds5')) {
+        newAchievements.push(achievementDefs.rounds5);
+      }
+      
+      sessionAchievements.push(...newAchievements);
+      return newAchievements;
+    }
+
+    // ============ EMOJI MAPPINGS ============
     const emoji = {
       Red: '🔴', Blue: '🔵', Green: '🟢', Yellow: '🟡', Purple: '🟣',
       Round: '🔵', Square: '🟥', Triangle: '🔺', Stars: '⭐', Hearts: '❤️'
     };
+
+    // ============ UI HELPERS ============
+    function getMultiplier() {
+      if (streak >= 10) return 4;
+      if (streak >= 7) return 3;
+      if (streak >= 5) return 2.5;
+      if (streak >= 3) return 2;
+      return 1;
+    }
 
     function showFeedback(message, type) {
       if (!feedbackMessage) return;
@@ -957,12 +1569,34 @@
       setTimeout(() => feedbackMessage.classList.add('hidden'), 1200);
     }
 
+    function showBonusPoints(points, x, y) {
+      if (!bonusPointsEl) return;
+      bonusPointsEl.textContent = `+${points}`;
+      bonusPointsEl.className = 'bonus-points show';
+      setTimeout(() => bonusPointsEl.className = 'bonus-points', 1000);
+    }
+
+    function updateStreakUI() {
+      if (hudStreak) hudStreak.textContent = streak;
+      
+      const multiplier = getMultiplier();
+      if (streakFire) {
+        streakFire.classList.toggle('active', streak >= 3);
+      }
+      if (multiplierBadge) {
+        multiplierBadge.textContent = `x${multiplier}`;
+        multiplierBadge.classList.toggle('active', multiplier > 1);
+      }
+    }
+
     function saveSettings() {
       if (difficultySelect) storage.set('sortDifficulty', difficultySelect.value);
       if (categoryTypeSelect) storage.set('sortCategoryType', categoryTypeSelect.value);
       if (objectsCountSelect) storage.set('sortObjectsCount', objectsCountSelect.value);
       if (hintSettingSelect) storage.set('sortHintSetting', hintSettingSelect.value);
       if (sessionDurationInp) storage.set('sortSessionDuration', sessionDurationInp.value);
+      if (inputModeSelect) storage.set('sortInputMode', inputModeSelect.value);
+      if (soundEnabledCheckbox) storage.set('sortSoundEnabled', soundEnabledCheckbox.checked);
     }
 
     function loadSettings() {
@@ -971,16 +1605,23 @@
       if (objectsCountSelect) objectsCountSelect.value = storage.get('sortObjectsCount', '9');
       if (hintSettingSelect) hintSettingSelect.value = storage.get('sortHintSetting', 'hover');
       if (sessionDurationInp) sessionDurationInp.value = storage.get('sortSessionDuration', 3);
+      if (inputModeSelect) inputModeSelect.value = storage.get('sortInputMode', 'drag');
+      if (soundEnabledCheckbox) soundEnabledCheckbox.checked = storage.get('sortSoundEnabled', true);
+      AudioSystem.enabled = soundEnabledCheckbox?.checked ?? true;
       updatePersonalBest();
     }
 
     function updateHUD() {
       if (hudScore) hudScore.textContent = `${score}`;
-      if (hudPB) hudPB.textContent = `${getPB()}`;
       if (hudRounds) hudRounds.textContent = `${rounds}`;
+      const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 100;
+      if (hudAccuracy) hudAccuracy.textContent = `${accuracy}%`;
+      
       const mins = Math.max(0, Math.floor(timeRemaining / 60000));
       const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
       if (hudTime) hudTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      
+      updateStreakUI();
     }
 
     function updateProgress() {
@@ -993,7 +1634,12 @@
       timerInterval = setInterval(() => {
         timeRemaining -= 100;
         const progress = Math.max(0, timeRemaining / sessionMs);
-        if (timerBarEl) timerBarEl.style.width = `${progress * 100}%`;
+        if (timerBarEl) {
+          timerBarEl.style.width = `${progress * 100}%`;
+          timerBarEl.classList.remove('warning', 'danger');
+          if (progress < 0.1) timerBarEl.classList.add('danger');
+          else if (progress < 0.25) timerBarEl.classList.add('warning');
+        }
         updateHUD();
         if (timeRemaining <= 0) endSession();
       }, 100);
@@ -1010,6 +1656,7 @@
       if (screen) screen.classList.add('active');
     }
 
+    // ============ CATEGORY BUILDING ============
     function buildCategories(type, difficulty) {
       const categoryCount = difficulty === 'easy' ? 3 : (difficulty === 'hard' ? 5 : 4);
       if (type === 'colors') {
@@ -1081,6 +1728,7 @@
       return items;
     }
 
+    // ============ RENDERING ============
     function clearRoundUI() {
       if (objectsContainer) objectsContainer.innerHTML = '';
       if (categoriesContainer) categoriesContainer.innerHTML = '';
@@ -1097,14 +1745,30 @@
         box.setAttribute('role', 'button');
         box.setAttribute('aria-label', `Category ${c.label}`);
         box.dataset.category = c.key;
+        
         const icon = document.createElement('div');
         icon.className = 'category-icon';
         icon.textContent = c.icon || '◻️';
+        
         const label = document.createElement('div');
         label.className = 'category-label';
         label.textContent = c.label;
+        
+        const received = document.createElement('div');
+        received.className = 'category-received';
+        received.textContent = '✓';
+        
         box.appendChild(icon);
         box.appendChild(label);
+        box.appendChild(received);
+        
+        // Tap mode: click on category
+        box.addEventListener('click', () => {
+          if (inputMode === 'tap' && selectedObject && isSessionActive && !isPaused) {
+            handlePlacement(selectedObject, box);
+          }
+        });
+        
         frag.appendChild(box);
       });
       categoriesContainer.appendChild(frag);
@@ -1114,31 +1778,190 @@
       if (!objectsContainer) return;
       const frag = document.createDocumentFragment();
       const currentType = categoryTypeSelect?.value || 'shapes';
+      
       items.forEach((it, idx) => {
         const ob = document.createElement('div');
         ob.className = 'sort-object';
+        ob.style.animationDelay = `${idx * 50}ms`;
+        
         if (currentType === 'numbers') ob.classList.add('number-type');
         else if (currentType === 'letters') ob.classList.add('letter-type');
+        
         ob.dataset.category = it.category;
         ob.dataset.index = String(idx);
         ob.setAttribute('tabindex', '0');
         ob.setAttribute('role', 'button');
         ob.setAttribute('aria-label', `Object ${it.display}, category ${it.category}`);
+        
         const span = document.createElement('span');
         span.textContent = it.display;
         ob.appendChild(span);
+        
         const hint = document.createElement('div');
         hint.className = 'category-hint';
         hint.textContent = it.hint || it.category;
         ob.appendChild(hint);
+        
         if (showHintsMode === 'always') hint.style.opacity = '1';
         else if (showHintsMode === 'off') hint.style.display = 'none';
-        attachDragHandlers(ob);
+        
+        if (inputMode === 'drag') {
+          attachDragHandlers(ob);
+        } else {
+          attachTapHandlers(ob);
+        }
+        
         frag.appendChild(ob);
       });
       objectsContainer.appendChild(frag);
     }
 
+    // ============ TAP MODE ============
+    function attachTapHandlers(elm) {
+      elm.addEventListener('click', (e) => {
+        if (!isSessionActive || isPaused) return;
+        e.preventDefault();
+        
+        // Deselect previous
+        if (selectedObject && selectedObject !== elm) {
+          selectedObject.classList.remove('selected');
+        }
+        
+        // Toggle selection
+        if (selectedObject === elm) {
+          elm.classList.remove('selected');
+          selectedObject = null;
+          setCategoriesSelectable(false);
+        } else {
+          elm.classList.add('selected');
+          selectedObject = elm;
+          setCategoriesSelectable(true);
+        }
+      });
+    }
+
+    function setCategoriesSelectable(selectable) {
+      if (!categoriesContainer) return;
+      for (const box of categoriesContainer.children) {
+        box.classList.toggle('selectable', selectable);
+      }
+    }
+
+    function handlePlacement(obj, targetBox) {
+      if (!obj || !targetBox) return;
+      
+      const correctCat = obj.dataset.category;
+      attempts++;
+      
+      // Track speed
+      if (speedTracker.count === 0) {
+        speedTracker.startTime = Date.now();
+      }
+      
+      if (targetBox.dataset.category === correctCat) {
+        // Correct placement
+        streak++;
+        if (streak > maxStreak) {
+          maxStreak = streak;
+          if (maxStreak > getBestStreak()) {
+            setBestStreak(maxStreak);
+          }
+        }
+        
+        speedTracker.count++;
+        if (speedTracker.count >= 5) {
+          const elapsed = (Date.now() - speedTracker.startTime) / 1000;
+          if (elapsed <= 10 && addAchievement('speed5')) {
+            sessionAchievements.push(achievementDefs.speed5);
+          }
+          speedTracker = { count: 0, startTime: 0 };
+        }
+        
+        const multiplier = getMultiplier();
+        const basePoints = 10;
+        const earnedPoints = Math.round(basePoints * multiplier);
+        score += earnedPoints;
+        correct++;
+        placedInRound++;
+        
+        // Visual feedback
+        targetBox.classList.add('correct');
+        const receivedEl = targetBox.querySelector('.category-received');
+        if (receivedEl) {
+          receivedEl.classList.add('show');
+          setTimeout(() => receivedEl.classList.remove('show'), 600);
+        }
+        setTimeout(() => targetBox.classList.remove('correct'), 600);
+        
+        // Particles
+        const rect = targetBox.getBoundingClientRect();
+        const containerRect = gameContainer.getBoundingClientRect();
+        createParticles(
+          rect.left - containerRect.left + rect.width / 2,
+          rect.top - containerRect.top + rect.height / 2,
+          streak >= 3 ? 'streak' : 'correct',
+          streak >= 5 ? 12 : 8
+        );
+        
+        // Audio
+        if (streak >= 3 && streakMessages[streak]) {
+          AudioSystem.streak(streak);
+          showFeedback(streakMessages[streak], 'streak');
+        } else {
+          AudioSystem.correct();
+          const msg = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+          showFeedback(msg, 'correct');
+        }
+        
+        if (multiplier > 1) {
+          showBonusPoints(earnedPoints);
+        }
+        
+        // Remove object with animation
+        obj.classList.remove('selected');
+        obj.classList.add('sorting-out');
+        setTimeout(() => { if (obj && obj.parentNode) obj.remove(); }, 400);
+        
+        if (objectsContainer) objectsContainer.classList.add('celebrate');
+        setTimeout(() => { if (objectsContainer) objectsContainer.classList.remove('celebrate'); }, 900);
+        
+        updateProgress();
+        checkAchievements();
+        
+      } else {
+        // Incorrect placement
+        streak = 0;
+        speedTracker = { count: 0, startTime: 0 };
+        score = Math.max(0, score - 2);
+        
+        targetBox.classList.add('incorrect');
+        setTimeout(() => targetBox.classList.remove('incorrect'), 600);
+        
+        AudioSystem.incorrect();
+        const msg = incorrectMessages[Math.floor(Math.random() * incorrectMessages.length)];
+        showFeedback(msg, 'incorrect');
+        
+        obj.classList.remove('selected');
+      }
+      
+      selectedObject = null;
+      setCategoriesSelectable(false);
+      updateHUD();
+      
+      if (placedInRound >= totalInRound) {
+        // Check for perfect round achievement
+        const roundAccuracy = totalInRound > 0 ? (placedInRound / (placedInRound + (attempts - correct))) : 0;
+        if (roundAccuracy === 1 && addAchievement('perfectRound')) {
+          sessionAchievements.push(achievementDefs.perfectRound);
+        }
+        
+        rounds++;
+        AudioSystem.roundComplete();
+        setTimeout(() => startNextRound(), 1000);
+      }
+    }
+
+    // ============ DRAG MODE ============
     function pointerPos(e) {
       if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
       return { x: e.clientX, y: e.clientY };
@@ -1202,40 +2025,24 @@
       const clone = dragClone;
       dragging = null;
       dragClone = null;
+      
       for (const box of categoriesContainer.children) {
         box.classList.remove('highlight');
       }
+      
       if (!obj) return;
-      const correctCat = obj.dataset.category;
-      attempts++;
-      if (targetBox && targetBox.dataset.category === correctCat) {
-        targetBox.classList.add('correct');
-        setTimeout(() => targetBox.classList.remove('correct'), 600);
-        showFeedback('Perfect!', 'correct');
-        correct++;
-        score += 10;
-        placedInRound++;
-        updateProgress();
-        setTimeout(() => { if (obj && obj.parentNode) obj.remove(); }, 200);
-        if (objectsContainer) objectsContainer.classList.add('celebrate');
-        setTimeout(() => { if (objectsContainer) objectsContainer.classList.remove('celebrate'); }, 900);
+      
+      if (targetBox) {
+        handlePlacement(obj, targetBox);
+        obj.classList.remove('dragging');
       } else {
-        if (targetBox) {
-          targetBox.classList.add('incorrect');
-          setTimeout(() => targetBox.classList.remove('incorrect'), 600);
-        }
-        showFeedback('Try again!', 'incorrect');
-        score = Math.max(0, score - 2);
-        if (obj) obj.classList.remove('dragging');
+        obj.classList.remove('dragging');
       }
+      
       if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
-      updateHUD();
-      if (placedInRound >= totalInRound) {
-        rounds++;
-        setTimeout(() => startNextRound(), 1000);
-      }
     }
 
+    // ============ GAME FLOW ============
     function startRound() {
       const difficulty = difficultySelect?.value || 'medium';
       const type = categoryTypeSelect?.value || 'shapes';
@@ -1260,23 +2067,42 @@
 
     function startSession() {
       if (isSessionActive) return;
+      
+      AudioSystem.resume();
+      AudioSystem.enabled = soundEnabledCheckbox?.checked ?? true;
+      inputMode = inputModeSelect?.value || 'drag';
+      
+      if (gameContainer) {
+        gameContainer.classList.toggle('tap-mode-active', inputMode === 'tap');
+      }
+      
       const minutes = Math.max(1, Math.min(10, Number(sessionDurationInp?.value) || 3));
       sessionMs = minutes * 60 * 1000;
       score = 0;
       rounds = 0;
       attempts = 0;
       correct = 0;
+      streak = 0;
+      maxStreak = 0;
       totalInRound = 0;
       placedInRound = 0;
       timeRemaining = sessionMs;
       isPaused = false;
+      selectedObject = null;
+      sessionAchievements = [];
+      speedTracker = { count: 0, startTime: 0 };
+      
       updateHUD();
       setScreen('game');
       saveSettings();
       isSessionActive = true;
       startTimer();
       updatePersonalBest();
-      setupGlobalDragHandlers();
+      
+      if (inputMode === 'drag') {
+        setupGlobalDragHandlers();
+      }
+      
       setTimeout(() => startRound(), 100);
     }
 
@@ -1284,27 +2110,63 @@
       if (timerInterval) stopTimer();
       isSessionActive = false;
       isPaused = false;
+      selectedObject = null;
+      setCategoriesSelectable(false);
+      
+      AudioSystem.sessionComplete();
+      
       const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
       const previousPB = getPB();
-      if (score > previousPB) {
+      const isNewPB = score > previousPB;
+      
+      if (isNewPB) {
         setPB(score);
         updatePersonalBest();
       }
+      
+      checkAchievements();
+      
       if (finalRoundsEl) finalRoundsEl.textContent = `${rounds}`;
       if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
       if (finalScoreEl) finalScoreEl.textContent = `${score}`;
+      if (finalStreakEl) finalStreakEl.textContent = `${maxStreak}`;
       if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
+      
+      if (newPbBadge) {
+        newPbBadge.classList.toggle('hidden', !isNewPB);
+      }
+      
+      // Show achievements
+      if (achievementsContainer && achievementsList) {
+        if (sessionAchievements.length > 0) {
+          achievementsContainer.classList.remove('hidden');
+          achievementsList.innerHTML = sessionAchievements.map(a => 
+            `<span class="achievement-item">${a.icon} ${a.name}</span>`
+          ).join('');
+        } else {
+          achievementsContainer.classList.add('hidden');
+        }
+      }
+      
       if (completionModal) completionModal.classList.add('show');
       clearRoundUI();
       setScreen('settings');
     }
 
+    // ============ EVENT LISTENERS ============
     if (startBtn) startBtn.addEventListener('click', startSession);
     if (difficultySelect) difficultySelect.addEventListener('change', saveSettings);
     if (categoryTypeSelect) categoryTypeSelect.addEventListener('change', saveSettings);
     if (objectsCountSelect) objectsCountSelect.addEventListener('change', saveSettings);
     if (hintSettingSelect) hintSettingSelect.addEventListener('change', saveSettings);
     if (sessionDurationInp) sessionDurationInp.addEventListener('input', saveSettings);
+    if (inputModeSelect) inputModeSelect.addEventListener('change', saveSettings);
+    if (soundEnabledCheckbox) {
+      soundEnabledCheckbox.addEventListener('change', () => {
+        AudioSystem.enabled = soundEnabledCheckbox.checked;
+        saveSettings();
+      });
+    }
 
     if (pauseBtn) pauseBtn.addEventListener('click', () => {
       if (!isSessionActive) return;
@@ -1316,16 +2178,9 @@
 
     if (endBtn) endBtn.addEventListener('click', () => endSession());
 
-    if (restartBtn) restartBtn.addEventListener('click', () => {
-      if (timerInterval) stopTimer();
-      isSessionActive = false;
-      isPaused = false;
-      setScreen('settings');
-    });
-
     if (restartModalBtn) restartModalBtn.addEventListener('click', () => {
       if (completionModal) completionModal.classList.remove('show');
-      setScreen('settings');
+      startSession();
     });
 
     if (completeClose) completeClose.addEventListener('click', () => {
@@ -1333,6 +2188,7 @@
       setScreen('settings');
     });
 
+    // Keyboard support
     if (objectsContainer) {
       objectsContainer.addEventListener('keydown', (e) => {
         if (!isSessionActive || isPaused) return;
@@ -1340,18 +2196,45 @@
         if (!tgt) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          const objRect = tgt.getBoundingClientRect();
-          const oc = { x: objRect.left + objRect.width / 2, y: objRect.top + objRect.height / 2 };
-          let best = null, bestD = Infinity;
-          for (const b of categoriesContainer.children) {
-            const r = b.getBoundingClientRect();
-            const bc = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-            const d = Math.hypot(oc.x - bc.x, oc.y - bc.y);
-            if (d < bestD) { bestD = d; best = b; }
+          
+          if (inputMode === 'tap') {
+            // Toggle selection
+            if (selectedObject === tgt) {
+              tgt.classList.remove('selected');
+              selectedObject = null;
+              setCategoriesSelectable(false);
+            } else {
+              if (selectedObject) selectedObject.classList.remove('selected');
+              tgt.classList.add('selected');
+              selectedObject = tgt;
+              setCategoriesSelectable(true);
+            }
+          } else {
+            // Original drag keyboard support - place in nearest category
+            const objRect = tgt.getBoundingClientRect();
+            const oc = { x: objRect.left + objRect.width / 2, y: objRect.top + objRect.height / 2 };
+            let best = null, bestD = Infinity;
+            for (const b of categoriesContainer.children) {
+              const r = b.getBoundingClientRect();
+              const bc = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+              const d = Math.hypot(oc.x - bc.x, oc.y - bc.y);
+              if (d < bestD) { bestD = d; best = b; }
+            }
+            handlePlacement(tgt, best);
           }
-          dragging = tgt;
-          dragClone = null;
-          finalizeDrop(best);
+        }
+      });
+    }
+
+    // Category keyboard support for tap mode
+    if (categoriesContainer) {
+      categoriesContainer.addEventListener('keydown', (e) => {
+        if (!isSessionActive || isPaused || inputMode !== 'tap') return;
+        const tgt = e.target.closest('.category-box');
+        if (!tgt) return;
+        if ((e.key === 'Enter' || e.key === ' ') && selectedObject) {
+          e.preventDefault();
+          handlePlacement(selectedObject, tgt);
         }
       });
     }
