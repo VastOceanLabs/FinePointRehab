@@ -446,100 +446,198 @@
       z-index: 2; 
     }
 
-    /* Enhanced bubble with variants */
+    /* ===== ENHANCED BUBBLE DESIGN ===== */
+    /* Multi-layered bubble with moving shine and gentle wobble */
     #bubble{
       position:absolute; 
       width:80px; 
       height:80px; 
       border-radius:50%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(111,211,245,.35) 40%, rgba(20,80,150,.35) 70%, rgba(10,20,40,.25) 100%),
-        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.25), transparent 60%);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.15) inset,
-        0 12px 30px rgba(111,211,245,.35),
-        inset 0 0 22px rgba(255,255,255,.6);
       transform: translate(-50%, -50%);
       touch-action: none; 
       display:flex; 
       align-items:center; 
       justify-content:center;
-      animation: bubblePulse 2.2s ease-in-out infinite;
       font-weight:900; 
       font-size:22px; 
       color:#eaffff; 
       text-shadow: 0 0 10px rgba(255,255,255,.6);
       cursor: pointer;
+      
+      /* Base bubble gradient - glass-like appearance */
+      background:
+        /* Moving shine highlight */
+        radial-gradient(circle at var(--shine-x, 30%) var(--shine-y, 30%), rgba(255,255,255,.95) 0%, rgba(255,255,255,.4) 15%, transparent 40%),
+        /* Secondary highlight for depth */
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,.25) 0%, transparent 30%),
+        /* Main body gradient */
+        radial-gradient(circle at 50% 50%, rgba(140,220,255,.4) 0%, rgba(80,180,220,.35) 40%, rgba(40,120,180,.3) 70%, rgba(20,60,100,.25) 100%);
+      
+      /* Layered shadows for 3D depth */
+      box-shadow:
+        /* Inner rim highlight */
+        inset 0 0 0 1px rgba(255,255,255,.3),
+        /* Inner glow */
+        inset 0 -10px 30px rgba(255,255,255,.2),
+        inset 0 10px 30px rgba(0,150,200,.2),
+        /* Outer glow */
+        0 0 20px rgba(111,211,245,.3),
+        /* Soft shadow */
+        0 8px 25px rgba(0,50,100,.3);
+      
+      /* Combine animations */
+      animation: bubbleIdle 3s ease-in-out infinite, bubbleGlow 2.2s ease-in-out infinite;
     }
 
-    /* Golden bubble variant */
+    /* Pseudo-element for static shine highlight */
+    #bubble::before {
+      content: '';
+      position: absolute;
+      top: 8%;
+      left: 15%;
+      width: 35%;
+      height: 25%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+    }
+
+    /* Pseudo-element for surface texture */
+    #bubble::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      background: 
+        radial-gradient(ellipse 100% 50% at 50% 0%, rgba(255,255,255,.3) 0%, transparent 50%);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* Gentle idle wobble - very subtle so it's still easy to tap */
+    @keyframes bubbleIdle {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+      25% { transform: translate(-50%, -50%) translateY(-2px) rotate(0.5deg); }
+      50% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+      75% { transform: translate(-50%, -50%) translateY(1px) rotate(-0.5deg); }
+    }
+
+    /* Glow pulse */
+    @keyframes bubbleGlow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(111,211,245,.3)); }
+      50% { filter: drop-shadow(0 0 20px rgba(111,211,245,.6)); }
+    }
+
+    /* Animated shine sweep - REMOVED as it was distracting */
+
+    /* ===== GOLDEN BUBBLE ===== */
     #bubble.golden {
       background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,215,0,.6) 40%, rgba(255,165,0,.5) 70%, rgba(218,165,32,.3) 100%),
-        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.4), transparent 60%);
+        radial-gradient(circle at var(--shine-x, 30%) var(--shine-y, 30%), rgba(255,255,255,.98) 0%, rgba(255,255,200,.5) 15%, transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,.35) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255,230,100,.5) 0%, rgba(255,200,50,.5) 40%, rgba(220,160,30,.4) 70%, rgba(180,120,20,.3) 100%);
       box-shadow:
-        0 0 0 2px rgba(255,215,0,.3) inset,
-        0 15px 40px rgba(255,215,0,.5),
-        inset 0 0 30px rgba(255,255,255,.8);
-      animation: goldenPulse 1.5s ease-in-out infinite;
+        inset 0 0 0 2px rgba(255,215,0,.4),
+        inset 0 -10px 30px rgba(255,255,200,.3),
+        inset 0 10px 30px rgba(255,180,0,.2),
+        0 0 30px rgba(255,215,0,.5),
+        0 8px 25px rgba(150,100,0,.3);
+      animation: bubbleIdle 3s ease-in-out infinite, goldenGlow 1.5s ease-in-out infinite;
     }
 
-    /* Freeze bubble variant */
+    #bubble.golden::before {
+      background: radial-gradient(ellipse, rgba(255,255,220,0.8) 0%, rgba(255,255,200,0) 70%);
+    }
+
+    @keyframes goldenGlow {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(255,215,0,.5)); }
+      50% { filter: drop-shadow(0 0 30px rgba(255,215,0,.9)); }
+    }
+
+    /* ===== FREEZE BUBBLE ===== */
     #bubble.freeze {
       background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.98), rgba(0,212,255,.7) 40%, rgba(0,150,200,.5) 70%, rgba(0,100,150,.3) 100%),
-        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.5), transparent 60%);
+        radial-gradient(circle at var(--shine-x, 30%) var(--shine-y, 30%), rgba(255,255,255,1) 0%, rgba(200,250,255,.6) 15%, transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,.4) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(150,240,255,.5) 0%, rgba(50,200,240,.5) 40%, rgba(0,150,200,.4) 70%, rgba(0,100,150,.3) 100%);
       box-shadow:
-        0 0 0 2px rgba(0,212,255,.4) inset,
-        0 15px 40px rgba(0,212,255,.6),
-        inset 0 0 30px rgba(255,255,255,.9);
-      animation: freezePulse 1.2s ease-in-out infinite;
+        inset 0 0 0 2px rgba(150,240,255,.5),
+        inset 0 -10px 30px rgba(255,255,255,.4),
+        inset 0 10px 30px rgba(0,200,255,.3),
+        0 0 30px rgba(0,212,255,.6),
+        0 8px 25px rgba(0,80,120,.3);
+      animation: bubbleIdle 3s ease-in-out infinite, freezeGlow 1.2s ease-in-out infinite;
     }
 
-    /* Speed bubble variant */
+    #bubble.freeze::before {
+      background: radial-gradient(ellipse, rgba(255,255,255,0.9) 0%, rgba(200,250,255,0) 70%);
+    }
+
+    /* Frost crystal effect */
+    #bubble.freeze::after {
+      background: 
+        radial-gradient(ellipse 100% 50% at 50% 0%, rgba(255,255,255,.5) 0%, transparent 50%),
+        repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(255,255,255,.1) 15deg 30deg);
+      opacity: 0.5;
+    }
+
+    @keyframes freezeGlow {
+      0%, 100% { filter: drop-shadow(0 0 15px rgba(0,212,255,.6)); }
+      50% { filter: drop-shadow(0 0 35px rgba(0,212,255,1)); }
+    }
+
+    /* ===== SPEED BUBBLE ===== */
     #bubble.speed {
       background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(191,95,255,.7) 40%, rgba(150,50,200,.5) 70%, rgba(100,20,150,.3) 100%),
-        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.4), transparent 60%);
+        radial-gradient(circle at var(--shine-x, 30%) var(--shine-y, 30%), rgba(255,255,255,.98) 0%, rgba(255,200,255,.5) 15%, transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,.3) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(220,150,255,.5) 0%, rgba(180,80,220,.5) 40%, rgba(140,40,180,.4) 70%, rgba(100,20,140,.3) 100%);
       box-shadow:
-        0 0 0 2px rgba(191,95,255,.4) inset,
-        0 15px 40px rgba(191,95,255,.6),
-        inset 0 0 30px rgba(255,255,255,.8);
-      animation: speedPulse 0.6s ease-in-out infinite;
+        inset 0 0 0 2px rgba(200,100,255,.4),
+        inset 0 -10px 30px rgba(255,200,255,.3),
+        inset 0 10px 30px rgba(150,50,200,.2),
+        0 0 25px rgba(191,95,255,.6),
+        0 8px 25px rgba(80,20,100,.3);
+      animation: speedWobble 0.8s ease-in-out infinite, speedGlow 0.6s ease-in-out infinite;
     }
 
+    #bubble.speed::before {
+      background: radial-gradient(ellipse, rgba(255,230,255,0.8) 0%, rgba(255,200,255,0) 70%);
+    }
+
+    /* Speed bubble wobbles faster to indicate urgency */
+    @keyframes speedWobble {
+      0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      25% { transform: translate(-50%, -50%) scale(1.02) rotate(1deg); }
+      50% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      75% { transform: translate(-50%, -50%) scale(1.02) rotate(-1deg); }
+    }
+
+    @keyframes speedGlow {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(191,95,255,.6)); }
+      50% { filter: drop-shadow(0 0 25px rgba(191,95,255,1)); }
+    }
+
+    /* ===== SPAWN ANIMATION ===== */
     #bubble.spawn { 
-      animation: bubbleSpawn .18s ease-out, bubblePulse 2.2s ease-in-out infinite; 
+      animation: bubbleSpawn .25s cubic-bezier(0.34, 1.56, 0.64, 1), bubbleIdle 3s ease-in-out infinite, bubbleGlow 2.2s ease-in-out infinite;
     }
     #bubble.golden.spawn { 
-      animation: bubbleSpawn .18s ease-out, goldenPulse 1.5s ease-in-out infinite; 
+      animation: bubbleSpawn .25s cubic-bezier(0.34, 1.56, 0.64, 1), bubbleIdle 3s ease-in-out infinite, goldenGlow 1.5s ease-in-out infinite;
     }
     #bubble.freeze.spawn { 
-      animation: bubbleSpawn .18s ease-out, freezePulse 1.2s ease-in-out infinite; 
+      animation: bubbleSpawn .25s cubic-bezier(0.34, 1.56, 0.64, 1), bubbleIdle 3s ease-in-out infinite, freezeGlow 1.2s ease-in-out infinite;
     }
     #bubble.speed.spawn { 
-      animation: bubbleSpawn .18s ease-out, speedPulse 0.6s ease-in-out infinite; 
+      animation: bubbleSpawn .25s cubic-bezier(0.34, 1.56, 0.64, 1), speedWobble 0.8s ease-in-out infinite, speedGlow 0.6s ease-in-out infinite;
     }
 
-    @keyframes bubbleSpawn{ 
-      from{ transform: translate(-50%, -50%) scale(.6); opacity:.0; filter: blur(2px); } 
-      to{ transform: translate(-50%, -50%) scale(1); opacity:1; filter: blur(0); } 
-    }
-    @keyframes bubblePulse{ 
-      0%,100%{ filter: drop-shadow(0 0 0 rgba(111,211,245,.0)); } 
-      50% { filter: drop-shadow(0 0 12px rgba(111,211,245,.45)); } 
-    }
-    @keyframes goldenPulse{ 
-      0%,100%{ filter: drop-shadow(0 0 8px rgba(255,215,0,.4)); } 
-      50% { filter: drop-shadow(0 0 20px rgba(255,215,0,.8)); } 
-    }
-    @keyframes freezePulse{ 
-      0%,100%{ filter: drop-shadow(0 0 10px rgba(0,212,255,.5)); } 
-      50% { filter: drop-shadow(0 0 25px rgba(0,212,255,.9)); } 
-    }
-    @keyframes speedPulse{ 
-      0%,100%{ filter: drop-shadow(0 0 8px rgba(191,95,255,.5)); transform: translate(-50%, -50%) scale(1); } 
-      50% { filter: drop-shadow(0 0 18px rgba(191,95,255,.9)); transform: translate(-50%, -50%) scale(1.05); } 
+    /* Bouncy spawn with overshoot */
+    @keyframes bubbleSpawn { 
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      60% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(0.95); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
 
     /* Enhanced points feedback */
@@ -580,43 +678,164 @@
       to{ opacity:0; transform: translate(-50%, -50%) translateY(-50px) scale(1.1); } 
     }
 
-    .ripple{
-      position:absolute; 
+    /* ===== ENHANCED POP EFFECTS ===== */
+    
+    /* Multi-ring ripple effect */
+    .ripple {
+      position: absolute;
       transform: translate(-50%, -50%);
-      width:10px; 
-      height:10px; 
-      border-radius:50%;
-      border:2px solid var(--accent-2); 
-      opacity:.6; 
-      animation: ripple 600ms ease-out forwards;
-      pointer-events:none; 
-      z-index:6;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 3px solid var(--accent-2);
+      opacity: 0;
+      animation: rippleExpand 600ms ease-out forwards;
+      pointer-events: none;
+      z-index: 6;
     }
+    
+    /* Second ripple ring - slightly delayed */
+    .ripple::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-2);
+      opacity: 0;
+      animation: rippleExpand 600ms ease-out 80ms forwards;
+    }
+    
     .ripple.golden {
       border-color: var(--gold);
-      border-width: 3px;
+      border-width: 4px;
     }
+    .ripple.golden::before {
+      border-color: rgba(255,215,0,.6);
+    }
+    
     .ripple.freeze {
       border-color: var(--freeze);
-      border-width: 3px;
+      border-width: 4px;
     }
+    .ripple.freeze::before {
+      border-color: rgba(0,212,255,.6);
+    }
+    
     .ripple.speed {
       border-color: var(--speed);
-      border-width: 3px;
+      border-width: 4px;
     }
-    @keyframes ripple{ 
-      from{ opacity:.7; transform: translate(-50%, -50%) scale(.8); } 
-      to{ opacity:0; transform: translate(-50%, -50%) scale(8); } 
+    .ripple.speed::before {
+      border-color: rgba(191,95,255,.6);
+    }
+    
+    @keyframes rippleExpand {
+      0% { 
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      100% { 
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(6);
+      }
     }
 
-    /* Particle effects */
+    /* ===== ENHANCED PARTICLES ===== */
     .particle {
       position: absolute;
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       pointer-events: none;
-      animation: particleFloat 1s ease-out forwards;
+      z-index: 8;
+      animation: particleBurst 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    
+    /* Particle variations for more visual interest */
+    .particle.spark {
+      width: 4px;
+      height: 4px;
+      border-radius: 2px;
+      animation: sparkBurst 600ms ease-out forwards;
+    }
+    
+    .particle.glow {
+      width: 12px;
+      height: 12px;
+      filter: blur(2px);
+      animation: glowBurst 700ms ease-out forwards;
+    }
+
+    @keyframes particleBurst {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, -60px)) scale(0.2);
+      }
+    }
+    
+    @keyframes sparkBurst {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translate(0, 0) scale(1.5);
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, -80px)) scale(0);
+      }
+    }
+    
+    @keyframes glowBurst {
+      0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, -40px)) scale(2);
+      }
+    }
+
+    /* Pop flash effect - bright flash when bubble is tapped */
+    .pop-flash {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+      z-index: 9;
+      animation: flashPop 200ms ease-out forwards;
+    }
+    
+    .pop-flash.golden {
+      background: radial-gradient(circle, rgba(255,240,150,0.95) 0%, rgba(255,215,0,0) 70%);
+    }
+    
+    .pop-flash.freeze {
+      background: radial-gradient(circle, rgba(200,250,255,0.95) 0%, rgba(0,212,255,0) 70%);
+    }
+    
+    .pop-flash.speed {
+      background: radial-gradient(circle, rgba(240,200,255,0.95) 0%, rgba(191,95,255,0) 70%);
+    }
+    
+    @keyframes flashPop {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+      }
     }
 
     @keyframes particleFloat {
@@ -968,6 +1187,293 @@
     body:not(.playing) .stage-wrap {
       border-radius: var(--radius-lg);
     }
+
+    /* Hide HUD when not playing - it only makes sense during gameplay */
+    body:not(.playing) .hud {
+      display: none;
+    }
+
+    /* ===== DAILY CHALLENGE STYLES ===== */
+    .daily-challenge {
+      background: linear-gradient(135deg, rgba(255,215,0,.1), rgba(255,165,0,.05));
+      border: 1px solid rgba(255,215,0,.25);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .daily-challenge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .daily-challenge-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .daily-challenge-timer {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .challenge-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,.2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .challenge-item:last-child { margin-bottom: 0; }
+    .challenge-item.completed {
+      background: rgba(143,245,178,.1);
+      border: 1px solid rgba(143,245,178,.3);
+    }
+    .challenge-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+    .challenge-item.completed .challenge-checkbox {
+      background: var(--good);
+      border-color: var(--good);
+      color: #000;
+    }
+    .challenge-text {
+      flex: 1;
+      font-size: 13px;
+    }
+    .challenge-item.completed .challenge-text {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    .challenge-progress {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ===== STREAK CALENDAR STYLES ===== */
+    .streak-section {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .streak-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .streak-title {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .streak-count {
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .streak-calendar {
+      display: flex;
+      gap: 4px;
+      justify-content: space-between;
+    }
+    .streak-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .streak-day-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .streak-day-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      border: 2px solid rgba(255,255,255,.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .streak-day-dot.completed {
+      background: linear-gradient(135deg, var(--good), #5fd99a);
+      border-color: var(--good);
+    }
+    .streak-day-dot.today {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(111,211,245,.4);
+    }
+    .streak-day-dot.today.completed {
+      border-color: var(--good);
+      box-shadow: 0 0 8px rgba(143,245,178,.4);
+    }
+    .streak-message {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* ===== UNLOCKABLES / THEMES ===== */
+    .unlockables-section {
+      background: rgba(191,95,255,.05);
+      border: 1px solid rgba(191,95,255,.15);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .unlockables-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--speed);
+    }
+    .unlock-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,.2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .unlock-item:last-child { margin-bottom: 0; }
+    .unlock-item:hover:not(.locked) {
+      background: rgba(191,95,255,.1);
+    }
+    .unlock-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .unlock-item.active {
+      background: rgba(191,95,255,.15);
+      border: 1px solid rgba(191,95,255,.4);
+    }
+    .unlock-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: rgba(255,255,255,.1);
+      flex-shrink: 0;
+    }
+    .unlock-item.locked .unlock-icon {
+      filter: grayscale(1);
+    }
+    .unlock-info {
+      flex: 1;
+    }
+    .unlock-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .unlock-requirement {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .unlock-item.active .unlock-requirement {
+      color: var(--good);
+    }
+    .unlock-status {
+      font-size: 16px;
+    }
+
+    /* ===== THEME VARIATIONS ===== */
+    /* Ocean Theme */
+    body.theme-ocean .stage-wrap {
+      background: 
+        radial-gradient(circle at 30% 70%, rgba(0,100,150,.3), transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(0,180,220,.2), transparent 50%),
+        linear-gradient(180deg, #041525 0%, #062840 50%, #0a3550 100%) !important;
+    }
+    body.theme-ocean #bubble:not(.golden):not(.freeze):not(.speed) {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(0,200,255,.4) 40%, rgba(0,100,180,.4) 70%, rgba(0,50,100,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.3), transparent 60%) !important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.2) inset,
+        0 12px 30px rgba(0,180,255,.4),
+        inset 0 0 22px rgba(255,255,255,.5) !important;
+    }
+
+    /* Sunset Theme */
+    body.theme-sunset .stage-wrap {
+      background: 
+        radial-gradient(circle at 50% 100%, rgba(255,100,50,.35), transparent 50%),
+        radial-gradient(circle at 30% 30%, rgba(255,180,50,.2), transparent 50%),
+        linear-gradient(180deg, #1a0a15 0%, #2d1020 50%, #401530 100%) !important;
+    }
+    body.theme-sunset #bubble:not(.golden):not(.freeze):not(.speed) {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,150,80,.5) 40%, rgba(255,100,100,.4) 70%, rgba(200,50,80,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.3), transparent 60%) !important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.2) inset,
+        0 12px 30px rgba(255,120,80,.4),
+        inset 0 0 22px rgba(255,255,255,.5) !important;
+    }
+
+    /* Rainbow Bubbles */
+    body.theme-rainbow #bubble:not(.golden):not(.freeze):not(.speed) {
+      animation: rainbowBubble 3s linear infinite, bubblePulse 2.2s ease-in-out infinite !important;
+    }
+    body.theme-rainbow #bubble.spawn:not(.golden):not(.freeze):not(.speed) {
+      animation: bubbleSpawn .18s ease-out, rainbowBubble 3s linear infinite, bubblePulse 2.2s ease-in-out infinite !important;
+    }
+    @keyframes rainbowBubble {
+      0% { filter: hue-rotate(0deg) drop-shadow(0 0 12px rgba(255,100,100,.5)); }
+      33% { filter: hue-rotate(120deg) drop-shadow(0 0 12px rgba(100,255,100,.5)); }
+      66% { filter: hue-rotate(240deg) drop-shadow(0 0 12px rgba(100,100,255,.5)); }
+      100% { filter: hue-rotate(360deg) drop-shadow(0 0 12px rgba(255,100,100,.5)); }
+    }
+
+    /* Forest Theme */
+    body.theme-forest .stage-wrap {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(50,150,50,.25), transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(100,180,80,.15), transparent 50%),
+        linear-gradient(180deg, #0a1508 0%, #152010 50%, #1a2815 100%) !important;
+    }
+    body.theme-forest #bubble:not(.golden):not(.freeze):not(.speed) {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(100,200,100,.5) 40%, rgba(50,150,50,.4) 70%, rgba(30,100,30,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.3), transparent 60%) !important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.2) inset,
+        0 12px 30px rgba(80,180,80,.4),
+        inset 0 0 22px rgba(255,255,255,.5) !important;
+    }
   </style>
 </head>
 <body>
@@ -1090,6 +1596,39 @@
         <button id="practiceBtn" class="btn btn-secondary" type="button" aria-label="Practice mode">Practice</button>
       </div>
       <small class="setting-help" style="text-align:center; display:block; margin-top:8px;">Practice mode has no timer - tap to end when ready.</small>
+
+      <!-- ===== ENGAGEMENT SECTIONS ===== -->
+      
+      <!-- Daily Challenge -->
+      <div class="daily-challenge" id="dailyChallengeSection" style="margin-top: 20px;">
+        <div class="daily-challenge-header">
+          <div class="daily-challenge-title">🎯 Daily Challenges</div>
+          <div class="daily-challenge-timer" id="challengeTimer">Resets in --:--</div>
+        </div>
+        <div id="challengeList">
+          <!-- Challenges populated by JS -->
+        </div>
+      </div>
+
+      <!-- Streak Calendar -->
+      <div class="streak-section">
+        <div class="streak-header">
+          <div class="streak-title">📅 Practice Streak</div>
+          <div class="streak-count" id="streakCount">0 days</div>
+        </div>
+        <div class="streak-calendar" id="streakCalendar">
+          <!-- Days populated by JS -->
+        </div>
+        <div class="streak-message" id="streakMessage">Start your streak today!</div>
+      </div>
+
+      <!-- Unlockables -->
+      <div class="unlockables-section">
+        <div class="unlockables-title">🎨 Themes & Rewards</div>
+        <div id="unlockablesList">
+          <!-- Unlockables populated by JS -->
+        </div>
+      </div>
     </aside>
 
     <!-- GAME COLUMN -->
@@ -1286,6 +1825,353 @@
       markExerciseTried = a.markExerciseTried ?? markExerciseTried;
     } catch {}
 
+    // ===== ENGAGEMENT SYSTEMS =====
+    
+    // --- Daily Challenges ---
+    const CHALLENGE_TEMPLATES = [
+      { id: 'pop50_90acc', text: 'Pop 50 bubbles with 90%+ accuracy', check: (s) => s.taps >= 50 && s.accuracy >= 90 },
+      { id: 'reach_level5', text: 'Reach Level 5 in a session', check: (s) => s.level >= 5 },
+      { id: 'combo5_3times', text: 'Get a 5x combo 3 times', check: (s) => s.combo5Count >= 3 },
+      { id: 'score_1000', text: 'Score 1,000+ points', check: (s) => s.score >= 1000 },
+      { id: 'score_2500', text: 'Score 2,500+ points', check: (s) => s.score >= 2500 },
+      { id: 'streak_20', text: 'Achieve a 20+ tap streak', check: (s) => s.maxStreak >= 20 },
+      { id: 'streak_35', text: 'Achieve a 35+ tap streak', check: (s) => s.maxStreak >= 35 },
+      { id: 'no_misses_30', text: 'Pop 30 bubbles without missing', check: (s) => s.maxStreak >= 30 },
+      { id: 'avg_rt_400', text: 'Average reaction time under 400ms', check: (s) => s.avgRT > 0 && s.avgRT < 400 },
+      { id: 'golden_5', text: 'Pop 5 golden bubbles', check: (s) => s.goldenPops >= 5 },
+      { id: 'play_3min', text: 'Complete a 3+ minute session', check: (s) => s.duration >= 180 },
+      { id: 'level_8', text: 'Reach Level 8', check: (s) => s.level >= 8 },
+    ];
+
+    function getTodayKey() {
+      return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    }
+
+    function getDailyChallenges() {
+      const today = getTodayKey();
+      const saved = storage.get('dailyChallenges_' + EXERCISE_ID, null);
+      
+      if (saved && saved.date === today) {
+        return saved;
+      }
+      
+      // Generate new challenges for today using date as seed
+      const seed = today.split('-').join('');
+      const shuffled = [...CHALLENGE_TEMPLATES].sort((a, b) => {
+        const hashA = (parseInt(seed) * a.id.length) % 1000;
+        const hashB = (parseInt(seed) * b.id.length) % 1000;
+        return hashA - hashB;
+      });
+      
+      const newChallenges = {
+        date: today,
+        challenges: shuffled.slice(0, 3).map(c => ({
+          ...c,
+          completed: false,
+          progress: null
+        }))
+      };
+      
+      storage.set('dailyChallenges_' + EXERCISE_ID, newChallenges);
+      return newChallenges;
+    }
+
+    function updateChallengeProgress(sessionStats) {
+      const data = getDailyChallenges();
+      let anyCompleted = false;
+      
+      data.challenges.forEach(challenge => {
+        if (!challenge.completed) {
+          const template = CHALLENGE_TEMPLATES.find(t => t.id === challenge.id);
+          if (template && template.check(sessionStats)) {
+            challenge.completed = true;
+            anyCompleted = true;
+          }
+        }
+      });
+      
+      storage.set('dailyChallenges_' + EXERCISE_ID, data);
+      renderDailyChallenges();
+      
+      if (anyCompleted) {
+        showNotification('🎯 Challenge Complete!', 'achievement');
+      }
+      
+      return anyCompleted;
+    }
+
+    function renderDailyChallenges() {
+      const container = $('#challengeList');
+      const timerEl = $('#challengeTimer');
+      if (!container) return;
+      
+      const data = getDailyChallenges();
+      
+      container.innerHTML = data.challenges.map(c => `
+        <div class="challenge-item ${c.completed ? 'completed' : ''}">
+          <div class="challenge-checkbox">${c.completed ? '✓' : ''}</div>
+          <div class="challenge-text">${c.text}</div>
+        </div>
+      `).join('');
+      
+      // Update timer
+      if (timerEl) {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const msLeft = midnight - now;
+        const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
+        const minsLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+        timerEl.textContent = `Resets in ${hoursLeft}h ${minsLeft}m`;
+      }
+    }
+
+    // --- Streak System ---
+    function getStreakData() {
+      return storage.get('streakData_' + EXERCISE_ID, {
+        dates: [],
+        currentStreak: 0,
+        longestStreak: 0
+      });
+    }
+
+    function recordPracticeDay() {
+      const today = getTodayKey();
+      const data = getStreakData();
+      
+      if (data.dates.includes(today)) {
+        return data; // Already recorded today
+      }
+      
+      data.dates.push(today);
+      
+      // Keep only last 60 days
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 60);
+      data.dates = data.dates.filter(d => new Date(d) >= cutoff);
+      
+      // Calculate current streak
+      let streak = 0;
+      const checkDate = new Date();
+      
+      for (let i = 0; i < 365; i++) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        if (data.dates.includes(dateStr)) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else if (i === 0) {
+          // Today not yet recorded is OK, check yesterday
+          checkDate.setDate(checkDate.getDate() - 1);
+          continue;
+        } else {
+          break;
+        }
+      }
+      
+      data.currentStreak = streak;
+      data.longestStreak = Math.max(data.longestStreak, streak);
+      
+      storage.set('streakData_' + EXERCISE_ID, data);
+      renderStreakCalendar();
+      checkUnlockables();
+      
+      return data;
+    }
+
+    function renderStreakCalendar() {
+      const container = $('#streakCalendar');
+      const countEl = $('#streakCount');
+      const messageEl = $('#streakMessage');
+      if (!container) return;
+      
+      const data = getStreakData();
+      const today = getTodayKey();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Show last 7 days
+      let html = '';
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = dateStr === today;
+        const completed = data.dates.includes(dateStr);
+        
+        html += `
+          <div class="streak-day">
+            <div class="streak-day-label">${dayNames[date.getDay()]}</div>
+            <div class="streak-day-dot ${completed ? 'completed' : ''} ${isToday ? 'today' : ''}">
+              ${completed ? '✓' : ''}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+      
+      // Update count
+      if (countEl) {
+        const streak = data.currentStreak;
+        countEl.textContent = streak === 1 ? '1 day' : `${streak} days`;
+        if (streak >= 7) {
+          countEl.innerHTML = `🔥 ${streak} days`;
+        }
+      }
+      
+      // Update message
+      if (messageEl) {
+        const streak = data.currentStreak;
+        const practicedToday = data.dates.includes(today);
+        
+        if (!practicedToday && streak === 0) {
+          messageEl.textContent = "Start your streak today!";
+        } else if (!practicedToday && streak > 0) {
+          messageEl.textContent = `Practice today to keep your ${streak}-day streak going!`;
+        } else if (streak === 1) {
+          messageEl.textContent = "Great start! Come back tomorrow.";
+        } else if (streak < 7) {
+          messageEl.textContent = `${7 - streak} more days to unlock Rainbow Bubbles!`;
+        } else if (streak === 7) {
+          messageEl.textContent = "🌈 Amazing! You unlocked Rainbow Bubbles!";
+        } else {
+          messageEl.textContent = `Incredible ${streak}-day streak! Keep it up!`;
+        }
+      }
+    }
+
+    // --- Unlockables / Themes ---
+    const UNLOCKABLES = [
+      { 
+        id: 'default', 
+        name: 'Cosmic (Default)', 
+        icon: '🌌', 
+        theme: '', 
+        requirement: 'Always available',
+        check: () => true 
+      },
+      { 
+        id: 'ocean', 
+        name: 'Ocean Depths', 
+        icon: '🌊', 
+        theme: 'theme-ocean', 
+        requirement: 'Reach Level 10',
+        check: () => storage.get('maxLevelReached_' + EXERCISE_ID, 1) >= 10 
+      },
+      { 
+        id: 'sunset', 
+        name: 'Sunset Glow', 
+        icon: '🌅', 
+        theme: 'theme-sunset', 
+        requirement: 'Score 5,000+ points',
+        check: () => storage.get('PB_' + EXERCISE_ID, 0) >= 5000 
+      },
+      { 
+        id: 'rainbow', 
+        name: 'Rainbow Bubbles', 
+        icon: '🌈', 
+        theme: 'theme-rainbow', 
+        requirement: '7-day streak',
+        check: () => getStreakData().currentStreak >= 7 
+      },
+      { 
+        id: 'forest', 
+        name: 'Forest Grove', 
+        icon: '🌲', 
+        theme: 'theme-forest', 
+        requirement: 'Complete all daily challenges',
+        check: () => {
+          const data = getDailyChallenges();
+          return data.challenges.every(c => c.completed);
+        }
+      },
+    ];
+
+    function getActiveTheme() {
+      return storage.get('activeTheme_' + EXERCISE_ID, 'default');
+    }
+
+    function setActiveTheme(themeId) {
+      const unlockable = UNLOCKABLES.find(u => u.id === themeId);
+      if (!unlockable || !unlockable.check()) return;
+      
+      // Remove all theme classes
+      UNLOCKABLES.forEach(u => {
+        if (u.theme) document.body.classList.remove(u.theme);
+      });
+      
+      // Apply new theme
+      if (unlockable.theme) {
+        document.body.classList.add(unlockable.theme);
+      }
+      
+      storage.set('activeTheme_' + EXERCISE_ID, themeId);
+      renderUnlockables();
+    }
+
+    function checkUnlockables() {
+      // Check if any new unlockables were achieved
+      const previouslyUnlocked = storage.get('unlockedThemes_' + EXERCISE_ID, ['default']);
+      let newUnlock = false;
+      
+      UNLOCKABLES.forEach(u => {
+        if (!previouslyUnlocked.includes(u.id) && u.check()) {
+          previouslyUnlocked.push(u.id);
+          newUnlock = true;
+          showNotification(`🎨 Unlocked: ${u.name}!`, 'achievement');
+        }
+      });
+      
+      if (newUnlock) {
+        storage.set('unlockedThemes_' + EXERCISE_ID, previouslyUnlocked);
+      }
+      
+      renderUnlockables();
+    }
+
+    function renderUnlockables() {
+      const container = $('#unlockablesList');
+      if (!container) return;
+      
+      const activeTheme = getActiveTheme();
+      
+      container.innerHTML = UNLOCKABLES.map(u => {
+        const unlocked = u.check();
+        const isActive = u.id === activeTheme;
+        
+        return `
+          <div class="unlock-item ${unlocked ? '' : 'locked'} ${isActive ? 'active' : ''}" 
+               data-theme="${u.id}" 
+               onclick="${unlocked ? `window.selectTheme('${u.id}')` : ''}">
+            <div class="unlock-icon">${u.icon}</div>
+            <div class="unlock-info">
+              <div class="unlock-name">${u.name}</div>
+              <div class="unlock-requirement">${unlocked ? (isActive ? '✓ Active' : 'Click to use') : u.requirement}</div>
+            </div>
+            <div class="unlock-status">${unlocked ? (isActive ? '✓' : '') : '🔒'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Make theme selection available globally
+    window.selectTheme = setActiveTheme;
+
+    // Initialize engagement systems
+    function initEngagement() {
+      renderDailyChallenges();
+      renderStreakCalendar();
+      renderUnlockables();
+      
+      // Apply saved theme
+      const savedTheme = getActiveTheme();
+      const unlockable = UNLOCKABLES.find(u => u.id === savedTheme);
+      if (unlockable && unlockable.check() && unlockable.theme) {
+        document.body.classList.add(unlockable.theme);
+      }
+      
+      // Update challenge timer every minute
+      setInterval(renderDailyChallenges, 60000);
+    }
+
     // ===== Geometry & fullscreen =====
     function setVH(){ 
       document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); 
@@ -1381,6 +2267,9 @@
     let pbBrokenThisSession = false;
     let perfectStreakTime = 0; // For tracking perfect accuracy periods
     let goldenStreak = 0; // For consecutive golden bubbles
+    let combo5Count = 0; // Track how many times 5x combo was reached
+    let goldenPops = 0; // Track golden bubbles popped
+    let sessionStartTime = 0; // For session duration tracking
     
     const COMBO_WINDOW = 1000; // 1 second to maintain combo
     let sessionDurationMs = 2 * 60 * 1000, timeRemaining = sessionDurationMs;
@@ -1562,16 +2451,17 @@
     }
 
     function createParticles(x, y, count, color) {
+      // Main particles - burst outward
       for (let i = 0; i < count; i++) {
         const particle = el('div', 'particle');
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
         particle.style.background = color;
         
-        const angle = (Math.PI * 2 * i) / count;
-        const distance = 40 + Math.random() * 40;
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+        const distance = 50 + Math.random() * 50;
         const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
+        const ty = Math.sin(angle) * distance - 20; // Bias upward
         
         particle.style.setProperty('--tx', tx + 'px');
         particle.style.setProperty('--ty', ty + 'px');
@@ -1579,6 +2469,54 @@
         particlesContainer.append(particle);
         particle.addEventListener('animationend', () => particle.remove());
       }
+      
+      // Add some spark particles - smaller and faster
+      for (let i = 0; i < Math.floor(count / 2); i++) {
+        const spark = el('div', 'particle spark');
+        spark.style.left = x + 'px';
+        spark.style.top = y + 'px';
+        spark.style.background = '#fff';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 60;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 30;
+        
+        spark.style.setProperty('--tx', tx + 'px');
+        spark.style.setProperty('--ty', ty + 'px');
+        
+        particlesContainer.append(spark);
+        spark.addEventListener('animationend', () => spark.remove());
+      }
+      
+      // Add a couple glow particles - larger and softer
+      for (let i = 0; i < 3; i++) {
+        const glow = el('div', 'particle glow');
+        glow.style.left = x + 'px';
+        glow.style.top = y + 'px';
+        glow.style.background = color;
+        
+        const angle = (Math.PI * 2 * i) / 3;
+        const distance = 25 + Math.random() * 25;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 15;
+        
+        glow.style.setProperty('--tx', tx + 'px');
+        glow.style.setProperty('--ty', ty + 'px');
+        
+        particlesContainer.append(glow);
+        glow.addEventListener('animationend', () => glow.remove());
+      }
+    }
+
+    // Pop flash effect - bright flash when bubble pops
+    function createPopFlash(x, y, type = 'normal') {
+      const flash = el('div', 'pop-flash');
+      if (type !== 'normal') flash.classList.add(type);
+      flash.style.left = x + 'px';
+      flash.style.top = y + 'px';
+      surface.append(flash);
+      flash.addEventListener('animationend', () => flash.remove());
     }
 
     function showPoints(x, y, pts, type = 'normal', hasCombo = false){
@@ -1659,6 +2597,7 @@
 
     function updateCombo(hitTime) {
       const timeSinceLastHit = hitTime - lastHitTime;
+      const prevCombo = currentCombo;
       
       if (timeSinceLastHit < COMBO_WINDOW && lastHitTime > 0) {
         currentCombo = Math.min(currentCombo + 0.5, 5); // Max 5x multiplier
@@ -1668,6 +2607,11 @@
       
       maxCombo = Math.max(maxCombo, currentCombo);
       lastHitTime = hitTime;
+      
+      // Track 5x combo achievements for daily challenges
+      if (currentCombo >= 5 && prevCombo < 5) {
+        combo5Count++;
+      }
       
       // Show notification for milestone combos
       if (currentCombo >= 5 && currentCombo === Math.floor(currentCombo)) {
@@ -1709,6 +2653,7 @@
       if (bubbleType === 'golden') {
         pts *= 3;
         goldenStreak++;
+        goldenPops++; // Track for daily challenges
         triggerHaptic('golden');
       } else if (bubbleType === 'freeze') {
         pts *= 2;
@@ -1737,6 +2682,7 @@
       
       showPoints(bx, by, pts, bubbleType, currentCombo > 1);
       ripple(bx, by, bubbleType);
+      createPopFlash(bx, by, bubbleType); // Add pop flash effect
       
       // Particle effects
       const particleColors = {
@@ -1745,7 +2691,7 @@
         freeze: '#00d4ff',
         speed: '#bf5fff'
       };
-      createParticles(bx, by, bubbleType === 'golden' ? 12 : 8, particleColors[bubbleType]);
+      createParticles(bx, by, bubbleType === 'golden' ? 14 : 10, particleColors[bubbleType]);
       
       // Update level
       updateLevel();
@@ -1891,6 +2837,9 @@
       sessionAchievements = [];
       pbBrokenThisSession = false;
       goldenStreak = 0;
+      combo5Count = 0;
+      goldenPops = 0;
+      sessionStartTime = Date.now();
       hideBubble(); 
       updateHUD();
 
@@ -1937,6 +2886,7 @@
       const total = taps + misses;
       const acc = total > 0 ? Math.round((taps/total)*100) : 0;
       const avg = taps > 0 ? Math.round(totalRT / taps) : 0;
+      const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000); // in seconds
 
       fScore.textContent = String(score);
       fTaps.textContent = String(taps);
@@ -1976,8 +2926,36 @@
         resultMessage.textContent = '🏆 New Personal Best!';
       }
       
+      // Track max level reached for unlockables
+      const prevMaxLevel = storage.get('maxLevelReached_' + EXERCISE_ID, 1);
+      if (currentLevel > prevMaxLevel) {
+        storage.set('maxLevelReached_' + EXERCISE_ID, currentLevel);
+      }
+      
       // Update settings display
       lastScoreSettingsEl.textContent = String(score);
+
+      // === ENGAGEMENT SYSTEMS ===
+      // Record practice day for streak
+      recordPracticeDay();
+      
+      // Update daily challenge progress
+      const sessionStats = {
+        taps,
+        score,
+        accuracy: acc,
+        avgRT: avg,
+        maxStreak,
+        maxCombo: Math.floor(maxCombo),
+        level: currentLevel,
+        combo5Count,
+        goldenPops,
+        duration: sessionDuration
+      };
+      updateChallengeProgress(sessionStats);
+      
+      // Check for newly unlocked themes
+      checkUnlockables();
 
       // Show session achievements
       if (sessionAchievements.length > 0) {
@@ -2047,6 +3025,9 @@
     }
 
     updateHUD();
+    
+    // Initialize engagement systems (daily challenges, streaks, unlockables)
+    initEngagement();
 
     // Generate enhanced stars with more variety
     function generateStars(container, count = 200) {
