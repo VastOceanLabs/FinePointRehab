@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sequence Builder — Cognitive Rehabilitation</title>
 
   <style>
@@ -36,6 +36,8 @@
       --font-weight-bold: 700;
       --duration-fast: 150ms;
       --easing: cubic-bezier(0.4, 0, 0.2, 1);
+      --streak-color: #ffa726;
+      --time-bonus-color: #ab47bc;
     }
 
     * {
@@ -64,6 +66,8 @@
       text-decoration: none;
       cursor: pointer;
       transition: all var(--duration-fast) var(--easing);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .btn:hover {
@@ -88,6 +92,7 @@
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      pointer-events: none;
     }
 
     .input, select {
@@ -98,6 +103,12 @@
       background-color: var(--bg-secondary);
       color: var(--text-primary);
       font-size: var(--font-size-base);
+    }
+
+    .input:focus, select:focus {
+      outline: none;
+      border-color: var(--brand-aqua);
+      box-shadow: 0 0 0 3px rgba(111, 211, 245, 0.2);
     }
 
     .panel {
@@ -242,7 +253,7 @@
 
     @media (max-width: 768px) {
       .hud {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
         grid-auto-flow: row;
         gap: var(--space-1);
         padding: var(--space-2);
@@ -288,6 +299,57 @@
       color: var(--text-secondary);
     }
 
+    /* Streak styling */
+    .hud-group.streak .hud-value {
+      color: var(--streak-color);
+      text-shadow: 0 0 10px rgba(255, 167, 38, 0.5);
+    }
+
+    .hud-group.streak.on-fire .hud-value {
+      animation: fireGlow 0.5s ease-in-out infinite alternate;
+    }
+
+    .hud-group.streak.on-fire::after {
+      content: '🔥';
+      position: absolute;
+      top: -5px;
+      right: 10px;
+      font-size: 16px;
+      animation: fireWiggle 0.3s ease-in-out infinite;
+    }
+
+    .hud-group.streak {
+      position: relative;
+    }
+
+    @keyframes fireGlow {
+      from { text-shadow: 0 0 10px rgba(255, 167, 38, 0.5); }
+      to { text-shadow: 0 0 20px rgba(255, 167, 38, 0.9), 0 0 30px rgba(255, 87, 34, 0.5); }
+    }
+
+    @keyframes fireWiggle {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    /* Multiplier badge */
+    .multiplier-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--streak-color), #ff7043);
+      color: #000;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+      animation: pulseBadge 1s ease-in-out infinite;
+    }
+
+    @keyframes pulseBadge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
     .timer-bar {
       position: absolute;
       top: 0;
@@ -316,6 +378,68 @@
       padding: var(--space-3);
       background-color: rgba(8, 15, 35, 0.7);
       border-radius: var(--radius);
+    }
+
+    /* Progress bar */
+    .progress-container {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+    }
+
+    .progress-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand-aqua), #4dd0e1);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Sequence timer */
+    .sequence-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-2);
+      background: rgba(171, 71, 188, 0.15);
+      border: 1px solid rgba(171, 71, 188, 0.3);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+      font-size: var(--font-size-base);
+      color: var(--time-bonus-color);
+    }
+
+    .sequence-timer .timer-icon {
+      font-size: 18px;
+    }
+
+    .sequence-timer.bonus-zone {
+      background: rgba(171, 71, 188, 0.25);
+      border-color: rgba(171, 71, 188, 0.6);
+      animation: bonusPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes bonusPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(171, 71, 188, 0.4); }
+      50% { box-shadow: 0 0 15px 3px rgba(171, 71, 188, 0.3); }
     }
 
     #game-container {
@@ -421,6 +545,11 @@
       cursor: default;
       transform: none;
       box-shadow: 0 0 10px rgba(111, 211, 245, 0.25);
+      pointer-events: none;
+    }
+
+    .sequence-piece.model:hover {
+      transform: none;
     }
 
     .sequence-piece.correct {
@@ -536,7 +665,91 @@
       color: var(--error);
     }
 
+    .feedback-message.time-bonus {
+      border-color: var(--time-bonus-color);
+      color: var(--time-bonus-color);
+    }
+
+    .feedback-message.streak-bonus {
+      border-color: var(--streak-color);
+      color: var(--streak-color);
+    }
+
+    /* Floating bonus indicators */
+    .floating-bonus {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+      font-size: 18px;
+      pointer-events: none;
+      animation: floatUp 1.5s ease-out forwards;
+      z-index: 200;
+    }
+
+    .floating-bonus.time {
+      color: var(--time-bonus-color);
+    }
+
+    .floating-bonus.streak {
+      color: var(--streak-color);
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-60px);
+      }
+    }
+
+    /* Streak broken overlay */
+    .streak-broken {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 107, 107, 0.15);
+      border: 2px solid var(--error);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-6);
+      color: var(--error);
+      font-weight: bold;
+      font-size: var(--font-size-lg);
+      z-index: 150;
+      animation: fadeInOut 2s ease-out forwards;
+      text-align: center;
+    }
+
+    .streak-broken .streak-value {
+      font-size: var(--font-size-xl);
+      display: block;
+      margin-top: var(--space-2);
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
     /* Completion modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1050;
+      display: none;
+    }
+
+    .modal-backdrop.show {
+      display: block;
+    }
+
     .completion {
       position: fixed;
       inset: 50% auto auto 50%;
@@ -569,6 +782,14 @@
       font-weight: var(--font-weight-bold);
     }
 
+    .score-highlight.streak {
+      color: var(--streak-color);
+    }
+
+    .score-highlight.time {
+      color: var(--time-bonus-color);
+    }
+
     .celebrate {
       animation: celebrate 900ms ease-out 1;
     }
@@ -595,8 +816,17 @@
       .sequence-piece.selected,
       .sequence-piece.correct,
       .sequence-piece.incorrect,
-      .celebrate { 
+      .celebrate,
+      .hud-group.streak.on-fire .hud-value,
+      .hud-group.streak.on-fire::after,
+      .multiplier-badge,
+      .sequence-timer.bonus-zone,
+      .floating-bonus { 
         animation: none; 
+      }
+      
+      .floating-bonus {
+        display: none;
       }
     }
 
@@ -614,6 +844,14 @@
       
       .page {
         padding: var(--space-2);
+      }
+
+      .progress-container {
+        flex-wrap: wrap;
+      }
+
+      .sequence-timer {
+        font-size: 14px;
       }
     }
 
@@ -646,6 +884,10 @@
         <div class="metric-settings">
           <div id="pb-settings" class="pb-value">0</div>
           <div class="pb-label">Personal Best</div>
+        </div>
+        <div class="metric-settings">
+          <div id="best-streak-settings" class="pb-value" style="color: var(--streak-color);">0</div>
+          <div class="pb-label">Best Streak</div>
         </div>
       </div>
 
@@ -699,13 +941,13 @@
         <div class="timer-bar" id="timer-bar"></div>
 
         <div class="hud-group">
-          <div id="hud-score" class="hud-value">0</div>
+          <div id="hud-score" class="hud-value" aria-live="polite">0</div>
           <div class="hud-label">Score</div>
         </div>
 
-        <div class="hud-group">
-          <div id="hud-pb" class="hud-value">0</div>
-          <div class="hud-label">Personal Best</div>
+        <div class="hud-group streak" id="streak-group">
+          <div id="hud-streak" class="hud-value">0</div>
+          <div class="hud-label">Streak <span id="multiplier-display"></span></div>
         </div>
 
         <div class="hud-group">
@@ -727,6 +969,21 @@
       <!-- Game Area -->
       <div class="panel" id="game-container">
         <div id="stars-container"></div>
+
+        <!-- Progress indicator -->
+        <div class="progress-container">
+          <span class="progress-label">Sequence <span id="sequence-number">1</span> of <span id="total-sequences">10</span></span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+          </div>
+        </div>
+
+        <!-- Sequence timer for time bonus -->
+        <div class="sequence-timer" id="sequence-timer">
+          <span class="timer-icon">⏱️</span>
+          <span id="sequence-time">0.0s</span>
+          <span id="bonus-hint">(Under 10s = time bonus!)</span>
+        </div>
 
         <p class="instructions" id="instructions">
           Study the target pattern, then recreate it by selecting pieces below.
@@ -758,6 +1015,7 @@
 
         <div class="controls">
           <button id="check-button" class="btn btn-primary" disabled>Check Sequence</button>
+          <button id="undo-button" class="btn btn-secondary" disabled>↩ Undo</button>
           <button id="reset-button" class="btn btn-secondary">Clear All</button>
         </div>
 
@@ -766,12 +1024,19 @@
     </section>
   </main>
 
+  <div id="modal-backdrop" class="modal-backdrop"></div>
   <div id="completion-message" class="completion panel">
     <h2>Therapy Session Complete!</h2>
     <div id="completion-scores">
       <p>Sequences Completed: <span id="final-sequences" class="score-highlight">0</span></p>
       <p>Success Rate: <span id="final-accuracy" class="score-highlight">0%</span></p>
-      <p>Cognitive Performance Score: <span id="final-score" class="score-highlight">0</span></p>
+      <p>Base Score: <span id="final-base-score" class="score-highlight">0</span></p>
+      <p>Time Bonuses: <span id="final-time-bonus" class="score-highlight time">+0</span></p>
+      <p>Streak Bonuses: <span id="final-streak-bonus" class="score-highlight streak">+0</span></p>
+      <p>Best Streak: <span id="final-best-streak" class="score-highlight streak">0</span></p>
+      <p style="font-size: 1.2em; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+        Total Score: <span id="final-score" class="score-highlight" style="font-size: 1.3em;">0</span>
+      </p>
       <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
     </div>
     <div class="controls">
@@ -824,8 +1089,11 @@
     const starsContainer = document.getElementById('stars-container');
     const timerBarEl = document.getElementById('timer-bar');
     const hudScore = document.getElementById('hud-score');
-    const hudPB = document.getElementById('hud-pb');
+    const hudStreak = document.getElementById('hud-streak');
+    const streakGroup = document.getElementById('streak-group');
+    const multiplierDisplay = document.getElementById('multiplier-display');
     const pbSettingsEl = document.getElementById('pb-settings');
+    const bestStreakSettingsEl = document.getElementById('best-streak-settings');
     const hudCorrect = document.getElementById('hud-correct');
     const hudTime = document.getElementById('hud-time');
     const instructions = document.getElementById('instructions');
@@ -840,33 +1108,53 @@
     const pauseBtn = document.getElementById('pause-session');
     const restartBtn = document.getElementById('restart-session');
     const checkBtn = document.getElementById('check-button');
+    const undoBtn = document.getElementById('undo-button');
     const resetBtn = document.getElementById('reset-button');
     const endBtn = document.getElementById('end-session');
     const completionModal = document.getElementById('completion-message');
     const finalSequencesEl = document.getElementById('final-sequences');
     const finalAccuracyEl = document.getElementById('final-accuracy');
+    const finalBaseScoreEl = document.getElementById('final-base-score');
+    const finalTimeBonusEl = document.getElementById('final-time-bonus');
+    const finalStreakBonusEl = document.getElementById('final-streak-bonus');
+    const finalBestStreakEl = document.getElementById('final-best-streak');
     const finalScoreEl = document.getElementById('final-score');
     const finalXPEl = document.getElementById('final-xp');
     const completeClose = document.getElementById('close-complete');
     const restartModalBtn = document.getElementById('restart-button');
     const feedbackMessage = document.getElementById('feedback-message');
+    const modalBackdrop = document.getElementById('modal-backdrop');
     const sequenceTypeSelect = document.getElementById('sequence-type');
     const difficultySelect = document.getElementById('difficulty-select');
     const showCompletedSelect = document.getElementById('show-completed');
     const sessionDurationInp = document.getElementById('session-duration');
+    
+    // Progress elements
+    const sequenceNumberEl = document.getElementById('sequence-number');
+    const totalSequencesEl = document.getElementById('total-sequences');
+    const progressFillEl = document.getElementById('progress-fill');
+    
+    // Sequence timer elements
+    const sequenceTimerEl = document.getElementById('sequence-timer');
+    const sequenceTimeEl = document.getElementById('sequence-time');
+    const bonusHintEl = document.getElementById('bonus-hint');
 
     // Generate initial stars
     generateStars(starsContainer, 150);
 
     // Personal best tracking
     const PB_KEY = 'sequence-builder:best';
+    const BEST_STREAK_KEY = 'sequence-builder:best-streak';
     const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
     const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
+    const getBestStreak = () => parseInt(localStorage.getItem(BEST_STREAK_KEY) || '0', 10);
+    const setBestStreak = (streak) => localStorage.setItem(BEST_STREAK_KEY, String(streak));
 
     function updatePersonalBest() {
       const pb = getPB();
-      if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
+      const bestStreak = getBestStreak();
       if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
+      if (bestStreakSettingsEl) bestStreakSettingsEl.textContent = bestStreak ? String(bestStreak) : '0';
     }
 
     // Game state
@@ -876,7 +1164,11 @@
     let timeRemaining = 0;
     let timerInterval = null;
     let memoryTimerInterval = null;
+    let sequenceTimerInterval = null;
     let score = 0;
+    let baseScore = 0;
+    let totalTimeBonus = 0;
+    let totalStreakBonus = 0;
     let sequencesCompleted = 0;
     let totalAttempts = 0;
     let correctSequences = 0;
@@ -888,6 +1180,17 @@
     let userSteps = [];
     let currentStepIndex = 0;
     let modelVisible = true;
+    
+    // NEW: Streak tracking
+    let currentStreak = 0;
+    let sessionBestStreak = 0;
+    
+    // NEW: Sequence timing
+    let sequenceStartTime = 0;
+    let currentSequenceTime = 0;
+    
+    // NEW: Undo history
+    let undoHistory = [];
 
     // Sequence libraries
     const sequenceLibraries = {
@@ -942,6 +1245,58 @@
       }
     };
 
+    // Get multiplier based on streak
+    function getMultiplier(streak) {
+      if (streak >= 10) return 3.0;
+      if (streak >= 7) return 2.5;
+      if (streak >= 5) return 2.0;
+      if (streak >= 3) return 1.5;
+      return 1.0;
+    }
+
+    // Update multiplier display
+    function updateMultiplierDisplay() {
+      const multiplier = getMultiplier(currentStreak);
+      if (multiplierDisplay) {
+        if (multiplier > 1) {
+          multiplierDisplay.innerHTML = `<span class="multiplier-badge">${multiplier}x</span>`;
+        } else {
+          multiplierDisplay.innerHTML = '';
+        }
+      }
+      
+      // Update fire effect
+      if (streakGroup) {
+        if (currentStreak >= 3) {
+          streakGroup.classList.add('on-fire');
+        } else {
+          streakGroup.classList.remove('on-fire');
+        }
+      }
+    }
+
+    // Show floating bonus indicator
+    function showFloatingBonus(amount, type, container) {
+      const bonus = document.createElement('div');
+      bonus.className = `floating-bonus ${type}`;
+      bonus.textContent = `+${amount}`;
+      bonus.style.bottom = '100px';
+      container.appendChild(bonus);
+      setTimeout(() => bonus.remove(), 1500);
+    }
+
+    // Show streak broken message
+    function showStreakBroken(streak) {
+      if (streak < 3) return; // Only show for meaningful streaks
+      
+      const gameContainer = document.getElementById('game-container');
+      const brokenEl = document.createElement('div');
+      brokenEl.className = 'streak-broken';
+      brokenEl.innerHTML = `Streak Broken! 💔<span class="streak-value">${streak} in a row</span>`;
+      gameContainer.appendChild(brokenEl);
+      setTimeout(() => brokenEl.remove(), 2000);
+    }
+
     // Utility functions
     function showFeedback(message, type) {
       if (!feedbackMessage) return;
@@ -968,12 +1323,63 @@
 
     function updateHUD() {
       if (hudScore) hudScore.textContent = `${score}`;
-      if (hudPB) hudPB.textContent = `${getPB()}`;
+      if (hudStreak) hudStreak.textContent = `${currentStreak}`;
       if (hudCorrect) hudCorrect.textContent = `${correctSequences}`;
 
       const mins = Math.max(0, Math.floor(timeRemaining / 60000));
       const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
       if (hudTime) hudTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      
+      updateMultiplierDisplay();
+    }
+
+    function updateProgress() {
+      if (sequenceNumberEl) sequenceNumberEl.textContent = currentSequenceIndex + 1;
+      if (totalSequencesEl) totalSequencesEl.textContent = sequences.length;
+      if (progressFillEl) {
+        const progress = ((currentSequenceIndex + 1) / sequences.length) * 100;
+        progressFillEl.style.width = `${progress}%`;
+      }
+    }
+
+    // Sequence timer functions
+    function startSequenceTimer() {
+      sequenceStartTime = Date.now();
+      currentSequenceTime = 0;
+      
+      if (sequenceTimerInterval) clearInterval(sequenceTimerInterval);
+      
+      sequenceTimerInterval = setInterval(() => {
+        if (!isSessionActive || isPaused) return;
+        currentSequenceTime = (Date.now() - sequenceStartTime) / 1000;
+        if (sequenceTimeEl) sequenceTimeEl.textContent = `${currentSequenceTime.toFixed(1)}s`;
+        
+        // Update bonus hint styling
+        if (sequenceTimerEl) {
+          if (currentSequenceTime <= 10) {
+            sequenceTimerEl.classList.add('bonus-zone');
+            if (bonusHintEl) bonusHintEl.textContent = '(Time bonus active!)';
+          } else {
+            sequenceTimerEl.classList.remove('bonus-zone');
+            if (bonusHintEl) bonusHintEl.textContent = '';
+          }
+        }
+      }, 100);
+    }
+
+    function stopSequenceTimer() {
+      if (sequenceTimerInterval) {
+        clearInterval(sequenceTimerInterval);
+        sequenceTimerInterval = null;
+      }
+    }
+
+    function calculateTimeBonus(seconds) {
+      if (seconds <= 5) return 100;
+      if (seconds <= 8) return 75;
+      if (seconds <= 10) return 50;
+      if (seconds <= 15) return 25;
+      return 0;
     }
 
     function startTimer() {
@@ -1043,6 +1449,14 @@
     function placePiece(placeholder) {
       if (!selectedPiece || !isSessionActive || isPaused) return;
       const index = parseInt(placeholder.dataset.index, 10);
+      
+      // Save to undo history
+      undoHistory.push({
+        index: index,
+        previousSymbol: userSteps[index] || null
+      });
+      updateUndoButton();
+      
       const newPiece = selectedPiece.cloneNode(true);
       newPiece.classList.remove('selected');
       newPiece.setAttribute('aria-label', `Placed ${newPiece.dataset.symbol} in position ${index + 1}`);
@@ -1060,6 +1474,14 @@
 
     function removePiece(piece, index) {
       if (!isSessionActive || isPaused) return;
+      
+      // Save to undo history
+      undoHistory.push({
+        index: index,
+        previousSymbol: userSteps[index]
+      });
+      updateUndoButton();
+      
       const ph = document.createElement('div');
       ph.className = 'sequence-piece placeholder';
       ph.dataset.index = index;
@@ -1076,26 +1498,72 @@
       if (checkBtn) checkBtn.disabled = true;
     }
 
+    // Undo functionality
+    function updateUndoButton() {
+      if (undoBtn) {
+        undoBtn.disabled = undoHistory.length === 0;
+      }
+    }
+
+    function performUndo() {
+      if (undoHistory.length === 0 || !isSessionActive || isPaused) return;
+      
+      const lastAction = undoHistory.pop();
+      const index = lastAction.index;
+      const previousSymbol = lastAction.previousSymbol;
+      
+      const currentElement = userSequence.children[index];
+      
+      if (previousSymbol) {
+        // Restore previous piece
+        const restoredPiece = createSequencePiece(previousSymbol);
+        restoredPiece.addEventListener('click', () => removePiece(restoredPiece, index));
+        userSequence.replaceChild(restoredPiece, currentElement);
+        userSteps[index] = previousSymbol;
+      } else {
+        // Restore placeholder
+        const ph = document.createElement('div');
+        ph.className = 'sequence-piece placeholder';
+        ph.dataset.index = index;
+        ph.setAttribute('role', 'button');
+        ph.setAttribute('tabindex', '0');
+        ph.setAttribute('aria-label', `Empty slot ${index + 1}`);
+        ph.addEventListener('click', () => placePiece(ph));
+        userSequence.replaceChild(ph, currentElement);
+        userSteps[index] = null;
+      }
+      
+      currentStepIndex = userSteps.filter(Boolean).length;
+      if (currentStepElement) currentStepElement.textContent = Math.min(currentStepIndex + 1, currentSequence.length);
+      updatePlaceholderHighlights();
+      updateUndoButton();
+      if (checkBtn) checkBtn.disabled = currentStepIndex < currentSequence.length;
+      if (statusText) statusText.textContent = 'Undone! Continue building your sequence';
+    }
+
     function updatePlaceholderHighlights() {
       const placeholders = userSequence.querySelectorAll('.placeholder');
-      placeholders.forEach((p, i) => {
+      placeholders.forEach((p) => {
+        const index = parseInt(p.dataset.index, 10);
         p.classList.remove('next');
-        if (!userSteps[i] && !p.classList.contains('next')) {
-          let hasPrevEmpty = false;
-          for (let j = 0; j < i; j++) {
-            if (!userSteps[j]) {
-              hasPrevEmpty = true;
-              break;
-            }
+        // Check if this is the first empty slot
+        let hasPrevEmpty = false;
+        for (let j = 0; j < index; j++) {
+          if (!userSteps[j]) {
+            hasPrevEmpty = true;
+            break;
           }
-          if (!hasPrevEmpty) p.classList.add('next');
         }
+        if (!hasPrevEmpty) p.classList.add('next');
       });
     }
 
     function checkSequence() {
       if (!isSessionActive || isPaused || currentStepIndex < currentSequence.length) return;
+      
+      stopSequenceTimer();
       totalAttempts++;
+      
       let isCorrect = true;
       for (let i = 0; i < currentSequence.length; i++) {
         const piece = userSequence.children[i];
@@ -1106,16 +1574,63 @@
           isCorrect = false;
         }
       }
+      
+      const gameContainer = document.getElementById('game-container');
+      
       if (isCorrect) {
         correctSequences++;
         sequencesCompleted++;
-        score += 100 + (50 * currentSequence.length);
-        showFeedback('Perfect sequence!', 'success');
+        
+        // Calculate base points
+        const basePoints = 100 + (50 * currentSequence.length);
+        baseScore += basePoints;
+        
+        // Calculate time bonus
+        const timeBonus = calculateTimeBonus(currentSequenceTime);
+        totalTimeBonus += timeBonus;
+        
+        // Increase streak
+        currentStreak++;
+        if (currentStreak > sessionBestStreak) {
+          sessionBestStreak = currentStreak;
+        }
+        
+        // Calculate streak bonus
+        const multiplier = getMultiplier(currentStreak);
+        const streakBonus = Math.round(basePoints * (multiplier - 1));
+        totalStreakBonus += streakBonus;
+        
+        // Total points for this sequence
+        const totalPoints = basePoints + timeBonus + streakBonus;
+        score += totalPoints;
+        
+        // Show feedback
+        let feedbackMsg = 'Perfect sequence!';
+        if (currentStreak >= 3) feedbackMsg += ` 🔥 ${currentStreak} streak!`;
+        showFeedback(feedbackMsg, 'success');
+        
+        // Show floating bonuses
+        if (timeBonus > 0) {
+          setTimeout(() => showFloatingBonus(timeBonus, 'time', gameContainer), 300);
+        }
+        if (streakBonus > 0) {
+          setTimeout(() => showFloatingBonus(streakBonus, 'streak', gameContainer), 600);
+        }
+        
         if (userSequence) userSequence.classList.add('celebrate');
       } else {
+        // Wrong answer
         score = Math.max(0, score - 25);
+        
+        // Show streak broken if applicable
+        if (currentStreak >= 3) {
+          showStreakBroken(currentStreak);
+        }
+        
+        currentStreak = 0;
         showFeedback('Try again - check the pattern', 'error');
       }
+      
       updateHUD();
       if (checkBtn) checkBtn.disabled = true;
       if (resetBtn) resetBtn.disabled = true;
@@ -1125,6 +1640,7 @@
         if (userSequence) userSequence.classList.remove('celebrate');
         if (isCorrect) {
           currentSequenceIndex++;
+          updateProgress();
           if (currentSequenceIndex < sequences.length) {
             startSequence(sequences[currentSequenceIndex]);
           } else {
@@ -1141,7 +1657,9 @@
     function resetUserSequence() {
       if (!isSessionActive) return;
       currentStepIndex = 0;
-      userSteps = [];
+      userSteps = new Array(currentSequence.length).fill(null);
+      undoHistory = [];
+      updateUndoButton();
       if (currentStepElement) currentStepElement.textContent = '1';
       createUserPlaceholders(currentSequence.length);
       if (statusText) statusText.textContent = 'Select a piece below to place';
@@ -1150,6 +1668,8 @@
         selectedPiece.classList.remove('selected');
         selectedPiece = null;
       }
+      // Restart sequence timer on reset
+      startSequenceTimer();
     }
 
     function startSession() {
@@ -1161,6 +1681,9 @@
       
       // Reset game state
       score = 0;
+      baseScore = 0;
+      totalTimeBonus = 0;
+      totalStreakBonus = 0;
       sequencesCompleted = 0;
       totalAttempts = 0;
       correctSequences = 0;
@@ -1174,8 +1697,12 @@
       modelVisible = true;
       timeRemaining = sessionMs;
       isPaused = false;
+      currentStreak = 0;
+      sessionBestStreak = 0;
+      undoHistory = [];
 
       updateHUD();
+      updateUndoButton();
       setScreen('game');
       saveSettings();
 
@@ -1187,9 +1714,13 @@
       // Generate sequences and start
       setTimeout(() => {
         generateSequences(sequenceTypeSelect?.value || 'pattern', difficulty);
-        if (sequences.length > 0) {
-          startSequence(sequences[0]);
+        if (sequences.length === 0) {
+          console.error('Failed to generate sequences');
+          endSession();
+          return;
         }
+        updateProgress();
+        startSequence(sequences[0]);
       }, 100);
     }
 
@@ -1218,7 +1749,9 @@
       if (piecesContainer) piecesContainer.innerHTML = '';
       
       currentSequence = sequence;
-      userSteps = [];
+      userSteps = new Array(sequence.length).fill(null);
+      undoHistory = [];
+      updateUndoButton();
       currentStepIndex = 0;
       if (currentStepElement) currentStepElement.textContent = '1';
       if (totalStepsElement) totalStepsElement.textContent = sequence.length;
@@ -1238,6 +1771,11 @@
       if (memoryTimer) memoryTimer.style.display = 'none';
       if (modelDisplay) modelDisplay.classList.remove('hidden');
 
+      // Reset sequence timer display
+      if (sequenceTimeEl) sequenceTimeEl.textContent = '0.0s';
+      if (sequenceTimerEl) sequenceTimerEl.classList.remove('bonus-zone');
+      if (bonusHintEl) bonusHintEl.textContent = '(Under 10s = time bonus!)';
+
       const applyHideAfter = (seconds, label) => {
         if (memoryTimer) {
           memoryTimer.style.display = 'block';
@@ -1253,6 +1791,8 @@
               if (memoryTimer) memoryTimer.style.display = 'none';
               modelVisible = false;
               if (statusText) statusText.textContent = 'Recreate the pattern from memory';
+              // Start sequence timer when memorization ends
+              startSequenceTimer();
             }
           }, 1000);
         }
@@ -1264,6 +1804,8 @@
         applyHideAfter(2, 'Quick look');
       } else {
         if (statusText) statusText.textContent = 'Select a piece below to place';
+        // Start sequence timer immediately if always visible
+        startSequenceTimer();
       }
     }
 
@@ -1290,28 +1832,44 @@
 
     function endSession() {
       if (timerInterval) stopTimer();
+      stopSequenceTimer();
       clearInterval(memoryTimerInterval);
       isSessionActive = false;
       isPaused = false;
 
       const accuracy = totalAttempts > 0 ? Math.round((correctSequences / totalAttempts) * 100) : 0;
 
-      // Check for personal best
+      // Check for personal bests
       const previousPB = getPB();
+      const previousBestStreak = getBestStreak();
       let isNewPB = false;
+      
       if (score > previousPB) {
-        isNewPB = true;
         setPB(score);
-        updatePersonalBest();
+        isNewPB = true;
       }
+      if (sessionBestStreak > previousBestStreak) {
+        setBestStreak(sessionBestStreak);
+      }
+      updatePersonalBest();
 
-      // Show completion modal
+      // Show completion modal with detailed breakdown
       if (finalSequencesEl) finalSequencesEl.textContent = `${sequencesCompleted}`;
       if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
-      if (finalScoreEl) finalScoreEl.textContent = `${score}`;
+      if (finalBaseScoreEl) finalBaseScoreEl.textContent = `${baseScore}`;
+      if (finalTimeBonusEl) finalTimeBonusEl.textContent = `+${totalTimeBonus}`;
+      if (finalStreakBonusEl) finalStreakBonusEl.textContent = `+${totalStreakBonus}`;
+      if (finalBestStreakEl) finalBestStreakEl.textContent = `${sessionBestStreak}`;
+      if (finalScoreEl) {
+        finalScoreEl.textContent = `${score}`;
+        if (isNewPB) {
+          finalScoreEl.innerHTML = `${score} <span style="color: var(--streak-color); font-size: 0.8em;">🏆 NEW PB!</span>`;
+        }
+      }
       if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
       
       if (completionModal) completionModal.classList.add('show');
+      if (modalBackdrop) modalBackdrop.classList.add('show');
       setScreen('settings');
     }
 
@@ -1342,8 +1900,12 @@
       pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
       if (isPaused) {
         stopTimer();
+        stopSequenceTimer();
       } else {
         startTimer();
+        // Resume sequence timer from where it left off
+        sequenceStartTime = Date.now() - (currentSequenceTime * 1000);
+        startSequenceTimer();
       }
     });
 
@@ -1351,6 +1913,7 @@
 
     if (restartBtn) restartBtn.addEventListener('click', () => {
       if (timerInterval) stopTimer();
+      stopSequenceTimer();
       clearInterval(memoryTimerInterval);
       isSessionActive = false;
       isPaused = false;
@@ -1359,20 +1922,37 @@
 
     if (restartModalBtn) restartModalBtn.addEventListener('click', () => {
       if (completionModal) completionModal.classList.remove('show');
+      if (modalBackdrop) modalBackdrop.classList.remove('show');
       setScreen('settings');
     });
 
     if (completeClose) completeClose.addEventListener('click', () => {
       if (completionModal) completionModal.classList.remove('show');
+      if (modalBackdrop) modalBackdrop.classList.remove('show');
       setScreen('settings');
     });
 
     if (checkBtn) checkBtn.addEventListener('click', checkSequence);
+    if (undoBtn) undoBtn.addEventListener('click', performUndo);
     if (resetBtn) resetBtn.addEventListener('click', resetUserSequence);
+
+    // Close modal when clicking backdrop
+    if (modalBackdrop) modalBackdrop.addEventListener('click', () => {
+      if (completionModal) completionModal.classList.remove('show');
+      modalBackdrop.classList.remove('show');
+    });
 
     // Keyboard support
     document.addEventListener('keydown', (e) => {
       if (!isSessionActive || isPaused) return;
+      
+      // Ctrl+Z or Cmd+Z for undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        performUndo();
+        return;
+      }
+      
       const el = document.activeElement;
       if ((e.key === 'Enter' || e.key === ' ') && el?.classList?.contains('sequence-piece')) {
         e.preventDefault();
