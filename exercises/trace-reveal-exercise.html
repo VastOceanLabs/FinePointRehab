@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="no">
+  <title>Trace & Reveal — Fine Motor Training</title>
+
+  <style>
+    :root {
+      --bg-primary: #0f1629;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --text-primary: #e8eef5;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --brand-aqua: #6fd3f5;
+      --brand-aqua-dim: rgba(111, 211, 245, 0.3);
+      --success: #4caf50;
+      --warning: #ffc107;
+      --error: #ff6b6b;
+      --error-bg: #2d1b1b;
+      --border: #374151;
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 50%;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-size-2xl: 32px;
+      --font-size-3xl: 48px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+      --vh: 1vh;
+      --header-h: 0px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+      color: var(--text-primary);
+      min-height: calc(var(--vh) * 100);
+      touch-action: pinch-zoom;
+    }
+
+    body.playing { overflow: hidden; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--easing);
+      min-height: 44px;
+    }
+
+    .btn:hover { border-color: var(--brand-aqua); background-color: var(--bg-tertiary); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background-color: var(--brand-aqua); color: #000; border-color: var(--brand-aqua); }
+    .btn-primary:hover { background-color: #5bc2e7; }
+    .btn-secondary { background-color: var(--bg-tertiary); }
+    .btn-warning { background-color: var(--warning); color: #000; border-color: var(--warning); }
+    .btn-small { padding: var(--space-1) var(--space-3); font-size: var(--font-size-xs); min-height: 36px; }
+
+    .input, select {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+    }
+
+    .input:focus, select:focus {
+      outline: none;
+      border-color: var(--brand-aqua);
+      box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.25);
+    }
+
+    .panel {
+      background: rgba(15, 22, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 15, 35, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header .inner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .site-header h1 { margin: 0; font-size: var(--font-size-xl); line-height: 1.2; }
+
+    .header-controls { margin-left: auto; display: flex; gap: var(--space-2); }
+
+    .sound-toggle {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius);
+      font-size: 20px;
+      transition: all var(--duration-fast) var(--easing);
+    }
+
+    .sound-toggle:hover { background: var(--bg-tertiary); color: var(--brand-aqua); }
+    .sound-toggle.muted { opacity: 0.5; }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: var(--space-4); }
+
+    [data-screen] { display: none !important; }
+    [data-screen].active { display: block !important; }
+
+    .settings-panel { max-width: 520px; margin: 0 auto; padding-top: var(--space-6); }
+    .settings-panel h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-lg); text-align: center; }
+
+    .game-description {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .metric-settings {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(111, 211, 245, 0.08);
+      min-width: 100px;
+    }
+
+    .pb-value {
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-lg);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 6px rgba(111, 211, 245, 0.5);
+      line-height: 1.1;
+    }
+
+    .pb-label {
+      font-size: var(--font-size-xs);
+      opacity: 0.9;
+      margin-top: var(--space-1);
+      color: var(--text-secondary);
+    }
+
+    .achievements-section { margin-bottom: var(--space-4); }
+    .achievements-section h3 { font-size: var(--font-size-base); margin: 0 0 var(--space-2); color: var(--text-secondary); }
+
+    .achievements-grid { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+
+    .achievement {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      opacity: 0.3;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .achievement.unlocked {
+      opacity: 1;
+      border-color: var(--brand-aqua);
+      background: rgba(111, 211, 245, 0.15);
+      box-shadow: 0 0 12px rgba(111, 211, 245, 0.3);
+    }
+
+    .achievement:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      z-index: 10;
+      margin-bottom: 4px;
+    }
+
+    .settings-group { margin-bottom: var(--space-4); }
+    .settings-label { display: block; margin-bottom: var(--space-2); font-weight: var(--font-weight-semibold); }
+    .setting-help { display: block; color: var(--text-muted); font-size: var(--font-size-xs); margin-top: var(--space-1); font-style: italic; }
+
+    .checkbox-group { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+    .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--brand-aqua); }
+    .checkbox-group label { font-size: var(--font-size-base); color: var(--text-secondary); }
+
+    .right-col { display: grid; grid-template-rows: auto 1fr; gap: var(--space-3); min-height: 0; }
+
+    .hud {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-2);
+      align-items: center;
+      position: relative;
+      padding-top: calc(var(--space-3) + 8px);
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-flow: row;
+        gap: var(--space-1);
+        padding: var(--space-2);
+        padding-top: calc(var(--space-2) + 6px);
+      }
+      .hud-value { font-size: var(--font-size-base); }
+      .hud-label { font-size: 11px; }
+      .controls { grid-column: 1 / -1; display: flex; gap: var(--space-2); justify-content: center; margin-top: var(--space-1); }
+      .controls .btn { padding: 6px 12px; font-size: 13px; }
+    }
+
+    .hud-group { display: grid; gap: var(--space-1); text-align: center; }
+    .hud-value { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--brand-aqua); text-shadow: 0 0 8px rgba(111, 211, 245, 0.7); }
+    .hud-value.streak { color: var(--warning); text-shadow: 0 0 8px rgba(255, 193, 7, 0.7); }
+    .hud-label { font-size: var(--font-size-xs); color: var(--text-secondary); opacity: 0.9; }
+
+    .timer-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--brand-aqua), rgba(111,211,245,.35));
+      transform-origin: left center;
+      transition: width .1s linear;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .controls { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; }
+
+    .instructions {
+      text-align: center;
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: var(--font-size-base);
+      padding: var(--space-2) var(--space-3);
+      background-color: rgba(8, 15, 35, 0.7);
+      border-radius: var(--radius);
+      position: absolute;
+      bottom: var(--space-2);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    #game-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: var(--space-3);
+      padding-bottom: max(var(--space-1), env(safe-area-inset-bottom));
+      background: rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    #stars-container { position: absolute; inset: 0; pointer-events: none; }
+
+    body.playing .page {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 0;
+      max-width: none;
+      padding: 0;
+      height: calc(var(--vh) * 100 - var(--header-h, 0px));
+    }
+
+    body.playing .settings-panel { display: none; }
+
+    body.playing .right-col {
+      height: calc(var(--vh) * 100);
+      max-width: none;
+      margin: 0;
+      gap: 0;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+    }
+
+    body.playing #game-container {
+      height: 100%;
+      border-radius: 0;
+      border: none;
+      padding: var(--space-2);
+      padding-bottom: max(var(--space-1), env(safe-area-inset-bottom));
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage-wrap {
+      position: relative;
+      min-height: 0;
+      width: min(100%, calc(100vh - 200px));
+      height: auto;
+      max-width: 600px;
+      margin: auto;
+      display: block;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
+      background: radial-gradient(60% 45% at 50% 40%, rgba(111, 211, 245, 0.12), transparent 68%);
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      aspect-ratio: 1 / 1;
+    }
+
+    .stage-wrap .stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: transparent;
+      touch-action: none;
+    }
+
+    #hidden { z-index: 0; }
+    #mask   { z-index: 1; }
+    #fx     { z-index: 2; }
+    #ink    { z-index: 3; pointer-events: none; }
+    #guide  { z-index: 4; pointer-events: none; }
+
+    .progress-ring-container {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      width: 80px;
+      height: 80px;
+      z-index: 20;
+    }
+
+    .progress-ring { transform: rotate(-90deg); }
+    .progress-ring-bg { fill: none; stroke: var(--bg-tertiary); stroke-width: 6; }
+    .progress-ring-fill {
+      fill: none;
+      stroke: var(--brand-aqua);
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.2s ease;
+      filter: drop-shadow(0 0 4px var(--brand-aqua));
+    }
+
+    .progress-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-base);
+      color: var(--brand-aqua);
+    }
+
+    .progress-ring-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 22, 41, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .countdown-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .countdown-number {
+      font-size: 120px;
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 40px var(--brand-aqua);
+      animation: countPulse 0.8s ease-in-out infinite;
+    }
+
+    .countdown-text { font-size: var(--font-size-lg); color: var(--text-secondary); margin-top: var(--space-2); }
+
+    @keyframes countPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .pause-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 22, 41, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .pause-overlay.active { opacity: 1; pointer-events: auto; }
+    .pause-icon { font-size: 80px; margin-bottom: var(--space-4); }
+    .pause-text { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--brand-aqua); text-shadow: 0 0 20px var(--brand-aqua); }
+    .pause-hint { font-size: var(--font-size-base); color: var(--text-muted); margin-top: var(--space-2); }
+
+    .celebration-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--success);
+      text-shadow: 0 0 30px var(--success);
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .celebration-text.show { animation: celebrateText 0.8s ease-out forwards; }
+
+    @keyframes celebrateText {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+    }
+
+    .points-popup {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 15px var(--brand-aqua);
+      z-index: 75;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .points-popup.show { animation: pointsFloat 1s ease-out forwards; }
+
+    @keyframes pointsFloat {
+      0% { opacity: 0; transform: translateX(-50%) translateY(0); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+    }
+
+    .particles-container { position: absolute; inset: 0; pointer-events: none; z-index: 70; overflow: hidden; }
+    .particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; }
+
+    @keyframes particleFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      body.playing .hud { padding: var(--space-1) var(--space-2); padding-top: calc(var(--space-1) + 4px); gap: var(--space-1); }
+      body.playing #game-container { padding: var(--space-1); }
+      .instructions { font-size: 12px; padding: var(--space-1) var(--space-2); }
+      .progress-ring-container { width: 64px; height: 64px; }
+      .progress-ring-text { font-size: 14px; }
+      .countdown-number { font-size: 80px; }
+    }
+
+    @media (max-height: 720px) { .instructions { display: none; } }
+
+    @media (max-height: 600px) {
+      body.playing .hud { padding: 4px var(--space-1); padding-top: 8px; }
+      .hud-value { font-size: 14px; }
+      .hud-label { font-size: 10px; }
+    }
+
+    .completion {
+      position: fixed;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%) scale(1);
+      max-width: 90%;
+      width: 560px;
+      z-index: 1100;
+      text-align: center;
+      display: none;
+    }
+
+    .completion.show { display: block; animation: pop 0.25s ease; }
+
+    @keyframes pop {
+      from { transform: translate(-50%, -50%) scale(0.95); opacity: 0.6; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .score-highlight { color: var(--brand-aqua); font-weight: var(--font-weight-bold); }
+
+    .new-record {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--warning), #ff9800);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: var(--radius);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-bold);
+      margin-left: var(--space-2);
+      animation: pulse 1s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .celebrate { animation: celebrate 900ms ease-out 1; }
+
+    @keyframes celebrate {
+      0% { box-shadow: 0 0 0 rgba(111,211,245,0); }
+      40% { box-shadow: 0 0 40px rgba(111,211,245,.8); }
+      100% { box-shadow: 0 0 20px rgba(111,211,245,.2); }
+    }
+
+    .hidden { display: none !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .celebrate, .celebration-text.show, .points-popup.show, .countdown-number { animation: none; }
+    }
+
+    @media (max-width: 768px) {
+      .settings-panel { padding: var(--space-3); margin: var(--space-2); }
+      .page { padding: var(--space-2); }
+    }
+
+    #errbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--error-bg);
+      color: var(--error);
+      font-size: var(--font-size-xs);
+      padding: var(--space-2) var(--space-3);
+      display: none;
+      z-index: 9999;
+      border-top: 1px solid var(--error);
+    }
+
+    :focus-visible { outline: 3px solid rgba(111, 211, 245, 0.85); outline-offset: 2px; }
+
+    .achievement-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+      border: 2px solid var(--brand-aqua);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      z-index: 2000;
+      transform: translateX(120%);
+      transition: transform 0.4s ease;
+      box-shadow: 0 4px 20px rgba(111, 211, 245, 0.3);
+    }
+
+    .achievement-toast.show { transform: translateX(0); }
+    .achievement-toast-icon { font-size: 32px; }
+    .achievement-toast-text { display: flex; flex-direction: column; }
+    .achievement-toast-title { font-size: var(--font-size-xs); color: var(--brand-aqua); text-transform: uppercase; letter-spacing: 1px; }
+    .achievement-toast-name { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); }
+
+    .history-section { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+    .history-section h3 { font-size: var(--font-size-base); margin: 0 0 var(--space-2); color: var(--text-secondary); }
+    .history-list { display: flex; flex-direction: column; gap: var(--space-2); max-height: 150px; overflow-y: auto; }
+    .history-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2); background: var(--bg-tertiary); border-radius: var(--radius); font-size: var(--font-size-xs); }
+    .history-date { color: var(--text-muted); }
+    .history-score { color: var(--brand-aqua); font-weight: var(--font-weight-semibold); }
+    .history-difficulty { padding: 2px 6px; border-radius: 4px; background: var(--bg-secondary); text-transform: capitalize; }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <h1>Trace & Reveal</h1>
+      <div class="header-controls">
+        <button id="sound-toggle" class="sound-toggle" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="errbar"></div>
+
+  <div id="achievement-toast" class="achievement-toast">
+    <div class="achievement-toast-icon">🏆</div>
+    <div class="achievement-toast-text">
+      <div class="achievement-toast-title">Achievement Unlocked!</div>
+      <div id="achievement-toast-name" class="achievement-toast-name">First Shape</div>
+    </div>
+  </div>
+
+  <main class="page">
+    <aside class="settings-panel panel active" data-screen="settings">
+      <h2>Session Settings</h2>
+
+      <div class="game-description">
+        <p><strong>How to play:</strong> Trace the dotted line to reveal the hidden shape. Hit the coverage target before time runs out. Improves fine motor control, hand-eye coordination, and visual-motor integration.</p>
+        <p>Press <strong>Space</strong> to pause, <strong>Esc</strong> to exit session.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="metric-settings">
+          <div id="pb-settings" class="pb-value">0</div>
+          <div class="pb-label">Personal Best</div>
+        </div>
+        <div class="metric-settings">
+          <div id="total-shapes" class="pb-value">0</div>
+          <div class="pb-label">Total Shapes</div>
+        </div>
+        <div class="metric-settings">
+          <div id="best-streak" class="pb-value">0</div>
+          <div class="pb-label">Best Streak</div>
+        </div>
+      </div>
+
+      <div class="achievements-section">
+        <h3>Achievements</h3>
+        <div class="achievements-grid" id="achievements-grid">
+          <div class="achievement" data-achievement="first-shape" data-tooltip="First Shape">✏️</div>
+          <div class="achievement" data-achievement="ten-shapes" data-tooltip="10 Shapes">🎯</div>
+          <div class="achievement" data-achievement="fifty-shapes" data-tooltip="50 Shapes">⭐</div>
+          <div class="achievement" data-achievement="hundred-shapes" data-tooltip="100 Shapes">💎</div>
+          <div class="achievement" data-achievement="perfect-coverage" data-tooltip="95%+ Coverage">🎨</div>
+          <div class="achievement" data-achievement="streak-5" data-tooltip="5 Streak">🔥</div>
+          <div class="achievement" data-achievement="streak-10" data-tooltip="10 Streak">💥</div>
+          <div class="achievement" data-achievement="hard-mode" data-tooltip="Complete Hard">🏆</div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="dur">Session Duration (minutes)</label>
+        <input class="input" id="dur" type="number" min="0.5" step="0.5" max="30" value="2" inputmode="decimal">
+        <small class="setting-help">0.5–30 minutes recommended for motor training.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="difficulty">Difficulty</label>
+        <select class="input" id="difficulty">
+          <option value="easy">Easy – lines & zigzags, 70% coverage</option>
+          <option value="medium" selected>Medium – basic shapes, 85% coverage</option>
+          <option value="hard">Hard – complex shapes, 95% coverage</option>
+        </select>
+        <div id="covHint" class="setting-help" aria-live="polite">Coverage target: 85%</div>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label">Options</label>
+        <div class="checkbox-group">
+          <input type="checkbox" id="preview-shape" checked>
+          <label for="preview-shape">Preview shape before tracing</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="haptic-feedback" checked>
+          <label for="haptic-feedback">Haptic feedback (mobile)</label>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="start" class="btn btn-primary">Start Session</button>
+      </div>
+
+      <div class="history-section" id="history-section">
+        <h3>Recent Sessions</h3>
+        <div class="history-list" id="history-list">
+          <div class="history-item" style="color: var(--text-muted); justify-content: center;">No sessions yet</div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="right-col" data-screen="game">
+      <div class="hud panel">
+        <div class="timer-bar" id="timer-bar"></div>
+
+        <div class="hud-group">
+          <div id="doneCount" class="hud-value">0</div>
+          <div class="hud-label">Completed</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="streakCount" class="hud-value streak">0</div>
+          <div class="hud-label">Streak 🔥</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="covNow" class="hud-value">0%</div>
+          <div class="hud-label">Coverage</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="time" class="hud-value">00:00</div>
+          <div class="hud-label">Time Left</div>
+        </div>
+
+        <div class="controls">
+          <button id="skipShape" class="btn btn-warning btn-small" title="Skip this shape (-25 pts)">Skip</button>
+          <button id="clearTrace" class="btn btn-secondary btn-small" title="Clear current trace">Clear</button>
+          <button id="pauseHud" class="btn btn-secondary">Pause</button>
+          <button id="exitHud" class="btn">Exit</button>
+        </div>
+      </div>
+
+      <div class="panel" id="game-container">
+        <div id="stars-container"></div>
+
+        <div class="progress-ring-container">
+          <svg class="progress-ring" width="100%" height="100%" viewBox="0 0 80 80">
+            <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
+            <circle class="progress-ring-fill" id="progress-ring-fill" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+          </svg>
+          <div class="progress-ring-text">
+            <span id="ring-percent">0%</span>
+            <span class="progress-ring-label">of <span id="ring-target">85</span>%</span>
+          </div>
+        </div>
+
+        <div class="countdown-overlay" id="countdown-overlay">
+          <div class="countdown-number" id="countdown-number">3</div>
+          <div class="countdown-text">Get ready...</div>
+        </div>
+
+        <div class="pause-overlay" id="pause-overlay">
+          <div class="pause-icon">⏸️</div>
+          <div class="pause-text">PAUSED</div>
+          <div class="pause-hint">Press Space or tap Resume to continue</div>
+        </div>
+
+        <div class="celebration-text" id="celebration-text">NICE!</div>
+        <div class="points-popup" id="points-popup">+100</div>
+        <div class="particles-container" id="particles-container"></div>
+
+        <p class="instructions" id="instructions">Trace along the dotted lines to reveal the hidden shape beneath.</p>
+
+        <div class="stage-wrap">
+          <canvas id="hidden" class="stage" aria-hidden="true"></canvas>
+          <canvas id="mask" class="stage" aria-hidden="true"></canvas>
+          <canvas id="fx" class="stage" aria-hidden="true"></canvas>
+          <canvas id="ink" class="stage" aria-label="Drawing canvas"></canvas>
+          <canvas id="guide" class="stage" aria-label="Trace guide"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="completion-message" class="completion panel">
+    <h2>🎉 Session Complete!</h2>
+    <div id="completion-scores">
+      <p>Shapes Completed: <span id="final-shapes" class="score-highlight">0</span></p>
+      <p>Best Streak: <span id="final-streak" class="score-highlight">0</span></p>
+      <p>Best Coverage: <span id="final-coverage" class="score-highlight">0%</span></p>
+      <p>Score: <span id="final-score" class="score-highlight">0</span><span id="new-record" class="new-record hidden">NEW RECORD!</span></p>
+      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
+    </div>
+    <div class="controls">
+      <button id="restart-button" class="btn btn-primary">Play Again</button>
+      <button class="btn" id="close-complete">Close</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      "use strict";
+
+      const errbar = document.getElementById("errbar");
+      function showErr(e) {
+        if (errbar) { errbar.style.display = 'block'; errbar.textContent = (e && e.message) ? e.message : String(e); }
+        console.error(e);
+      }
+
+      window.addEventListener("error", (e) => {
+        showErr("Script error: " + (e.message || "") + (e.filename ? " – " + e.filename + ":" + e.lineno : ""));
+      });
+
+      function setHeaderH() {
+        const header = document.querySelector('.site-header');
+        const h = header ? header.getBoundingClientRect().height : 0;
+        document.documentElement.style.setProperty('--header-h', `${h}px`);
+      }
+      
+      const setVH = () => {
+        const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      
+      setVH();
+      setHeaderH();
+
+      // DOM Elements
+      const startBtn = document.getElementById("start");
+      const durInput = document.getElementById("dur");
+      const diffSelect = document.getElementById("difficulty");
+      const covHint = document.getElementById("covHint");
+      const timeV = document.getElementById("time");
+      const doneV = document.getElementById("doneCount");
+      const streakV = document.getElementById("streakCount");
+      const covNowV = document.getElementById("covNow");
+      const timerBar = document.getElementById("timer-bar");
+      const pauseBtn = document.getElementById("pauseHud");
+      const exitBtn = document.getElementById("exitHud");
+      const skipBtn = document.getElementById("skipShape");
+      const clearBtn = document.getElementById("clearTrace");
+      const completionModal = document.getElementById("completion-message");
+      const finalShapesEl = document.getElementById("final-shapes");
+      const finalStreakEl = document.getElementById("final-streak");
+      const finalCoverageEl = document.getElementById("final-coverage");
+      const finalScoreEl = document.getElementById("final-score");
+      const finalXPEl = document.getElementById("final-xp");
+      const newRecordEl = document.getElementById("new-record");
+      const restartModalBtn = document.getElementById("restart-button");
+      const completeClose = document.getElementById("close-complete");
+      const pbSettingsEl = document.getElementById("pb-settings");
+      const totalShapesEl = document.getElementById("total-shapes");
+      const bestStreakEl = document.getElementById("best-streak");
+      const starsContainer = document.getElementById('stars-container');
+      const soundToggle = document.getElementById("sound-toggle");
+      const previewCheckbox = document.getElementById("preview-shape");
+      const hapticCheckbox = document.getElementById("haptic-feedback");
+      const progressRingFill = document.getElementById("progress-ring-fill");
+      const ringPercent = document.getElementById("ring-percent");
+      const ringTarget = document.getElementById("ring-target");
+      const countdownOverlay = document.getElementById("countdown-overlay");
+      const countdownNumber = document.getElementById("countdown-number");
+      const pauseOverlay = document.getElementById("pause-overlay");
+      const celebrationText = document.getElementById("celebration-text");
+      const pointsPopup = document.getElementById("points-popup");
+      const particlesContainer = document.getElementById("particles-container");
+      const achievementToast = document.getElementById("achievement-toast");
+      const achievementToastName = document.getElementById("achievement-toast-name");
+      const historyList = document.getElementById("history-list");
+
+      const hidden = document.getElementById("hidden");
+      const mask = document.getElementById("mask");
+      const fx = document.getElementById("fx");
+      const ink = document.getElementById("ink");
+      const guide = document.getElementById("guide");
+      
+      if (!hidden || !mask || !fx || !ink || !guide) { showErr("Canvas elements not found"); return; }
+
+      const gh = hidden.getContext("2d");
+      const gm = mask.getContext("2d");
+      const gx = fx.getContext("2d");
+      const gi = ink.getContext("2d");
+      const gg = guide.getContext("2d");
+
+      // Audio System
+      let soundEnabled = true;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let audioCtx = null;
+
+      function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      }
+
+      function playTone(freq, duration, type = 'sine', volume = 0.3) {
+        if (!soundEnabled || !audioCtx) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      function playTraceSound() { playTone(800 + Math.random() * 200, 0.05, 'sine', 0.1); }
+      function playCompleteSound() {
+        if (!soundEnabled || !audioCtx) return;
+        [523, 659, 784, 1047].forEach((freq, i) => setTimeout(() => playTone(freq, 0.15, 'sine', 0.25), i * 80));
+      }
+      function playMilestoneSound() { playTone(880, 0.1, 'sine', 0.2); setTimeout(() => playTone(1100, 0.15, 'sine', 0.2), 100); }
+      function playCountdownSound() { playTone(440, 0.1, 'triangle', 0.3); }
+      function playGoSound() { playTone(880, 0.2, 'sine', 0.4); }
+      function playSkipSound() { playTone(300, 0.15, 'sawtooth', 0.15); }
+      function playAchievementSound() { [523, 659, 784, 880, 1047].forEach((freq, i) => setTimeout(() => playTone(freq, 0.2, 'sine', 0.3), i * 100)); }
+
+      soundToggle.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+        soundToggle.classList.toggle('muted', !soundEnabled);
+        localStorage.setItem('traceRevealSound', soundEnabled ? 'on' : 'off');
+      });
+
+      function vibrate(pattern = 50) {
+        if (hapticCheckbox.checked && navigator.vibrate) navigator.vibrate(pattern);
+      }
+
+      function generateStars(container, count = 150) {
+        if (!container) return;
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+          const star = document.createElement('div');
+          star.style.cssText = `position:absolute;width:${Math.random()*3}px;height:${star.style.width};background:white;border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${Math.random()*0.8+0.2}`;
+          container.appendChild(star);
+        }
+      }
+
+      generateStars(starsContainer, 150);
+
+      // Storage
+      const KEYS = { PB: 'trace-reveal:best', TOTAL_SHAPES: 'trace-reveal:totalShapes', BEST_STREAK: 'trace-reveal:bestStreak', ACHIEVEMENTS: 'trace-reveal:achievements', HISTORY: 'trace-reveal:history' };
+      const getPB = () => parseInt(localStorage.getItem(KEYS.PB) || '0', 10);
+      const setPB = (score) => localStorage.setItem(KEYS.PB, String(score));
+      const getTotalShapes = () => parseInt(localStorage.getItem(KEYS.TOTAL_SHAPES) || '0', 10);
+      const setTotalShapes = (n) => localStorage.setItem(KEYS.TOTAL_SHAPES, String(n));
+      const getBestStreak = () => parseInt(localStorage.getItem(KEYS.BEST_STREAK) || '0', 10);
+      const setBestStreak = (n) => localStorage.setItem(KEYS.BEST_STREAK, String(n));
+      
+      function getAchievements() { try { return JSON.parse(localStorage.getItem(KEYS.ACHIEVEMENTS) || '[]'); } catch { return []; } }
+      function saveAchievement(id) {
+        const achievements = getAchievements();
+        if (!achievements.includes(id)) { achievements.push(id); localStorage.setItem(KEYS.ACHIEVEMENTS, JSON.stringify(achievements)); return true; }
+        return false;
+      }
+      function getHistory() { try { return JSON.parse(localStorage.getItem(KEYS.HISTORY) || '[]'); } catch { return []; } }
+      function saveToHistory(entry) {
+        const history = getHistory();
+        history.unshift(entry);
+        if (history.length > 10) history.pop();
+        localStorage.setItem(KEYS.HISTORY, JSON.stringify(history));
+      }
+
+      // Achievements
+      const ACHIEVEMENTS = {
+        'first-shape': { name: 'First Steps', icon: '✏️' },
+        'ten-shapes': { name: 'Getting Started', icon: '🎯' },
+        'fifty-shapes': { name: 'Dedicated', icon: '⭐' },
+        'hundred-shapes': { name: 'Master Tracer', icon: '💎' },
+        'perfect-coverage': { name: 'Perfectionist', icon: '🎨' },
+        'streak-5': { name: 'On Fire', icon: '🔥' },
+        'streak-10': { name: 'Unstoppable', icon: '💥' },
+        'hard-mode': { name: 'Challenge Accepted', icon: '🏆' }
+      };
+
+      function showAchievementToast(id) {
+        const ach = ACHIEVEMENTS[id];
+        if (!ach) return;
+        achievementToastName.textContent = ach.name;
+        achievementToast.querySelector('.achievement-toast-icon').textContent = ach.icon;
+        achievementToast.classList.add('show');
+        playAchievementSound();
+        vibrate([100, 50, 100]);
+        setTimeout(() => achievementToast.classList.remove('show'), 3000);
+      }
+
+      function checkAchievement(id) {
+        if (saveAchievement(id)) { showAchievementToast(id); updateAchievementsDisplay(); }
+      }
+
+      function updateAchievementsDisplay() {
+        const unlocked = getAchievements();
+        document.querySelectorAll('.achievement').forEach(el => el.classList.toggle('unlocked', unlocked.includes(el.dataset.achievement)));
+      }
+
+      function updateHistoryDisplay() {
+        const history = getHistory();
+        if (history.length === 0) { historyList.innerHTML = '<div class="history-item" style="color: var(--text-muted); justify-content: center;">No sessions yet</div>'; return; }
+        historyList.innerHTML = history.map(h => `<div class="history-item"><span class="history-date">${new Date(h.date).toLocaleDateString()}</span><span class="history-difficulty">${h.difficulty}</span><span class="history-score">${h.score} pts</span></div>`).join('');
+      }
+
+      function updateStats() {
+        if (pbSettingsEl) pbSettingsEl.textContent = getPB() || '0';
+        if (totalShapesEl) totalShapesEl.textContent = getTotalShapes() || '0';
+        if (bestStreakEl) bestStreakEl.textContent = getBestStreak() || '0';
+        updateAchievementsDisplay();
+        updateHistoryDisplay();
+      }
+
+      // Game State
+      let playing = false, paused = false, remainingMs = 0, sessionMs = 0, shapesDone = 0, bestCov = 0, currentStreak = 0, sessionBestStreak = 0;
+      let subs = [], samples = [], hits = 0, grid = null, cellSize = 16;
+      const brush = 28;
+      let requiredCov = 85, isDrawing = false, lastP = null, isCompleting = false, lastTraceSound = 0;
+
+      function setScreen(screenName) {
+        document.querySelectorAll('[data-screen]').forEach(el => el.classList.remove('active'));
+        const screen = document.querySelector(`[data-screen="${screenName}"]`);
+        if (screen) screen.classList.add('active');
+      }
+
+      const bags = { easy: [], medium: [], hard: [] };
+      const fmt = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+      const applyDifficulty = () => {
+        requiredCov = diffSelect.value === "easy" ? 70 : (diffSelect.value === "hard" ? 95 : 85);
+        if (covHint) covHint.textContent = "Coverage target: " + requiredCov + "%";
+        if (ringTarget) ringTarget.textContent = requiredCov;
+      };
+
+      function updateProgressRing(coverage) {
+        const circumference = 2 * Math.PI * 34;
+        const progress = Math.min(coverage / requiredCov, 1);
+        const offset = circumference * (1 - progress);
+        if (progressRingFill) {
+          progressRingFill.style.strokeDashoffset = offset;
+          progressRingFill.style.stroke = progress >= 1 ? 'var(--success)' : progress >= 0.7 ? 'var(--warning)' : 'var(--brand-aqua)';
+        }
+        if (ringPercent) ringPercent.textContent = Math.round(coverage) + '%';
+      }
+
+      function createParticles(count = 30) {
+        if (!particlesContainer) return;
+        const colors = ['#6fd3f5', '#4caf50', '#ffc107', '#ff6b6b', '#e91e63', '#9c27b0'];
+        for (let i = 0; i < count; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.style.cssText = `left:${Math.random()*100}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${4+Math.random()*8}px;height:${particle.style.width};animation:particleFall ${1.5+Math.random()}s ease-out forwards;animation-delay:${Math.random()*0.3}s`;
+          particlesContainer.appendChild(particle);
+          setTimeout(() => particle.remove(), 2500);
+        }
+      }
+
+      function showCelebration(text, points) {
+        if (celebrationText) { celebrationText.textContent = text; celebrationText.classList.remove('show'); void celebrationText.offsetWidth; celebrationText.classList.add('show'); }
+        if (pointsPopup) { pointsPopup.textContent = '+' + points; pointsPopup.classList.remove('show'); void pointsPopup.offsetWidth; pointsPopup.classList.add('show'); }
+        createParticles(25);
+        playCompleteSound();
+        vibrate([50, 30, 100]);
+      }
+
+      function showCountdown() {
+        return new Promise((resolve) => {
+          countdownOverlay.classList.add('active');
+          let count = 3;
+          countdownNumber.textContent = count;
+          playCountdownSound();
+          const interval = setInterval(() => {
+            count--;
+            if (count > 0) { countdownNumber.textContent = count; playCountdownSound(); }
+            else if (count === 0) { countdownNumber.textContent = 'GO!'; playGoSound(); }
+            else { clearInterval(interval); countdownOverlay.classList.remove('active'); resolve(); }
+          }, 800);
+        });
+      }
+
+      function previewShape() {
+        return new Promise((resolve) => {
+          if (!previewCheckbox.checked) { resolve(); return; }
+          const size = getCanvasSize();
+          gx.save();
+          gx.globalAlpha = 0.6;
+          gx.drawImage(hidden, 0, 0, size, size);
+          gx.restore();
+          setTimeout(() => { gx.clearRect(0, 0, fx.width, fx.height); resolve(); }, 1200);
+        });
+      }
+
+      function resizeStage() {
+        try {
+          const DPR = Math.max(1, window.devicePixelRatio || 1);
+          const wrap = fx.parentElement;
+          const game = document.getElementById('game-container');
+          const header = document.querySelector('.site-header');
+          const hud = document.querySelector('.hud');
+          if (!wrap || !game) return;
+          const vH = (window.visualViewport?.height ?? window.innerHeight);
+          const vW = window.innerWidth;
+          const headerH = header ? header.getBoundingClientRect().height : 0;
+          const hudH = hud && hud.offsetParent !== null ? hud.getBoundingClientRect().height : 0;
+          const cs = getComputedStyle(game);
+          const padTop = parseFloat(cs.paddingTop) || 0;
+          const padBottom = parseFloat(cs.paddingBottom) || 0;
+          const padLeft = parseFloat(cs.paddingLeft) || 0;
+          const padRight = parseFloat(cs.paddingRight) || 0;
+          const availH = Math.max(160, vH - headerH - hudH - padTop - padBottom);
+          const availW = Math.max(160, vW - padLeft - padRight);
+          let cssSize = vW > 768 ? Math.floor(Math.max(160, Math.min(wrap.getBoundingClientRect().width, wrap.getBoundingClientRect().height))) : Math.floor(Math.max(160, Math.min(availW, availH)));
+          [hidden, mask, fx, ink, guide].forEach((c) => {
+            c.width = Math.max(1, Math.floor(cssSize * DPR));
+            c.height = Math.max(1, Math.floor(cssSize * DPR));
+            c.style.width = cssSize + 'px';
+            c.style.height = cssSize + 'px';
+          });
+          [gh, gm, gx, gi, gg].forEach(ctx => ctx.setTransform(DPR, 0, 0, DPR, 0, 0));
+          gi.lineCap = "round"; gi.lineJoin = "round"; gi.strokeStyle = "rgba(111,211,245,0.95)"; gi.lineWidth = Math.max(2, Math.round(brush * 0.35));
+          cellSize = Math.max(8, Math.round(brush * 0.8));
+          if (playing) newShape(); else drawIdleGuide();
+        } catch (e) { showErr(e); }
+      }
+
+      const drawIdleGuide = () => {
+        gg.clearRect(0, 0, guide.width, guide.height);
+        gg.save();
+        gg.fillStyle = "rgba(255,255,255,.06)";
+        gg.fillRect(0, 0, guide.width, guide.height);
+        gg.fillStyle = "rgba(255,255,255,.9)";
+        gg.font = "600 16px system-ui, sans-serif";
+        gg.textAlign = "center";
+        gg.fillText("Set duration, pick difficulty, then Start", guide.width / 2, guide.height / 2);
+        gg.restore();
+      };
+
+      const make = (pts, closed = true, strokePx = 0) => ({ points: pts, closed, strokePx });
+      const getCanvasSize = () => Math.min(hidden.width, hidden.height) / devicePixelRatio;
+
+      // Shape generators
+      const lineH = () => { const size = getCanvasSize(); return [make([{ x: size * 0.15, y: size * 0.5 }, { x: size * 0.85, y: size * 0.5 }], false, Math.round(size * 0.08))]; };
+      const lineV = () => { const size = getCanvasSize(); return [make([{ x: size * 0.5, y: size * 0.18 }, { x: size * 0.5, y: size * 0.82 }], false, Math.round(size * 0.08))]; };
+      const zigzag = () => { const size = getCanvasSize(); const pts = []; const l = size * 0.18, r = size * 0.82, t = size * 0.22, b = size * 0.78, rows = 6; for (let i = 0; i <= rows; i++) { pts.push({ x: (i % 2 === 0) ? l : r, y: t + (b - t) * (i / rows) }); } return [make(pts, false, Math.round(size * 0.07))]; };
+      const sine = () => { const size = getCanvasSize(); const pts = []; for (let i = 0; i <= 180; i++) { const t = i / 180; pts.push({ x: size * 0.12 + (size * 0.76) * t, y: size * 0.5 + Math.sin(t * Math.PI * 3) * size * 0.22 }); } return [make(pts, false, Math.round(size * 0.06))]; };
+      const circle = () => { const size = getCanvasSize(); const cx = size / 2, cy = size / 2, r = size * 0.32, pts = []; for (let i = 0; i <= 180; i++) { const a = (i / 180) * Math.PI * 2; pts.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); } return [make(pts, true, 0)]; };
+      const square = () => { const size = getCanvasSize(); const s = size * 0.64, x = (size - s) / 2, y = (size - s) / 2; return [make([{ x, y }, { x: x + s, y }, { x: x + s, y: y + s }, { x, y: y + s }, { x, y }], true, 0)]; };
+      const triangle = () => { const size = getCanvasSize(); const s = size * 0.68, cx = size / 2, cy = size / 2; return [make([{ x: cx, y: cy - s / 2 }, { x: cx - s / 2, y: cy + s / 2 }, { x: cx + s / 2, y: cy + s / 2 }, { x: cx, y: cy - s / 2 }], true, 0)]; };
+      const star = () => { const size = getCanvasSize(); const cx = size / 2, cy = size / 2, R = size * 0.34, r = R * 0.5, pts = []; for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2 - Math.PI / 2; pts.push({ x: cx + Math.cos(a) * ((i % 2 === 0) ? R : r), y: cy + Math.sin(a) * ((i % 2 === 0) ? R : r) }); } pts.push(pts[0]); return [make(pts, true, 0)]; };
+      const heart = () => { const size = getCanvasSize(); const cx = size / 2, cy = size / 2, k = size * 0.02, pts = []; for (let i = 0; i <= 220; i++) { const t = (i / 220) * Math.PI * 2; pts.push({ x: cx + k * 16 * Math.pow(Math.sin(t), 3), y: cy - k * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) }); } return [make(pts, true, 0)]; };
+
+      const POOLS = {
+        easy: [lineH, lineV, zigzag, sine, () => { const size = getCanvasSize(); const m = size * 0.15; return [make([{ x: m, y: m }, { x: size - m, y: size - m }], false, Math.round(size * 0.08))]; }, () => { const size = getCanvasSize(); const m = size * 0.15; return [make([{ x: size - m, y: m }, { x: m, y: size - m }], false, Math.round(size * 0.08))]; }],
+        medium: [circle, square, triangle, star, heart],
+        hard: [heart, star, () => { const size = getCanvasSize(); const cx = size / 2, cy = size / 2, R = size * 0.34, r = R * 0.6, pts = []; for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2 - Math.PI / 2; pts.push({ x: cx + Math.cos(a) * ((i % 2 === 0) ? R : r), y: cy + Math.sin(a) * ((i % 2 === 0) ? R : r) }); } pts.push(pts[0]); return [make(pts, true, 0)]; }, () => { const size = getCanvasSize(); const cx = size / 2, cy = size / 2, r = size * 0.28, pts = []; for (let i = 0; i <= 360; i += 2) { const a = (i / 180) * Math.PI; pts.push({ x: cx + Math.cos(a) * r * (1 + 0.5 * Math.sin(6 * a)), y: cy + Math.sin(a) * r * (1 + 0.5 * Math.sin(6 * a)) }); } return [make(pts, true, 0)]; }]
+      };
+
+      const drawGuide = () => {
+        gg.clearRect(0, 0, guide.width, guide.height);
+        gg.save();
+        gg.lineCap = "round"; gg.lineJoin = "round";
+        if (subs.length > 0 && subs[0].points.length > 0) {
+          const startPt = subs[0].points[0];
+          gg.beginPath(); gg.arc(startPt.x, startPt.y, 12, 0, Math.PI * 2);
+          gg.fillStyle = "rgba(111, 211, 245, 0.4)"; gg.fill();
+          gg.strokeStyle = "#6fd3f5"; gg.lineWidth = 2; gg.stroke();
+        }
+        for (const sp of subs) {
+          const pts = sp.points; if (!pts || pts.length < 2) continue;
+          gg.strokeStyle = "rgba(0,0,0,.92)"; gg.lineWidth = 8; gg.setLineDash([]);
+          gg.beginPath(); gg.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) gg.lineTo(pts[i].x, pts[i].y);
+          if (sp.closed) gg.closePath(); gg.stroke();
+          gg.strokeStyle = "rgba(255,255,255,.98)"; gg.lineWidth = 4; gg.setLineDash([14, 10]);
+          gg.beginPath(); gg.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) gg.lineTo(pts[i].x, pts[i].y);
+          if (sp.closed) gg.closePath(); gg.stroke();
+        }
+        gg.restore();
+      };
+
+      const drawHidden = () => {
+        const size = getCanvasSize();
+        gh.clearRect(0, 0, hidden.width, hidden.height);
+        const hue = Math.floor(Math.random() * 360);
+        const grd = gh.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        grd.addColorStop(0, `hsl(${hue},85%,62%)`);
+        grd.addColorStop(1, `hsl(${(hue + 40) % 360},85%,46%)`);
+        for (const sp of subs) {
+          const pts = sp.points; if (!pts || pts.length < 2) continue;
+          gh.beginPath(); gh.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) gh.lineTo(pts[i].x, pts[i].y);
+          if (sp.closed) { gh.closePath(); gh.fillStyle = grd; gh.fill(); }
+          else { gh.lineCap = "round"; gh.lineJoin = "round"; gh.lineWidth = Math.max(4, sp.strokePx || 0); gh.strokeStyle = grd; gh.stroke(); }
+        }
+        gm.clearRect(0, 0, mask.width, mask.height);
+        gi.clearRect(0, 0, ink.width, ink.height);
+      };
+
+      const buildCoverage = () => {
+        samples = []; hits = 0; grid = new Map();
+        const addSample = (x, y) => {
+          const idx = samples.length;
+          samples.push({ x, y, hit: false });
+          const key = Math.floor(x / cellSize) + "|" + Math.floor(y / cellSize);
+          const arr = grid.get(key);
+          if (arr) arr.push(idx); else grid.set(key, [idx]);
+        };
+        for (const sp of subs) {
+          const pts = sp.points;
+          for (let i = 0; i < pts.length - 1; i++) {
+            const p1 = pts[i], p2 = pts[i + 1];
+            const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+            const steps = Math.max(1, Math.ceil(dist / 4));
+            for (let j = 0; j <= steps; j++) {
+              const t = j / steps;
+              addSample(Math.round(p1.x + (p2.x - p1.x) * t), Math.round(p1.y + (p2.y - p1.y) * t));
+            }
+          }
+        }
+        bestCov = 0;
+        updateProgressRing(0);
+      };
+
+      const updateComposite = () => {
+        const size = getCanvasSize();
+        gx.clearRect(0, 0, fx.width, fx.height);
+        gx.save();
+        gx.globalCompositeOperation = "source-over";
+        gx.drawImage(hidden, 0, 0, size, size);
+        gx.globalCompositeOperation = "destination-in";
+        gx.drawImage(mask, 0, 0, size, size);
+        gx.restore();
+      };
+
+      const pos = (e) => {
+        const r = fx.getBoundingClientRect();
+        return { x: (e.clientX - r.left) * fx.width / r.width / devicePixelRatio, y: (e.clientY - r.top) * fx.height / r.height / devicePixelRatio };
+      };
+
+      let lastMilestone = 0;
+      
+      const markCoverageNear = (p) => {
+        const checkRadius = brush * 0.6;
+        const ci = Math.floor(p.x / cellSize), cj = Math.floor(p.y / cellSize);
+        for (let di = -1; di <= 1; di++) {
+          for (let dj = -1; dj <= 1; dj++) {
+            const arr = grid.get((ci + di) + "|" + (cj + dj));
+            if (!arr) continue;
+            for (const idx of arr) {
+              const s = samples[idx];
+              if (!s.hit && Math.hypot(s.x - p.x, s.y - p.y) <= checkRadius) { s.hit = true; hits++; }
+            }
+          }
+        }
+        const cov = samples.length ? Math.round((hits / samples.length) * 100) : 0;
+        bestCov = Math.max(bestCov, cov);
+        covNowV.textContent = cov + "%";
+        updateProgressRing(cov);
+        const milestone = Math.floor(cov / 25) * 25;
+        if (milestone > lastMilestone && milestone < 100) { lastMilestone = milestone; playMilestoneSound(); }
+        if (cov >= requiredCov && !isCompleting) complete();
+      };
+
+      const drawAt = (p) => {
+        gm.globalCompositeOperation = "source-over"; gm.lineCap = "round"; gm.lineJoin = "round"; gm.strokeStyle = "white"; gm.lineWidth = Math.max(gi.lineWidth, brush * 0.45);
+        if (lastP) { gm.beginPath(); gm.moveTo(lastP.x, lastP.y); gm.lineTo(p.x, p.y); gm.stroke(); }
+        else { gm.beginPath(); gm.arc(p.x, p.y, brush / 2, 0, Math.PI * 2); gm.fillStyle = "white"; gm.fill(); }
+        if (lastP) { gi.beginPath(); gi.moveTo(lastP.x, lastP.y); gi.lineTo(p.x, p.y); gi.stroke(); }
+        else { gi.beginPath(); gi.arc(p.x, p.y, Math.max(1, brush * 0.25), 0, Math.PI * 2); gi.fillStyle = "rgba(111,211,245,0.95)"; gi.fill(); }
+        lastP = p;
+        const now = performance.now();
+        if (now - lastTraceSound > 80) { playTraceSound(); lastTraceSound = now; }
+        updateComposite();
+        markCoverageNear(p);
+      };
+
+      fx.addEventListener("pointerdown", (e) => { if (!playing || isCompleting || paused) return; isDrawing = true; drawAt(pos(e)); });
+      fx.addEventListener("pointermove", (e) => { if (!isDrawing || !playing || isCompleting || paused) return; const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]; for (const ev of events) drawAt(pos(ev)); });
+      addEventListener("pointerup", () => { isDrawing = false; lastP = null; });
+      fx.addEventListener("touchstart", (e) => { 
+        if (!playing || isCompleting || paused) return; 
+        if (e.target === fx) e.preventDefault();
+        isDrawing = true; 
+        drawAt(pos(e.touches[0])); 
+      }, { passive: false });
+      fx.addEventListener("touchmove", (e) => { 
+        if (!isDrawing || !playing || isCompleting || paused) return; 
+        if (e.target === fx) e.preventDefault();
+        drawAt(pos(e.touches[0])); 
+      }, { passive: false });
+      fx.addEventListener("touchend", () => { 
+        isDrawing = false; 
+        lastP = null; 
+      });
+
+      const bagPick = (level) => { if (!bags[level] || bags[level].length === 0) bags[level] = [...POOLS[level]]; const i = Math.floor(Math.random() * bags[level].length); return bags[level].splice(i, 1)[0]; };
+
+      const newShape = async () => {
+        const gen = bagPick(diffSelect.value);
+        subs = gen();
+        drawGuide();
+        drawHidden();
+        buildCoverage();
+        updateComposite();
+        isCompleting = false;
+        lastMilestone = 0;
+        await previewShape();
+      };
+
+      const complete = () => {
+        isCompleting = true;
+        shapesDone++;
+        currentStreak++;
+        sessionBestStreak = Math.max(sessionBestStreak, currentStreak);
+        doneV.textContent = String(shapesDone);
+        streakV.textContent = String(currentStreak);
+        const streakMultiplier = currentStreak >= 10 ? 2 : (currentStreak >= 5 ? 1.5 : 1);
+        const points = Math.round(100 * streakMultiplier);
+        const texts = currentStreak >= 10 ? ['INCREDIBLE!', 'LEGENDARY!', 'UNSTOPPABLE!'] : currentStreak >= 5 ? ['AMAZING!', 'ON FIRE!', 'AWESOME!'] : ['NICE!', 'GREAT!', 'PERFECT!'];
+        showCelebration(texts[Math.floor(Math.random() * texts.length)], points);
+        const totalShapes = getTotalShapes() + 1;
+        setTotalShapes(totalShapes);
+        if (totalShapes === 1) checkAchievement('first-shape');
+        if (totalShapes >= 10) checkAchievement('ten-shapes');
+        if (totalShapes >= 50) checkAchievement('fifty-shapes');
+        if (totalShapes >= 100) checkAchievement('hundred-shapes');
+        if (bestCov >= 95) checkAchievement('perfect-coverage');
+        if (currentStreak >= 5) checkAchievement('streak-5');
+        if (currentStreak >= 10) checkAchievement('streak-10');
+        if (diffSelect.value === 'hard') checkAchievement('hard-mode');
+        if (currentStreak > getBestStreak()) setBestStreak(currentStreak);
+        if (fx.parentElement) fx.parentElement.classList.add('celebrate');
+        setTimeout(() => {
+          gx.clearRect(0, 0, fx.width, fx.height);
+          if (fx.parentElement) fx.parentElement.classList.remove('celebrate');
+          if (playing) newShape();
+        }, 900);
+      };
+
+      const clearCurrentTrace = () => {
+        gm.clearRect(0, 0, mask.width, mask.height);
+        gi.clearRect(0, 0, ink.width, ink.height);
+        gx.clearRect(0, 0, fx.width, fx.height);
+        samples.forEach(s => s.hit = false);
+        hits = 0;
+        bestCov = 0;
+        updateProgressRing(0);
+        covNowV.textContent = "0%";
+        lastMilestone = 0;
+      };
+
+      const skipShape = () => {
+        if (isCompleting) return;
+        currentStreak = 0;
+        streakV.textContent = "0";
+        playSkipSound();
+        vibrate(100);
+        newShape();
+      };
+
+      function updateHUD() {
+        try {
+          if (timeV) timeV.textContent = fmt(remainingMs);
+          if (doneV) doneV.textContent = String(shapesDone);
+          if (covNowV) covNowV.textContent = Math.round(bestCov) + '%';
+          if (timerBar && sessionMs > 0) timerBar.style.width = (Math.max(0, Math.min(1, remainingMs / sessionMs)) * 100).toFixed(2) + '%';
+        } catch (e) { showErr(e); }
+      }
+
+      let rafId = 0;
+      function startTimerLoop() {
+        cancelAnimationFrame(rafId);
+        let last = performance.now();
+        const tick = (t) => {
+          if (!playing) return;
+          const dt = t - last; last = t;
+          if (!paused) {
+            remainingMs = Math.max(0, remainingMs - dt);
+            updateHUD();
+            if (remainingMs <= 0) { endSession(); return; }
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        rafId = requestAnimationFrame(tick);
+      }
+
+      async function beginSession() {
+        try {
+          initAudio();
+          applyDifficulty();
+          const mins = parseFloat(durInput.value || '2');
+          sessionMs = (isFinite(mins) && mins > 0 ? mins : 2) * 60 * 1000;
+          remainingMs = sessionMs;
+          shapesDone = 0;
+          bestCov = 0;
+          currentStreak = 0;
+          sessionBestStreak = 0;
+          paused = false;
+          playing = true;
+          document.body.classList.add('playing');
+          setScreen('game');
+          await new Promise(r => requestAnimationFrame(() => { resizeStage(); updateHUD(); r(); }));
+          await showCountdown();
+          await newShape();
+          startTimerLoop();
+        } catch (e) { showErr(e); }
+      }
+
+      function endSession() {
+        playing = false;
+        document.body.classList.remove('playing');
+        cancelAnimationFrame(rafId);
+        const score = shapesDone * 100 + Math.round(bestCov) + (sessionBestStreak * 10);
+        if (finalShapesEl) finalShapesEl.textContent = String(shapesDone);
+        if (finalStreakEl) finalStreakEl.textContent = String(sessionBestStreak);
+        if (finalCoverageEl) finalCoverageEl.textContent = Math.round(bestCov) + '%';
+        if (finalScoreEl) finalScoreEl.textContent = String(score);
+        if (finalXPEl) finalXPEl.textContent = String(Math.max(10, Math.round(score * 0.5)));
+        const previousPB = getPB();
+        if (score > previousPB) { setPB(score); newRecordEl.classList.remove('hidden'); } else { newRecordEl.classList.add('hidden'); }
+        saveToHistory({ date: new Date().toISOString(), difficulty: diffSelect.value, score, shapes: shapesDone });
+        updateStats();
+        if (completionModal) completionModal.classList.add('show');
+        setScreen('settings');
+      }
+
+      function togglePause() {
+        paused = !paused;
+        pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+        pauseOverlay.classList.toggle('active', paused);
+      }
+
+      let rAF = 0;
+      function scheduleResize() {
+        cancelAnimationFrame(rAF);
+        rAF = requestAnimationFrame(() => requestAnimationFrame(() => { setVH(); setHeaderH(); if (playing) resizeStage(); }));
+      }
+
+      const gc = document.getElementById('game-container');
+      if (gc && 'ResizeObserver' in window) new ResizeObserver(() => requestAnimationFrame(() => { if (playing) resizeStage(); })).observe(gc);
+      addEventListener('resize', scheduleResize);
+      addEventListener('orientationchange', scheduleResize);
+      if (window.visualViewport) visualViewport.addEventListener('resize', scheduleResize);
+
+      if (startBtn) startBtn.addEventListener('click', beginSession);
+      if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+      if (exitBtn) exitBtn.addEventListener('click', () => { playing = false; paused = false; document.body.classList.remove('playing'); pauseOverlay.classList.remove('active'); setScreen('settings'); cancelAnimationFrame(rafId); });
+      if (skipBtn) skipBtn.addEventListener('click', skipShape);
+      if (clearBtn) clearBtn.addEventListener('click', clearCurrentTrace);
+      if (restartModalBtn) restartModalBtn.addEventListener('click', () => { if (completionModal) completionModal.classList.remove('show'); beginSession(); });
+      if (completeClose) completeClose.addEventListener('click', () => { if (completionModal) completionModal.classList.remove('show'); document.body.classList.remove('playing'); setScreen('settings'); });
+
+      addEventListener("keydown", (e) => {
+        if (!playing) return;
+        if (e.key === " ") { e.preventDefault(); togglePause(); }
+        if (e.key === "Escape") { e.preventDefault(); if (exitBtn) exitBtn.click(); }
+      });
+
+      if (diffSelect) diffSelect.addEventListener("change", () => { applyDifficulty(); try { localStorage.setItem('traceRevealDifficulty', diffSelect.value); } catch {} });
+      if (durInput) durInput.addEventListener("input", () => { try { localStorage.setItem('traceRevealDuration', durInput.value); } catch {} });
+
+      function loadSettings() {
+        try {
+          if (diffSelect) diffSelect.value = localStorage.getItem('traceRevealDifficulty') || 'medium';
+          if (durInput) durInput.value = localStorage.getItem('traceRevealDuration') || '2';
+          soundEnabled = localStorage.getItem('traceRevealSound') !== 'off';
+          soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+          soundToggle.classList.toggle('muted', !soundEnabled);
+        } catch {}
+        applyDifficulty();
+        updateStats();
+      }
+
+      loadSettings();
+      drawIdleGuide();
+      setScreen("settings");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cosmic Maze">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <title>Cosmic Maze – Fine Motor Skills Rehabilitation</title>
+
+  <style>
+    :root {
+      --bg-primary: #0f1629;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --text-primary: #e8eef5;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --brand-aqua: #6fd3f5;
+      --success: #4caf50;
+      --error: #ff6b6b;
+      --error-bg: #2d1b1b;
+      --warning: #ffb347;
+      --gold: #ffd700;
+      --border: #374151;
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 50%;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-size-2xl: 32px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--easing);
+    }
+
+    .btn:hover {
+      border-color: var(--brand-aqua);
+      background-color: var(--bg-tertiary);
+    }
+
+    .btn-primary {
+      background-color: var(--brand-aqua);
+      color: #000;
+      border-color: var(--brand-aqua);
+    }
+
+    .btn-primary:hover {
+      background-color: #5bc2e7;
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+    }
+
+    .input,
+    select {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+    }
+
+    .panel {
+      background: rgba(15, 22, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 15, 35, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header .inner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .site-header h1 {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      line-height: 1.2;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-4);
+    }
+
+    /* Screen system - simple and reliable */
+    [data-screen] {
+      display: none !important;
+    }
+
+    [data-screen].active {
+      display: block !important;
+    }
+
+    /* Settings screen styling */
+    .settings-panel {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: var(--space-6);
+    }
+
+    .settings-panel h2 {
+      margin: 0 0 var(--space-4);
+      font-size: var(--font-size-lg);
+      text-align: center;
+    }
+
+    .game-description {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .personal-best-display {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      margin-bottom: var(--space-4);
+      text-align: center;
+    }
+
+    .personal-best-display .label {
+      font-size: var(--font-size-xs);
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .personal-best-display .value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--gold);
+    }
+
+    .settings-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .settings-label {
+      display: block;
+      margin-bottom: var(--space-2);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .setting-help {
+      display: block;
+      color: var(--text-muted);
+      font-size: var(--font-size-xs);
+      margin-top: var(--space-1);
+      font-style: italic;
+    }
+
+    .right-col {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-3);
+    }
+
+    .hud {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-2);
+      align-items: center;
+      position: relative;
+      padding-top: calc(var(--space-3) + 8px);
+      min-height: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-auto-flow: row;
+        gap: var(--space-1);
+        padding: var(--space-2);
+        padding-top: calc(var(--space-2) + 6px);
+      }
+
+      .hud-value {
+        font-size: var(--font-size-base);
+      }
+
+      .hud-label {
+        font-size: 11px;
+      }
+
+      .controls {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: var(--space-2);
+        justify-content: center;
+        margin-top: var(--space-1);
+      }
+
+      .controls .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+
+    .hud-group {
+      display: grid;
+      gap: var(--space-1);
+      text-align: center;
+    }
+
+    .hud-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+    }
+
+    .hud-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+    }
+
+    /* Streak display styling */
+    .hud-group.streak .hud-value {
+      color: var(--gold);
+    }
+
+    .hud-group.streak.active {
+      animation: streakPulse 0.5s ease;
+    }
+
+    @keyframes streakPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .streak-multiplier {
+      font-size: var(--font-size-xs);
+      color: var(--gold);
+      opacity: 0.8;
+    }
+
+    .timer-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--brand-aqua), rgba(111, 211, 245, .35));
+      transform-origin: left center;
+      transition: transform .1s linear, background 0.5s ease;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .timer-bar.warning {
+      background: linear-gradient(90deg, var(--warning), rgba(255, 179, 71, .35));
+    }
+
+    .timer-bar.danger {
+      background: linear-gradient(90deg, var(--error), rgba(255, 107, 107, .35));
+    }
+
+    .controls {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .instructions {
+      text-align: center;
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-3);
+      font-size: var(--font-size-base);
+      padding: var(--space-3);
+      background-color: rgba(8, 15, 35, 0.7);
+      border-radius: var(--radius);
+    }
+
+    #game-container {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: var(--space-3);
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    #stars-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    #maze-container {
+      position: relative;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--brand-aqua);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(111, 211, 245, 0.2);
+      touch-action: none;
+      outline: none;
+      width: 600px;
+      height: 400px;
+      margin: 0 auto;
+      max-height: 70vh;
+    }
+
+    @media (max-width: 768px) {
+      #maze-container {
+        width: 95vw;
+        height: 70vw;
+        max-width: 450px;
+        max-height: 350px;
+        min-width: 300px;
+        min-height: 220px;
+      }
+    }
+
+    .maze-wall {
+      position: absolute;
+      background: linear-gradient(135deg, rgba(7, 25, 59, 0.9), rgba(11, 42, 88, 0.9));
+      border: 1px solid var(--brand-aqua);
+      box-shadow: 0 0 8px rgba(111, 211, 245, 0.2);
+    }
+
+    .path-line {
+      position: absolute;
+      z-index: 2;
+      opacity: .5;
+    }
+
+    .path-line.horizontal {
+      height: 2px;
+      background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, var(--brand-aqua) 4px, var(--brand-aqua) 8px);
+    }
+
+    .path-line.vertical {
+      width: 2px;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 4px, var(--brand-aqua) 4px, var(--brand-aqua) 8px);
+    }
+
+    .path-node {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: var(--brand-aqua);
+      border-radius: var(--radius-full);
+      z-index: 3;
+      transform: translate(-50%, -50%);
+      opacity: 0.7;
+    }
+
+    #player {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='bodyGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23e8eef5'/%3E%3Cstop offset='100%25' style='stop-color:%239fb5d4'/%3E%3C/linearGradient%3E%3ClinearGradient id='windowGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236495ed'/%3E%3Cstop offset='100%25' style='stop-color:%232856a8'/%3E%3C/linearGradient%3E%3ClinearGradient id='flameGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23ffef00'/%3E%3Cstop offset='50%25' style='stop-color:%23ff8c00'/%3E%3Cstop offset='100%25' style='stop-color:%23ff4500'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='20' rx='12' ry='16' fill='url(%23bodyGrad)' stroke='%23364a69' stroke-width='1'/%3E%3Cellipse cx='20' cy='12' rx='6' ry='7' fill='url(%23windowGrad)' stroke='%231a3a6e' stroke-width='0.5'/%3E%3Cellipse cx='18' cy='10' rx='2' ry='3' fill='%23a8ccff' opacity='0.6'/%3E%3Cpath d='M8 18 L2 28 L8 26 Z' fill='%23536b8a' stroke='%23364a69' stroke-width='0.5'/%3E%3Cpath d='M32 18 L38 28 L32 26 Z' fill='%23536b8a' stroke='%23364a69' stroke-width='0.5'/%3E%3Crect x='14' y='32' width='4' height='3' rx='1' fill='%23434d5a'/%3E%3Crect x='22' y='32' width='4' height='3' rx='1' fill='%23434d5a'/%3E%3Cellipse cx='16' cy='36' rx='3' ry='5' fill='url(%23flameGrad)' opacity='0.9'/%3E%3Cellipse cx='24' cy='36' rx='3' ry='5' fill='url(%23flameGrad)' opacity='0.9'/%3E%3Cline x1='12' y1='20' x2='28' y2='20' stroke='%23536b8a' stroke-width='0.5'/%3E%3Cline x1='12' y1='24' x2='28' y2='24' stroke='%23536b8a' stroke-width='0.5'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      transform: translate(-50%, -50%) rotate(90deg);
+      box-shadow: 0 0 20px var(--brand-aqua);
+      z-index: 10;
+      cursor: pointer;
+      touch-action: none;
+      transition: box-shadow var(--duration-fast) var(--easing);
+      animation: hover 2s ease-in-out infinite;
+    }
+
+    @keyframes hover {
+      0%, 100% { transform: translate(-50%, -50%) rotate(90deg) translateY(0); }
+      50%      { transform: translate(-50%, -50%) rotate(90deg) translateY(-2px); }
+    }
+
+    #goal {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><radialGradient id='o' cx='35%' cy='35%' r='70%'><stop offset='0' stop-color='%238fd3ff'/><stop offset='1' stop-color='%230a3a66'/></radialGradient></defs><circle cx='32' cy='32' r='28' fill='url(%23o)'/><path d='M18 28c6-8 16-8 22-6 4 1 7 4 8 7-4 2-8 2-11 4-5 3-6 6-12 6-4 0-7-2-7-5 0-2 0-4 0-6z' fill='%2328c76f'/><path d='M38 40c3 1 5 2 7 5 2 3 1 6-2 7-3 1-6-1-8-3-2-2-2-5 3-9z' fill='%2326b86a'/><circle cx='32' cy='32' r='28' fill='none' stroke='%23a0e9ff' stroke-opacity='0.5' stroke-width='1.5'/></svg>");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 50%;
+      box-shadow: 0 0 14px rgba(111,211,245,.45);
+      z-index: 9;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .point-label {
+      position: absolute;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius);
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+      white-space: nowrap;
+    }
+
+    #start-label {
+      color: var(--brand-aqua);
+      background-color: var(--bg-primary);
+      border: 1px solid var(--brand-aqua);
+      box-shadow: 0 0 8px rgba(111, 211, 245, 0.5);
+    }
+
+    #end-label {
+      color: var(--success);
+      background-color: var(--bg-primary);
+      border: 1px solid var(--success);
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    }
+
+    .path-trace {
+      position: absolute;
+      background-color: rgba(111, 211, 245, 0.3);
+      border-radius: var(--radius-full);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Floating score popup */
+    .floating-score {
+      position: absolute;
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+      pointer-events: none;
+      z-index: 100;
+      animation: floatUp 1.5s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      20% {
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -150%) scale(1);
+      }
+    }
+
+    /* Particle effects */
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    @keyframes particleExplode {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0);
+      }
+    }
+
+    /* Countdown overlay */
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 22, 41, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .countdown-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-number {
+      font-size: 120px;
+      font-weight: var(--font-weight-bold);
+      color: var(--brand-aqua);
+      text-shadow: 0 0 40px rgba(111, 211, 245, 0.8);
+      animation: countdownPulse 1s ease-in-out;
+    }
+
+    .countdown-go {
+      font-size: 80px;
+      color: var(--success);
+      text-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
+    }
+
+    @keyframes countdownPulse {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* New record banner */
+    .new-record-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+      border: 3px solid var(--gold);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      z-index: 1050;
+      text-align: center;
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .new-record-banner.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .new-record-banner h3 {
+      margin: 0 0 var(--space-2);
+      font-size: var(--font-size-2xl);
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .new-record-banner p {
+      margin: 0;
+      font-size: var(--font-size-lg);
+      color: var(--text-primary);
+    }
+
+    /* Completion modal enhancements */
+    .completion {
+      position: fixed;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%) scale(1);
+      max-width: 90%;
+      width: 560px;
+      z-index: 1100;
+      text-align: center;
+      display: none;
+    }
+
+    .completion.show {
+      display: block;
+      animation: pop .25s ease;
+    }
+
+    @keyframes pop {
+      from { transform: translate(-50%, -50%) scale(.95); opacity: .6; }
+      to   { transform: translate(-50%, -50%) scale(1);   opacity: 1;  }
+    }
+
+    .score-highlight {
+      color: var(--brand-aqua);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .streak-highlight {
+      color: var(--gold);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .maze-celebrate {
+      animation: celebrate 900ms ease-out 1;
+    }
+
+    @keyframes celebrate {
+      0%   { box-shadow: 0 0 0 rgba(111, 211, 245, 0); }
+      40%  { box-shadow: 0 0 40px rgba(111, 211, 245, .8); }
+      100% { box-shadow: 0 0 20px rgba(111, 211, 245, .2); }
+    }
+
+    /* Screen flash effect */
+    .screen-flash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(111, 211, 245, 0.3), transparent);
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+    }
+
+    .screen-flash.active {
+      animation: flash 0.4s ease-out;
+    }
+
+    @keyframes flash {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Perfect run indicator */
+    .perfect-indicator {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--font-size-xs);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .perfect-indicator.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .perfect-indicator .star {
+      font-size: 14px;
+    }
+
+    #error-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--error-bg);
+      color: var(--error);
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius);
+      z-index: 1200;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100%); }
+      to   { transform: translate(-50%, 0); }
+    }
+
+    .hidden { display: none !important; }
+
+    /* Sound toggle in settings */
+    .sound-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .sound-toggle input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <h1>Cosmic Maze</h1>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Settings Screen -->
+    <aside class="settings-panel panel active" data-screen="settings">
+      <h2>Session Settings</h2>
+
+      <div class="game-description">
+        <p>
+          Navigate a spaceship through randomly generated mazes to reach Earth. Improves fine motor control,
+          hand-eye coordination, and precision. Drag the spaceship or use arrow keys to follow the dotted paths.
+        </p>
+      </div>
+
+      <div class="personal-best-display">
+        <div class="label">🏆 Personal Best</div>
+        <div class="value" id="settings-pb">0</div>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="difficulty-select">Difficulty</label>
+        <select id="difficulty-select">
+          <option value="easy" selected>Easy – wide paths</option>
+          <option value="medium">Medium – standard paths</option>
+          <option value="hard">Hard – narrow paths</option>
+        </select>
+        <small class="setting-help">Higher difficulty increases precision demands.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
+        <input class="input" type="number" id="session-duration" min="1" max="10" value="5">
+        <small class="setting-help">1–10 minutes recommended.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label" for="show-trace">Movement Trail</label>
+        <select id="show-trace">
+          <option value="yes" selected>Show trail</option>
+          <option value="no">Hide trail</option>
+        </select>
+        <small class="setting-help">Trail helps visualize movement patterns.</small>
+      </div>
+
+      <div class="settings-group">
+        <label class="settings-label">Sound Effects</label>
+        <div class="sound-toggle">
+          <input type="checkbox" id="sound-enabled" checked>
+          <label for="sound-enabled">Enable sounds</label>
+        </div>
+        <small class="setting-help">Audio feedback for movement and completion.</small>
+      </div>
+
+      <div class="controls">
+        <button id="start-session" class="btn btn-primary">Start</button>
+        <button id="restart-session" class="btn">Restart</button>
+      </div>
+    </aside>
+
+    <!-- Game Screen -->
+    <section class="right-col" data-screen="game">
+      <!-- HUD Row -->
+      <div class="hud panel">
+        <div class="timer-bar" id="timer-bar"></div>
+
+        <div class="hud-group">
+          <div id="hud-score" class="hud-value">0</div>
+          <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group streak" id="streak-group">
+          <div id="hud-streak" class="hud-value">0</div>
+          <div class="hud-label">Streak</div>
+          <div class="streak-multiplier" id="streak-multiplier"></div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-completed" class="hud-value">0</div>
+          <div class="hud-label">Completed</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-avg" class="hud-value">0.0s</div>
+          <div class="hud-label">Avg. Time</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="hud-time" class="hud-value">5:00</div>
+          <div class="hud-label">Time Left</div>
+        </div>
+
+        <div class="controls">
+          <button id="pause-session" class="btn btn-secondary">Pause</button>
+          <button id="end-session" class="btn">End</button>
+        </div>
+      </div>
+
+      <!-- Game Area -->
+      <div class="panel" id="game-container">
+        <div id="stars-container"></div>
+
+        <p class="instructions" id="instructions">
+          Guide the spaceship through the cosmic maze to reach Earth. Drag the ship or use arrow keys to follow the
+          dotted lines.
+        </p>
+
+        <div id="maze-container" tabindex="0">
+          <div class="countdown-overlay" id="countdown-overlay">
+            <div class="countdown-number" id="countdown-text">3</div>
+          </div>
+          <div class="perfect-indicator" id="perfect-indicator">
+            <span class="star">⭐</span> Perfect Run
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="completion-message" class="completion panel">
+    <h2>🎉 Therapy Session Complete!</h2>
+    <div id="completion-scores">
+      <p>Mazes Completed: <span id="final-completed" class="score-highlight">0</span></p>
+      <p>Best Streak: <span id="final-streak" class="streak-highlight">0</span></p>
+      <p>Perfect Runs: <span id="final-perfect" class="streak-highlight">0</span></p>
+      <p>Average Completion Time: <span id="final-avg-time" class="score-highlight">0.0s</span></p>
+      <p>Motor Performance Score: <span id="final-score" class="score-highlight">0</span></p>
+      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
+    </div>
+    <div class="controls">
+      <button id="restart-button" class="btn btn-primary">Start New Therapy Session</button>
+      <button class="btn" id="close-complete">Close</button>
+    </div>
+  </div>
+
+  <div class="new-record-banner" id="new-record-banner">
+    <h3>🏆 NEW RECORD!</h3>
+    <p id="new-record-score">0</p>
+  </div>
+
+  <div class="screen-flash" id="screen-flash"></div>
+
+  <div id="error-message"></div>
+
+  <script>
+    // ============================================
+    // AUDIO SYSTEM
+    // ============================================
+    const AudioSystem = {
+      ctx: null,
+      enabled: true,
+      
+      init() {
+        try {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.warn('Web Audio API not supported');
+          this.enabled = false;
+        }
+      },
+
+      resume() {
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      // Gentle movement sound
+      playMove() {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.05);
+        
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        
+        osc.start(this.ctx.currentTime);
+        osc.stop(this.ctx.currentTime + 0.08);
+      },
+
+      // Completion chime
+      playComplete() {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          const startTime = this.ctx.currentTime + i * 0.08;
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+          
+          osc.start(startTime);
+          osc.stop(startTime + 0.3);
+        });
+      },
+
+      // Perfect run fanfare
+      playPerfect() {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+
+        const notes = [523.25, 659.25, 783.99, 880, 1046.50, 1318.51]; // C5, E5, G5, A5, C6, E6
+        
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          const startTime = this.ctx.currentTime + i * 0.06;
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.12, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+          
+          osc.start(startTime);
+          osc.stop(startTime + 0.4);
+        });
+      },
+
+      // Victory fanfare for session end
+      playVictory() {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+
+        const melody = [
+          { freq: 392, time: 0, dur: 0.15 },      // G4
+          { freq: 523.25, time: 0.15, dur: 0.15 }, // C5
+          { freq: 659.25, time: 0.3, dur: 0.15 },  // E5
+          { freq: 783.99, time: 0.45, dur: 0.3 },  // G5
+          { freq: 659.25, time: 0.75, dur: 0.1 },  // E5
+          { freq: 783.99, time: 0.85, dur: 0.5 },  // G5
+        ];
+        
+        melody.forEach(note => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(note.freq, this.ctx.currentTime);
+          
+          const startTime = this.ctx.currentTime + note.time;
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.dur);
+          
+          osc.start(startTime);
+          osc.stop(startTime + note.dur + 0.1);
+        });
+      },
+
+      // New record celebration
+      playNewRecord() {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+
+        const melody = [
+          { freq: 523.25, time: 0, dur: 0.1 },
+          { freq: 659.25, time: 0.1, dur: 0.1 },
+          { freq: 783.99, time: 0.2, dur: 0.1 },
+          { freq: 1046.50, time: 0.3, dur: 0.1 },
+          { freq: 1318.51, time: 0.4, dur: 0.1 },
+          { freq: 1567.98, time: 0.5, dur: 0.4 },
+        ];
+        
+        melody.forEach(note => {
+          const osc = this.ctx.createOscillator();
+          const osc2 = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.connect(gain);
+          osc2.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.type = 'triangle';
+          osc2.type = 'sine';
+          osc.frequency.setValueAtTime(note.freq, this.ctx.currentTime);
+          osc2.frequency.setValueAtTime(note.freq * 2, this.ctx.currentTime);
+          
+          const startTime = this.ctx.currentTime + note.time;
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.12, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.dur);
+          
+          osc.start(startTime);
+          osc2.start(startTime);
+          osc.stop(startTime + note.dur + 0.1);
+          osc2.stop(startTime + note.dur + 0.1);
+        });
+      },
+
+      // Countdown beep
+      playCountdown(final = false) {
+        if (!this.enabled || !this.ctx) return;
+        this.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(final ? 880 : 440, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + (final ? 0.3 : 0.15));
+        
+        osc.start(this.ctx.currentTime);
+        osc.stop(this.ctx.currentTime + (final ? 0.3 : 0.15));
+      }
+    };
+
+    // Initialize audio system
+    AudioSystem.init();
+
+    // ============================================
+    // PARTICLE SYSTEM
+    // ============================================
+    const ParticleSystem = {
+      createExplosion(container, x, y, count = 20, colors = ['#6fd3f5', '#ffd700', '#4caf50', '#ff6b6b']) {
+        for (let i = 0; i < count; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          
+          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+          const velocity = 50 + Math.random() * 100;
+          const tx = Math.cos(angle) * velocity + 'px';
+          const ty = Math.sin(angle) * velocity + 'px';
+          
+          particle.style.cssText = `
+            left: ${x}px;
+            top: ${y}px;
+            width: ${4 + Math.random() * 8}px;
+            height: ${4 + Math.random() * 8}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            box-shadow: 0 0 ${6 + Math.random() * 6}px currentColor;
+            --tx: ${tx};
+            --ty: ${ty};
+            animation: particleExplode ${0.6 + Math.random() * 0.4}s ease-out forwards;
+          `;
+          
+          container.appendChild(particle);
+          
+          setTimeout(() => particle.remove(), 1000);
+        }
+      },
+
+      createStarBurst(container, x, y) {
+        this.createExplosion(container, x, y, 30, ['#ffd700', '#ffec8b', '#fff8dc', '#ffa500']);
+      }
+    };
+
+    // ============================================
+    // STORAGE UTILITY
+    // ============================================
+    const storage = {
+      get: (key, defaultValue) => {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      },
+      set: (key, value) => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
+      }
+    };
+
+    // Utility function
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Generate starfield
+    function generateStars(container, count = 150) {
+      if (!container) return;
+      container.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        star.style.width = Math.random() * 3 + 'px';
+        star.style.height = star.style.width;
+        star.style.backgroundColor = 'white';
+        star.style.borderRadius = '50%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.8 + 0.2;
+        frag.appendChild(star);
+      }
+      container.appendChild(frag);
+    }
+
+    // DOM elements
+    const starsContainer = document.getElementById('stars-container');
+    const mazeContainer = document.getElementById('maze-container');
+    const difficultySelect = document.getElementById('difficulty-select');
+    const sessionDurationInp = document.getElementById('session-duration');
+    const showTraceSelect = document.getElementById('show-trace');
+    const soundEnabledCheckbox = document.getElementById('sound-enabled');
+    const startBtn = document.getElementById('start-session');
+    const pauseBtn = document.getElementById('pause-session');
+    const restartBtn = document.getElementById('restart-session');
+    const timerBarEl = document.getElementById('timer-bar');
+    const scoreEl = document.getElementById('hud-score');
+    const streakEl = document.getElementById('hud-streak');
+    const streakGroup = document.getElementById('streak-group');
+    const streakMultiplierEl = document.getElementById('streak-multiplier');
+    const completedEl = document.getElementById('hud-completed');
+    const avgEl = document.getElementById('hud-avg');
+    const timeEl = document.getElementById('hud-time');
+    const completionModal = document.getElementById('completion-message');
+    const finalCompleted = document.getElementById('final-completed');
+    const finalStreak = document.getElementById('final-streak');
+    const finalPerfect = document.getElementById('final-perfect');
+    const finalAvgTime = document.getElementById('final-avg-time');
+    const finalScore = document.getElementById('final-score');
+    const finalXP = document.getElementById('final-xp');
+    const completeClose = document.getElementById('close-complete');
+    const restartModalBtn = document.getElementById('restart-button');
+    const errorMessage = document.getElementById('error-message');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownText = document.getElementById('countdown-text');
+    const perfectIndicator = document.getElementById('perfect-indicator');
+    const screenFlash = document.getElementById('screen-flash');
+    const newRecordBanner = document.getElementById('new-record-banner');
+    const newRecordScore = document.getElementById('new-record-score');
+    const settingsPB = document.getElementById('settings-pb');
+
+    // Generate initial stars
+    generateStars(starsContainer, 150);
+
+    // Game state
+    let isSessionActive = false;
+    let isPaused = false;
+    let sessionMs = 5 * 60 * 1000;
+    let timeRemaining = 0;
+    let timerInterval = null;
+    let player = null;
+    let goal = null;
+    let startLabel = null;
+    let endLabel = null;
+    let maze = [];
+    let pathNodes = [];
+    let pathTraces = [];
+    let mazeWidth = 600;
+    let mazeHeight = 400;
+    let cellSize = 60;
+    let wallThickness = 12;
+    let currentDifficulty = 'easy';
+    let showTrace = true;
+    let mazesCompleted = 0;
+    let currentMaze = 1;
+    let totalCompletionTime = 0;
+    let mazeStartTime = 0;
+    let score = 0;
+    let personalBest = storage.get('mazePersonalBest', 0);
+    let moveCountThisMaze = 0;
+    let eventHandlers = {};
+
+    // Streak & gamification state
+    let currentStreak = 0;
+    let bestStreak = 0;
+    let perfectRuns = 0;
+    let isPerfectRun = true;
+    let visitedNodes = new Set();
+    let optimalPathLength = 0;
+
+    // Difficulty settings
+    const difficultySizes = {
+      easy: { cellSize: 60, wallThickness: 12 },
+      medium: { cellSize: 45, wallThickness: 10 },
+      hard: { cellSize: 30, wallThickness: 8 }
+    };
+
+    // Update settings PB display
+    settingsPB.textContent = personalBest;
+
+    // Update difficulty display
+    difficultySelect.addEventListener('change', () => {
+      currentDifficulty = difficultySelect.value;
+    });
+
+    // Maze sizing function
+    function getViewportHeight() {
+      return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    }
+
+    function adjustMazeSize() {
+      const containerWidth = mazeContainer.offsetWidth || 600;
+      const containerHeight = getViewportHeight();
+      const isLandscape = window.innerWidth > window.innerHeight;
+
+      if (isLandscape) {
+        let w = Math.min(containerWidth * 0.95, containerHeight * 1.2);
+        let h = Math.min(containerHeight * 0.70, w * 0.70);
+        mazeWidth = Math.max(220, Math.round(w));
+        mazeHeight = Math.max(180, Math.round(h));
+      } else {
+        let w = Math.min(containerWidth * 0.95, containerHeight * 0.90);
+        let h = Math.min(containerHeight * 0.70, w * 0.90);
+        mazeWidth = Math.max(220, Math.round(w));
+        mazeHeight = Math.max(220, Math.round(h));
+      }
+
+      mazeContainer.style.width = `${mazeWidth}px`;
+      mazeContainer.style.height = `${mazeHeight}px`;
+    }
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      setTimeout(() => errorMessage.style.display = 'none', 3000);
+    }
+
+    function saveSettings() {
+      storage.set('mazeSessionDuration', sessionDurationInp.value);
+      storage.set('mazeDifficulty', difficultySelect.value);
+      storage.set('mazeShowTrace', showTraceSelect.value);
+      storage.set('mazeSoundEnabled', soundEnabledCheckbox.checked);
+    }
+
+    function loadSettings() {
+      sessionDurationInp.value = storage.get('mazeSessionDuration', 5);
+      difficultySelect.value = storage.get('mazeDifficulty', 'easy');
+      showTraceSelect.value = storage.get('mazeShowTrace', 'yes');
+      soundEnabledCheckbox.checked = storage.get('mazeSoundEnabled', true);
+      AudioSystem.enabled = soundEnabledCheckbox.checked;
+    }
+
+    // Sound toggle handler
+    soundEnabledCheckbox.addEventListener('change', () => {
+      AudioSystem.enabled = soundEnabledCheckbox.checked;
+      if (AudioSystem.enabled) {
+        AudioSystem.resume();
+        AudioSystem.playMove();
+      }
+    });
+
+    function getStreakMultiplier() {
+      if (currentStreak >= 10) return 2.0;
+      if (currentStreak >= 7) return 1.75;
+      if (currentStreak >= 5) return 1.5;
+      if (currentStreak >= 3) return 1.25;
+      return 1.0;
+    }
+
+    function updateHUD() {
+      scoreEl.textContent = `${score}`;
+      streakEl.textContent = `${currentStreak}`;
+      completedEl.textContent = `${mazesCompleted}`;
+
+      const multiplier = getStreakMultiplier();
+      if (multiplier > 1) {
+        streakMultiplierEl.textContent = `×${multiplier}`;
+        streakMultiplierEl.style.display = 'block';
+      } else {
+        streakMultiplierEl.style.display = 'none';
+      }
+
+      const avg = (mazesCompleted > 0)
+        ? (totalCompletionTime / mazesCompleted / 1000).toFixed(1) : '0.0';
+      avgEl.textContent = `${avg}s`;
+
+      const mins = Math.max(0, Math.floor(timeRemaining / 60000));
+      const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
+      timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+      // Timer bar color based on time remaining
+      const progress = timeRemaining / sessionMs;
+      timerBarEl.classList.remove('warning', 'danger');
+      if (progress < 0.2) {
+        timerBarEl.classList.add('danger');
+      } else if (progress < 0.4) {
+        timerBarEl.classList.add('warning');
+      }
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeRemaining -= 100;
+        const progress = Math.max(0, timeRemaining / sessionMs);
+        timerBarEl.style.transform = `scaleX(${progress})`;
+        updateHUD();
+        if (timeRemaining <= 0) {
+          endSession();
+        }
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function clearMaze() {
+      removeAllEventListeners();
+      // Hide perfect indicator when clearing
+      perfectIndicator.classList.remove('show');
+      // Keep countdown overlay and perfect indicator elements but remove others
+      const overlay = countdownOverlay;
+      const indicator = perfectIndicator;
+      // Remove all children except overlay and indicator
+      Array.from(mazeContainer.children).forEach(child => {
+        if (child !== overlay && child !== indicator) {
+          child.remove();
+        }
+      });
+      pathTraces = [];
+      pathNodes = [];
+      player = goal = startLabel = endLabel = null;
+    }
+
+    function removeAllEventListeners() {
+      if (eventHandlers.keydown) {
+        mazeContainer.removeEventListener('keydown', eventHandlers.keydown);
+        eventHandlers.keydown = null;
+      }
+      if (player) {
+        if (eventHandlers.mousedown) {
+          player.removeEventListener('mousedown', eventHandlers.mousedown);
+          eventHandlers.mousedown = null;
+        }
+        if (eventHandlers.touchstart) {
+          player.removeEventListener('touchstart', eventHandlers.touchstart);
+          eventHandlers.touchstart = null;
+        }
+      }
+      if (eventHandlers.mousemove) {
+        document.removeEventListener('mousemove', eventHandlers.mousemove);
+        eventHandlers.mousemove = null;
+      }
+      if (eventHandlers.touchmove) {
+        document.removeEventListener('touchmove', eventHandlers.touchmove);
+        eventHandlers.touchmove = null;
+      }
+      if (eventHandlers.mouseup) {
+        document.removeEventListener('mouseup', eventHandlers.mouseup);
+        eventHandlers.mouseup = null;
+      }
+      if (eventHandlers.touchend) {
+        document.removeEventListener('touchend', eventHandlers.touchend);
+        eventHandlers.touchend = null;
+      }
+    }
+
+    function getUnvisitedNeighbors(x, y) {
+      const neighbors = [];
+      const rows = maze.length;
+      const cols = maze[0].length;
+      const directions = shuffle([
+        { dx: 0, dy: -1 },
+        { dx: 1, dy: 0 },
+        { dx: 0, dy: 1 },
+        { dx: -1, dy: 0 }
+      ]);
+
+      for (const dir of directions) {
+        const nx = x + dir.dx;
+        const ny = y + dir.dy;
+        if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !maze[ny][nx].visited) {
+          neighbors.push({ x: nx, y: ny });
+        }
+      }
+      return neighbors;
+    }
+
+    function createMazeWalls(cols, rows) {
+      function addWall(top, left, width, height) {
+        const wall = document.createElement('div');
+        wall.className = 'maze-wall';
+        wall.style.top = `${top}px`;
+        wall.style.left = `${left}px`;
+        wall.style.width = `${width}px`;
+        wall.style.height = `${height}px`;
+        mazeContainer.appendChild(wall);
+      }
+
+      // Outer walls
+      addWall(0, 0, cols * cellSize, wallThickness);
+      addWall(0, 0, wallThickness, rows * cellSize);
+      addWall(0, cols * cellSize - wallThickness, wallThickness, rows * cellSize);
+      addWall(rows * cellSize - wallThickness, 0, cols * cellSize, wallThickness);
+
+      // Inner walls
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const cell = maze[i][j];
+          if (cell.walls.right && j < cols - 1) {
+            addWall(i * cellSize, (j + 1) * cellSize - wallThickness / 2, wallThickness, cellSize);
+          }
+          if (cell.walls.bottom && i < rows - 1) {
+            addWall((i + 1) * cellSize - wallThickness / 2, j * cellSize, cellSize, wallThickness);
+          }
+        }
+      }
+    }
+
+    function connectPathNodes(cols, rows) {
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const currentIndex = pathNodes.findIndex(n => n.gridX === x && n.gridY === y);
+          if (currentIndex === -1) continue;
+
+          const currentNode = pathNodes[currentIndex];
+
+          if (x > 0 && !maze[y][x].walls.left) {
+            const leftIndex = pathNodes.findIndex(n => n.gridX === x - 1 && n.gridY === y);
+            if (leftIndex !== -1 && !currentNode.connections.includes(leftIndex)) {
+              currentNode.connections.push(leftIndex);
+              pathNodes[leftIndex].connections.push(currentIndex);
+            }
+          }
+          if (x < cols - 1 && !maze[y][x].walls.right) {
+            const rightIndex = pathNodes.findIndex(n => n.gridX === x + 1 && n.gridY === y);
+            if (rightIndex !== -1 && !currentNode.connections.includes(rightIndex)) {
+              currentNode.connections.push(rightIndex);
+              pathNodes[rightIndex].connections.push(currentIndex);
+            }
+          }
+          if (y > 0 && !maze[y][x].walls.top) {
+            const topIndex = pathNodes.findIndex(n => n.gridX === x && n.gridY === y - 1);
+            if (topIndex !== -1 && !currentNode.connections.includes(topIndex)) {
+              currentNode.connections.push(topIndex);
+              pathNodes[topIndex].connections.push(currentIndex);
+            }
+          }
+          if (y < rows - 1 && !maze[y][x].walls.bottom) {
+            const bottomIndex = pathNodes.findIndex(n => n.gridX === x && n.gridY === y + 1);
+            if (bottomIndex !== -1 && !currentNode.connections.includes(bottomIndex)) {
+              currentNode.connections.push(bottomIndex);
+              pathNodes[bottomIndex].connections.push(currentIndex);
+            }
+          }
+        }
+      }
+    }
+
+    function createPathLines(cols, rows) {
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const centerX = j * cellSize + cellSize / 2;
+          const centerY = i * cellSize + cellSize / 2;
+          const node = { x: centerX, y: centerY, gridX: j, gridY: i, connections: [] };
+          pathNodes.push(node);
+
+          const nodeElement = document.createElement('div');
+          nodeElement.className = 'path-node';
+          nodeElement.style.left = `${centerX}px`;
+          nodeElement.style.top = `${centerY}px`;
+          mazeContainer.appendChild(nodeElement);
+        }
+      }
+
+      connectPathNodes(cols, rows);
+
+      for (let i = 0; i < pathNodes.length; i++) {
+        const nodeA = pathNodes[i];
+        for (const connectionIndex of nodeA.connections) {
+          if (i < connectionIndex) {
+            const nodeB = pathNodes[connectionIndex];
+            const line = document.createElement('div');
+            line.className = 'path-line';
+
+            if (nodeA.gridX === nodeB.gridX) {
+              line.classList.add('vertical');
+              const top = Math.min(nodeA.y, nodeB.y);
+              const height = Math.abs(nodeA.y - nodeB.y);
+              line.style.left = `${nodeA.x}px`;
+              line.style.top = `${top}px`;
+              line.style.height = `${height}px`;
+            } else {
+              line.classList.add('horizontal');
+              const left = Math.min(nodeA.x, nodeB.x);
+              const width = Math.abs(nodeA.x - nodeB.x);
+              line.style.left = `${left}px`;
+              line.style.top = `${nodeA.y}px`;
+              line.style.width = `${width}px`;
+            }
+            mazeContainer.appendChild(line);
+          }
+        }
+      }
+    }
+
+    function createPlayer(x, y) {
+      player = document.createElement('div');
+      player.id = 'player';
+      const playerX = x * cellSize + cellSize / 2;
+      const playerY = y * cellSize + cellSize / 2;
+      player.style.left = `${playerX}px`;
+      player.style.top = `${playerY}px`;
+      mazeContainer.appendChild(player);
+    }
+
+    function createGoal(x, y) {
+      goal = document.createElement('div');
+      goal.id = 'goal';
+
+      const r = 22;
+      const margin = Math.max(6, wallThickness * 2);
+
+      let goalX = x * cellSize + cellSize / 2;
+      let goalY = y * cellSize + cellSize / 2;
+
+      goalX = Math.min(Math.max(goalX, r + margin), mazeWidth - (r + margin));
+      goalY = Math.min(Math.max(goalY, r + margin), mazeHeight - (r + margin));
+
+      goal.style.left = `${goalX}px`;
+      goal.style.top = `${goalY}px`;
+      mazeContainer.appendChild(goal);
+    }
+
+    function createPointLabels(startX, startY, endX, endY) {
+      const labelOffsetBottom = 15;
+      const minTop = 10;
+      const maxTop = mazeHeight - 10;
+
+      startLabel = document.createElement('div');
+      startLabel.id = 'start-label';
+      startLabel.className = 'point-label';
+      startLabel.textContent = 'START';
+      startLabel.style.left = `${startX * cellSize + cellSize / 2}px`;
+      let startTop = startY * cellSize - (cellSize * 1.5);
+      startTop = Math.max(minTop, Math.min(startTop, maxTop));
+      startLabel.style.top = `${startTop}px`;
+
+      if (startY === 0 && startTop <= (cellSize * 0.6)) {
+        startLabel.style.left = `${startX * cellSize + cellSize * 1.3}px`;
+        startLabel.style.top = `${startY * cellSize + cellSize * 0.35}px`;
+      }
+
+      endLabel = document.createElement('div');
+      endLabel.id = 'end-label';
+      endLabel.className = 'point-label';
+      endLabel.textContent = 'FINISH';
+      endLabel.style.left = `${endX * cellSize + cellSize / 2}px`;
+
+      let endTop = endY * cellSize + cellSize + labelOffsetBottom;
+      if (endTop > maxTop) endTop = endY * cellSize - labelOffsetBottom;
+      endTop = Math.max(minTop, Math.min(endTop, maxTop));
+      endLabel.style.top = `${endTop}px`;
+
+      mazeContainer.appendChild(startLabel);
+      mazeContainer.appendChild(endLabel);
+    }
+
+    // BFS to find optimal path length
+    function findOptimalPath(startIndex, endIndex) {
+      const queue = [[startIndex]];
+      const visited = new Set([startIndex]);
+
+      while (queue.length > 0) {
+        const path = queue.shift();
+        const current = path[path.length - 1];
+
+        if (current === endIndex) {
+          return path;
+        }
+
+        for (const neighbor of pathNodes[current].connections) {
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            queue.push([...path, neighbor]);
+          }
+        }
+      }
+
+      return [];
+    }
+
+    function generateMaze() {
+      const dims = difficultySizes[currentDifficulty] || difficultySizes.easy;
+      cellSize = dims.cellSize;
+      wallThickness = dims.wallThickness;
+
+      const cols = Math.max(3, Math.floor(mazeWidth / cellSize));
+      const rows = Math.max(3, Math.floor(mazeHeight / cellSize));
+
+      if (mazeContainer && mazeContainer.children.length > 2) clearMaze();
+
+      maze = [];
+      pathNodes = [];
+      pathTraces = [];
+      visitedNodes = new Set();
+      isPerfectRun = true;
+      perfectIndicator.classList.add('show');
+
+      for (let i = 0; i < rows; i++) {
+        const row = [];
+        for (let j = 0; j < cols; j++) {
+          row.push({ x: j, y: i, visited: false, walls: { top: true, right: true, bottom: true, left: true } });
+        }
+        maze.push(row);
+      }
+
+      const stack = [];
+      let currentX = 0;
+      let currentY = 0;
+      maze[currentY][currentX].visited = true;
+      stack.push({ x: currentX, y: currentY });
+
+      while (stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = getUnvisitedNeighbors(current.x, current.y);
+
+        if (neighbors.length === 0) { stack.pop(); continue; }
+
+        const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+
+        if (next.x > current.x) {
+          maze[current.y][current.x].walls.right = false;
+          maze[next.y][next.x].walls.left = false;
+        } else if (next.x < current.x) {
+          maze[current.y][current.x].walls.left = false;
+          maze[next.y][next.x].walls.right = false;
+        } else if (next.y > current.y) {
+          maze[current.y][current.x].walls.bottom = false;
+          maze[next.y][next.x].walls.top = false;
+        } else if (next.y < current.y) {
+          maze[current.y][current.x].walls.top = false;
+          maze[next.y][next.x].walls.bottom = false;
+        }
+
+        maze[next.y][next.x].visited = true;
+        stack.push(next);
+      }
+
+      createMazeWalls(cols, rows);
+      createPathLines(cols, rows);
+
+      const startX = 0;
+      const startY = 0;
+      const endX = cols - 1;
+      const endY = rows - 1;
+
+      createPlayer(startX, startY);
+      createGoal(endX, endY);
+      createPointLabels(startX, startY, endX, endY);
+
+      // Calculate optimal path
+      const startNodeIndex = pathNodes.findIndex(n => n.gridX === startX && n.gridY === startY);
+      const endNodeIndex = pathNodes.findIndex(n => n.gridX === endX && n.gridY === endY);
+      const optimalPath = findOptimalPath(startNodeIndex, endNodeIndex);
+      optimalPathLength = optimalPath.length;
+
+      setupControls(startX, startY, endX, endY);
+      moveCountThisMaze = 0;
+      visitedNodes.add(startNodeIndex);
+    }
+
+    function addPathTrace(fromX, fromY, toX, toY) {
+      if (!showTrace) return;
+      const trace = document.createElement('div');
+      trace.className = 'path-trace';
+      const minX = Math.min(fromX, toX);
+      const minY = Math.min(fromY, toY);
+      const width = Math.abs(toX - fromX) || 4;
+      const height = Math.abs(toY - fromY) || 4;
+      trace.style.left = `${minX - 2}px`;
+      trace.style.top = `${minY - 2}px`;
+      trace.style.width = `${width + 4}px`;
+      trace.style.height = `${height + 4}px`;
+      mazeContainer.appendChild(trace);
+      pathTraces.push(trace);
+    }
+
+    function setupControls(startX, startY, endX, endY) {
+      let playerX = startX * cellSize + cellSize / 2;
+      let playerY = startY * cellSize + cellSize / 2;
+      let closestNodeIndex = pathNodes.findIndex(n => n.gridX === startX && n.gridY === startY);
+      const goalNodeIndex = pathNodes.findIndex(n => n.gridX === endX && n.gridY === endY);
+      let isDragging = false;
+      let dragPath = [];
+      let lastVisitedNode = closestNodeIndex;
+
+      function findPath(from, to) {
+        if (from === to) return [];
+        const queue = [[from]];
+        const visited = new Set([from]);
+        while (queue.length > 0) {
+          const path = queue.shift();
+          const current = path[path.length - 1];
+          if (current === to) return path;
+          for (const neighbor of pathNodes[current].connections) {
+            if (!visited.has(neighbor)) {
+              visited.add(neighbor);
+              queue.push([...path, neighbor]);
+            }
+          }
+        }
+        return [];
+      }
+
+      function checkGoalReached() {
+        if (closestNodeIndex === goalNodeIndex) {
+          completeCurrentMaze();
+        }
+      }
+
+      function moveToNode(nodeIndex) {
+        if (nodeIndex < 0 || nodeIndex >= pathNodes.length) return;
+        
+        // Check if this is a backtrack (revisiting a node)
+        if (visitedNodes.has(nodeIndex)) {
+          isPerfectRun = false;
+          perfectIndicator.classList.remove('show');
+        }
+        
+        const targetNode = pathNodes[nodeIndex];
+        addPathTrace(playerX, playerY, targetNode.x, targetNode.y);
+        playerX = targetNode.x;
+        playerY = targetNode.y;
+        player.style.left = `${playerX}px`;
+        player.style.top = `${playerY}px`;
+        closestNodeIndex = nodeIndex;
+        moveCountThisMaze++;
+        visitedNodes.add(nodeIndex);
+        
+        // Play move sound
+        AudioSystem.playMove();
+        
+        updateHUD();
+        checkGoalReached();
+      }
+
+      function handleKeyboard(e) {
+        if (!isSessionActive || isPaused) return;
+        const currentNode = pathNodes[closestNodeIndex];
+        let nextNodeIndex = -1;
+        switch (e.key) {
+          case 'ArrowUp':
+          case 'w':
+          case 'W':
+            nextNodeIndex = currentNode.connections.find(i => pathNodes[i].y < currentNode.y && pathNodes[i].x === currentNode.x);
+            break;
+          case 'ArrowDown':
+          case 's':
+          case 'S':
+            nextNodeIndex = currentNode.connections.find(i => pathNodes[i].y > currentNode.y && pathNodes[i].x === currentNode.x);
+            break;
+          case 'ArrowLeft':
+          case 'a':
+          case 'A':
+            nextNodeIndex = currentNode.connections.find(i => pathNodes[i].x < currentNode.x && pathNodes[i].y === currentNode.y);
+            break;
+          case 'ArrowRight':
+          case 'd':
+          case 'D':
+            nextNodeIndex = currentNode.connections.find(i => pathNodes[i].x > currentNode.x && pathNodes[i].y === currentNode.y);
+            break;
+          case ' ':
+            e.preventDefault();
+            pauseBtn.click();
+            return;
+          default: return;
+        }
+        if (nextNodeIndex !== undefined && nextNodeIndex !== -1) {
+          moveToNode(nextNodeIndex);
+          e.preventDefault();
+        }
+      }
+
+      function startDrag(e) {
+        if (!isSessionActive || isPaused) return;
+        isDragging = true;
+        dragPath = [closestNodeIndex];
+        lastVisitedNode = closestNodeIndex;
+        player.style.boxShadow = '0 0 30px rgba(111, 211, 245, 1)';
+        e.preventDefault();
+      }
+
+      function handleDrag(e) {
+        if (!isDragging || !isSessionActive || isPaused) return;
+        const rect = mazeContainer.getBoundingClientRect();
+        let clientX, clientY;
+        if (e.type === 'mousemove') {
+          clientX = e.clientX - rect.left;
+          clientY = e.clientY - rect.top;
+        } else {
+          clientX = e.touches[0].clientX - rect.left;
+          clientY = e.touches[0].clientY - rect.top;
+          e.preventDefault();
+        }
+
+        const currentNode = pathNodes[closestNodeIndex];
+        const nodesToCheck = new Set([
+          closestNodeIndex,
+          ...currentNode.connections.flatMap(i => [i, ...pathNodes[i].connections])
+        ]);
+
+        let bestNodeIndex = -1;
+        let minDistance = Infinity;
+
+        for (const nodeIndex of nodesToCheck) {
+          const node = pathNodes[nodeIndex];
+          const distance = Math.sqrt((node.x - clientX) ** 2 + (node.y - clientY) ** 2) +
+            (dragPath.includes(nodeIndex) ? cellSize * 0.5 : 0);
+          if (distance < minDistance && nodeIndex !== lastVisitedNode) {
+            minDistance = distance; bestNodeIndex = nodeIndex;
+          }
+        }
+
+        if (bestNodeIndex !== -1 && minDistance < cellSize * 0.7) {
+          const path = findPath(closestNodeIndex, bestNodeIndex);
+          if (path.length > 0) {
+            for (let i = 1; i < path.length; i++) {
+              const nodeIndex = path[i];
+              if (!dragPath.includes(nodeIndex)) dragPath.push(nodeIndex);
+              moveToNode(nodeIndex);
+              lastVisitedNode = nodeIndex;
+            }
+          }
+        }
+      }
+
+      function endDrag() {
+        isDragging = false;
+        player.style.boxShadow = '0 0 20px rgba(111, 211, 245, 0.8)';
+        dragPath = [];
+        lastVisitedNode = closestNodeIndex;
+      }
+
+      eventHandlers.keydown = handleKeyboard;
+      eventHandlers.mousedown = startDrag;
+      eventHandlers.touchstart = startDrag;
+      eventHandlers.mousemove = handleDrag;
+      eventHandlers.touchmove = handleDrag;
+      eventHandlers.mouseup = endDrag;
+      eventHandlers.touchend = endDrag;
+
+      mazeContainer.addEventListener('keydown', eventHandlers.keydown);
+      player.addEventListener('mousedown', eventHandlers.mousedown);
+      player.addEventListener('touchstart', eventHandlers.touchstart, { passive: false });
+      document.addEventListener('mousemove', eventHandlers.mousemove);
+      document.addEventListener('touchmove', eventHandlers.touchmove, { passive: false });
+      document.addEventListener('mouseup', eventHandlers.mouseup);
+      document.addEventListener('touchend', eventHandlers.touchend);
+    }
+
+    function showFloatingScore(points, x, y, text = null) {
+      const floating = document.createElement('div');
+      floating.className = 'floating-score';
+      floating.textContent = text || `+${points}`;
+      floating.style.left = `${x}px`;
+      floating.style.top = `${y}px`;
+      mazeContainer.appendChild(floating);
+      setTimeout(() => floating.remove(), 1500);
+    }
+
+    function triggerScreenFlash() {
+      screenFlash.classList.add('active');
+      setTimeout(() => screenFlash.classList.remove('active'), 400);
+    }
+
+    function completeCurrentMaze() {
+      const completionTime = Date.now() - mazeStartTime;
+      totalCompletionTime += completionTime;
+      mazesCompleted++;
+      currentMaze++;
+
+      // Calculate base score
+      const timeBonus = Math.max(0, Math.round(1000 - completionTime / 10));
+      let mazeScore = 100 + timeBonus;
+
+      // Perfect run bonus
+      if (isPerfectRun) {
+        perfectRuns++;
+        mazeScore = Math.round(mazeScore * 1.5);
+        AudioSystem.playPerfect();
+      } else {
+        AudioSystem.playComplete();
+      }
+
+      // Streak bonus
+      currentStreak++;
+      if (currentStreak > bestStreak) {
+        bestStreak = currentStreak;
+      }
+
+      const multiplier = getStreakMultiplier();
+      mazeScore = Math.round(mazeScore * multiplier);
+
+      score += mazeScore;
+
+      // Visual feedback
+      const goalRect = goal.getBoundingClientRect();
+      const mazeRect = mazeContainer.getBoundingClientRect();
+      const particleX = goalRect.left - mazeRect.left + goalRect.width / 2;
+      const particleY = goalRect.top - mazeRect.top + goalRect.height / 2;
+
+      ParticleSystem.createExplosion(mazeContainer, particleX, particleY, 25);
+      if (isPerfectRun) {
+        ParticleSystem.createStarBurst(mazeContainer, particleX, particleY);
+      }
+
+      showFloatingScore(mazeScore, particleX, particleY);
+      triggerScreenFlash();
+
+      // Animate streak
+      streakGroup.classList.add('active');
+      setTimeout(() => streakGroup.classList.remove('active'), 500);
+
+      // Celebrate animation on maze container
+      mazeContainer.classList.add('maze-celebrate');
+      setTimeout(() => mazeContainer.classList.remove('maze-celebrate'), 900);
+
+      updateHUD();
+
+      // Generate next maze after brief delay
+      setTimeout(() => {
+        generateMaze();
+        mazeStartTime = Date.now();
+      }, 600);
+    }
+
+    function showCountdown(callback) {
+      countdownOverlay.classList.add('active');
+      let count = 3;
+
+      function tick() {
+        if (count > 0) {
+          countdownText.textContent = count;
+          countdownText.className = 'countdown-number';
+          AudioSystem.playCountdown(false);
+          count--;
+          setTimeout(tick, 800);
+        } else {
+          countdownText.textContent = 'GO!';
+          countdownText.className = 'countdown-number countdown-go';
+          AudioSystem.playCountdown(true);
+          setTimeout(() => {
+            countdownOverlay.classList.remove('active');
+            callback();
+          }, 500);
+        }
+      }
+
+      tick();
+    }
+
+    function endSession() {
+      if (timerInterval) stopTimer();
+      isSessionActive = false;
+
+      // Hide perfect indicator
+      perfectIndicator.classList.remove('show');
+
+      const averageTimeString = (mazesCompleted > 0)
+        ? (totalCompletionTime / mazesCompleted / 1000).toFixed(1)
+        : '0.0';
+      const averageTime = parseFloat(averageTimeString);
+      const computedScore = score;
+
+      // Check for new record
+      let isNewRecord = false;
+      if (computedScore > personalBest) {
+        isNewRecord = true;
+        personalBest = computedScore;
+        storage.set('mazePersonalBest', personalBest);
+        settingsPB.textContent = personalBest;
+      }
+
+      // Play appropriate sound
+      if (isNewRecord) {
+        AudioSystem.playNewRecord();
+      } else {
+        AudioSystem.playVictory();
+      }
+
+      updateHUD();
+
+      finalCompleted.textContent = `${mazesCompleted}`;
+      finalStreak.textContent = `${bestStreak}`;
+      finalPerfect.textContent = `${perfectRuns}`;
+      finalAvgTime.textContent = `${averageTimeString}s`;
+      finalScore.textContent = `${computedScore}`;
+      finalXP.textContent = `${Math.max(10, Math.round(computedScore * 0.5))}`;
+
+      // Show new record banner if applicable
+      if (isNewRecord) {
+        newRecordScore.textContent = computedScore;
+        newRecordBanner.classList.add('show');
+        setTimeout(() => {
+          newRecordBanner.classList.remove('show');
+          completionModal.classList.add('show');
+        }, 2500);
+      } else {
+        completionModal.classList.add('show');
+      }
+
+      clearMaze();
+      setScreen('settings');
+    }
+
+    function setScreen(screenName) {
+      document.querySelectorAll('[data-screen]').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-screen="${screenName}"]`).classList.add('active');
+      
+      // Hide perfect indicator when leaving game screen
+      if (screenName !== 'game') {
+        perfectIndicator.classList.remove('show');
+      }
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', () => {
+      if (isSessionActive) return;
+      if (timerInterval) stopTimer();
+
+      // Resume audio context on user interaction
+      AudioSystem.resume();
+
+      try {
+        currentDifficulty = difficultySelect.value;
+
+        const minutes = Math.max(1, Math.min(10, Number(sessionDurationInp.value) || 5));
+        sessionMs = minutes * 60 * 1000;
+        sessionDurationInp.value = minutes;
+
+        showTrace = showTraceSelect.value === 'yes';
+        AudioSystem.enabled = soundEnabledCheckbox.checked;
+        saveSettings();
+
+        score = 0;
+        mazesCompleted = 0;
+        currentMaze = 1;
+        totalCompletionTime = 0;
+        timeRemaining = sessionMs;
+        moveCountThisMaze = 0;
+        isPaused = false;
+        currentStreak = 0;
+        bestStreak = 0;
+        perfectRuns = 0;
+
+        clearMaze();
+        updateHUD();
+
+        setScreen('game');
+
+        setTimeout(() => {
+          try {
+            adjustMazeSize();
+            clearMaze();
+            generateMaze();
+
+            // Show countdown before starting
+            showCountdown(() => {
+              isSessionActive = true;
+              startTimer();
+              mazeStartTime = Date.now();
+              mazeContainer.focus();
+            });
+          } catch (error) {
+            console.error('Error generating maze:', error);
+            showError('Failed to generate maze: ' + error.message);
+          }
+        }, 100);
+      } catch (e) {
+        console.error(e);
+        showError('Failed to start session: ' + e.message);
+      }
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (!isSessionActive) return;
+      isPaused = !isPaused;
+      pauseBtn.setAttribute('aria-pressed', String(isPaused));
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+      if (isPaused) {
+        stopTimer();
+        // Reset streak on pause (optional - remove if too punishing)
+        // currentStreak = 0;
+      } else {
+        startTimer();
+        mazeContainer.focus();
+      }
+    });
+
+    document.getElementById('end-session').addEventListener('click', endSession);
+
+    restartBtn.addEventListener('click', () => {
+      if (timerInterval) stopTimer();
+      isSessionActive = false;
+      isPaused = false;
+      setScreen('settings');
+    });
+
+    restartModalBtn.addEventListener('click', () => {
+      completionModal.classList.remove('show');
+      setScreen('settings');
+    });
+
+    completeClose.addEventListener('click', () => {
+      completionModal.classList.remove('show');
+      setScreen('settings');
+    });
+
+    // Initialize
+    loadSettings();
+    updateHUD();
+    setScreen('settings');
+
+    // Touch event handling for mobile - only prevent defaults within the game area
+    // This avoids triggering iOS security warnings about page manipulation
+    mazeContainer.addEventListener('touchstart', e => {
+      if (isSessionActive && !isPaused) {
+        // Allow the event but prevent zoom on double-tap within maze
+        if (e.touches.length > 1) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    mazeContainer.addEventListener('touchmove', e => {
+      if (isSessionActive && !isPaused) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Prevent double-tap zoom only on interactive elements
+    let lastTap = 0;
+    document.querySelectorAll('.btn, #player').forEach(el => {
+      el.addEventListener('touchend', e => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+          e.preventDefault();
+        }
+        lastTap = now;
+      });
+    });
+
+    // Only prevent context menu on the maze itself
+    mazeContainer.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Resize/orientation
+    window.addEventListener('resize', () => {
+      if (!isSessionActive) return;
+      adjustMazeSize();
+      clearMaze();
+      generateMaze();
+    });
+  </script>
+</body>
+
+</html>

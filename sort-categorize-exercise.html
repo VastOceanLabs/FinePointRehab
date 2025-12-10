@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RVKCCWBFKE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RVKCCWBFKE');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sort & Categorize Exercise | Cognitive-Motor Training | Fine Point Rehab</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive sorting and categorization exercise that combines cognitive processing with motor skills. Enhance visual discrimination, decision-making, and upper limb control while improving attention and cognitive flexibility. Ideal for stroke rehabilitation, brain injury recovery, and cognitive therapy.">
+    <meta name="keywords" content="cognitive rehabilitation, categorization exercise, sorting therapy, visual discrimination training, cognitive-motor task, stroke rehabilitation, brain injury therapy, executive function training, attention rehabilitation, decision-making exercise">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Sort & Categorize Exercise | Cognitive-Motor Training | Fine Point Rehab">
+    <meta property="og:description" content="Interactive categorization exercise combining cognitive processing with motor skills. Enhance visual discrimination, decision-making, and upper limb control.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finepointrehab.com/sort-categorize-exercise">
+    <meta property="og:image" content="https://finepointrehab.com/images/sort-categorize-preview.jpg">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #121d33;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #sort-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1c2a4e;
+            border: 2px solid rgba(111, 211, 245, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #objects-container {
+            flex: 1;
+            position: relative;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        #categories-container {
+            display: flex;
+            justify-content: space-evenly;
+            padding: 15px;
+            border-top: 1px solid rgba(111, 211, 245, 0.5);
+            background: rgba(8, 15, 35, 0.5);
+        }
+        
+        .sort-object {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(111, 211, 245, 0.9));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: grab;
+            box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
+            transition: transform 0.2s ease;
+            touch-action: none;
+            position: relative;
+            z-index: 5;
+            user-select: none;
+            border: 3px solid transparent;
+        }
+        
+        .sort-object:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .category-box {
+            width: 130px;
+            height: 130px;
+            border: 3px dashed rgba(111, 211, 245, 0.7);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: rgba(8, 15, 35, 0.4);
+        }
+        
+        .category-box.highlight {
+            background: rgba(111, 211, 245, 0.2);
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .category-box.correct {
+            border-color: rgba(46, 204, 113, 0.9);
+            background: rgba(46, 204, 113, 0.15);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            animation: correctPulse 0.8s ease;
+        }
+        
+        .category-box.incorrect {
+            border-color: rgba(231, 76, 60, 0.9);
+            background: rgba(231, 76, 60, 0.15);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            animation: incorrectShake 0.5s ease;
+        }
+        
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes incorrectShake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .category-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        
+        .category-label {
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(8, 15, 35, 0.6);
+            padding: 5px 10px;
+            border-radius: 10px;
+            width: 90%;
+        }
+        
+        .object-clone {
+            position: absolute;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 15;
+            transition: transform 0.2s ease;
+        }
+        
+        #challenge-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: rgba(8, 15, 35, 0.85);
+            border: 2px solid rgba(111, 211, 245, 0.5);
+            border-radius: 15px;
+            z-index: 20;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            max-width: 80%;
+        }
+        
+        #timer-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            background-color: rgba(111, 211, 245, 0.9);
+            width: 100%;
+            z-index: 20;
+        }
+        
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            border-radius: 15px;
+            padding: 25px 25px calc(25px + env(safe-area-inset-bottom, 20px));
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+            max-height: calc(85vh - env(safe-area-inset-bottom, 40px));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            margin-bottom: env(safe-area-inset-bottom, 20px);
+        }
+        
+        /* Custom scrollbar for settings panel */
+        #settings-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-thumb {
+            background: rgba(111, 211, 245, 0.6);
+            border-radius: 3px;
+        }
+        
+        #settings-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(111, 211, 245, 0.8);
+        }
+        
+        #settings-panel h2 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        #home-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #home-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            background-color: rgba(0, 10, 30, 0.8);
+            color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+        }
+        
+        button {
+            background-color: rgba(111, 211, 245, 0.9);
+            color: #121d33;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #stats-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(8, 15, 35, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        #completion-message h2 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        #completion-scores {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .score-highlight {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        /* New styles for feedback messages */
+        #feedback-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        #feedback-message.show {
+            opacity: 1;
+        }
+
+        #feedback-message.correct {
+            background-color: rgba(46, 204, 113, 0.9);
+            color: white;
+        }
+
+        #feedback-message.incorrect {
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+
+        /* Category hint style */
+        .category-hint {
+            position: absolute;
+            bottom: -25px;
+            font-size: 14px;
+            background: rgba(8, 15, 35, 0.7);
+            padding: 3px 8px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .sort-object:hover .category-hint {
+            opacity: 1;
+        }
+
+        /* Object border styling for better category visibility */
+        .sort-object[data-category="Red"],
+        .sort-object[data-category="Red"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        .sort-object[data-category="Blue"],
+        .sort-object[data-category="Blue"] .category-hint {
+            border-color: rgba(52, 152, 219, 0.7);
+        }
+
+        .sort-object[data-category="Green"],
+        .sort-object[data-category="Green"] .category-hint {
+            border-color: rgba(46, 204, 113, 0.7);
+        }
+
+        .sort-object[data-category="Yellow"],
+        .sort-object[data-category="Yellow"] .category-hint {
+            border-color: rgba(241, 196, 15, 0.7);
+        }
+
+        .sort-object[data-category="Purple"],
+        .sort-object[data-category="Purple"] .category-hint {
+            border-color: rgba(155, 89, 182, 0.7);
+        }
+
+        .sort-object[data-category="Round"],
+        .sort-object[data-category="Round"] .category-hint {
+            border-color: rgba(52, 152, 219, 0.7);
+        }
+
+        .sort-object[data-category="Square"],
+        .sort-object[data-category="Square"] .category-hint {
+            border-color: rgba(243, 156, 18, 0.7);
+        }
+
+        .sort-object[data-category="Triangle"],
+        .sort-object[data-category="Triangle"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        .sort-object[data-category="Stars"],
+        .sort-object[data-category="Stars"] .category-hint {
+            border-color: rgba(241, 196, 15, 0.7);
+        }
+
+        .sort-object[data-category="Hearts"],
+        .sort-object[data-category="Hearts"] .category-hint {
+            border-color: rgba(231, 76, 60, 0.7);
+        }
+
+        /* Help button */
+        #help-button {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #help-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+
+        /* Show Hints button */
+        #hint-toggle {
+            position: fixed;
+            bottom: 15px;
+            left: 90px;
+            background-color: rgba(46, 204, 113, 0.8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #hint-toggle:hover {
+            background-color: rgba(46, 204, 113, 1);
+            transform: translateY(-2px);
+        }
+
+        #hint-toggle.active {
+            background-color: rgba(231, 76, 60, 0.8);
+        }
+
+        #hint-toggle.active:hover {
+            background-color: rgba(231, 76, 60, 1);
+        }
+        
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            .category-box {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .category-icon {
+                font-size: 30px;
+            }
+            
+            .category-label {
+                font-size: 14px;
+            }
+            
+            .sort-object {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            #challenge-display {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+            
+            /* Mobile-specific settings panel adjustments */
+            #settings-panel {
+                width: 90%;
+                max-width: 350px;
+                max-height: calc(80vh - env(safe-area-inset-bottom, 60px));
+                padding: 20px 20px calc(30px + env(safe-area-inset-bottom, 30px));
+                top: 45%;
+            }
+            
+            #settings-panel h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .settings-group {
+                margin-bottom: 18px;
+            }
+            
+            .settings-label {
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+            
+            /* Ensure button has enough space on mobile */
+            button {
+                padding: 15px;
+                font-size: 16px;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+            
+            /* Additional mobile safety margin */
+            #settings-panel::after {
+                content: '';
+                display: block;
+                height: calc(env(safe-area-inset-bottom, 20px) + 20px);
+                width: 100%;
+            }
+        }
+        
+        /* Extra mobile safety for very small screens */
+        @media (max-height: 600px) {
+            #settings-panel {
+                max-height: calc(75vh - env(safe-area-inset-bottom, 80px));
+                top: 40%;
+                padding: 15px 20px calc(40px + env(safe-area-inset-bottom, 40px));
+            }
+            
+            #settings-panel h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+            }
+            
+            .settings-group p {
+                font-size: 12px !important;
+                margin: 3px 0 8px 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="timer-bar"></div>
+        
+        <div id="challenge-display" class="hidden">Sort the objects by their categories</div>
+        <div id="feedback-message"></div>
+        
+        <div id="sort-area">
+            <div id="objects-container"></div>
+            <div id="categories-container"></div>
+        </div>
+        
+        <button id="help-button">?</button>
+        <button id="hint-toggle">Show Hints</button>
+        <button id="home-button">Home</button>
+        
+        <div id="settings-panel">
+            <h2>Sort & Categorize Settings</h2>
+            
+            <div class="settings-group">
+                <div style="background-color: rgba(111, 211, 245, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid rgba(111, 211, 245, 0.3);">
+                    <p style="margin: 0; font-size: 15px; line-height: 1.4; color: rgba(255, 255, 255, 0.9);">
+                        <strong>About this exercise:</strong> Drag and drop objects into their correct categories to improve visual discrimination, decision-making, and upper limb control. This cognitive-motor task enhances attention, executive function, and hand-eye coordination while practicing categorization skills essential for daily activities.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Difficulty:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Choose fewer categories for easier sorting, more categories for increased cognitive challenge.</p>
+                <select id="difficulty">
+                    <option value="easy">Easy (3 Categories)</option>
+                    <option value="medium" selected>Medium (4 Categories)</option>
+                    <option value="hard">Hard (5 Categories)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Category Type:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Practice different types of categorization skills. Start with colors or shapes, advance to numbers and letters.</p>
+                <select id="category-type">
+                    <option value="colors">Colors</option>
+                    <option value="shapes" selected>Shapes</option>
+                    <option value="numbers">Numbers</option>
+                    <option value="letters">Letters</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Objects Per Round:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">More objects increase the motor and cognitive demands of the task.</p>
+                <select id="objects-count">
+                    <option value="6">Few (6)</option>
+                    <option value="9" selected>Medium (9)</option>
+                    <option value="12">Many (12)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Session Duration (minutes):</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Start with shorter sessions and gradually increase as concentration and endurance improve.</p>
+                <input type="number" id="session-duration" min="1" max="10" value="3">
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Show Category Hints:</label>
+                <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 5px 0 10px 0;">Hints can help with learning. Turn off for increased difficulty and independent problem-solving.</p>
+                <select id="hint-setting">
+                    <option value="off">Off</option>
+                    <option value="hover">Show on Hover</option>
+                    <option value="always">Always Show</option>
+                </select>
+            </div>
+            
+            <button id="start-session">Start Therapy Session</button>
+        </div>
+        
+        <div id="stats-panel" class="hidden">
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="rounds-completed" class="stat-value">0</div>
+                <div class="stat-label">Rounds</div>
+            </div>
+            <div class="stat-box">
+                <div id="time-left" class="stat-value">3:00</div>
+                <div class="stat-label">Time Left</div>
+            </div>
+            <div class="stat-box">
+                <div id="accuracy" class="stat-value">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+        
+        <div id="completion-message" class="hidden">
+            <h2>Session Complete!</h2>
+            <div id="completion-scores">
+                <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
+                <p>Rounds Completed: <span id="final-rounds" class="score-highlight">0</span></p>
+                <p>Accuracy: <span id="final-accuracy" class="score-highlight">0%</span></p>
+            </div>
+            <button id="restart-button">Start New Session</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game elements
+        const gameContainer = document.getElementById('game-container');
+        const sortArea = document.getElementById('sort-area');
+        const objectsContainer = document.getElementById('objects-container');
+        const categoriesContainer = document.getElementById('categories-container');
+        const timerBar = document.getElementById('timer-bar');
+        const settingsPanel = document.getElementById('settings-panel');
+        const statsPanel = document.getElementById('stats-panel');
+        const completionMessage = document.getElementById('completion-message');
+        const starsContainer = document.getElementById('stars-container');
+        const challengeDisplay = document.getElementById('challenge-display');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const helpButton = document.getElementById('help-button');
+        const hintToggle = document.getElementById('hint-toggle');
+        
+        // Create stars for background effect
+        const starsCount = 50;
+        
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.opacity = Math.random() * 0.4 + 0.1;
+            starsContainer.appendChild(star);
+        }
+        
+        // Settings elements
+        const difficultySelect = document.getElementById('difficulty');
+        const categoryTypeSelect = document.getElementById('category-type');
+        const objectsCountSelect = document.getElementById('objects-count');
+        const sessionDurationInput = document.getElementById('session-duration');
+        const hintSettingSelect = document.getElementById('hint-setting');
+        const startSessionButton = document.getElementById('start-session');
+        const restartButton = document.getElementById('restart-button');
+        
+        // Stats elements
+        const scoreElement = document.getElementById('score');
+        const roundsCompletedElement = document.getElementById('rounds-completed');
+        const timeLeftElement = document.getElementById('time-left');
+        const accuracyElement = document.getElementById('accuracy');
+        
+        // Completion elements
+        const finalScoreElement = document.getElementById('final-score');
+        const finalRoundsElement = document.getElementById('final-rounds');
+        const finalAccuracyElement = document.getElementById('final-accuracy');
+        
+        // Game state variables
+        let isSessionActive = false;
+        let sessionDuration = 3 * 60 * 1000;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let score = 0;
+        let roundsCompleted = 0;
+        let totalPlacements = 0;
+        let correctPlacements = 0;
+        let draggingElement = null;
+        let dragClone = null;
+        let dragOffset = { x: 0, y: 0 };
+        let categoryBoxes = [];
+        let objectElements = [];
+        let currentRoundObjects = [];
+        let currentCategories = [];
+        let hintsVisible = false;
+        
+        // Improved category libraries with more distinct items
+        const categoryLibraries = {
+            colors: [
+                { name: "Red", icon: "🔴", items: ["🍎", "🍓", "🍒", "❤️", "🌹", "🚨", "🧧", "🍄"] },
+                { name: "Blue", icon: "🔵", items: ["🌊", "🐳", "🐬", "🚾", "🧵", "🔷", "🫐", "🫧"] },
+                { name: "Green", icon: "🟢", items: ["🍀", "🥝", "🥬", "🥦", "🌲", "🐢", "🦎", "🐸"] },
+                { name: "Yellow", icon: "🟡", items: ["🍋", "🍌", "🌻", "⭐", "💛", "🚕", "🏆", "🔔"] },
+                { name: "Purple", icon: "🟣", items: ["🍇", "🔮", "💜", "👾", "💟", "🛐", "☂️", "🌂"] }
+            ],
+            shapes: [
+                { name: "Round", icon: "⭕", items: ["🥎", "⚽", "🏀", "🌕", "🔴", "🔵", "🪙", "🌝"] },
+                { name: "Square", icon: "⬛", items: ["🟦", "🟧", "🟩", "🟨", "🟪", "🟫", "🧊", "📦"] },
+                { name: "Triangle", icon: "🔺", items: ["🔻", "📐", "🔼", "🔽", "⚠️", "🏔️", "⛰️", "🗻"] },
+                { name: "Stars", icon: "⭐", items: ["✨", "🌟", "💫", "✡️", "🎇", "🎆", "🌠", "🌃"] },
+                { name: "Hearts", icon: "❤️", items: ["💕", "💓", "💗", "💖", "💘", "💞", "💝", "💟"] }
+            ],
+            numbers: [
+                { name: "Low (1-3)", icon: "1️⃣", items: ["1️⃣", "2️⃣", "3️⃣", "🥇", "🥈", "🥉", "☝️", "✌️"] },
+                { name: "Mid (4-6)", icon: "4️⃣", items: ["4️⃣", "5️⃣", "6️⃣", "👋", "🖐️", "✋", "👌", "👍"] },
+                { name: "High (7-9)", icon: "7️⃣", items: ["7️⃣", "8️⃣", "9️⃣", "🤟", "👏", "🙌", "✊", "🤘"] },
+                { name: "Special", icon: "0️⃣", items: ["0️⃣", "🔟", "#️⃣", "*️⃣", "🔢", "💯", "🔄", "🔃"] },
+                { name: "Math", icon: "➕", items: ["➕", "➖", "✖️", "➗", "💲", "💹", "📊", "📉"] }
+            ],
+            letters: [
+                { name: "A-E", icon: "🔤", items: ["🅰️", "🆎", "🅱️", "🅾️", "🅿️", "🔡", "📧", "Ⓐ"] },
+                { name: "F-J", icon: "📝", items: ["🇫", "🇬", "🇭", "🇮", "🇯", "Ⓕ", "Ⓖ", "Ⓗ"] },
+                { name: "K-O", icon: "📚", items: ["🇰", "🇱", "🇲", "🇳", "🇴", "Ⓚ", "Ⓛ", "Ⓜ️"] },
+                { name: "P-T", icon: "📖", items: ["🇵", "🇶", "🇷", "🇸", "🇹", "Ⓟ", "Ⓠ", "Ⓡ"] },
+                { name: "U-Z", icon: "📕", items: ["🇺", "🇻", "🇼", "🇽", "🇾", "🇿", "Ⓤ", "Ⓥ"] }
+            ]
+        };
+
+        // Help button functionality
+        helpButton.addEventListener('click', function() {
+            if (!isSessionActive) return;
+            
+            // Show instructions as a dialog or alert
+            alert("Sort & Categorize Exercise Instructions:\n\n" +
+                  "1. Drag each object to its matching category below\n" +
+                  "2. Items are sorted by " + categoryTypeSelect.value + "\n" +
+                  "3. You can toggle hints using the 'Show Hints' button\n" +
+                  "4. Try to sort all objects correctly before time runs out!");
+        });
+
+        // Toggle hints functionality
+        hintToggle.addEventListener('click', function() {
+            if (!isSessionActive) return;
+            
+            hintsVisible = !hintsVisible;
+            
+            if (hintsVisible) {
+                hintToggle.textContent = "Hide Hints";
+                hintToggle.classList.add('active');
+                document.querySelectorAll('.sort-object').forEach(obj => {
+                    obj.dataset.showHint = 'true';
+                    
+                    // Make any existing hints visible
+                    const hint = obj.querySelector('.category-hint');
+                    if (hint) {
+                        hint.style.opacity = '1';
+                    }
+                });
+            } else {
+                hintToggle.textContent = "Show Hints";
+                hintToggle.classList.remove('active');
+                document.querySelectorAll('.sort-object').forEach(obj => {
+                    obj.dataset.showHint = 'false';
+                    
+                    // Hide existing hints unless hint setting is "always"
+                    if (hintSettingSelect.value !== 'always') {
+                        const hint = obj.querySelector('.category-hint');
+                        if (hint) {
+                            hint.style.opacity = '0';
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Home button functionality
+        document.getElementById('home-button').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+        
+        // Start new session
+        startSessionButton.addEventListener('click', startSession);
+        restartButton.addEventListener('click', () => {
+            completionMessage.classList.add('hidden');
+            settingsPanel.classList.remove('hidden');
+        });
+        
+        function startSession() {
+            // Get settings
+            const difficulty = difficultySelect.value;
+            const categoryType = categoryTypeSelect.value;
+            const objectsCount = parseInt(objectsCountSelect.value);
+            sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
+            
+            // Reset game state
+            score = 0;
+            roundsCompleted = 0;
+            totalPlacements = 0;
+            correctPlacements = 0;
+            timeRemaining = sessionDuration;
+            hintsVisible = false;
+            hintToggle.textContent = "Show Hints";
+            hintToggle.classList.remove('active');
+            
+            // Set up sort area size based on window size
+            const areaWidth = Math.min(800, window.innerWidth * 0.9);
+            const areaHeight = Math.min(600, window.innerHeight * 0.8);
+            sortArea.style.width = `${areaWidth}px`;
+            sortArea.style.height = `${areaHeight}px`;
+            
+            // Hide settings, show stats and challenge
+            settingsPanel.classList.add('hidden');
+            statsPanel.classList.remove('hidden');
+            challengeDisplay.classList.remove('hidden');
+            hintToggle.classList.remove('hidden');
+            helpButton.classList.remove('hidden');
+            
+            // Update stats
+            updateStats();
+            updateTimer();
+            
+            // Set up drag and drop event listeners
+            setupEventListeners();
+            
+            // Start new round
+            startNewRound(difficulty, categoryType, objectsCount);
+            
+            // Start timer
+            isSessionActive = true;
+            
+            timerInterval = setInterval(() => {
+                timeRemaining -= 100;
+                
+                // Update timer bar
+                const progress = timeRemaining / sessionDuration;
+                timerBar.style.width = `${progress * 100}%`;
+                
+                // Update time display
+                updateTimer();
+                
+                // Check if session is over
+                if (timeRemaining <= 0) {
+                    endSession();
+                }
+            }, 100);
+        }
+        
+        function setupEventListeners() {
+            // Global mouse/touch move and end events
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('mouseup', handleDragEnd);
+            document.addEventListener('touchend', handleDragEnd);
+        }
+        
+        function startNewRound(difficulty, categoryType, objectsCount) {
+            // Clear previous round
+            objectsContainer.innerHTML = '';
+            categoriesContainer.innerHTML = '';
+            objectElements = [];
+            categoryBoxes = [];
+            currentRoundObjects = [];
+            currentCategories = [];
+            
+            // Determine number of categories based on difficulty
+            let numCategories;
+            switch (difficulty) {
+                case 'easy': numCategories = 3; break;
+                case 'medium': numCategories = 4; break;
+                case 'hard': numCategories = 5; break;
+                default: numCategories = 4;
+            }
+            
+            // Select random categories from the library
+            const categoryLib = categoryLibraries[categoryType];
+            const shuffledCategories = [...categoryLib].sort(() => Math.random() - 0.5);
+            currentCategories = shuffledCategories.slice(0, numCategories);
+            
+            // Create category boxes
+            currentCategories.forEach(category => {
+                const categoryBox = document.createElement('div');
+                categoryBox.className = 'category-box';
+                categoryBox.dataset.category = category.name;
+                
+                const categoryIcon = document.createElement('div');
+                categoryIcon.className = 'category-icon';
+                categoryIcon.textContent = category.icon;
+                
+                const categoryLabel = document.createElement('div');
+                categoryLabel.className = 'category-label';
+                categoryLabel.textContent = category.name;
+                
+                categoryBox.appendChild(categoryIcon);
+                categoryBox.appendChild(categoryLabel);
+                categoriesContainer.appendChild(categoryBox);
+                
+                categoryBoxes.push(categoryBox);
+            });
+            
+            // Select objects for this round
+            // Each category should have at least one object
+            currentCategories.forEach(category => {
+                const randomItem = category.items[Math.floor(Math.random() * category.items.length)];
+                currentRoundObjects.push({
+                    item: randomItem,
+                    category: category.name
+                });
+            });
+            
+            // Fill remaining slots with random objects
+            const remainingObjects = objectsCount - numCategories;
+            for (let i = 0; i < remainingObjects; i++) {
+                const randomCategory = currentCategories[Math.floor(Math.random() * numCategories)];
+                const randomItem = randomCategory.items[Math.floor(Math.random() * randomCategory.items.length)];
+                
+                // Ensure we don't have duplicates
+                if (!currentRoundObjects.some(obj => obj.item === randomItem)) {
+                    currentRoundObjects.push({
+                        item: randomItem,
+                        category: randomCategory.name
+                    });
+                } else {
+                    // If we found a duplicate, try a different category
+                    i--;
+                }
+            }
+            
+            // Shuffle objects
+            currentRoundObjects.sort(() => Math.random() - 0.5);
+            
+            // Create object elements
+            currentRoundObjects.forEach(obj => {
+                const objectElement = document.createElement('div');
+                objectElement.className = 'sort-object';
+                objectElement.textContent = obj.item;
+                objectElement.dataset.category = obj.category;
+                
+                // Add category hint element
+                const hintElement = document.createElement('div');
+                hintElement.className = 'category-hint';
+                hintElement.textContent = obj.category;
+                objectElement.appendChild(hintElement);
+                
+                // Handle hint visibility based on settings
+                if (hintSettingSelect.value === 'always' || hintsVisible) {
+                    hintElement.style.opacity = '1';
+                }
+                
+                // Add drag start event listeners
+                objectElement.addEventListener('mousedown', handleDragStart);
+                objectElement.addEventListener('touchstart', handleDragStart, { passive: false });
+                
+                objectsContainer.appendChild(objectElement);
+                objectElements.push(objectElement);
+            });
+            
+            // Update challenge display
+            updateChallengeDisplay(categoryType);
+        }
+        
+        function updateChallengeDisplay(categoryType) {
+            let challengeText;
+            switch (categoryType) {
+                case 'colors':
+                    challengeText = 'Sort the objects by their colors';
+                    break;
+                case 'shapes':
+                    challengeText = 'Sort the objects by their shapes';
+                    break;
+                case 'numbers':
+                    challengeText = 'Sort the objects by their number groups';
+                    break;
+                case 'letters':
+                    challengeText = 'Sort the objects by their letter groups';
+                    break;
+                default:
+                    challengeText = 'Sort the objects by their categories';
+            }
+            challengeDisplay.textContent = challengeText;
+        }
+        
+        function handleDragStart(e) {
+            if (!isSessionActive) return;
+            
+            // Prevent default behavior
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+            }
+            
+            // Store the dragging element
+            draggingElement = this;
+            
+            // Create a clone for dragging visual
+            dragClone = draggingElement.cloneNode(true);
+            dragClone.classList.add('object-clone');
+            document.body.appendChild(dragClone);
+            
+            // Calculate offset
+            const rect = draggingElement.getBoundingClientRect();
+            if (e.type === 'mousedown') {
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                updateDragPosition(e.clientX, e.clientY);
+            } else if (e.type === 'touchstart') {
+                const touch = e.touches[0];
+                dragOffset.x = touch.clientX - rect.left;
+                dragOffset.y = touch.clientY - rect.top;
+                updateDragPosition(touch.clientX, touch.clientY);
+            }
+            
+            // Hide original element
+            draggingElement.style.opacity = '0.3';
+        }
+        
+        function handleMouseMove(e) {
+            if (draggingElement) {
+                updateDragPosition(e.clientX, e.clientY);
+                checkCategoryBoxes(e.clientX, e.clientY);
+            }
+        }
+        
+        function handleTouchMove(e) {
+            if (draggingElement) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                updateDragPosition(touch.clientX, touch.clientY);
+                checkCategoryBoxes(touch.clientX, touch.clientY);
+            }
+        }
+        
+        function updateDragPosition(x, y) {
+            if (!dragClone) return;
+            
+            dragClone.style.left = `${x - dragOffset.x}px`;
+            dragClone.style.top = `${y - dragOffset.y}px`;
+        }
+        
+        function checkCategoryBoxes(x, y) {
+            // Remove highlight from all category boxes
+            categoryBoxes.forEach(box => box.classList.remove('highlight'));
+            
+            // Check if over a category box
+            categoryBoxes.forEach(box => {
+                const rect = box.getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    box.classList.add('highlight');
+                }
+            });
+        }
+        
+        function handleDragEnd(e) {
+            if (!draggingElement || !dragClone) return;
+            
+            // Get final position
+            let finalX, finalY;
+            if (e.type === 'mouseup') {
+                finalX = e.clientX;
+                finalY = e.clientY;
+            } else if (e.type === 'touchend' && e.changedTouches.length > 0) {
+                const touch = e.changedTouches[0];
+                finalX = touch.clientX;
+                finalY = touch.clientY;
+            } else {
+                // Reset without checking drop
+                resetDrag();
+                return;
+            }
+            
+            // Check drop on category box
+            let dropped = false;
+            categoryBoxes.forEach(box => {
+                const rect = box.getBoundingClientRect();
+                if (finalX >= rect.left && finalX <= rect.right && finalY >= rect.top && finalY <= rect.bottom) {
+                    // Object dropped on this category box
+                    dropped = true;
+                    
+                    // Check if correct category
+                    const isCorrect = draggingElement.dataset.category === box.dataset.category;
+                    
+                    // Increment placement counters
+                    totalPlacements++;
+                    if (isCorrect) {
+                        correctPlacements++;
+                        
+                        // Add points based on accuracy
+                        score += 100;
+                        
+                        // Visual feedback
+                        box.classList.add('correct');
+                        setTimeout(() => box.classList.remove('correct'), 800);
+                        
+                        // Show feedback message
+                        showFeedbackMessage("Correct! ✅", "correct");
+                    } else {
+                        // Visual feedback for incorrect
+                        box.classList.add('incorrect');
+                        setTimeout(() => box.classList.remove('incorrect'), 800);
+                        
+                        // Show feedback message - tell them the correct category
+                        showFeedbackMessage(`Incorrect! That belongs in ${draggingElement.dataset.category} ❌`, "incorrect");
+                    }
+                    
+                    // Remove the object
+                    draggingElement.remove();
+                    
+                    // Update stats
+                    updateStats();
+                    
+                    // Check if round is complete
+                    if (objectsContainer.children.length === 0) {
+                        roundsCompleted++;
+                        updateStats();
+                        
+                        // Show round complete message
+                        showFeedbackMessage(`Round Complete! +${correctPlacements * 100} points`, "correct");
+                        
+                        // Start new round after delay
+                        setTimeout(() => {
+                            if (isSessionActive) {
+                                startNewRound(
+                                    difficultySelect.value,
+                                    categoryTypeSelect.value,
+                                    parseInt(objectsCountSelect.value)
+                                );
+                            }
+                        }, 1500);
+                    }
+                }
+            });
+            
+            if (!dropped) {
+                // Reset object if not dropped on a category
+                draggingElement.style.opacity = '1';
+            }
+            
+            // Clean up
+            resetDrag();
+        }
+        
+        function resetDrag() {
+            if (dragClone) {
+                dragClone.remove();
+                dragClone = null;
+            }
+            
+            if (draggingElement) {
+                draggingElement.style.opacity = '1';
+                draggingElement = null;
+            }
+            
+            // Remove highlight from all category boxes
+            categoryBoxes.forEach(box => box.classList.remove('highlight'));
+        }
+        
+        function updateStats() {
+            scoreElement.textContent = score;
+            roundsCompletedElement.textContent = roundsCompleted;
+            
+            // Calculate and display accuracy
+            const accuracy = totalPlacements > 0 ? Math.round((correctPlacements / totalPlacements) * 100) : 0;
+            accuracyElement.textContent = `${accuracy}%`;
+        }
+        
+        function showFeedbackMessage(message, type) {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = ''; // Clear classes
+            feedbackMessage.classList.add(type);
+            feedbackMessage.classList.add('show');
+            
+            // Hide after delay
+            setTimeout(() => {
+                feedbackMessage.classList.remove('show');
+            }, 2000);
+        }
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60000);
+            const seconds = Math.floor((timeRemaining % 60000) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function endSession() {
+            clearInterval(timerInterval);
+            isSessionActive = false;
+            
+            // Clean up any ongoing drag
+            resetDrag();
+            
+            // Remove event listeners
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('touchend', handleDragEnd);
+            
+            // Hide game elements
+            challengeDisplay.classList.add('hidden');
+            statsPanel.classList.add('hidden');
+            helpButton.classList.add('hidden');
+            hintToggle.classList.add('hidden');
+            
+            // Show completion message
+            finalScoreElement.textContent = score;
+            finalRoundsElement.textContent = roundsCompleted;
+            
+            const accuracy = totalPlacements > 0 ? Math.round((correctPlacements / totalPlacements) * 100) : 0;
+            finalAccuracyElement.textContent = `${accuracy}%`;
+            
+            completionMessage.classList.remove('hidden');
+            
+            // Reset timer bar
+            timerBar.style.width = '0%';
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Resize handler to adjust sort area size
+        window.addEventListener('resize', function() {
+            if (isSessionActive) {
+                const areaWidth = Math.min(800, window.innerWidth * 0.9);
+                const areaHeight = Math.min(600, window.innerHeight * 0.8);
+                sortArea.style.width = `${areaWidth}px`;
+                sortArea.style.height = `${areaHeight}px`;
+            }
+        });
+        
+        // Load/save settings with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings if they exist
+            if (localStorage.getItem('sortDifficulty')) {
+                difficultySelect.value = localStorage.getItem('sortDifficulty');
+            }
+            
+            if (localStorage.getItem('sortCategoryType')) {
+                categoryTypeSelect.value = localStorage.getItem('sortCategoryType');
+            }
+            
+            if (localStorage.getItem('sortObjectsCount')) {
+                objectsCountSelect.value = localStorage.getItem('sortObjectsCount');
+            }
+            
+            if (localStorage.getItem('sortDuration')) {
+                sessionDurationInput.value = localStorage.getItem('sortDuration');
+            }
+            
+            if (localStorage.getItem('sortHintSetting')) {
+                hintSettingSelect.value = localStorage.getItem('sortHintSetting');
+            }
+            
+            // Save settings when they change
+            difficultySelect.addEventListener('change', saveSettings);
+            categoryTypeSelect.addEventListener('change', saveSettings);
+            objectsCountSelect.addEventListener('change', saveSettings);
+            sessionDurationInput.addEventListener('change', saveSettings);
+            hintSettingSelect.addEventListener('change', saveSettings);
+        });
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('sortDifficulty', difficultySelect.value);
+            localStorage.setItem('sortCategoryType', categoryTypeSelect.value);
+            localStorage.setItem('sortObjectsCount', objectsCountSelect.value);
+            localStorage.setItem('sortDuration', sessionDurationInput.value);
+            localStorage.setItem('sortHintSetting', hintSettingSelect.value);
+        }
+    </script>
+</body>
+</html>

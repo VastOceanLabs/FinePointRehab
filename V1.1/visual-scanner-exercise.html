@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Visual Scanner Exercise | Fine Point Rehab</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive visual scanning exercise for improving visual attention, field of vision, and visual search skills. Ideal for stroke rehabilitation, brain injury recovery, and treatment of hemianopia or visual neglect. Evidence-based therapy for occupational therapy and neurological rehabilitation.">
+    <meta name="keywords" content="visual scanning exercise, visual attention training, visual field therapy, hemianopia rehabilitation, visual neglect treatment, stroke visual therapy, neurological rehabilitation, visual search training, occupational therapy exercises, brain injury rehabilitation">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Visual Scanner Exercise | Fine Point Rehab">
+    <meta property="og:description" content="Interactive visual scanning exercise for improving visual attention, field of vision, and visual search skills. Evidence-based therapy for neurological rehabilitation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finepointrehab.com/visual-scanner-exercise">
+    <meta property="og:image" content="https://finepointrehab.com/images/visual-scanner-preview.jpg">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #121d33;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #scan-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1c2a4e;
+            border: 2px solid rgba(111, 211, 245, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(111, 211, 245, 0.3);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .visual-object {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        
+        .visual-object:hover {
+            transform: scale(1.05);
+        }
+        
+        .visual-object.target {
+            background-color: rgba(111, 211, 245, 0.3);
+        }
+        
+        .visual-object.found {
+            animation: foundAnimation 0.5s ease-out;
+            background-color: rgba(46, 204, 113, 0.5);
+        }
+        
+        @keyframes foundAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background-color: rgba(46, 204, 113, 0.7); }
+            100% { transform: scale(1); }
+        }
+        
+        #target-display {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(8, 15, 35, 0.85);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 20;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        
+        #target-display h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        #target-icon {
+            font-size: 36px;
+            background-color: rgba(111, 211, 245, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #settings-panel h2 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        #home-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(111, 211, 245, 0.8);
+            color: #121d33;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #home-button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            background-color: rgba(0, 10, 30, 0.8);
+            color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(111, 211, 245, 0.8);
+            box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.3);
+        }
+        
+        button {
+            background-color: rgba(111, 211, 245, 0.9);
+            color: #121d33;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: rgba(111, 211, 245, 1);
+            transform: translateY(-2px);
+        }
+        
+        #stats-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(8, 15, 35, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(111, 211, 245, 1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        #timer-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            background-color: rgba(111, 211, 245, 0.9);
+            width: 100%;
+            z-index: 20;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(8, 15, 35, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        #completion-message h2 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        #completion-scores {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .score-highlight {
+            color: rgba(111, 211, 245, 1);
+            font-weight: bold;
+        }
+        
+        #stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        .focus-area {
+            position: absolute;
+            border: 2px dashed rgba(111, 211, 245, 0.4);
+            border-radius: 15px;
+            z-index: 5;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            #target-display {
+                padding: 10px 15px;
+            }
+            
+            #target-display h3 {
+                font-size: 16px;
+            }
+            
+            #target-icon {
+                font-size: 30px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="timer-bar"></div>
+        
+        <div id="target-display" class="hidden">
+            <h3>Find This Object</h3>
+            <div id="target-icon">🔍</div>
+        </div>
+        
+        <div id="scan-area"></div>
+        
+        <button id="home-button">Home</button>
+        
+        <div id="settings-panel">
+            <h2>Visual Scanner Settings</h2>
+            <div class="settings-group">
+                <label class="settings-label">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (Fewer Objects)</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard (Many Objects)</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Focus Area:</label>
+                <select id="focus-area">
+                    <option value="none">None (Full Field)</option>
+                    <option value="left">Left Visual Field</option>
+                    <option value="right">Right Visual Field</option>
+                    <option value="top">Upper Visual Field</option>
+                    <option value="bottom">Lower Visual Field</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Object Type:</label>
+                <select id="object-type">
+                    <option value="shapes" selected>Shapes</option>
+                    <option value="letters">Letters</option>
+                    <option value="numbers">Numbers</option>
+                    <option value="emoji">Emoji</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Session Duration (minutes):</label>
+                <input type="number" id="session-duration" min="1" max="10" value="3">
+            </div>
+            
+            <button id="start-session">Start Therapy Session</button>
+        </div>
+        
+        <div id="stats-panel" class="hidden">
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="found" class="stat-value">0</div>
+                <div class="stat-label">Objects Found</div>
+            </div>
+            <div class="stat-box">
+                <div id="time-left" class="stat-value">3:00</div>
+                <div class="stat-label">Time Left</div>
+            </div>
+            <div class="stat-box">
+                <div id="avg-time" class="stat-value">0.0s</div>
+                <div class="stat-label">Avg. Search Time</div>
+            </div>
+        </div>
+        
+        <div id="completion-message" class="hidden">
+            <h2>Session Complete!</h2>
+            <div id="completion-scores">
+                <p>Final Score: <span id="final-score" class="score-highlight">0</span></p>
+                <p>Objects Found: <span id="final-found" class="score-highlight">0</span></p>
+                <p>Average Search Time: <span id="final-avg-time" class="score-highlight">0.0s</span> seconds</p>
+            </div>
+            <button id="restart-button">Start New Session</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game elements
+        const gameContainer = document.getElementById('game-container');
+        const scanArea = document.getElementById('scan-area');
+        const timerBar = document.getElementById('timer-bar');
+        const settingsPanel = document.getElementById('settings-panel');
+        const statsPanel = document.getElementById('stats-panel');
+        const completionMessage = document.getElementById('completion-message');
+        const starsContainer = document.getElementById('stars-container');
+        const targetDisplay = document.getElementById('target-display');
+        const targetIcon = document.getElementById('target-icon');
+        
+        // Create stars for background effect
+        const starsCount = 50;
+        
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.opacity = Math.random() * 0.4 + 0.1;
+            starsContainer.appendChild(star);
+        }
+        
+        // Settings elements
+        const difficultySelect = document.getElementById('difficulty');
+        const focusAreaSelect = document.getElementById('focus-area');
+        const objectTypeSelect = document.getElementById('object-type');
+        const sessionDurationInput = document.getElementById('session-duration');
+        const startSessionButton = document.getElementById('start-session');
+        const restartButton = document.getElementById('restart-button');
+        
+        // Stats elements
+        const scoreElement = document.getElementById('score');
+        const foundElement = document.getElementById('found');
+        const timeLeftElement = document.getElementById('time-left');
+        const avgTimeElement = document.getElementById('avg-time');
+        
+        // Completion elements
+        const finalScoreElement = document.getElementById('final-score');
+        const finalFoundElement = document.getElementById('final-found');
+        const finalAvgTimeElement = document.getElementById('final-avg-time');
+        
+        // Game state variables
+        let isSessionActive = false;
+        let sessionDuration = 3 * 60 * 1000; // 3 minutes in milliseconds
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let score = 0;
+        let objectsFound = 0;
+        let totalSearchTime = 0;
+        let lastTargetTime = 0;
+        let currentTarget = null;
+        let currentTargetIndex = -1;
+        let visualObjects = [];
+        
+        // Home button functionality
+        document.getElementById('home-button').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+        
+        // Start new session
+        startSessionButton.addEventListener('click', startSession);
+        restartButton.addEventListener('click', () => {
+            completionMessage.classList.add('hidden');
+            settingsPanel.classList.remove('hidden');
+        });
+        
+        // Object libraries
+        const objectLibraries = {
+            shapes: ['●', '■', '▲', '◆', '★', '◙', '○', '□', '△', '◇', '☆', '▣', '▬', '▮', '◐', '◑', '◒', '◓', '◕'],
+            letters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'],
+            numbers: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '11', '22', '33', '44', '55', '66', '77', '88', '99'],
+            emoji: ['🔍', '⚡', '🔔', '🔑', '🌟', '🎯', '🏆', '💡', '🎮', '🎨', '🔒', '⏰', '📌', '🚀', '🎁', '📝', '📎', '📢', '🔮']
+        };
+        
+        // Difficulty settings
+        const difficultySetting = {
+            easy: { objectCount: 10, minSize: 50, maxSize: 70 },
+            medium: { objectCount: 20, minSize: 40, maxSize: 60 },
+            hard: { objectCount: 30, minSize: 30, maxSize: 50 }
+        };
+        
+        function startSession() {
+            // Get settings
+            const difficulty = difficultySelect.value;
+            const focusArea = focusAreaSelect.value;
+            const objectType = objectTypeSelect.value;
+            sessionDuration = parseInt(sessionDurationInput.value) * 60 * 1000;
+            
+            // Reset game state
+            score = 0;
+            objectsFound = 0;
+            totalSearchTime = 0;
+            timeRemaining = sessionDuration;
+            visualObjects = [];
+            
+            // Set up scan area size based on window size
+            const areaWidth = Math.min(700, window.innerWidth * 0.9);
+            const areaHeight = Math.min(500, window.innerHeight * 0.7);
+            scanArea.style.width = `${areaWidth}px`;
+            scanArea.style.height = `${areaHeight}px`;
+            
+            // Add focus area if specified
+            if (focusArea !== 'none') {
+                const focusElement = document.createElement('div');
+                focusElement.className = 'focus-area';
+                
+                switch (focusArea) {
+                    case 'left':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth / 2 - 20}px`;
+                        focusElement.style.height = `${areaHeight - 20}px`;
+                        break;
+                    case 'right':
+                        focusElement.style.left = `${areaWidth / 2 + 10}px`;
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth / 2 - 20}px`;
+                        focusElement.style.height = `${areaHeight - 20}px`;
+                        break;
+                    case 'top':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth - 20}px`;
+                        focusElement.style.height = `${areaHeight / 2 - 20}px`;
+                        break;
+                    case 'bottom':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = `${areaHeight / 2 + 10}px`;
+                        focusElement.style.width = `${areaWidth - 20}px`;
+                        focusElement.style.height = `${areaHeight / 2 - 20}px`;
+                        break;
+                }
+                
+                scanArea.appendChild(focusElement);
+            }
+            
+            // Create visual objects
+            createVisualObjects(difficulty, objectType, focusArea);
+            
+            // Update UI
+            updateStats();
+            updateTimer();
+            
+            // Hide settings, show stats and target
+            settingsPanel.classList.add('hidden');
+            statsPanel.classList.remove('hidden');
+            targetDisplay.classList.remove('hidden');
+            
+            // Start session
+            isSessionActive = true;
+            setNewTarget();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining -= 100;
+                
+                // Update timer bar
+                const progress = timeRemaining / sessionDuration;
+                timerBar.style.width = `${progress * 100}%`;
+                
+                // Update time display
+                updateTimer();
+                
+                // Check if session is over
+                if (timeRemaining <= 0) {
+                    endSession();
+                }
+            }, 100);
+        }
+        
+        function createVisualObjects(difficulty, objectType, focusArea) {
+            // Clear existing objects
+            scanArea.innerHTML = '';
+            if (focusArea !== 'none') {
+                const focusElement = document.createElement('div');
+                focusElement.className = 'focus-area';
+                
+                const areaWidth = parseInt(scanArea.style.width);
+                const areaHeight = parseInt(scanArea.style.height);
+                
+                switch (focusArea) {
+                    case 'left':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth / 2 - 20}px`;
+                        focusElement.style.height = `${areaHeight - 20}px`;
+                        break;
+                    case 'right':
+                        focusElement.style.left = `${areaWidth / 2 + 10}px`;
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth / 2 - 20}px`;
+                        focusElement.style.height = `${areaHeight - 20}px`;
+                        break;
+                    case 'top':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = '10px';
+                        focusElement.style.width = `${areaWidth - 20}px`;
+                        focusElement.style.height = `${areaHeight / 2 - 20}px`;
+                        break;
+                    case 'bottom':
+                        focusElement.style.left = '10px';
+                        focusElement.style.top = `${areaHeight / 2 + 10}px`;
+                        focusElement.style.width = `${areaWidth - 20}px`;
+                        focusElement.style.height = `${areaHeight / 2 - 20}px`;
+                        break;
+                }
+                
+                scanArea.appendChild(focusElement);
+            }
+            
+            // Get difficulty settings
+            const settings = difficultySetting[difficulty];
+            
+            // Get available area dimensions
+            const areaWidth = parseInt(scanArea.style.width);
+            const areaHeight = parseInt(scanArea.style.height);
+            
+            // Get objects library
+            const objects = objectLibraries[objectType].slice();
+            
+            // Shuffle objects
+            shuffleArray(objects);
+            
+            // Create visual objects
+            for (let i = 0; i < settings.objectCount; i++) {
+                // Create object element
+                const obj = document.createElement('div');
+                obj.className = 'visual-object';
+                obj.dataset.index = i;
+                
+                // Set size (random within range)
+                const size = Math.floor(Math.random() * (settings.maxSize - settings.minSize + 1)) + settings.minSize;
+                obj.style.width = `${size}px`;
+                obj.style.height = `${size}px`;
+                
+                // Set symbol (repeat if necessary)
+                const symbolIndex = i % objects.length;
+                obj.textContent = objects[symbolIndex];
+                obj.dataset.symbol = objects[symbolIndex];
+                
+                // Set color
+                const hue = Math.random() * 360;
+                obj.style.color = `hsl(${hue}, 70%, 70%)`;
+                
+                // Set position based on focus area
+                let x, y;
+                let validPosition = false;
+                
+                while (!validPosition) {
+                    // Generate random position
+                    x = Math.random() * (areaWidth - size);
+                    y = Math.random() * (areaHeight - size);
+                    
+                    // Adjust position based on focus area
+                    if (focusArea === 'left') {
+                        x = Math.random() * (areaWidth / 2 - size);
+                    } else if (focusArea === 'right') {
+                        x = areaWidth / 2 + Math.random() * (areaWidth / 2 - size);
+                    } else if (focusArea === 'top') {
+                        y = Math.random() * (areaHeight / 2 - size);
+                    } else if (focusArea === 'bottom') {
+                        y = areaHeight / 2 + Math.random() * (areaHeight / 2 - size);
+                    }
+                    
+                    // Check for overlap with existing objects
+                    validPosition = true;
+                    for (const existingObj of visualObjects) {
+                        const existingX = parseInt(existingObj.style.left);
+                        const existingY = parseInt(existingObj.style.top);
+                        const existingSize = parseInt(existingObj.style.width);
+                        
+                        // Calculate distance between centers
+                        const distance = Math.sqrt(
+                            Math.pow(x + size/2 - (existingX + existingSize/2), 2) +
+                            Math.pow(y + size/2 - (existingY + existingSize/2), 2)
+                        );
+                        
+                        // Check if objects overlap (with padding)
+                        if (distance < (size + existingSize) / 2 + 5) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+                
+                // Set position
+                obj.style.left = `${x}px`;
+                obj.style.top = `${y}px`;
+                
+                // Add click handler
+                obj.addEventListener('click', handleObjectClick);
+                
+                // Add to scan area and objects array
+                scanArea.appendChild(obj);
+                visualObjects.push(obj);
+            }
+        }
+        
+        function setNewTarget() {
+            if (!isSessionActive) return;
+            
+            // Select a random target that hasn't been found yet
+            const availableObjects = visualObjects.filter(obj => !obj.classList.contains('found'));
+            
+            if (availableObjects.length === 0) {
+                // All objects found, end session
+                endSession();
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableObjects.length);
+            currentTarget = availableObjects[randomIndex];
+            currentTargetIndex = visualObjects.indexOf(currentTarget);
+            
+            // Update target display
+            targetIcon.textContent = currentTarget.dataset.symbol;
+            targetIcon.style.color = currentTarget.style.color;
+            
+            // Start timing
+            lastTargetTime = Date.now();
+        }
+        
+        function handleObjectClick(e) {
+            if (!isSessionActive) return;
+            
+            const clickedIndex = parseInt(e.target.dataset.index);
+            
+            if (clickedIndex === currentTargetIndex) {
+                // Correct object found
+                const now = Date.now();
+                const searchTime = now - lastTargetTime;
+                totalSearchTime += searchTime;
+                
+                // Update score based on search time (faster = more points)
+                const basePoints = 100;
+                const timeBonus = Math.max(0, Math.floor((5000 - searchTime) / 100));
+                const points = basePoints + timeBonus;
+                score += points;
+                objectsFound++;
+                
+                // Update stats
+                updateStats();
+                
+                // Mark object as found
+                currentTarget.classList.add('found');
+                
+                // Set new target after a short delay
+                setTimeout(() => {
+                    setNewTarget();
+                }, 500);
+            }
+        }
+        
+        function updateStats() {
+            scoreElement.textContent = score;
+            foundElement.textContent = objectsFound;
+            
+            // Calculate and display average search time
+            const avgTime = objectsFound > 0 ? (totalSearchTime / objectsFound / 1000).toFixed(1) : '0.0';
+            avgTimeElement.textContent = avgTime;
+        }
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60000);
+            const seconds = Math.floor((timeRemaining % 60000) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function endSession() {
+            clearInterval(timerInterval);
+            isSessionActive = false;
+            
+            // Hide game elements
+            targetDisplay.classList.add('hidden');
+            statsPanel.classList.add('hidden');
+            
+            // Show completion message
+            finalScoreElement.textContent = score;
+            finalFoundElement.textContent = objectsFound;
+            finalAvgTimeElement.textContent = objectsFound > 0 ? (totalSearchTime / objectsFound / 1000).toFixed(2) : '0.00';
+            completionMessage.classList.remove('hidden');
+            
+            // Reset timer bar
+            timerBar.style.width = '0%';
+        }
+        
+        // Helper function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Resize handler to adjust scan area size
+        window.addEventListener('resize', function() {
+            if (isSessionActive) {
+                const areaWidth = Math.min(700, window.innerWidth * 0.9);
+                const areaHeight = Math.min(500, window.innerHeight * 0.7);
+                scanArea.style.width = `${areaWidth}px`;
+                scanArea.style.height = `${areaHeight}px`;
+            }
+        });
+        
+        // Load/save settings with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings if they exist
+            if (localStorage.getItem('scannerDifficulty')) {
+                difficultySelect.value = localStorage.getItem('scannerDifficulty');
+            }
+            
+            if (localStorage.getItem('scannerFocusArea')) {
+                focusAreaSelect.value = localStorage.getItem('scannerFocusArea');
+            }
+            
+            if (localStorage.getItem('scannerObjectType')) {
+                objectTypeSelect.value = localStorage.getItem('scannerObjectType');
+            }
+            
+            if (localStorage.getItem('scannerDuration')) {
+                sessionDurationInput.value = localStorage.getItem('scannerDuration');
+            }
+            
+            // Save settings when they change
+            difficultySelect.addEventListener('change', saveSettings);
+            focusAreaSelect.addEventListener('change', saveSettings);
+            objectTypeSelect.addEventListener('change', saveSettings);
+            sessionDurationInput.addEventListener('change', saveSettings);
+        });
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('scannerDifficulty', difficultySelect.value);
+            localStorage.setItem('scannerFocusArea', focusAreaSelect.value);
+            localStorage.setItem('scannerObjectType', objectTypeSelect.value);
+            localStorage.setItem('scannerDuration', sessionDurationInput.value);
+        }
+    </script>
+</body>
+</html>

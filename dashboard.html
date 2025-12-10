@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Fine Point Rehab</title>
+    
+    <!-- Meta Description -->
+    <meta name="description" content="Track your rehabilitation progress with personalized insights, achievement badges, and performance analytics. Your guided path to recovery starts here.">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Progress Dashboard - Fine Point Rehab">
+    <meta property="og:description" content="Personal progress tracking and rehabilitation insights dashboard">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finepointrehab.com/dashboard">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        body {
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(40,20,80,0.4) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 70%, rgba(20,40,80,0.3) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(10,20,40,0.5) 0%, transparent 70%),
+                linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-6) var(--space-4);
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .dashboard-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: white;
+            margin-bottom: var(--space-2);
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            font-size: var(--font-size-lg);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--space-6);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(111, 211, 245, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform var(--duration-normal) var(--easing);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(111, 211, 245, 0.4);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--brand-aqua);
+            display: block;
+            margin-bottom: var(--space-2);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .level-progress {
+            margin-top: var(--space-3);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-full);
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .level-progress-fill {
+            height: 100%;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-full);
+            transition: width var(--duration-normal) var(--easing);
+        }
+
+        .progress-text {
+            font-size: var(--font-size-xs);
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: var(--space-1);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .dashboard-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(111, 211, 245, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: white;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .section-icon {
+            font-size: var(--font-size-2xl);
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .achievement-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all var(--duration-normal) var(--easing);
+        }
+
+        .achievement-badge.unlocked {
+            background: rgba(111, 211, 245, 0.1);
+            border-color: rgba(111, 211, 245, 0.3);
+        }
+
+        .achievement-badge.locked {
+            opacity: 0.5;
+        }
+
+        .achievement-icon {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--space-2);
+        }
+
+        .achievement-name {
+            font-size: var(--font-size-xs);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .score-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .exercise-name {
+            color: white;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .exercise-score {
+            color: var(--brand-aqua);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: var(--space-4);
+            position: relative;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-lg);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: var(--font-size-lg);
+        }
+
+        .recommended-exercises {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .exercise-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(111, 211, 245, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-decoration: none;
+            color: inherit;
+            transition: all var(--duration-normal) var(--easing);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(111, 211, 245, 0.4);
+            background: rgba(111, 211, 245, 0.05);
+        }
+
+        .exercise-card-icon {
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--space-2);
+            color: var(--brand-aqua);
+        }
+
+        .exercise-card-title {
+            font-weight: var(--font-weight-medium);
+            color: white;
+            margin-bottom: var(--space-2);
+        }
+
+        .exercise-card-description {
+            font-size: var(--font-size-sm);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .navigation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .nav-link {
+            color: var(--brand-aqua);
+            text-decoration: none;
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid rgba(111, 211, 245, 0.3);
+            border-radius: var(--radius-lg);
+            transition: all var(--duration-normal) var(--easing);
+        }
+
+        .nav-link:hover {
+            background: rgba(111, 211, 245, 0.1);
+            border-color: rgba(111, 211, 245, 0.5);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--brand-aqua);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .recommended-exercises {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @supports not (backdrop-filter: blur(10px)) {
+            .stat-card,
+            .dashboard-section {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-container {
+                padding: var(--space-4) var(--space-2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="navigation-header">
+            <a href="/" class="nav-link" aria-label="Back to Home">← Back to Home</a>
+            <div>
+                <a href="#" id="export-btn" class="nav-link" aria-label="Export Progress">Export Progress</a>
+                <a href="#" id="import-btn" class="nav-link" aria-label="Import Progress">Import Progress</a>
+            </div>
+        </div>
+
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Your Progress Dashboard</h1>
+            <p class="dashboard-subtitle">Track your journey on the guided path to recovery</p>
+        </div>
+
+        <!-- Progress Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-value" id="total-points">0</span>
+                <span class="stat-label">Total Points</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="current-level">1</span>
+                <span class="stat-label">Current Level</span>
+                <div class="level-progress">
+                    <div class="level-progress-fill" id="level-progress"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0 / 1000 XP to next level</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="current-streak">0</span>
+                <span class="stat-label">Day Streak</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="total-sessions">0</span>
+                <span class="stat-label">Total Sessions</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Achievements Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🏆</span>
+                    Achievements
+                </h2>
+                <div class="achievement-grid" id="achievements-container">
+                    <!-- Achievements will be populated by JavaScript -->
+                    <div class="achievement-badge locked">
+                        <div class="achievement-icon">🚀</div>
+                        <div class="achievement-name">First Steps</div>
+                    </div>
+                    <div class="achievement-badge locked">
+                        <div class="achievement-icon">📅</div>
+                        <div class="achievement-name">Consistent</div>
+                    </div>
+                    <div class="achievement-badge locked">
+                        <div class="achievement-icon">💪</div>
+                        <div class="achievement-name">Dedicated</div>
+                    </div>
+                    <div class="achievement-badge locked">
+                        <div class="achievement-icon">⭐</div>
+                        <div class="achievement-name">Personal Best</div>
+                    </div>
+                    <div class="achievement-badge locked">
+                        <div class="achievement-icon">🗺️</div>
+                        <div class="achievement-name">Explorer</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Scores Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🎯</span>
+                    Best Scores
+                </h2>
+                <div class="score-list" id="scores-container">
+                    <!-- Scores will be populated by JavaScript -->
+                    <div class="score-item">
+                        <span class="exercise-name">No sessions completed yet</span>
+                        <span class="exercise-score">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Chart Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📈</span>
+                    Progress Trends
+                </h2>
+                <div class="chart-container">
+                    <div class="chart-placeholder" id="chart-placeholder">
+                        <div>
+                            <div class="loading-spinner" id="chart-loading"></div>
+                            <div>Loading chart...</div>
+                        </div>
+                    </div>
+                    <canvas id="progress-chart" style="display: none;"></canvas>
+                </div>
+            </div>
+
+            <!-- Recommended Exercises -->
+            <div class="dashboard-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🎮</span>
+                    Recommended Exercises
+                </h2>
+                <div class="recommended-exercises" id="recommended-exercises">
+                    <!-- Exercises will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import/Export Modal -->
+    <div id="import-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="import-title" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="import-title">Import Progress Data</h3>
+                <button class="modal-close" id="import-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Import will replace all current progress. Please paste your exported JSON data below:</p>
+                <textarea id="import-data" placeholder="Paste your exported JSON data here..." rows="10"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="import-cancel">Cancel</button>
+                <button class="btn btn-primary" id="import-confirm">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { getFromStorage, setToStorage, showToast } from './js/utils.js';
+        import { EXERCISES } from './js/exercises.js';
+
+        // Storage keys (matching the roadmap specification)
+        const STORAGE_KEYS = {
+            points: 'FPR_v1_points',
+            level: 'FPR_v1_level',
+            streak: 'FPR_v1_streak',
+            lastActiveDate: 'FPR_v1_lastActiveDate',
+            achievements: 'FPR_v1_achievements',
+            totalSessions: 'FPR_v1_totalSessions'
+        };
+
+        // Achievement definitions
+        const ACHIEVEMENT_DEFINITIONS = {
+            firstSteps: { icon: '🚀', name: 'First Steps', description: 'Complete your first session' },
+            consistent: { icon: '📅', name: 'Consistent', description: 'Achieve a 7-day streak' },
+            dedicated: { icon: '💪', name: 'Dedicated', description: 'Complete 50 total sessions' },
+            personalBest: { icon: '⭐', name: 'Personal Best', description: 'Beat your previous score' },
+            explorer: { icon: '🗺️', name: 'Explorer', description: 'Try all available exercises' }
+        };
+
+        // Helper function to clear only FPR storage keys
+        function clearFPRStorage(prefix = 'FPR_v1_') {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith(prefix)) {
+                    localStorage.removeItem(key);
+                }
+            });
+        }
+
+        // Load and display dashboard data
+        function loadDashboardData() {
+            // Load basic stats
+            const points = parseInt(getFromStorage(STORAGE_KEYS.points) || '0');
+            const level = parseInt(getFromStorage(STORAGE_KEYS.level) || '1');
+            const streak = parseInt(getFromStorage(STORAGE_KEYS.streak) || '0');
+            const totalSessions = parseInt(getFromStorage(STORAGE_KEYS.totalSessions) || '0');
+
+            // Update stat displays
+            document.getElementById('total-points').textContent = points.toLocaleString();
+            document.getElementById('current-level').textContent = level;
+            document.getElementById('current-streak').textContent = streak;
+            document.getElementById('total-sessions').textContent = totalSessions;
+
+            // Calculate level progress with safety guards
+            const basePointsPerLevel = 1000;
+            const currentLevelStart = Math.max(0, (level - 1) * basePointsPerLevel);
+            const nextLevelStart = level * basePointsPerLevel;
+            const progressInLevel = Math.max(0, points - currentLevelStart);
+            const progressPercent = Math.min((progressInLevel / basePointsPerLevel) * 100, 100);
+
+            document.getElementById('level-progress').style.width = `${progressPercent}%`;
+            document.getElementById('progress-text').textContent = 
+                `${progressInLevel} / ${basePointsPerLevel} XP to next level`;
+
+            // Load achievements
+            loadAchievements();
+
+            // Load best scores
+            loadBestScores();
+
+            // Load recommended exercises
+            loadRecommendedExercises();
+
+            // Initialize chart (lazy loading)
+            initializeChart();
+        }
+
+        function loadAchievements() {
+            let unlockedAchievements = [];
+            try {
+                unlockedAchievements = JSON.parse(getFromStorage(STORAGE_KEYS.achievements) || '[]');
+            } catch (error) {
+                console.warn('Failed to parse achievements, resetting to empty array');
+                unlockedAchievements = [];
+            }
+            
+            const container = document.getElementById('achievements-container');
+            
+            container.innerHTML = '';
+            
+            Object.entries(ACHIEVEMENT_DEFINITIONS).forEach(([key, achievement]) => {
+                const isUnlocked = unlockedAchievements.includes(key);
+                const badge = document.createElement('div');
+                badge.className = `achievement-badge ${isUnlocked ? 'unlocked' : 'locked'}`;
+                badge.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-name">${achievement.name}</div>
+                `;
+                badge.title = achievement.description;
+                container.appendChild(badge);
+            });
+        }
+
+        function loadBestScores() {
+            const container = document.getElementById('scores-container');
+            container.innerHTML = '';
+
+            let hasScores = false;
+
+            EXERCISES.forEach(exercise => {
+                const bestScore = getFromStorage(`FPR_v1_exercise:${exercise.id}:best`);
+                const parsedScore = parseInt(bestScore, 10);
+                
+                if (!Number.isNaN(parsedScore) && parsedScore > 0) {
+                    hasScores = true;
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item';
+                    scoreItem.innerHTML = `
+                        <span class="exercise-name">${exercise.title}</span>
+                        <span class="exercise-score">${parsedScore.toLocaleString()}</span>
+                    `;
+                    container.appendChild(scoreItem);
+                }
+            });
+
+            if (!hasScores) {
+                const noScores = document.createElement('div');
+                noScores.className = 'score-item';
+                noScores.innerHTML = `
+                    <span class="exercise-name">No sessions completed yet</span>
+                    <span class="exercise-score">-</span>
+                `;
+                container.appendChild(noScores);
+            }
+        }
+
+        function loadRecommendedExercises() {
+            const container = document.getElementById('recommended-exercises');
+            container.innerHTML = '';
+
+            if (!EXERCISES || EXERCISES.length === 0) {
+                container.innerHTML = `<p style="opacity: 0.7; text-align: center; grid-column: 1 / -1;">No exercises available yet.</p>`;
+                return;
+            }
+
+            // Show first 4 exercises as recommendations
+            EXERCISES.slice(0, 4).forEach(exercise => {
+                const card = document.createElement('a');
+                card.className = 'exercise-card';
+                card.href = exercise.path;
+                card.innerHTML = `
+                    <div class="exercise-card-icon">${exercise.icon || '🎯'}</div>
+                    <div class="exercise-card-title">${exercise.title}</div>
+                    <div class="exercise-card-description">${exercise.description || 'Improve your motor skills'}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function initializeChart() {
+            // Simulate loading delay
+            setTimeout(async () => {
+                try {
+                    // Try to dynamically import Chart.js (when available)
+                    // For now, show placeholder
+                    const placeholder = document.getElementById('chart-placeholder');
+                    placeholder.innerHTML = `
+                        <div style="text-align: center;">
+                            <p>📈</p>
+                            <p>Progress charts coming soon!</p>
+                            <p style="font-size: var(--font-size-sm); opacity: 0.7;">Continue practicing to see your trends</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.log('Chart.js not available yet');
+                    const placeholder = document.getElementById('chart-placeholder');
+                    placeholder.innerHTML = `
+                        <div style="text-align: center;">
+                            <p>📊</p>
+                            <p>Charts loading...</p>
+                        </div>
+                    `;
+                }
+            }, 1000);
+        }
+
+        // Export functionality
+        function exportProgress() {
+            try {
+                const exportData = {
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    profileName: "My Progress",
+                    stats: {
+                        points: parseInt(getFromStorage(STORAGE_KEYS.points) || '0'),
+                        level: parseInt(getFromStorage(STORAGE_KEYS.level) || '1'),
+                        streak: parseInt(getFromStorage(STORAGE_KEYS.streak) || '0'),
+                        lastActiveDate: getFromStorage(STORAGE_KEYS.lastActiveDate) || null,
+                        totalSessions: parseInt(getFromStorage(STORAGE_KEYS.totalSessions) || '0')
+                    },
+                    exercises: {},
+                    achievements: JSON.parse(getFromStorage(STORAGE_KEYS.achievements) || '[]')
+                };
+
+                // Collect exercise data
+                EXERCISES.forEach(exercise => {
+                    const best = getFromStorage(`FPR_v1_exercise:${exercise.id}:best`);
+                    const sessions = getFromStorage(`FPR_v1_exercise:${exercise.id}:sessions`);
+                    if (best || sessions) {
+                        exportData.exercises[exercise.id] = {
+                            best: parseInt(best || '0'),
+                            sessions: parseInt(sessions || '0')
+                        };
+                    }
+                });
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `finepointrehab-progress-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Delay URL revocation to ensure download completes
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showToast('Progress exported successfully!', 'success');
+            } catch (error) {
+                console.error('Export failed:', error);
+                showToast('Export failed. Please try again.', 'error');
+            }
+        }
+
+        // Import functionality
+        function importProgress() {
+            const modal = document.getElementById('import-modal');
+            modal.style.display = 'block';
+        }
+
+        function confirmImport() {
+            const importData = document.getElementById('import-data').value.trim();
+            
+            if (!importData) {
+                showToast('Please paste your export data', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(importData);
+                
+                if (!data.version || data.version !== 1) {
+                    showToast('Invalid or outdated export format', 'error');
+                    return;
+                }
+
+                // Clear existing FPR data and import new data
+                clearFPRStorage();
+                
+                // Import stats
+                if (data.stats) {
+                    setToStorage(STORAGE_KEYS.points, data.stats.points.toString());
+                    setToStorage(STORAGE_KEYS.level, data.stats.level.toString());
+                    setToStorage(STORAGE_KEYS.streak, data.stats.streak.toString());
+                    setToStorage(STORAGE_KEYS.totalSessions, data.stats.totalSessions.toString());
+                    if (data.stats.lastActiveDate) {
+                        setToStorage(STORAGE_KEYS.lastActiveDate, data.stats.lastActiveDate);
+                    }
+                }
+
+                // Import exercise data
+                if (data.exercises) {
+                    Object.entries(data.exercises).forEach(([exerciseId, exerciseData]) => {
+                        if (exerciseData.best !== undefined) {
+                            setToStorage(`FPR_v1_exercise:${exerciseId}:best`, exerciseData.best.toString());
+                        }
+                        if (exerciseData.sessions !== undefined) {
+                            setToStorage(`FPR_v1_exercise:${exerciseId}:sessions`, exerciseData.sessions.toString());
+                        }
+                    });
+                }
+
+                // Import achievements
+                if (data.achievements) {
+                    setToStorage(STORAGE_KEYS.achievements, JSON.stringify(data.achievements));
+                }
+
+                // Close modal and reload data
+                document.getElementById('import-modal').style.display = 'none';
+                document.getElementById('import-data').value = '';
+                loadDashboardData();
+                
+                showToast('Progress imported successfully!', 'success');
+            } catch (error) {
+                console.error('Import failed:', error);
+                showToast('Invalid JSON data. Please check your export file.', 'error');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('export-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            exportProgress();
+        });
+
+        document.getElementById('import-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            importProgress();
+        });
+
+        document.getElementById('import-modal-close').addEventListener('click', () => {
+            document.getElementById('import-modal').style.display = 'none';
+        });
+
+        document.getElementById('import-cancel').addEventListener('click', () => {
+            document.getElementById('import-modal').style.display = 'none';
+        });
+
+        document.getElementById('import-confirm').addEventListener('click', confirmImport);
+
+        // Close modal when clicking outside
+        document.getElementById('import-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'import-modal') {
+                document.getElementById('import-modal').style.display = 'none';
+            }
+        });
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bubble Tap – Fine Point Rehab</title>
+
+  <!-- Global tokens & components -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+
+  <style>
+    :root{
+      --vh: 1vh;
+      --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
+      --accent: var(--brand-aqua, #6fd3f5);
+      --accent-2: #9ae6ff;
+      --radius: 14px;
+      --panel: rgba(10,16,36,.9);
+      --panel-border: rgba(255,255,255,.08);
+      --text: #eaf6ff;
+      --text-secondary: #b8c5d1;
+      --text-muted: #8a96a3;
+      --good: #8ff5b2;
+      --gold: #ffd700;
+      --freeze: #00d4ff;
+      --speed: #bf5fff;
+      --border: #374151;
+      --bg-secondary: #1a1f3a;
+      --bg-tertiary: #252b47;
+      --radius-lg: 12px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --font-size-xs: 12px;
+      --font-size-base: 16px;
+      --font-size-lg: 20px;
+      --font-size-xl: 24px;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --header-h: 0px;
+    }
+    body{ 
+      margin:0; 
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+
+    /* High contrast mode */
+    body.high-contrast {
+      --bg-1: #000; --bg-2: #000; --bg-3: #000;
+      --panel: rgba(0,0,0,.95);
+      --text: #fff;
+      --accent: #00ff00;
+      --good: #00ff00;
+    }
+    body.high-contrast .stage-wrap {
+      background: #000 !important;
+    }
+    body.high-contrast #bubble {
+      background: #fff !important;
+      box-shadow: 0 0 0 4px #00ff00 !important;
+    }
+
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding:12px 16px; display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(8,12,26,.9), rgba(8,12,26,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(6px);
+    }
+    header .home { 
+      text-decoration:none; color:var(--text); font-weight:700;
+      border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:8px 12px;
+      transition: all 0.2s;
+    }
+    header .home:hover {
+      background: rgba(111,211,245,.12);
+      border-color: var(--accent);
+    }
+    header h1{ margin:0; font-size: clamp(18px,3vw,24px); }
+
+    /* Desktop-first layout */
+    .layout{ 
+      display:grid; 
+      grid-template-columns: 400px 1fr; 
+      gap:20px; 
+      padding:20px; 
+      max-width: 1800px;
+      margin: 0 auto;
+      min-height: calc(100vh - 60px);
+      align-items: start;
+    }
+
+    .panel{ 
+      background: var(--panel); 
+      border: 1px solid var(--panel-border); 
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35); 
+      padding:20px; 
+    }
+    .panel h2{ margin:0 0 var(--space-4); font-size: var(--font-size-lg); text-align: center; }
+    .desc{ 
+      margin-bottom:16px; 
+      background: rgba(111,211,245,.08);
+      border-left: 4px solid rgba(111,211,245,.7); 
+      padding:12px; 
+      border-radius:8px; 
+      font-size:14px; 
+      line-height:1.5; 
+    }
+
+    /* Stats on settings */
+    .stats-row{ 
+      display:flex; 
+      gap:10px; 
+      justify-content:center; 
+      flex-wrap:wrap; 
+      margin-bottom:16px; 
+    }
+    .metric{ 
+      flex:1 1 auto; 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center;
+      text-align:center; 
+      padding:12px; 
+      border:1px solid rgba(255,255,255,.12); 
+      border-radius:12px;
+      background: rgba(111,211,245,.08); 
+      min-width:110px; 
+    }
+    .v{ 
+      font-weight:900; 
+      font-size:24px; 
+      color:#bfe6ff; 
+      text-shadow: 0 0 6px rgba(150,220,255,.5); 
+      line-height:1.1; 
+    }
+    .t{ 
+      font-size:12px; 
+      opacity:.9; 
+      margin-top:4px; 
+      color: var(--text-secondary); 
+    }
+
+    .group{ margin-bottom:16px; }
+    .label{ 
+      display:block; 
+      margin-bottom:8px; 
+      font-weight:700; 
+      letter-spacing:.2px; 
+    }
+    select, input[type="number"]{
+      width:100%; 
+      padding:12px; 
+      border-radius:10px; 
+      border:1px solid rgba(255,255,255,.2);
+      background: rgba(5,10,26,.8); 
+      color:var(--text); 
+      font-size:16px;
+    }
+    select:focus, input[type="number"]:focus{
+      outline:none; 
+      border-color: rgba(111,211,245,.9); 
+      box-shadow: 0 0 0 2px rgba(111,211,245,.25);
+    }
+
+    /* Toggle switches */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 14px; }
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: rgba(255,255,255,.15);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle.active { background: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle.active::after { transform: translateX(22px); }
+
+    .btn{
+      width: 100%;
+      min-height:50px; 
+      border:1px solid rgba(111,211,245,.35); 
+      background: rgba(111,211,245,.12);
+      color:var(--text); 
+      border-radius:10px; 
+      font-weight:800; 
+      letter-spacing:.2px; 
+      cursor:pointer; 
+      transition:.2s;
+      font-size: 16px;
+    }
+    .btn:hover:not(:disabled){ 
+      background: rgba(111,211,245,.22); 
+      transform: translateY(-1px); 
+    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn-primary{ 
+      background: rgba(111,211,245,.95); 
+      color:#07101e; 
+      border-color: rgba(111,211,245,1); 
+    }
+    .btn-primary:hover:not(:disabled){ 
+      background: rgba(111,211,245,1); 
+      box-shadow: 0 6px 18px rgba(111,211,245,.45); 
+    }
+    .btn-ghost{ 
+      background: transparent; 
+      border:1px solid rgba(255,255,255,.15); 
+      padding: var(--space-2) var(--space-4); 
+      min-height: 44px;
+      width: auto;
+    }
+    .btn-secondary {
+      background: rgba(143,245,178,.15);
+      border-color: rgba(143,245,178,.4);
+      color: var(--good);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(143,245,178,.25);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn-row .btn { flex: 1; }
+
+    /* Collapsible sections */
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255,255,255,.1);
+      margin-top: 8px;
+    }
+    .collapsible-header h3 {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .collapsible-header .chevron {
+      transition: transform 0.2s;
+    }
+    .collapsible-header.open .chevron {
+      transform: rotate(180deg);
+    }
+    .collapsible-content {
+      display: none;
+      padding-bottom: 8px;
+    }
+    .collapsible-content.open {
+      display: block;
+    }
+
+    /* Game column */
+    #gameCol{ 
+      display:none; 
+      position:relative; 
+      padding:0; 
+      overflow:hidden;
+      height: calc(100vh - 100px);
+    }
+    body.playing #gameCol{ 
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+    }
+    body.playing #settings{ display:none; }
+
+    /* Enhanced HUD Design */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: var(--space-3);
+      align-items: center;
+      position: relative;
+      padding: var(--space-4);
+      padding-top: calc(var(--space-4) + 8px);
+      background: rgba(15, 22, 41, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+
+    .timer-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent), rgba(111,211,245,.35));
+      transform-origin: left center;
+      transition: width .1s linear;
+    }
+
+    .hud-group { 
+      display: grid; 
+      gap: var(--space-1); 
+      text-align: center; 
+    }
+    .hud-value { 
+      font-size: 28px; 
+      font-weight: var(--font-weight-bold); 
+      color: var(--accent); 
+      text-shadow: 0 0 8px rgba(111,211,245,.7); 
+    }
+    .hud-label { 
+      font-size: 13px; 
+      color: var(--text-secondary); 
+      opacity: .9; 
+    }
+
+    /* Level indicator */
+    .hud-value.level {
+      color: var(--good);
+      text-shadow: 0 0 8px rgba(143,245,178,.7);
+    }
+
+    /* Combo multiplier styling */
+    .hud-value.combo {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,215,0,.8);
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    /* New PB flash */
+    .hud-value.new-pb {
+      animation: pbFlash 0.8s ease-in-out;
+    }
+    @keyframes pbFlash {
+      0%, 100% { color: var(--accent); }
+      50% { color: var(--gold); transform: scale(1.2); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .controls { 
+      display: flex; 
+      gap: var(--space-3); 
+      justify-content: center; 
+      grid-column: 1 / -1;
+      margin-top: var(--space-2);
+    }
+
+    #game-container {
+      position: relative; 
+      flex: 1;
+      display: flex; 
+      flex-direction: column; 
+      min-height: 0;
+      background: rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    #stars-container { 
+      position: absolute; 
+      inset: 0; 
+      pointer-events: none; 
+      z-index: 1; 
+    }
+
+    /* Particle container */
+    #particles-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .stage-wrap{
+      position:relative; 
+      flex: 1; 
+      width:100%; 
+      display: flex; 
+      overflow: hidden; 
+      touch-action: none;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(111, 211, 245, 0.08), transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(143, 245, 178, 0.06), transparent 50%),
+        radial-gradient(50% 40% at 50% 40%, rgba(111, 211, 245, 0.15), transparent 70%);
+      animation: bgShift 20s ease-in-out infinite;
+    }
+
+    @keyframes bgShift {
+      0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+      50% { filter: hue-rotate(15deg) brightness(1.1); }
+    }
+
+    /* Game surface */
+    .game-surface{ 
+      position:relative; 
+      width:100%; 
+      height:100%; 
+      z-index: 2; 
+    }
+
+    /* Enhanced bubble with variants */
+    #bubble{
+      position:absolute; 
+      width:80px; 
+      height:80px; 
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(111,211,245,.35) 40%, rgba(20,80,150,.35) 70%, rgba(10,20,40,.25) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.25), transparent 60%);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.15) inset,
+        0 12px 30px rgba(111,211,245,.35),
+        inset 0 0 22px rgba(255,255,255,.6);
+      transform: translate(-50%, -50%);
+      touch-action: none; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      animation: bubblePulse 2.2s ease-in-out infinite;
+      font-weight:900; 
+      font-size:22px; 
+      color:#eaffff; 
+      text-shadow: 0 0 10px rgba(255,255,255,.6);
+      cursor: pointer;
+    }
+
+    /* Golden bubble variant */
+    #bubble.golden {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,215,0,.6) 40%, rgba(255,165,0,.5) 70%, rgba(218,165,32,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.4), transparent 60%);
+      box-shadow:
+        0 0 0 2px rgba(255,215,0,.3) inset,
+        0 15px 40px rgba(255,215,0,.5),
+        inset 0 0 30px rgba(255,255,255,.8);
+      animation: goldenPulse 1.5s ease-in-out infinite;
+    }
+
+    /* Freeze bubble variant */
+    #bubble.freeze {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.98), rgba(0,212,255,.7) 40%, rgba(0,150,200,.5) 70%, rgba(0,100,150,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.5), transparent 60%);
+      box-shadow:
+        0 0 0 2px rgba(0,212,255,.4) inset,
+        0 15px 40px rgba(0,212,255,.6),
+        inset 0 0 30px rgba(255,255,255,.9);
+      animation: freezePulse 1.2s ease-in-out infinite;
+    }
+
+    /* Speed bubble variant */
+    #bubble.speed {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(191,95,255,.7) 40%, rgba(150,50,200,.5) 70%, rgba(100,20,150,.3) 100%),
+        radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.4), transparent 60%);
+      box-shadow:
+        0 0 0 2px rgba(191,95,255,.4) inset,
+        0 15px 40px rgba(191,95,255,.6),
+        inset 0 0 30px rgba(255,255,255,.8);
+      animation: speedPulse 0.6s ease-in-out infinite;
+    }
+
+    #bubble.spawn { 
+      animation: bubbleSpawn .18s ease-out, bubblePulse 2.2s ease-in-out infinite; 
+    }
+    #bubble.golden.spawn { 
+      animation: bubbleSpawn .18s ease-out, goldenPulse 1.5s ease-in-out infinite; 
+    }
+    #bubble.freeze.spawn { 
+      animation: bubbleSpawn .18s ease-out, freezePulse 1.2s ease-in-out infinite; 
+    }
+    #bubble.speed.spawn { 
+      animation: bubbleSpawn .18s ease-out, speedPulse 0.6s ease-in-out infinite; 
+    }
+
+    @keyframes bubbleSpawn{ 
+      from{ transform: translate(-50%, -50%) scale(.6); opacity:.0; filter: blur(2px); } 
+      to{ transform: translate(-50%, -50%) scale(1); opacity:1; filter: blur(0); } 
+    }
+    @keyframes bubblePulse{ 
+      0%,100%{ filter: drop-shadow(0 0 0 rgba(111,211,245,.0)); } 
+      50% { filter: drop-shadow(0 0 12px rgba(111,211,245,.45)); } 
+    }
+    @keyframes goldenPulse{ 
+      0%,100%{ filter: drop-shadow(0 0 8px rgba(255,215,0,.4)); } 
+      50% { filter: drop-shadow(0 0 20px rgba(255,215,0,.8)); } 
+    }
+    @keyframes freezePulse{ 
+      0%,100%{ filter: drop-shadow(0 0 10px rgba(0,212,255,.5)); } 
+      50% { filter: drop-shadow(0 0 25px rgba(0,212,255,.9)); } 
+    }
+    @keyframes speedPulse{ 
+      0%,100%{ filter: drop-shadow(0 0 8px rgba(191,95,255,.5)); transform: translate(-50%, -50%) scale(1); } 
+      50% { filter: drop-shadow(0 0 18px rgba(191,95,255,.9)); transform: translate(-50%, -50%) scale(1.05); } 
+    }
+
+    /* Enhanced points feedback */
+    .points{
+      position:absolute; 
+      transform: translate(-50%, -50%);
+      font-weight:900; 
+      font-size:24px; 
+      color: var(--good); 
+      text-shadow: 0 0 12px rgba(143,245,178,.6);
+      pointer-events:none; 
+      z-index:7; 
+      animation: floatUp 800ms ease-out forwards;
+    }
+    .points.golden {
+      color: var(--gold);
+      font-size: 32px;
+      text-shadow: 0 0 16px rgba(255,215,0,.9);
+    }
+    .points.combo {
+      color: #ff6ec7;
+      font-size: 28px;
+      text-shadow: 0 0 14px rgba(255,110,199,.8);
+    }
+    .points.freeze {
+      color: var(--freeze);
+      font-size: 28px;
+      text-shadow: 0 0 14px rgba(0,212,255,.8);
+    }
+    .points.speed {
+      color: var(--speed);
+      font-size: 30px;
+      text-shadow: 0 0 14px rgba(191,95,255,.8);
+    }
+    @keyframes floatUp{ 
+      from{ opacity:0; transform: translate(-50%, -50%) translateY(6px) scale(.9); } 
+      20% { opacity:1; } 
+      to{ opacity:0; transform: translate(-50%, -50%) translateY(-50px) scale(1.1); } 
+    }
+
+    .ripple{
+      position:absolute; 
+      transform: translate(-50%, -50%);
+      width:10px; 
+      height:10px; 
+      border-radius:50%;
+      border:2px solid var(--accent-2); 
+      opacity:.6; 
+      animation: ripple 600ms ease-out forwards;
+      pointer-events:none; 
+      z-index:6;
+    }
+    .ripple.golden {
+      border-color: var(--gold);
+      border-width: 3px;
+    }
+    .ripple.freeze {
+      border-color: var(--freeze);
+      border-width: 3px;
+    }
+    .ripple.speed {
+      border-color: var(--speed);
+      border-width: 3px;
+    }
+    @keyframes ripple{ 
+      from{ opacity:.7; transform: translate(-50%, -50%) scale(.8); } 
+      to{ opacity:0; transform: translate(-50%, -50%) scale(8); } 
+    }
+
+    /* Particle effects */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particleFloat 1s ease-out forwards;
+    }
+
+    @keyframes particleFloat {
+      from {
+        opacity: 1;
+        transform: translate(-50%, -50%) translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(-80px) scale(0.3);
+      }
+    }
+
+    /* Countdown overlay */
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+    }
+    .countdown-number {
+      font-size: 180px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 60px rgba(111,211,245,.8);
+      animation: countdownPop 0.8s ease-out;
+    }
+    .countdown-go {
+      font-size: 100px;
+      color: var(--good);
+      text-shadow: 0 0 60px rgba(143,245,178,.8);
+    }
+    @keyframes countdownPop {
+      0% { transform: scale(2); opacity: 0; }
+      30% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0; }
+    }
+
+    /* Notification queue container */
+    .notification-queue {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Base notification style */
+    .game-notification {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 900;
+      text-align: center;
+      pointer-events: none;
+      animation: notificationSlide 1.8s ease-out forwards;
+      white-space: nowrap;
+    }
+
+    /* Combo notification */
+    .game-notification.combo {
+      font-size: 36px;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,215,0,.9);
+      background: rgba(255,215,0,.15);
+      border: 2px solid rgba(255,215,0,.4);
+    }
+
+    /* Achievement notification */
+    .game-notification.achievement {
+      font-size: 18px;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255,215,0,.6);
+      background: linear-gradient(135deg, rgba(255,215,0,.2), rgba(255,165,0,.15));
+      border: 2px solid var(--gold);
+    }
+
+    /* Level up notification */
+    .game-notification.level {
+      font-size: 42px;
+      color: var(--good);
+      text-shadow: 0 0 30px rgba(143,245,178,.9);
+      background: rgba(143,245,178,.15);
+      border: 2px solid rgba(143,245,178,.4);
+    }
+
+    /* New PB notification */
+    .game-notification.newpb {
+      font-size: 24px;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,215,0,.9);
+      background: linear-gradient(135deg, rgba(255,215,0,.25), rgba(255,165,0,.2));
+      border: 2px solid var(--gold);
+    }
+
+    @keyframes notificationSlide {
+      0% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+      15% { opacity: 1; transform: translateY(0) scale(1.05); }
+      25% { transform: translateY(0) scale(1); }
+      75% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    }
+
+    @media (max-width: 768px) {
+      .game-notification.combo { font-size: 28px; }
+      .game-notification.level { font-size: 32px; }
+      .game-notification.achievement { font-size: 16px; }
+      .game-notification.newpb { font-size: 20px; }
+    }
+
+    /* Near miss feedback */
+    .near-miss {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      font-weight: 700;
+      color: #ff6b6b;
+      text-shadow: 0 0 10px rgba(255,107,107,.6);
+      pointer-events: none;
+      z-index: 7;
+      animation: nearMissFloat 1s ease-out forwards;
+    }
+    @keyframes nearMissFloat {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateY(-30px); }
+    }
+
+    /* Time bonus indicator */
+    .time-bonus {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--freeze);
+      text-shadow: 0 0 12px rgba(0,212,255,.8);
+      pointer-events: none;
+      z-index: 7;
+      animation: timeBonusFloat 1.2s ease-out forwards;
+    }
+    @keyframes timeBonusFloat {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      40% { transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateY(-60px); }
+    }
+
+    .finger-guide{ 
+      position:absolute; 
+      left:0; 
+      right:0; 
+      bottom:0; 
+      padding:16px; 
+      z-index:6; 
+      display:none; 
+    }
+    .finger-guide .card{ 
+      margin:0 auto; 
+      max-width:720px; 
+      border:1px solid rgba(255,255,255,.18); 
+      border-radius:12px; 
+      background: rgba(0,0,0,.5); 
+      backdrop-filter: blur(8px);
+      padding:16px; 
+    }
+    .fingers{ 
+      display:flex; 
+      gap:12px; 
+      justify-content:center; 
+      align-items:center; 
+      flex-wrap:wrap; 
+    }
+    .fingers .chip{ 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center; 
+      width:64px; 
+      height:64px; 
+      border-radius:50%; 
+      border:1px solid rgba(255,255,255,.18); 
+      background: rgba(255,255,255,.06); 
+      font-weight:800; 
+      font-size: 20px;
+    }
+    .fingers .chip .tiny{ 
+      font-size:11px; 
+      opacity:.9; 
+      margin-top:2px; 
+      font-weight:600; 
+    }
+    .fingers .chip.active{ 
+      border-color: var(--accent-2); 
+      box-shadow: 0 0 0 3px rgba(111,211,245,.25), 0 0 18px rgba(111,211,245,.45) inset; 
+      background: rgba(111,211,245,.12); 
+    }
+    .guide-title{ 
+      text-align:center; 
+      font-weight:700; 
+      margin-bottom:12px; 
+      font-size: 15px;
+    }
+
+    .modal{ 
+      position:fixed; 
+      inset:0; 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:200; 
+      background: rgba(0,0,0,.6); 
+      backdrop-filter: blur(6px); 
+    }
+    .modal.open{ display:flex; }
+    .modal .card{ 
+      width:min(560px, 92vw); 
+      border:1px solid rgba(255,255,255,.18); 
+      border-radius:14px; 
+      background: var(--panel); 
+      padding:24px; 
+      animation: modalSlideIn 0.3s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Improvement indicator */
+    .improvement {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .improvement.positive {
+      background: rgba(143,245,178,.15);
+      color: var(--good);
+    }
+    .improvement.negative {
+      background: rgba(255,107,107,.15);
+      color: #ff6b6b;
+    }
+    .improvement.neutral {
+      background: rgba(255,255,255,.1);
+      color: var(--text-secondary);
+    }
+
+    .setting-help { 
+      display:block; 
+      color: var(--text-muted); 
+      font-size: 13px; 
+      margin-top: var(--space-2); 
+      font-style: italic; 
+    }
+
+    /* Tablet & Mobile Responsive */
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
+      }
+      
+      #gameCol {
+        height: auto;
+        min-height: 500px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-2);
+        padding: var(--space-3);
+        padding-top: calc(var(--space-3) + 6px);
+      }
+      .hud-value { font-size: 20px; }
+      .hud-label { font-size: 11px; }
+      
+      .hud-group:nth-child(4), .hud-group:nth-child(5), .hud-group:nth-child(6) {
+        grid-column: auto;
+      }
+      
+      .controls { 
+        grid-column: 1 / -1; 
+        gap: var(--space-2); 
+        margin-top: var(--space-2); 
+      }
+      .controls .btn { 
+        padding: 8px 16px; 
+        font-size: 14px; 
+        min-height: 40px;
+      }
+      
+      .layout {
+        padding: 12px;
+      }
+      
+      .panel {
+        padding: 16px;
+      }
+      
+      .fingers .chip {
+        width: 56px;
+        height: 56px;
+        font-size: 18px;
+      }
+
+      .combo-notification {
+        font-size: 32px;
+      }
+
+      .countdown-number {
+        font-size: 120px;
+      }
+      .countdown-go {
+        font-size: 70px;
+      }
+    }
+
+    /* Non-playing state - better preview */
+    body:not(.playing) #gameCol {
+      display: block;
+      height: 600px;
+      max-height: 70vh;
+    }
+
+    body:not(.playing) .stage-wrap {
+      border-radius: var(--radius-lg);
+    }
+  </style>
+</head>
+<body>
+  <header class="app" role="banner" aria-label="Exercise header">
+    <a class="home" href="/" aria-label="Back to Home">← Home</a>
+    <h1>Bubble Tap</h1>
+  </header>
+
+  <main class="layout">
+    <!-- SETTINGS -->
+    <aside id="settings" class="panel" aria-label="Settings">
+      <h2>Settings</h2>
+      <div class="desc">
+        <strong>How to play:</strong> Tap bubbles quickly to build combos and earn multipliers. 
+        <span style="color: var(--gold);">🟡 Golden</span> = 3x points, 
+        <span style="color: var(--freeze);">🔵 Freeze</span> = +5 seconds, 
+        <span style="color: var(--speed);">🟣 Speed</span> = 5x points (fast!)
+      </div>
+
+      <div class="stats-row" role="region" aria-label="Player stats">
+        <div class="metric" aria-live="polite">
+          <div id="pbSettings" class="v">0</div>
+          <div class="t">Personal Best</div>
+        </div>
+        <div class="metric">
+          <div id="lastScoreSettings" class="v">-</div>
+          <div class="t">Last Score</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="label" for="dur">Session Duration (minutes)</label>
+        <input id="dur" type="number" min="0.5" step="0.5" max="10" value="2" inputmode="decimal" />
+        <small class="setting-help">0.5–10 minutes recommended for motor training.</small>
+      </div>
+
+      <div class="group">
+        <label class="label" for="size">Bubble Size</label>
+        <select id="size">
+          <option value="xlarge">Extra Large (Easiest)</option>
+          <option value="large">Large (Easier)</option>
+          <option value="medium" selected>Medium</option>
+          <option value="small">Small (Harder)</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <label class="label" for="timeout">Bubble Timeout</label>
+        <select id="timeout">
+          <option value="4000">4 seconds (Easier)</option>
+          <option value="3000">3 seconds</option>
+          <option value="2500" selected>2.5 seconds</option>
+          <option value="2000">2 seconds (Harder)</option>
+          <option value="1500">1.5 seconds (Expert)</option>
+        </select>
+        <small class="setting-help">How long each bubble stays visible.</small>
+      </div>
+
+      <div class="group">
+        <label class="label" for="fingerMode">Finger Mode</label>
+        <select id="fingerMode">
+          <option value="any" selected>Any finger</option>
+          <option value="all">All fingers (guided)</option>
+        </select>
+        <div id="singleFingerWrap" class="setting-help" style="display:none; margin-top:8px;">
+          <strong>All fingers (guided):</strong> a number appears in each bubble (1–5). Match the number to the finger shown below.
+        </div>
+      </div>
+
+      <!-- Collapsible: Game Options -->
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <h3>⚙️ Game Options</h3>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="toggle-row">
+          <span class="toggle-label">Progressive Difficulty</span>
+          <div id="toggleProgressive" class="toggle active" onclick="toggleSwitch(this)" data-setting="progressive"></div>
+        </div>
+        <small class="setting-help" style="margin-bottom:12px; display:block;">Bubbles get smaller and faster as you level up.</small>
+        
+        <div class="toggle-row">
+          <span class="toggle-label">Power-Up Bubbles</span>
+          <div id="togglePowerups" class="toggle active" onclick="toggleSwitch(this)" data-setting="powerups"></div>
+        </div>
+        <small class="setting-help" style="margin-bottom:12px; display:block;">Enable freeze and speed bubbles.</small>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Sound Effects</span>
+          <div id="toggleSound" class="toggle active" onclick="toggleSwitch(this)" data-setting="sound"></div>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Haptic Feedback</span>
+          <div id="toggleHaptic" class="toggle active" onclick="toggleSwitch(this)" data-setting="haptic"></div>
+        </div>
+      </div>
+
+      <!-- Collapsible: Accessibility -->
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <h3>♿ Accessibility</h3>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="toggle-row">
+          <span class="toggle-label">High Contrast Mode</span>
+          <div id="toggleContrast" class="toggle" onclick="toggleSwitch(this)" data-setting="highContrast"></div>
+        </div>
+        <small class="setting-help" style="margin-bottom:12px; display:block;">Black background with high-visibility elements.</small>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Simple Mode (No Special Bubbles)</span>
+          <div id="toggleSimple" class="toggle" onclick="toggleSwitch(this)" data-setting="simple"></div>
+        </div>
+        <small class="setting-help">Removes golden and power-up bubbles for a cleaner visual field.</small>
+      </div>
+
+      <div class="btn-row">
+        <button id="startBtn" class="btn btn-primary" type="button" aria-label="Start session">Start Session</button>
+        <button id="practiceBtn" class="btn btn-secondary" type="button" aria-label="Practice mode">Practice</button>
+      </div>
+      <small class="setting-help" style="text-align:center; display:block; margin-top:8px;">Practice mode has no timer - tap to end when ready.</small>
+    </aside>
+
+    <!-- GAME COLUMN -->
+    <section id="gameCol" class="right-col" aria-label="Game">
+      <div class="hud" role="region" aria-label="In-game HUD">
+        <div class="timer-bar" id="timer-bar"></div>
+
+        <div class="hud-group">
+          <div id="score" class="hud-value">0</div>
+          <div class="hud-label">Score</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="level" class="hud-value level">1</div>
+          <div class="hud-label">Level</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="combo" class="hud-value">1x</div>
+          <div class="hud-label">Combo</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="streak" class="hud-value">0</div>
+          <div class="hud-label">Streak</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="pb" class="hud-value">0</div>
+          <div class="hud-label">PB</div>
+        </div>
+
+        <div class="hud-group">
+          <div id="time" class="hud-value">00:00</div>
+          <div class="hud-label">Time Left</div>
+        </div>
+
+        <div class="controls">
+          <button id="pauseBtn" class="btn btn-ghost" type="button" aria-label="Pause">Pause</button>
+          <button id="exitBtn" class="btn btn-ghost" type="button" aria-label="Exit to settings">Exit</button>
+        </div>
+      </div>
+
+      <div id="game-container">
+        <div id="stars-container"></div>
+        <div id="particles-container"></div>
+        <div class="stage-wrap">
+          <div id="surface" class="game-surface" aria-label="Play area">
+            <div id="notification-queue" class="notification-queue"></div>
+            <div id="bubble" role="button" aria-label="Bubble" tabindex="0"></div>
+
+            <!-- Guided finger UI -->
+            <div id="fingerGuide" class="finger-guide" aria-live="polite">
+              <div class="card">
+                <div class="guide-title">Match the bubble number to the finger</div>
+                <div class="fingers" id="fingersRow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="done" class="modal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneDesc">
+    <div class="card">
+      <h2 id="doneTitle" style="margin:0 0 8px 0;">Session Complete! 🎉</h2>
+      <p id="doneDesc" style="margin:0 0 12px 0;">
+        <span id="resultMessage">Excellent work!</span>
+        <span id="improvementBadge"></span>
+      </p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+        <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric"><div id="fTaps" class="v">0</div><div class="t">Taps</div></div>
+        <div class="metric"><div id="fAcc" class="v">0%</div><div class="t">Accuracy</div></div>
+        <div class="metric"><div id="fAvg" class="v">0ms</div><div class="t">Avg RT</div></div>
+        <div class="metric"><div id="fMaxStreak" class="v">0</div><div class="t">Max Streak</div></div>
+        <div class="metric"><div id="fMaxCombo" class="v">0x</div><div class="t">Max Combo</div></div>
+        <div class="metric"><div id="fLevel" class="v">1</div><div class="t">Level Reached</div></div>
+      </div>
+      <div id="achievementsSummary" style="margin-bottom:12px; display:none;">
+        <h3 style="margin:0 0 8px 0; font-size:14px; color:var(--gold);">🏆 Achievements Unlocked</h3>
+        <div id="achievementsList" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="restartSame" class="btn btn-ghost" type="button" style="flex:1;">↻ Restart</button>
+        <button id="newSession" class="btn btn-primary" type="button" style="flex:1;">New Session</button>
+        <a class="btn btn-ghost" href="/" aria-label="Home" style="flex:0 0 auto;">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle helpers (must be global for onclick)
+    function toggleCollapsible(header) {
+      header.classList.toggle('open');
+      header.nextElementSibling.classList.toggle('open');
+    }
+    
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      const setting = el.dataset.setting;
+      if (setting === 'highContrast') {
+        document.body.classList.toggle('high-contrast', el.classList.contains('active'));
+      }
+    }
+  </script>
+
+  <script type="module">
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(text!=null) e.textContent = text;
+      return e;
+    };
+
+    // DOM
+    const settingsEl = $('#settings');
+    const gameCol = $('#gameCol');
+    const surface = $('#surface');
+    const stageWrap = document.querySelector('.stage-wrap');
+    const bubbleEl = $('#bubble');
+    const fingerGuide = $('#fingerGuide');
+    const fingersRow = $('#fingersRow');
+    const startBtn = $('#startBtn');
+    const practiceBtn = $('#practiceBtn');
+    const pauseBtn = $('#pauseBtn');
+    const exitBtn = $('#exitBtn');
+    const timeEl = $('#time');
+    const scoreEl = $('#score');
+    const levelEl = $('#level');
+    const comboEl = $('#combo');
+    const streakEl = $('#streak');
+    const pbEl = $('#pb');
+    const pbSettingsEl = $('#pbSettings');
+    const lastScoreSettingsEl = $('#lastScoreSettings');
+    const timerBar = $('#timer-bar');
+    const doneModal = $('#done');
+    const fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
+    const fMaxStreak = $('#fMaxStreak'), fMaxCombo = $('#fMaxCombo'), fLevel = $('#fLevel');
+    const newSessionBtn = $('#newSession');
+    const restartSameBtn = $('#restartSame');
+    const starsContainer = $('#stars-container');
+    const particlesContainer = $('#particles-container');
+    const resultMessage = $('#resultMessage');
+    const improvementBadge = $('#improvementBadge');
+    const achievementsSummary = $('#achievementsSummary');
+    const achievementsList = $('#achievementsList');
+
+    // Settings inputs
+    const durIn = $('#dur'), sizeSel = $('#size'), timeoutSel = $('#timeout');
+    const fmSel = $('#fingerMode'), singleWrap = $('#singleFingerWrap');
+
+    // Toggle elements
+    const toggleProgressive = $('#toggleProgressive');
+    const togglePowerups = $('#togglePowerups');
+    const toggleSound = $('#toggleSound');
+    const toggleHaptic = $('#toggleHaptic');
+    const toggleContrast = $('#toggleContrast');
+    const toggleSimple = $('#toggleSimple');
+
+    // Storage & modules (graceful fallbacks)
+    const EXERCISE_ID = 'bubble_tap';
+    const NullEnhancement = { initializeExercise(){}, handleSessionComplete(){} };
+    const NullAudio = { play(){}, click(){}, miss(){} };
+    const storageFallback = {
+      get:(k, def)=>{ try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
+      set:(k,v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    let storage = storageFallback, audio = NullAudio, sessionEnhancement = NullEnhancement;
+    let recordSession = (id, diff, score)=>{}, checkAndUnlockAchievements = ()=>{}, markExerciseTried = ()=>{};
+    let starfield = null, initUtils = ()=>{};
+
+    try {
+      const u = await import('/js/utils.js');
+      storage = u.storage ?? storage;
+      starfield = u.starfield ?? starfield;
+      initUtils = u.initUtils ?? initUtils;
+      audio = u.audio ?? audio;
+    } catch {}
+    try {
+      const s = await import('/js/session-enhancement.js');
+      sessionEnhancement = s.sessionEnhancement ?? sessionEnhancement;
+    } catch {}
+    try {
+      const p = await import('/js/progress.js');
+      recordSession = p.recordSession ?? recordSession;
+    } catch {}
+    try {
+      const a = await import('/js/achievements.js');
+      checkAndUnlockAchievements = a.checkAndUnlockAchievements ?? checkAndUnlockAchievements;
+      markExerciseTried = a.markExerciseTried ?? markExerciseTried;
+    } catch {}
+
+    // ===== Geometry & fullscreen =====
+    function setVH(){ 
+      document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); 
+    }
+    
+    function setHeaderH() {
+      const header = document.querySelector('.app');
+      const h = header ? header.getBoundingClientRect().height : 0;
+      document.documentElement.style.setProperty('--header-h', `${h}px`);
+    }
+    
+    function onViewportChange(){
+      setVH(); 
+      setHeaderH();
+      if(isActive) hideBubble();
+    }
+    
+    setVH(); 
+    setHeaderH();
+    addEventListener('resize', onViewportChange);
+    addEventListener('orientationchange', onViewportChange);
+
+    // Detect iOS to skip fullscreen (iOS shows scary warnings)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    async function enterImmersive(){
+      document.body.classList.add('playing');
+      // Skip fullscreen on iOS - it shows misleading security warnings
+      if (!isIOS) {
+        try { 
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen(); 
+          }
+        } catch {}
+      }
+    }
+    
+    async function exitImmersive(){
+      document.body.classList.remove('playing');
+      if (!isIOS) {
+        try { 
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen(); 
+          }
+        } catch {}
+      }
+    }
+
+    // ===== Notification Queue System =====
+    const notificationQueue = $('#notification-queue');
+    const NOTIFICATION_DURATION = 1800; // matches animation duration
+    
+    function showNotification(text, type = 'achievement') {
+      const notification = el('div', `game-notification ${type}`, text);
+      notificationQueue.appendChild(notification);
+      
+      // Remove after animation completes
+      setTimeout(() => {
+        notification.remove();
+      }, NOTIFICATION_DURATION);
+    }
+
+    function showComboNotification(combo) {
+      if (combo < 5) return;
+      showNotification(`${combo}x COMBO!`, 'combo');
+    }
+
+    function showLevelUp(level) {
+      showNotification(`LEVEL ${level}!`, 'level');
+    }
+
+    function showAchievement(key, text) {
+      if (sessionAchievements.includes(key)) return;
+      sessionAchievements.push(key);
+      showNotification(text, key === 'newPB' ? 'newpb' : 'achievement');
+    }
+
+    // ===== Settings helpers =====
+    function getToggle(id) {
+      return document.getElementById(id)?.classList.contains('active') ?? false;
+    }
+
+    // ===== Session state =====
+    let isActive = false, isPaused = false, isPracticeMode = false;
+    let taps = 0, misses = 0, score = 0, totalRT = 0;
+    let currentStreak = 0, maxStreak = 0;
+    let currentCombo = 1, maxCombo = 1;
+    let lastHitTime = 0;
+    let currentLevel = 1;
+    let bubblesPopped = 0; // For level progression
+    let sessionAchievements = []; // Achievements earned this session
+    let pbBrokenThisSession = false;
+    let perfectStreakTime = 0; // For tracking perfect accuracy periods
+    let goldenStreak = 0; // For consecutive golden bubbles
+    
+    const COMBO_WINDOW = 1000; // 1 second to maintain combo
+    let sessionDurationMs = 2 * 60 * 1000, timeRemaining = sessionDurationMs;
+    let baseBubbleSizePx = 80;
+    let bubbleSizePx = 80;
+    let baseMaxVisibleMs = 2500;
+    let maxVisibleMs = 2500;
+    let fingerMode = 'any';
+    let lastSpawn = 0, bubbleVisible = false, bubbleSpawnTime = 0;
+    let bubbleType = 'normal'; // 'normal', 'golden', 'freeze', 'speed'
+    const BUBBLE_SIZES = { xlarge: 150, large: 120, medium: 80, small: 56 };
+    
+    // Power-up chances
+    const GOLDEN_CHANCE = 0.12;
+    const FREEZE_CHANCE = 0.06;
+    const SPEED_CHANCE = 0.05;
+
+    // Level progression config
+    const BUBBLES_PER_LEVEL = 15;
+    const SIZE_REDUCTION_PER_LEVEL = 0.92; // 8% smaller each level
+    const SPEED_INCREASE_PER_LEVEL = 0.94; // 6% faster each level
+    const MAX_LEVEL = 10;
+
+    const FINGERS = [
+      { num:1, name:'Thumb' },
+      { num:2, name:'Index' },
+      { num:3, name:'Middle' },
+      { num:4, name:'Ring' },
+      { num:5, name:'Little' },
+    ];
+
+    // Achievement definitions for in-session
+    const SESSION_ACHIEVEMENTS = {
+      firstBlood: { name: 'First Blood', icon: '🎯', condition: () => taps === 1 },
+      streak10: { name: '10 Streak!', icon: '🔥', condition: () => currentStreak === 10 },
+      streak25: { name: '25 Streak!', icon: '🔥🔥', condition: () => currentStreak === 25 },
+      streak50: { name: 'On Fire!', icon: '💥', condition: () => currentStreak === 50 },
+      combo3: { name: '3x Combo', icon: '⚡', condition: () => currentCombo >= 3 && !sessionAchievements.includes('combo3') },
+      combo5: { name: '5x Combo', icon: '⚡⚡', condition: () => currentCombo >= 5 && !sessionAchievements.includes('combo5') },
+      newPB: { name: 'New Personal Best!', icon: '🏆', condition: () => false }, // Checked separately
+      level5: { name: 'Level 5', icon: '⭐', condition: () => currentLevel === 5 },
+      level10: { name: 'Max Level!', icon: '👑', condition: () => currentLevel === 10 },
+      goldenHat: { name: 'Golden Hat Trick', icon: '🎩', condition: () => goldenStreak >= 3 },
+    };
+
+    function buildFingerChips(){
+      fingersRow.innerHTML = '';
+      FINGERS.forEach((f) => {
+        const chip = el('div', 'chip');
+        chip.append(el('div', '', String(f.num)));
+        chip.append(el('div', 'tiny', f.name));
+        fingersRow.append(chip);
+      });
+    }
+
+    function msToClock(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const rem = s % 60;
+      return String(m).padStart(2,'0')+':'+String(rem).padStart(2,'0');
+    }
+
+    function updateHUD(){
+      timeEl.textContent = isPracticeMode ? '∞' : msToClock(timeRemaining);
+      scoreEl.textContent = String(score);
+      levelEl.textContent = String(currentLevel);
+      comboEl.textContent = currentCombo + 'x';
+      streakEl.textContent = String(currentStreak);
+      
+      // Highlight combo when active
+      if (currentCombo > 1) {
+        comboEl.classList.add('combo');
+      } else {
+        comboEl.classList.remove('combo');
+      }
+      
+      const pb = storage.get('PB_'+EXERCISE_ID, 0) || 0;
+      pbEl.textContent = String(pb);
+      pbSettingsEl.textContent = String(pb);
+      
+      // Check for new PB mid-session
+      if (score > pb && !pbBrokenThisSession) {
+        pbBrokenThisSession = true;
+        pbEl.classList.add('new-pb');
+        showAchievement('newPB', '🏆 NEW PERSONAL BEST!');
+        setTimeout(() => pbEl.classList.remove('new-pb'), 800);
+      }
+      
+      if (timerBar && sessionDurationMs > 0 && !isPracticeMode) {
+        const pct = Math.max(0, Math.min(1, timeRemaining / sessionDurationMs));
+        timerBar.style.width = (pct * 100).toFixed(2) + '%';
+      } else if (isPracticeMode) {
+        timerBar.style.width = '100%';
+        timerBar.style.background = 'linear-gradient(90deg, var(--good), rgba(143,245,178,.35))';
+      }
+    }
+
+    function showFingerGuide(show){ 
+      fingerGuide.style.display = show ? 'block' : 'none'; 
+    }
+
+    function determineBubbleType() {
+      const simpleMode = getToggle('toggleSimple');
+      const powerupsEnabled = getToggle('togglePowerups');
+      
+      if (simpleMode) return 'normal';
+      
+      const rand = Math.random();
+      if (powerupsEnabled && rand < SPEED_CHANCE) return 'speed';
+      if (powerupsEnabled && rand < SPEED_CHANCE + FREEZE_CHANCE) return 'freeze';
+      if (rand < SPEED_CHANCE + FREEZE_CHANCE + GOLDEN_CHANCE) return 'golden';
+      return 'normal';
+    }
+
+    function spawnBubble(){
+      const rect = surface.getBoundingClientRect();
+      const sw = rect.width;
+      const sh = rect.height;
+      const fgH = (fingerGuide && fingerGuide.style.display !== 'none') ? fingerGuide.offsetHeight : 0;
+
+      const baseMargin = bubbleSizePx / 2;
+      const extraMargin = Math.min(50, sw * 0.05);
+      const margin = baseMargin + extraMargin;
+
+      const minX = margin;
+      const maxX = Math.max(minX + 10, sw - margin);
+      const minY = margin;
+      const maxY = Math.max(minY + 10, sh - fgH - margin);
+
+      const xRange = maxX - minX;
+      const yRange = maxY - minY;
+
+      if (xRange <= 0 || yRange <= 0) {
+        bubbleEl.style.left = (sw / 2) + 'px';
+        bubbleEl.style.top = (sh / 2) + 'px';
+      } else {
+        const x = minX + Math.random() * xRange;
+        const y = minY + Math.random() * yRange;
+        bubbleEl.style.left = x + 'px';
+        bubbleEl.style.top = y + 'px';
+      }
+
+      // Determine bubble type
+      bubbleType = determineBubbleType();
+      bubbleEl.classList.remove('golden', 'freeze', 'speed');
+      if (bubbleType !== 'normal') {
+        bubbleEl.classList.add(bubbleType);
+      }
+
+      // Speed bubbles are smaller and have shorter timeout
+      let effectiveSize = bubbleSizePx;
+      if (bubbleType === 'speed') {
+        effectiveSize = Math.max(40, bubbleSizePx * 0.7);
+      }
+
+      bubbleEl.style.width = effectiveSize + 'px';
+      bubbleEl.style.height = effectiveSize + 'px';
+      bubbleVisible = true;
+      bubbleSpawnTime = performance.now();
+      bubbleEl.classList.remove('spawn'); 
+      void bubbleEl.offsetWidth; 
+      bubbleEl.classList.add('spawn');
+
+      if(fingerMode === 'all'){
+        const n = 1 + Math.floor(Math.random()*5);
+        bubbleEl.textContent = String(n);
+      } else {
+        bubbleEl.textContent = '';
+      }
+    }
+
+    function hideBubble(){ 
+      bubbleVisible = false; 
+      bubbleEl.style.left = '-9999px'; 
+      bubbleEl.style.top = '-9999px'; 
+      bubbleEl.textContent='';
+      bubbleEl.classList.remove('golden', 'freeze', 'speed');
+      bubbleType = 'normal';
+    }
+
+    function createParticles(x, y, count, color) {
+      for (let i = 0; i < count; i++) {
+        const particle = el('div', 'particle');
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.background = color;
+        
+        const angle = (Math.PI * 2 * i) / count;
+        const distance = 40 + Math.random() * 40;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        
+        particlesContainer.append(particle);
+        particle.addEventListener('animationend', () => particle.remove());
+      }
+    }
+
+    function showPoints(x, y, pts, type = 'normal', hasCombo = false){
+      const p = el('div', 'points', `+${pts}`);
+      p.style.left = x + 'px'; 
+      p.style.top = y + 'px';
+      
+      if (type === 'golden') {
+        p.classList.add('golden');
+      } else if (type === 'freeze') {
+        p.classList.add('freeze');
+      } else if (type === 'speed') {
+        p.classList.add('speed');
+      } else if (hasCombo) {
+        p.classList.add('combo');
+      }
+      
+      surface.append(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+
+    function showTimeBonus(x, y, seconds) {
+      const bonus = el('div', 'time-bonus', `+${seconds}s`);
+      bonus.style.left = x + 'px';
+      bonus.style.top = y + 'px';
+      surface.append(bonus);
+      bonus.addEventListener('animationend', () => bonus.remove());
+    }
+
+    function showNearMiss(x, y) {
+      const miss = el('div', 'near-miss', 'Almost!');
+      miss.style.left = x + 'px';
+      miss.style.top = y + 'px';
+      surface.append(miss);
+      miss.addEventListener('animationend', () => miss.remove());
+    }
+    
+    function ripple(x, y, type = 'normal'){
+      const r = el('div', 'ripple');
+      if (type !== 'normal') r.classList.add(type);
+      r.style.left = x + 'px'; 
+      r.style.top = y + 'px';
+      surface.append(r);
+      r.addEventListener('animationend', () => r.remove());
+    }
+
+    function checkAchievements() {
+      for (const [key, achievement] of Object.entries(SESSION_ACHIEVEMENTS)) {
+        if (!sessionAchievements.includes(key) && achievement.condition()) {
+          showAchievement(key, `${achievement.icon} ${achievement.name}`);
+        }
+      }
+    }
+
+    function updateLevel() {
+      if (!getToggle('toggleProgressive')) return;
+      
+      const newLevel = Math.min(MAX_LEVEL, Math.floor(bubblesPopped / BUBBLES_PER_LEVEL) + 1);
+      if (newLevel > currentLevel) {
+        currentLevel = newLevel;
+        showLevelUp(currentLevel);
+        
+        // Update difficulty
+        const sizeMultiplier = Math.pow(SIZE_REDUCTION_PER_LEVEL, currentLevel - 1);
+        const speedMultiplier = Math.pow(SPEED_INCREASE_PER_LEVEL, currentLevel - 1);
+        
+        bubbleSizePx = Math.max(40, Math.round(baseBubbleSizePx * sizeMultiplier));
+        maxVisibleMs = Math.max(1000, Math.round(baseMaxVisibleMs * speedMultiplier));
+        
+        checkAchievements();
+        
+        // Haptic feedback for level up
+        if (getToggle('toggleHaptic') && navigator.vibrate) {
+          navigator.vibrate([50, 50, 50]);
+        }
+      }
+    }
+
+    function updateCombo(hitTime) {
+      const timeSinceLastHit = hitTime - lastHitTime;
+      
+      if (timeSinceLastHit < COMBO_WINDOW && lastHitTime > 0) {
+        currentCombo = Math.min(currentCombo + 0.5, 5); // Max 5x multiplier
+      } else {
+        currentCombo = 1;
+      }
+      
+      maxCombo = Math.max(maxCombo, currentCombo);
+      lastHitTime = hitTime;
+      
+      // Show notification for milestone combos
+      if (currentCombo >= 5 && currentCombo === Math.floor(currentCombo)) {
+        showComboNotification(Math.floor(currentCombo));
+      }
+      
+      checkAchievements();
+    }
+
+    function triggerHaptic(type = 'tap') {
+      if (!getToggle('toggleHaptic') || !navigator.vibrate) return;
+      
+      switch(type) {
+        case 'tap': navigator.vibrate(25); break;
+        case 'golden': navigator.vibrate([30, 20, 30]); break;
+        case 'freeze': navigator.vibrate([50, 30, 50]); break;
+        case 'speed': navigator.vibrate(15); break;
+        case 'miss': navigator.vibrate(100); break;
+        case 'levelUp': navigator.vibrate([50, 50, 50]); break;
+      }
+    }
+
+    bubbleEl.addEventListener('pointerdown', (ev) => {
+      if(!isActive || isPaused || !bubbleVisible) return;
+      ev.preventDefault();
+      
+      const hitTime = performance.now();
+      const rt = hitTime - bubbleSpawnTime;
+      
+      // Update combo system
+      updateCombo(hitTime);
+      
+      // Calculate base points
+      let pts = Math.max(1, Math.round(1500/Math.max(200, rt)));
+      
+      // Apply bubble type bonuses
+      const bx = parseFloat(bubbleEl.style.left), by = parseFloat(bubbleEl.style.top);
+      
+      if (bubbleType === 'golden') {
+        pts *= 3;
+        goldenStreak++;
+        triggerHaptic('golden');
+      } else if (bubbleType === 'freeze') {
+        pts *= 2;
+        timeRemaining += 5000; // +5 seconds
+        showTimeBonus(bx, by, 5);
+        goldenStreak = 0;
+        triggerHaptic('freeze');
+      } else if (bubbleType === 'speed') {
+        pts *= 5;
+        goldenStreak = 0;
+        triggerHaptic('speed');
+      } else {
+        goldenStreak = 0;
+        triggerHaptic('tap');
+      }
+      
+      // Apply combo multiplier
+      pts = Math.round(pts * currentCombo);
+      
+      taps++; 
+      bubblesPopped++;
+      score += pts; 
+      totalRT += rt;
+      currentStreak++;
+      maxStreak = Math.max(maxStreak, currentStreak);
+      
+      showPoints(bx, by, pts, bubbleType, currentCombo > 1);
+      ripple(bx, by, bubbleType);
+      
+      // Particle effects
+      const particleColors = {
+        normal: currentCombo > 1 ? '#ff6ec7' : '#8ff5b2',
+        golden: '#ffd700',
+        freeze: '#00d4ff',
+        speed: '#bf5fff'
+      };
+      createParticles(bx, by, bubbleType === 'golden' ? 12 : 8, particleColors[bubbleType]);
+      
+      // Update level
+      updateLevel();
+      
+      // Check achievements
+      checkAchievements();
+      
+      hideBubble();
+      if (getToggle('toggleSound')) audio.click?.();
+    });
+    
+    bubbleEl.addEventListener('keydown', (e) => {
+      if(e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        bubbleEl.dispatchEvent(new PointerEvent('pointerdown'));
+      }
+    });
+    
+    surface.addEventListener('pointerdown', (e) => {
+      if(!isActive || isPaused) return;
+      if(e.target !== bubbleEl){ 
+        misses++;
+        currentStreak = 0;
+        currentCombo = 1;
+        goldenStreak = 0;
+        triggerHaptic('miss');
+        if (getToggle('toggleSound')) audio.miss?.(); 
+      }
+    }, { passive:true });
+
+    let rafId = 0, prevTs = 0;
+    function loop(now){
+      if(!isActive) return;
+      const dt = prevTs ? (now - prevTs) : 16;
+      prevTs = now;
+      if(!isPaused){
+        if (!isPracticeMode) {
+          timeRemaining -= dt;
+          if(timeRemaining <= 0){ 
+            endSession(); 
+            return; 
+          }
+        }
+        
+        // Get effective timeout for current bubble type
+        let effectiveTimeout = maxVisibleMs;
+        if (bubbleType === 'speed') {
+          effectiveTimeout = Math.max(800, maxVisibleMs * 0.5);
+        }
+        
+        if(bubbleVisible && (now - bubbleSpawnTime) > effectiveTimeout){ 
+          // Show near miss if they were close (within 500ms of timeout)
+          const timeLeft = effectiveTimeout - (now - bubbleSpawnTime);
+          if (timeLeft > -500 && timeLeft < 0) {
+            const bx = parseFloat(bubbleEl.style.left), by = parseFloat(bubbleEl.style.top);
+            showNearMiss(bx, by);
+          }
+          
+          hideBubble();
+          currentStreak = 0;
+          currentCombo = 1;
+          goldenStreak = 0;
+        }
+        if(!bubbleVisible && (now - lastSpawn) > 450){
+          spawnBubble(); 
+          lastSpawn = now;
+        }
+        
+        // Reset combo if too much time has passed
+        if (lastHitTime > 0 && (now - lastHitTime) > COMBO_WINDOW) {
+          currentCombo = 1;
+        }
+      }
+      updateHUD();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    // Countdown before session starts
+    function showCountdown(callback) {
+      const overlay = el('div', 'countdown-overlay');
+      const numEl = el('div', 'countdown-number', '3');
+      overlay.appendChild(numEl);
+      document.body.appendChild(overlay);
+      
+      let count = 3;
+      const tick = () => {
+        count--;
+        if (count > 0) {
+          numEl.textContent = String(count);
+          numEl.style.animation = 'none';
+          void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          setTimeout(tick, 800);
+        } else {
+          numEl.textContent = 'GO!';
+          numEl.classList.add('countdown-go');
+          numEl.style.animation = 'none';
+          void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          setTimeout(() => {
+            overlay.remove();
+            callback();
+          }, 600);
+        }
+      };
+      
+      setTimeout(tick, 800);
+    }
+
+    function startSession(practice = false){
+      isPracticeMode = practice;
+      
+      const durMin = Math.max(0.5, parseFloat(durIn.value || '2'));
+      sessionDurationMs = durMin * 60 * 1000;
+      timeRemaining = sessionDurationMs;
+      
+      baseBubbleSizePx = BUBBLE_SIZES[sizeSel.value] ?? 80;
+      bubbleSizePx = baseBubbleSizePx;
+      
+      baseMaxVisibleMs = parseInt(timeoutSel.value) || 2500;
+      maxVisibleMs = baseMaxVisibleMs;
+      
+      fingerMode = fmSel.value;
+      showFingerGuide(fingerMode === 'all');
+      if(fingerMode === 'all'){ 
+        buildFingerChips(); 
+      }
+
+      isActive = true; 
+      isPaused = false; 
+      pauseBtn.textContent = 'Pause';
+      taps = 0; 
+      misses = 0; 
+      score = 0; 
+      totalRT = 0;
+      currentStreak = 0;
+      maxStreak = 0;
+      currentCombo = 1;
+      maxCombo = 1;
+      lastHitTime = 0;
+      currentLevel = 1;
+      bubblesPopped = 0;
+      sessionAchievements = [];
+      pbBrokenThisSession = false;
+      goldenStreak = 0;
+      hideBubble(); 
+      updateHUD();
+
+      enterImmersive();
+      
+      // Show countdown then start
+      showCountdown(() => {
+        requestAnimationFrame(ts => { 
+          lastSpawn = prevTs = ts; 
+          rafId = requestAnimationFrame(loop); 
+        });
+      });
+
+      try { sessionEnhancement.initializeExercise?.('bubble_tap'); } catch {}
+      try { markExerciseTried(EXERCISE_ID); } catch {}
+    }
+
+    function pauseSession(){
+      if(!isActive) return;
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+    }
+
+    function exitToSettings(){
+      if(isActive) { 
+        isActive = false; 
+        cancelAnimationFrame(rafId); 
+      }
+      prevTs = 0;
+      hideBubble();
+      exitImmersive();
+      pauseBtn.textContent = 'Pause';
+      doneModal.classList.remove('open');
+      bubbleEl.textContent = '';
+    }
+
+    function endSession(){
+      isActive = false; 
+      cancelAnimationFrame(rafId);
+      prevTs = 0;
+      hideBubble(); 
+      exitImmersive();
+
+      const total = taps + misses;
+      const acc = total > 0 ? Math.round((taps/total)*100) : 0;
+      const avg = taps > 0 ? Math.round(totalRT / taps) : 0;
+
+      fScore.textContent = String(score);
+      fTaps.textContent = String(taps);
+      fAcc.textContent = acc + '%';
+      fAvg.textContent = avg + 'ms';
+      fMaxStreak.textContent = String(maxStreak);
+      fMaxCombo.textContent = Math.floor(maxCombo) + 'x';
+      fLevel.textContent = String(currentLevel);
+
+      // Calculate improvement from last session
+      const lastScore = storage.get('LAST_'+EXERCISE_ID, null);
+      const prev = storage.get('PB_'+EXERCISE_ID, 0) || 0;
+      
+      if (lastScore !== null) {
+        const diff = score - lastScore;
+        const pct = lastScore > 0 ? Math.round((diff / lastScore) * 100) : 0;
+        
+        if (diff > 0) {
+          improvementBadge.innerHTML = `<span class="improvement positive">↑ ${pct}% improvement</span>`;
+          resultMessage.textContent = 'Great progress!';
+        } else if (diff < 0) {
+          improvementBadge.innerHTML = `<span class="improvement negative">↓ ${Math.abs(pct)}%</span>`;
+          resultMessage.textContent = 'Keep practicing!';
+        } else {
+          improvementBadge.innerHTML = `<span class="improvement neutral">Same as last time</span>`;
+          resultMessage.textContent = 'Consistent performance!';
+        }
+      } else {
+        improvementBadge.innerHTML = '';
+        resultMessage.textContent = 'Excellent work!';
+      }
+      
+      // Save last score and update PB
+      storage.set('LAST_'+EXERCISE_ID, score);
+      if(score > prev){ 
+        storage.set('PB_'+EXERCISE_ID, score);
+        resultMessage.textContent = '🏆 New Personal Best!';
+      }
+      
+      // Update settings display
+      lastScoreSettingsEl.textContent = String(score);
+
+      // Show session achievements
+      if (sessionAchievements.length > 0) {
+        achievementsSummary.style.display = 'block';
+        achievementsList.innerHTML = sessionAchievements.map(key => {
+          const ach = SESSION_ACHIEVEMENTS[key];
+          if (!ach) return '';
+          return `<span style="background:rgba(255,215,0,.15); padding:4px 10px; border-radius:20px; font-size:13px;">${ach.icon} ${ach.name}</span>`;
+        }).join('');
+      } else {
+        achievementsSummary.style.display = 'none';
+      }
+
+      try { recordSession(EXERCISE_ID, (sizeSel.value||'medium'), score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
+
+      doneModal.classList.add('open');
+      try { sessionEnhancement.handleSessionComplete?.('bubble_tap', { score, taps, acc, avg, maxStreak, maxCombo, level: currentLevel }); } catch {}
+      bubbleEl.textContent = '';
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', () => { 
+      doneModal.classList.remove('open'); 
+      startSession(false); 
+    });
+    practiceBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+      startSession(true);
+    });
+    pauseBtn.addEventListener('click', pauseSession);
+    exitBtn.addEventListener('click', () => {
+      if (isPracticeMode) {
+        endSession();
+      } else {
+        exitToSettings();
+      }
+    });
+    newSessionBtn.addEventListener('click', () => { 
+      doneModal.classList.remove('open'); 
+      // Go back to settings
+    });
+    restartSameBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+      startSession(isPracticeMode);
+    });
+
+    fmSel.addEventListener('change', () => {
+      const isAll = fmSel.value === 'all';
+      singleWrap.style.display = isAll ? '' : 'none';
+    });
+    singleWrap.style.display = (fmSel.value === 'all') ? '' : 'none';
+
+    doneModal.addEventListener('click', (e) => { 
+      if(e.target === doneModal){ 
+        doneModal.classList.remove('open'); 
+      } 
+    });
+    addEventListener('keydown', (e) => { 
+      if(e.key === 'Escape') doneModal.classList.remove('open'); 
+    });
+
+    // Load last score
+    const lastScore = storage.get('LAST_'+EXERCISE_ID, null);
+    if (lastScore !== null) {
+      lastScoreSettingsEl.textContent = String(lastScore);
+    }
+
+    updateHUD();
+
+    // Generate enhanced stars with more variety
+    function generateStars(container, count = 200) {
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.backgroundColor = i % 20 === 0 ? '#6fd3f5' : 'white';
+        star.style.borderRadius = '50%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.7 + 0.3;
+        star.style.animation = `twinkle ${Math.random() * 4 + 2}s ease-in-out infinite`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        star.style.boxShadow = size > 2 ? '0 0 4px rgba(111,211,245,0.5)' : 'none';
+        container.appendChild(star);
+      }
+    }
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes twinkle { 
+        0%, 100% { opacity: 0.2; transform: scale(0.8); } 
+        50% { opacity: 1; transform: scale(1.2); } 
+      }
+      @keyframes particleFloat {
+        from {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: translate(var(--tx, 0), var(--ty, -80px)) scale(0.3);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    if (starsContainer) generateStars(starsContainer, 200);
+
+    (async () => {
+      try { await initUtils?.({ starfieldTarget: surface }); } catch {}
+      const tryStarfield = () => {
+        if(surface.clientHeight > 0){ 
+          try { starfield?.(surface); } catch {} 
+        } else { 
+          requestAnimationFrame(tryStarfield); 
+        }
+      };
+      tryStarfield();
+    })();
+
+    window.endSession = function(score, difficulty='medium'){
+      try { recordSession(EXERCISE_ID, difficulty, score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
+    };
+  </script>
+</body>
+</html>
