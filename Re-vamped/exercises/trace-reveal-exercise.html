@@ -54,7 +54,6 @@
       background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
       color: var(--text-primary);
       min-height: calc(var(--vh) * 100);
-      touch-action: pinch-zoom;
     }
 
     body.playing { overflow: hidden; }
@@ -199,7 +198,7 @@
       color: var(--text-secondary);
     }
 
-    .achievements-section { margin-bottom: var(--space-4); }
+    .achievements-section { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border); }
     .achievements-section h3 { font-size: var(--font-size-base); margin: 0 0 var(--space-2); color: var(--text-secondary); }
 
     .achievements-grid { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
@@ -697,20 +696,6 @@
         </div>
       </div>
 
-      <div class="achievements-section">
-        <h3>Achievements</h3>
-        <div class="achievements-grid" id="achievements-grid">
-          <div class="achievement" data-achievement="first-shape" data-tooltip="First Shape">✏️</div>
-          <div class="achievement" data-achievement="ten-shapes" data-tooltip="10 Shapes">🎯</div>
-          <div class="achievement" data-achievement="fifty-shapes" data-tooltip="50 Shapes">⭐</div>
-          <div class="achievement" data-achievement="hundred-shapes" data-tooltip="100 Shapes">💎</div>
-          <div class="achievement" data-achievement="perfect-coverage" data-tooltip="95%+ Coverage">🎨</div>
-          <div class="achievement" data-achievement="streak-5" data-tooltip="5 Streak">🔥</div>
-          <div class="achievement" data-achievement="streak-10" data-tooltip="10 Streak">💥</div>
-          <div class="achievement" data-achievement="hard-mode" data-tooltip="Complete Hard">🏆</div>
-        </div>
-      </div>
-
       <div class="settings-group">
         <label class="settings-label" for="dur">Session Duration (minutes)</label>
         <input class="input" id="dur" type="number" min="0.5" step="0.5" max="30" value="2" inputmode="decimal">
@@ -747,6 +732,20 @@
         <h3>Recent Sessions</h3>
         <div class="history-list" id="history-list">
           <div class="history-item" style="color: var(--text-muted); justify-content: center;">No sessions yet</div>
+        </div>
+      </div>
+
+      <div class="achievements-section">
+        <h3>Achievements</h3>
+        <div class="achievements-grid" id="achievements-grid">
+          <div class="achievement" data-achievement="first-shape" data-tooltip="First Shape">✏️</div>
+          <div class="achievement" data-achievement="ten-shapes" data-tooltip="10 Shapes">🎯</div>
+          <div class="achievement" data-achievement="fifty-shapes" data-tooltip="50 Shapes">⭐</div>
+          <div class="achievement" data-achievement="hundred-shapes" data-tooltip="100 Shapes">💎</div>
+          <div class="achievement" data-achievement="perfect-coverage" data-tooltip="95%+ Coverage">🎨</div>
+          <div class="achievement" data-achievement="streak-5" data-tooltip="5 Streak">🔥</div>
+          <div class="achievement" data-achievement="streak-10" data-tooltip="10 Streak">💥</div>
+          <div class="achievement" data-achievement="hard-mode" data-tooltip="Complete Hard">🏆</div>
         </div>
       </div>
     </aside>
