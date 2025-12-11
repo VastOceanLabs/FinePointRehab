@@ -740,9 +740,8 @@
         
         score += pts; scoreEl.textContent = String(score);
         
-        // Show points with combo indicator if multiplied
-        const popupText = mult > 1 ? `+${pts} ×${mult.toFixed(1)}` : `+${pts}`;
-        addPopup(c.x, c.y, popupText);
+        // Show just the points earned - simple and clear
+        addPopup(c.x, c.y, `+${pts}`);
         burst(c.x,c.y,c.hue);
         
         // Haptic feedback if available
