@@ -903,13 +903,14 @@
       white-space: nowrap;
     }
 
-    /* Combo notification */
+    /* Combo notification - modest and unobtrusive */
     .game-notification.combo {
-      font-size: 36px;
+      font-size: 24px;
       color: var(--gold);
-      text-shadow: 0 0 20px rgba(255,215,0,.9);
-      background: rgba(255,215,0,.15);
-      border: 2px solid rgba(255,215,0,.4);
+      text-shadow: 0 0 12px rgba(255,215,0,.6);
+      background: rgba(255,215,0,.1);
+      border: 1px solid rgba(255,215,0,.3);
+      padding: 8px 20px;
     }
 
     /* Achievement notification */
@@ -1417,7 +1418,7 @@
         radial-gradient(circle at 70% 30%, rgba(0,180,220,.2), transparent 50%),
         linear-gradient(180deg, #041525 0%, #062840 50%, #0a3550 100%) !important;
     }
-    body.theme-ocean #bubble:not(.golden):not(.freeze):not(.speed) {
+    body.theme-ocean #bubble:not(.golden):not(.speed) {
       background:
         radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(0,200,255,.4) 40%, rgba(0,100,180,.4) 70%, rgba(0,50,100,.3) 100%),
         radial-gradient(120px 120px at 70% 80%, rgba(255,255,255,.3), transparent 60%) !important;
@@ -1489,8 +1490,7 @@
       <div class="desc">
         <strong>How to play:</strong> Tap bubbles quickly to build combos and earn multipliers. 
         <span style="color: var(--gold);">🟡 Golden</span> = 3x points, 
-        <span style="color: var(--freeze);">🔵 Freeze</span> = +5 seconds, 
-        <span style="color: var(--speed);">🟣 Speed</span> = 5x points (fast!)
+        <span style="color: var(--speed);">🟣 Speed</span> = 5x points (but fast!)
       </div>
 
       <div class="stats-row" role="region" aria-label="Player stats">
@@ -1559,7 +1559,7 @@
           <span class="toggle-label">Power-Up Bubbles</span>
           <div id="togglePowerups" class="toggle active" onclick="toggleSwitch(this)" data-setting="powerups"></div>
         </div>
-        <small class="setting-help" style="margin-bottom:12px; display:block;">Enable freeze and speed bubbles.</small>
+        <small class="setting-help" style="margin-bottom:12px; display:block;">Enable speed bubbles (5x points, shorter time).</small>
 
         <div class="toggle-row">
           <span class="toggle-label">Sound Effects</span>
@@ -2090,17 +2090,28 @@
     }
 
     function setActiveTheme(themeId) {
+      console.log('Setting theme:', themeId);
       const unlockable = UNLOCKABLES.find(u => u.id === themeId);
-      if (!unlockable || !unlockable.check()) return;
+      if (!unlockable) {
+        console.log('Theme not found:', themeId);
+        return;
+      }
+      if (!unlockable.check()) {
+        console.log('Theme not unlocked:', themeId);
+        return;
+      }
       
       // Remove all theme classes
       UNLOCKABLES.forEach(u => {
-        if (u.theme) document.body.classList.remove(u.theme);
+        if (u.theme) {
+          document.body.classList.remove(u.theme);
+        }
       });
       
       // Apply new theme
       if (unlockable.theme) {
         document.body.classList.add(unlockable.theme);
+        console.log('Applied theme class:', unlockable.theme);
       }
       
       storage.set('activeTheme_' + EXERCISE_ID, themeId);
@@ -2161,11 +2172,18 @@
       renderStreakCalendar();
       renderUnlockables();
       
+      // Debug: show unlock status
+      console.log('Max level reached:', storage.get('maxLevelReached_' + EXERCISE_ID, 1));
+      console.log('PB:', storage.get('PB_' + EXERCISE_ID, 0));
+      console.log('Current streak:', getStreakData().currentStreak);
+      
       // Apply saved theme
       const savedTheme = getActiveTheme();
+      console.log('Saved theme:', savedTheme);
       const unlockable = UNLOCKABLES.find(u => u.id === savedTheme);
       if (unlockable && unlockable.check() && unlockable.theme) {
         document.body.classList.add(unlockable.theme);
+        console.log('Applied saved theme:', unlockable.theme);
       }
       
       // Update challenge timer every minute
@@ -2236,8 +2254,11 @@
     }
 
     function showComboNotification(combo) {
+      // Only show once when first reaching max combo (5x), not repeatedly
       if (combo < 5) return;
-      showNotification(`${combo}x COMBO!`, 'combo');
+      if (sessionAchievements.includes('combo5_notified')) return;
+      sessionAchievements.push('combo5_notified');
+      showNotification(`${combo}x Max Combo!`, 'combo');
     }
 
     function showLevelUp(level) {
@@ -2303,7 +2324,7 @@
 
     // Achievement definitions for in-session
     const SESSION_ACHIEVEMENTS = {
-      firstBlood: { name: 'First Blood', icon: '🎯', condition: () => taps === 1 },
+      firstPop: { name: 'First Pop!', icon: '🫧', condition: () => taps === 1 },
       streak10: { name: '10 Streak!', icon: '🔥', condition: () => currentStreak === 10 },
       streak25: { name: '25 Streak!', icon: '🔥🔥', condition: () => currentStreak === 25 },
       streak50: { name: 'On Fire!', icon: '💥', condition: () => currentStreak === 50 },
@@ -2379,8 +2400,7 @@
       
       const rand = Math.random();
       if (powerupsEnabled && rand < SPEED_CHANCE) return 'speed';
-      if (powerupsEnabled && rand < SPEED_CHANCE + FREEZE_CHANCE) return 'freeze';
-      if (rand < SPEED_CHANCE + FREEZE_CHANCE + GOLDEN_CHANCE) return 'golden';
+      if (rand < SPEED_CHANCE + GOLDEN_CHANCE) return 'golden';
       return 'normal';
     }
 
@@ -2446,7 +2466,7 @@
       bubbleEl.style.left = '-9999px'; 
       bubbleEl.style.top = '-9999px'; 
       bubbleEl.textContent='';
-      bubbleEl.classList.remove('golden', 'freeze', 'speed');
+      bubbleEl.classList.remove('golden', 'speed');
       bubbleType = 'normal';
     }
 
@@ -2655,12 +2675,6 @@
         goldenStreak++;
         goldenPops++; // Track for daily challenges
         triggerHaptic('golden');
-      } else if (bubbleType === 'freeze') {
-        pts *= 2;
-        timeRemaining += 5000; // +5 seconds
-        showTimeBonus(bx, by, 5);
-        goldenStreak = 0;
-        triggerHaptic('freeze');
       } else if (bubbleType === 'speed') {
         pts *= 5;
         goldenStreak = 0;
@@ -2688,7 +2702,6 @@
       const particleColors = {
         normal: currentCombo > 1 ? '#ff6ec7' : '#8ff5b2',
         golden: '#ffd700',
-        freeze: '#00d4ff',
         speed: '#bf5fff'
       };
       createParticles(bx, by, bubbleType === 'golden' ? 14 : 10, particleColors[bubbleType]);
