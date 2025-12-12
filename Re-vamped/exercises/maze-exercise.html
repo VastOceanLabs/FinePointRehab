@@ -142,6 +142,13 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: var(--space-4);
+      overflow-x: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        padding: var(--space-2);
+      }
     }
 
     /* Screen system - simple and reliable */
@@ -347,6 +354,13 @@
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-lg);
       overflow: hidden;
+      max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      #game-container {
+        padding: var(--space-2);
+      }
     }
 
     #stars-container {
@@ -372,12 +386,12 @@
 
     @media (max-width: 768px) {
       #maze-container {
-        width: 95vw;
-        height: 70vw;
-        max-width: 450px;
-        max-height: 350px;
-        min-width: 300px;
-        min-height: 220px;
+        width: calc(100vw - 48px);
+        height: calc((100vw - 48px) * 0.7);
+        max-width: 420px;
+        max-height: 320px;
+        min-width: 280px;
+        min-height: 200px;
       }
     }
 
@@ -667,36 +681,62 @@
       100% { opacity: 0; }
     }
 
-    /* Perfect run indicator */
+    /* Perfect run indicator - shows briefly as celebration */
     .perfect-indicator {
       position: absolute;
-      top: var(--space-2);
-      right: var(--space-2);
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
-      border: 1px solid var(--gold);
-      border-radius: var(--radius);
-      padding: var(--space-1) var(--space-2);
-      font-size: var(--font-size-xs);
-      color: var(--gold);
+      top: 50%;
+      left: 50%;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 180, 0, 0.95));
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: #1a1a2e;
       display: flex;
       align-items: center;
-      gap: var(--space-1);
+      gap: var(--space-2);
       opacity: 0;
       visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      z-index: 25;
+      transform: translate(-50%, -50%) scale(0.5);
+      transition: none;
+      z-index: 100;
       pointer-events: none;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
     }
 
     .perfect-indicator.show {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0);
+      animation: perfectPopup 1.5s ease-out forwards;
+    }
+
+    @keyframes perfectPopup {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+      15% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+      25% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      75% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+        visibility: hidden;
+      }
     }
 
     .perfect-indicator .star {
-      font-size: 14px;
+      font-size: 24px;
     }
 
     #error-message {
@@ -1265,20 +1305,23 @@
     }
 
     function adjustMazeSize() {
-      const containerWidth = mazeContainer.offsetWidth || 600;
+      const pageEl = document.querySelector('.page');
+      const pagePadding = 32; // 16px padding on each side
+      const availableWidth = Math.min(window.innerWidth - pagePadding, pageEl ? pageEl.clientWidth : window.innerWidth);
       const containerHeight = getViewportHeight();
       const isLandscape = window.innerWidth > window.innerHeight;
 
       if (isLandscape) {
-        let w = Math.min(containerWidth * 0.95, containerHeight * 1.2);
-        let h = Math.min(containerHeight * 0.70, w * 0.70);
+        let w = Math.min(availableWidth * 0.95, containerHeight * 1.2);
+        let h = Math.min(containerHeight * 0.65, w * 0.65);
         mazeWidth = Math.max(220, Math.round(w));
         mazeHeight = Math.max(180, Math.round(h));
       } else {
-        let w = Math.min(containerWidth * 0.95, containerHeight * 0.90);
-        let h = Math.min(containerHeight * 0.70, w * 0.90);
+        // Portrait mode - be more conservative with width
+        let w = Math.min(availableWidth - 24, containerHeight * 0.85);
+        let h = Math.min(containerHeight * 0.60, w * 0.75);
         mazeWidth = Math.max(220, Math.round(w));
-        mazeHeight = Math.max(220, Math.round(h));
+        mazeHeight = Math.max(200, Math.round(h));
       }
 
       mazeContainer.style.width = `${mazeWidth}px`;
@@ -1662,7 +1705,7 @@
       pathTraces = [];
       visitedNodes = new Set();
       isPerfectRun = true;
-      perfectIndicator.classList.add('show');
+      // Don't show perfect indicator here - it will be shown when maze actually starts
 
       for (let i = 0; i < rows; i++) {
         const row = [];
@@ -1782,7 +1825,6 @@
         // Check if this is a backtrack (revisiting a node)
         if (visitedNodes.has(nodeIndex)) {
           isPerfectRun = false;
-          perfectIndicator.classList.remove('show');
         }
         
         const targetNode = pathNodes[nodeIndex];
@@ -1946,6 +1988,10 @@
         perfectRuns++;
         mazeScore = Math.round(mazeScore * 1.5);
         AudioSystem.playPerfect();
+        // Show perfect run celebration popup
+        perfectIndicator.classList.remove('show');
+        void perfectIndicator.offsetWidth; // Force reflow to restart animation
+        perfectIndicator.classList.add('show');
       } else {
         AudioSystem.playComplete();
       }
