@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="no">
+  <meta name="format-detection" content="telephone=no">
   <title>Visual Scanner – Visual-Cognitive Training</title>
 
   <style>
@@ -52,6 +54,16 @@
       background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
       color: var(--text-primary);
       min-height: 100vh;
+      /* Prevent iOS text selection and callouts */
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      /* Prevent pull-to-refresh and overscroll */
+      overscroll-behavior: none;
+    }
+    
+    /* Prevent double-tap zoom on interactive elements */
+    button, .btn, .visual-object, .toggle-switch {
+      touch-action: manipulation;
     }
 
     .btn {
@@ -150,6 +162,15 @@
       max-width: 520px;
       margin: 0 auto;
       padding-top: var(--space-6);
+      /* Allow text selection in settings */
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    
+    /* Allow selection in form inputs */
+    .input, select, input {
+      -webkit-user-select: text;
+      user-select: text;
     }
 
     .settings-panel h2 {
@@ -387,12 +408,11 @@
       color: var(--text-secondary);
     }
 
-    /* Streak Display */
+    /* Streak Display - positioned in game area, not HUD */
     .streak-display {
       position: absolute;
-      top: 50%;
-      right: var(--space-4);
-      transform: translateY(-50%);
+      top: var(--space-3);
+      right: var(--space-3);
       display: flex;
       align-items: center;
       gap: var(--space-1);
@@ -404,6 +424,8 @@
       color: var(--streak-orange);
       opacity: 0;
       transition: all 0.3s ease;
+      z-index: 25;
+      pointer-events: none;
     }
 
     .streak-display.visible {
@@ -424,8 +446,8 @@
     }
 
     @keyframes streakPulse {
-      0%, 100% { transform: translateY(-50%) scale(1); }
-      50% { transform: translateY(-50%) scale(1.05); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .streak-icon {
@@ -446,11 +468,10 @@
 
     @media (max-width: 768px) {
       .streak-display {
-        position: static;
-        transform: none;
-        margin: 0 auto;
-        grid-column: 1 / -1;
-        justify-self: center;
+        top: var(--space-2);
+        right: var(--space-2);
+        font-size: 12px;
+        padding: var(--space-1);
       }
     }
 
@@ -1144,12 +1165,6 @@
           <div class="hud-label">Time Left</div>
         </div>
 
-        <div class="streak-display" id="streak-display">
-          <span class="streak-icon">🔥</span>
-          <span class="streak-count" id="streak-count">0</span>
-          <span class="multiplier-badge" id="multiplier-badge">1x</span>
-        </div>
-
         <div class="controls">
           <button id="pause-session" class="btn btn-secondary">Pause</button>
           <button id="end-session" class="btn">End</button>
@@ -1158,6 +1173,13 @@
 
       <div class="panel" id="game-container">
         <div id="stars-container"></div>
+        
+        <!-- Streak Display - now inside game container -->
+        <div class="streak-display" id="streak-display">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count" id="streak-count">0</span>
+          <span class="multiplier-badge" id="multiplier-badge">1x</span>
+        </div>
 
         <!-- Countdown Overlay -->
         <div class="countdown-overlay" id="countdown-overlay">
@@ -1229,55 +1251,94 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // ============================================
-      // STORAGE UTILITIES
+      // STORAGE UTILITIES (iOS-safe)
       // ============================================
+      
+      // Test if localStorage is available (fails in iOS private browsing)
+      const isStorageAvailable = (() => {
+        try {
+          const testKey = '__storage_test__';
+          localStorage.setItem(testKey, testKey);
+          localStorage.removeItem(testKey);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      })();
+      
+      // In-memory fallback for when localStorage isn't available
+      const memoryStorage = {};
+      
       const storage = {
         get: (key, defaultValue) => {
           try {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : defaultValue;
+            if (isStorageAvailable) {
+              const item = localStorage.getItem(key);
+              return item ? JSON.parse(item) : defaultValue;
+            } else {
+              return memoryStorage[key] !== undefined ? memoryStorage[key] : defaultValue;
+            }
           } catch {
             return defaultValue;
           }
         },
         set: (key, value) => {
           try {
-            localStorage.setItem(key, JSON.stringify(value));
+            if (isStorageAvailable) {
+              localStorage.setItem(key, JSON.stringify(value));
+            } else {
+              memoryStorage[key] = value;
+            }
           } catch (e) {
-            console.error('Storage error:', e);
+            // Silently fall back to memory storage
+            memoryStorage[key] = value;
           }
         }
       };
 
       // ============================================
-      // AUDIO SYSTEM
+      // AUDIO SYSTEM (iOS-safe with lazy init)
       // ============================================
       const AudioSystem = {
         enabled: true,
         context: null,
+        initialized: false,
         
         init() {
-          try {
-            this.context = new (window.AudioContext || window.webkitAudioContext)();
-          } catch (e) {
-            console.warn('Web Audio not supported');
+          // Don't create context on load - wait for user interaction (iOS requirement)
+          // Context will be created on first play() call after user interaction
+          this.initialized = true;
+        },
+        
+        ensureContext() {
+          if (!this.context) {
+            try {
+              this.context = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+              // Web Audio not supported - fail silently
+              return false;
+            }
           }
+          
+          // Resume context if suspended (iOS autoplay policy)
+          if (this.context && this.context.state === 'suspended') {
+            this.context.resume().catch(() => {});
+          }
+          
+          return !!this.context;
         },
 
         play(type) {
-          if (!this.enabled || !this.context) return;
+          if (!this.enabled) return;
+          if (!this.ensureContext()) return;
           
-          // Resume context if suspended (autoplay policy)
-          if (this.context.state === 'suspended') {
-            this.context.resume();
-          }
+          try {
+            const osc = this.context.createOscillator();
+            const gain = this.context.createGain();
+            osc.connect(gain);
+            gain.connect(this.context.destination);
 
-          const osc = this.context.createOscillator();
-          const gain = this.context.createGain();
-          osc.connect(gain);
-          gain.connect(this.context.destination);
-
-          const now = this.context.currentTime;
+            const now = this.context.currentTime;
 
           switch (type) {
             case 'correct':
@@ -1347,6 +1408,9 @@
               osc.stop(now + 0.5);
               osc2.stop(now + 0.5);
               break;
+          }
+          } catch (e) {
+            // Audio playback failed - fail silently
           }
         }
       };
@@ -1434,8 +1498,11 @@
       const HISTORY_KEY = 'visual-scanner:history';
       const ACHIEVEMENTS_KEY = 'visual-scanner:achievements';
 
-      const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
-      const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
+      const getPB = () => {
+        const val = storage.get(PB_KEY, 0);
+        return typeof val === 'number' ? val : parseInt(val || '0', 10);
+      };
+      const setPB = (score) => storage.set(PB_KEY, score);
 
       function getSessionHistory() {
         return storage.get(HISTORY_KEY, []);
@@ -2223,6 +2290,34 @@
           // Don't auto-resume, user must click resume
         }
       });
+
+      // ============================================
+      // iOS-SPECIFIC HANDLERS
+      // ============================================
+      
+      // Prevent context menu on long-press in game area
+      if (scanArea) {
+        scanArea.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          return false;
+        });
+      }
+      
+      // Prevent iOS from showing "data detector" warnings on game container
+      const gameContainer = document.getElementById('game-container');
+      if (gameContainer) {
+        gameContainer.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          return false;
+        });
+      }
+      
+      // Prevent pull-to-refresh on iOS
+      document.body.addEventListener('touchmove', (e) => {
+        if (isSessionActive && e.target.closest('#game-container')) {
+          e.preventDefault();
+        }
+      }, { passive: false });
 
       // ============================================
       // INITIALIZATION
