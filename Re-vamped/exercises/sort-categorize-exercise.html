@@ -352,9 +352,10 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-lg);
-      overflow: hidden;
+      overflow: visible;
       height: 70vh;
       min-height: 500px;
+      touch-action: none;
     }
 
     #stars-container {
@@ -375,7 +376,8 @@
       align-items: center;
       gap: var(--space-3);
       position: relative;
-      overflow: auto;
+      overflow: visible;
+      touch-action: none;
     }
 
     #categories-container {
@@ -388,6 +390,7 @@
       align-items: center;
       gap: var(--space-2);
       flex-wrap: wrap;
+      touch-action: none;
     }
 
     .sort-object {
@@ -452,7 +455,8 @@
     }
 
     .sort-object.dragging {
-      opacity: 0.25;
+      opacity: 0.3;
+      transform: scale(0.95);
     }
 
     .sort-object.selected {
@@ -478,11 +482,28 @@
     }
 
     .object-clone {
-      position: absolute;
-      opacity: 0.85;
+      position: fixed;
+      opacity: 0.9;
       pointer-events: none;
-      z-index: 15;
-      transition: transform 0.08s ease;
+      z-index: 9999;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(111, 211, 245, 0.6);
+      transform: scale(1.05);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--brand-aqua));
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .object-clone.number-type {
+      background: radial-gradient(circle at 30% 30%, #1a1f3a, #0f1629);
+      border: 2px solid var(--brand-aqua);
+    }
+
+    .object-clone.letter-type {
+      background: radial-gradient(circle at 30% 30%, #252b47, #1a1f3a);
+      border: 2px solid var(--brand-aqua);
     }
 
     .category-box {
@@ -1963,51 +1984,97 @@
 
     // ============ DRAG MODE ============
     function pointerPos(e) {
-      if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      if (e.touches && e.touches.length > 0) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      }
       return { x: e.clientX, y: e.clientY };
     }
 
     function setupGlobalDragHandlers() {
       if (globalMoveHandler) return;
-      globalMoveHandler = (e) => {
-        if (!dragClone) return;
+      
+      const onMove = (e) => {
+        if (!dragging || !dragClone) return;
         e.preventDefault();
         const { x, y } = pointerPos(e);
-        dragClone.style.transform = `translate(${x - dragOffset.x - parseFloat(dragClone.style.left)}px, ${y - dragOffset.y - parseFloat(dragClone.style.top)}px)`;
+        
+        // Position clone directly at cursor minus offset
+        dragClone.style.left = (x - dragOffset.x) + 'px';
+        dragClone.style.top = (y - dragOffset.y) + 'px';
+        
+        // Highlight category under cursor
         const target = categoryAtPoint(x, y);
-        for (const box of categoriesContainer.children) {
-          box.classList.toggle('highlight', box === target);
+        if (categoriesContainer) {
+          for (const box of categoriesContainer.children) {
+            box.classList.toggle('highlight', box === target);
+          }
         }
       };
-      globalUpHandler = (e) => {
-        if (!dragClone) return;
+      
+      const onEnd = (e) => {
+        if (!dragging) return;
         const { x, y } = pointerPos(e);
         const target = categoryAtPoint(x, y);
         finalizeDrop(target);
       };
-      window.addEventListener('pointermove', globalMoveHandler, { passive: false });
-      window.addEventListener('pointerup', globalUpHandler, { passive: false });
+      
+      // Mouse events
+      document.addEventListener('mousemove', onMove, { passive: false });
+      document.addEventListener('mouseup', onEnd, { passive: false });
+      
+      // Touch events
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd, { passive: false });
+      document.addEventListener('touchcancel', onEnd, { passive: false });
+      
+      globalMoveHandler = onMove;
+      globalUpHandler = onEnd;
     }
 
     function attachDragHandlers(elm) {
-      const onDown = (e) => {
+      const onStart = (e) => {
         if (!isSessionActive || isPaused) return;
         e.preventDefault();
-        if (elm.setPointerCapture) elm.setPointerCapture(e.pointerId);
+        e.stopPropagation();
+        
         const { x, y } = pointerPos(e);
         const rect = elm.getBoundingClientRect();
-        dragOffset = { x: x - rect.left, y: y - rect.top };
+        
+        // Store offset from top-left of element to cursor
+        dragOffset = { 
+          x: x - rect.left, 
+          y: y - rect.top 
+        };
+        
         dragging = elm;
+        
+        // Create clone for visual drag feedback
         dragClone = elm.cloneNode(true);
         dragClone.classList.add('object-clone');
+        dragClone.style.position = 'fixed';
         dragClone.style.width = rect.width + 'px';
         dragClone.style.height = rect.height + 'px';
-        dragClone.style.left = rect.left + 'px';
-        dragClone.style.top = rect.top + 'px';
+        dragClone.style.left = (x - dragOffset.x) + 'px';
+        dragClone.style.top = (y - dragOffset.y) + 'px';
+        dragClone.style.margin = '0';
+        dragClone.style.zIndex = '9999';
+        dragClone.style.pointerEvents = 'none';
+        dragClone.style.transform = 'none';
+        dragClone.style.animation = 'none';
+        dragClone.style.opacity = '0.9';
         document.body.appendChild(dragClone);
+        
         elm.classList.add('dragging');
       };
-      elm.addEventListener('pointerdown', onDown, { passive: false });
+      
+      // Mouse events
+      elm.addEventListener('mousedown', onStart, { passive: false });
+      
+      // Touch events
+      elm.addEventListener('touchstart', onStart, { passive: false });
     }
 
     function categoryAtPoint(x, y) {
@@ -2026,20 +2093,27 @@
       dragging = null;
       dragClone = null;
       
-      for (const box of categoriesContainer.children) {
-        box.classList.remove('highlight');
+      // Remove all highlights
+      if (categoriesContainer) {
+        for (const box of categoriesContainer.children) {
+          box.classList.remove('highlight');
+        }
+      }
+      
+      // Remove clone from DOM
+      if (clone && clone.parentNode) {
+        clone.parentNode.removeChild(clone);
       }
       
       if (!obj) return;
       
+      // Remove dragging state
+      obj.classList.remove('dragging');
+      
+      // Process the drop
       if (targetBox) {
         handlePlacement(obj, targetBox);
-        obj.classList.remove('dragging');
-      } else {
-        obj.classList.remove('dragging');
       }
-      
-      if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
     }
 
     // ============ GAME FLOW ============
