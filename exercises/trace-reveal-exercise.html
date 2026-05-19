@@ -649,13 +649,103 @@
     .history-date { color: var(--text-muted); }
     .history-score { color: var(--brand-aqua); font-weight: var(--font-weight-semibold); }
     .history-difficulty { padding: 2px 6px; border-radius: 4px; background: var(--bg-secondary); text-transform: capitalize; }
+
+    /* ===== Session-complete medal (matches Bubble / Comet) ===== */
+    .medal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 4px 0 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text { text-align: left; line-height: 1.25; }
+    .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+    .medal-tier.bronze   { color: #f3a872; }
+    .medal-tier.silver   { color: #e8eef6; }
+    .medal-tier.gold     { color: #ffd700; }
+    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    @keyframes medalReveal {
+      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
+      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    /* ===== Per-session insight callout ===== */
+    .session-insight {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 14px; padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(111,211,245,.10);
+      border-left: 4px solid rgba(111,211,245,.65);
+      color: #e7f6ff;
+      font-size: 14px; line-height: 1.4;
+    }
+    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
+    .session-insight .ins-text strong { color: #bfe6ff; }
+
+    /* ===== Streak milestone notification + particle burst ===== */
+    .streak-milestone-toast {
+      position: fixed;
+      top: 18%;
+      left: 50%;
+      transform: translate(-50%, -20px) scale(.6);
+      padding: 14px 32px;
+      border-radius: 14px;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--gold, #ffd700);
+      text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
+      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
+      border: 3px solid var(--gold, #ffd700);
+      box-shadow: 0 0 40px rgba(255,215,0,.45);
+      z-index: 80;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: streakSlide 2.4s ease-out forwards;
+    }
+    @keyframes streakSlide {
+      0% { opacity: 0; transform: translate(-50%, -30px) scale(.6); }
+      15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+      30% { transform: translate(-50%, 0) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -12px) scale(.95); }
+    }
+    .streak-burst {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    @keyframes streakBurst {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    }
   </style>
+  <!-- Unified game chrome -->
+  <link rel="stylesheet" href="/css/game-shell.css">
 </head>
 
-<body>
+<body class="game-page">
   <header class="site-header">
     <div class="inner">
-      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <a class="btn btn-secondary" href="../" aria-label="Go to Home">← Home</a>
       <h1>Trace & Reveal</h1>
       <div class="header-controls">
         <button id="sound-toggle" class="sound-toggle" title="Toggle sound" aria-label="Toggle sound">🔊</button>
@@ -675,7 +765,7 @@
 
   <main class="page">
     <aside class="settings-panel panel active" data-screen="settings">
-      <h2>Session Settings</h2>
+      <h2>Settings</h2>
 
       <div class="game-description">
         <p><strong>How to play:</strong> Trace the dotted line to reveal the hidden shape. Hit the coverage target before time runs out. Improves fine motor control, hand-eye coordination, and visual-motor integration.</p>
@@ -827,6 +917,17 @@
 
   <div id="completion-message" class="completion panel">
     <h2>🎉 Session Complete!</h2>
+    <div id="medal" class="medal" style="display:none;" aria-live="polite">
+      <div id="medalDisc" class="medal-disc"></div>
+      <div class="medal-text">
+        <div id="medalTier" class="medal-tier"></div>
+        <div id="medalCaption" class="medal-caption"></div>
+      </div>
+    </div>
+    <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+      <span class="ins-icon" id="insIcon">✨</span>
+      <span class="ins-text" id="insText"></span>
+    </div>
     <div id="completion-scores">
       <p>Shapes Completed: <span id="final-shapes" class="score-highlight">0</span></p>
       <p>Best Streak: <span id="final-streak" class="score-highlight">0</span></p>
@@ -910,6 +1011,14 @@
       const achievementToast = document.getElementById("achievement-toast");
       const achievementToastName = document.getElementById("achievement-toast-name");
       const historyList = document.getElementById("history-list");
+      // Session-complete polish: medal + insight elements
+      const medalEl = document.getElementById('medal');
+      const medalDisc = document.getElementById('medalDisc');
+      const medalTier = document.getElementById('medalTier');
+      const medalCaption = document.getElementById('medalCaption');
+      const insightEl = document.getElementById('sessionInsight');
+      const insIcon = document.getElementById('insIcon');
+      const insText = document.getElementById('insText');
 
       const hidden = document.getElementById("hidden");
       const mask = document.getElementById("mask");
@@ -986,7 +1095,117 @@
       generateStars(starsContainer, 150);
 
       // Storage
-      const KEYS = { PB: 'trace-reveal:best', TOTAL_SHAPES: 'trace-reveal:totalShapes', BEST_STREAK: 'trace-reveal:bestStreak', ACHIEVEMENTS: 'trace-reveal:achievements', HISTORY: 'trace-reveal:history' };
+      const KEYS = { PB: 'trace-reveal:best', TOTAL_SHAPES: 'trace-reveal:totalShapes', BEST_STREAK: 'trace-reveal:bestStreak', ACHIEVEMENTS: 'trace-reveal:achievements', HISTORY: 'trace-reveal:history', SESSIONS: 'trace-reveal:sessions' };
+
+      // ===== Medal + per-session insight =====
+      function loadPastSessions() {
+        try { return JSON.parse(localStorage.getItem(KEYS.SESSIONS) || '[]'); } catch { return []; }
+      }
+      function savePastSession(stats) {
+        try {
+          const arr = loadPastSessions();
+          arr.unshift(stats);
+          if (arr.length > 10) arr.length = 10;
+          localStorage.setItem(KEYS.SESSIONS, JSON.stringify(arr));
+        } catch {}
+      }
+      function computeMedalTier(currentScore, prevPb) {
+        if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+        if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+        const r = currentScore / prevPb;
+        if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+        if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+        return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+      }
+      function showMedal(currentScore, prevPb) {
+        if (!medalEl) return;
+        const m = computeMedalTier(currentScore, prevPb);
+        medalDisc.className = 'medal-disc ' + m.tier;
+        medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+        medalTier.className = 'medal-tier ' + m.tier;
+        medalTier.textContent = m.label;
+        medalCaption.textContent = m.caption;
+        medalEl.style.display = 'flex';
+      }
+      function computeInsight(curr, past) {
+        if (!past || past.length === 0) return null;
+        const prev = past[0];
+        if (curr.coverage >= 95 && curr.shapes >= 3) {
+          return { icon: '🎯', text: `<strong>Outstanding coverage</strong> — ${Math.round(curr.coverage)}% this session.` };
+        }
+        const bestStreakEver = Math.max(...past.map(p => p.streak || 0));
+        if (curr.streak > bestStreakEver && curr.streak >= 3) {
+          return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.streak} in a row.` };
+        }
+        if (curr.shapes > prev.shapes && curr.shapes >= 3) {
+          return { icon: '✏️', text: `<strong>More shapes completed</strong> than last session — ${curr.shapes} vs ${prev.shapes}.` };
+        }
+        const bestCovEver = Math.max(...past.map(p => p.coverage || 0));
+        if (curr.coverage > bestCovEver && curr.shapes >= 2) {
+          return { icon: '🎨', text: `<strong>Most precise session yet</strong> — ${Math.round(curr.coverage)}% peak coverage.` };
+        }
+        if (curr.shapes >= 1 && curr.shapes === prev.shapes) {
+          return { icon: '📈', text: `<strong>Consistent output</strong> — ${curr.shapes} shapes two sessions in a row.` };
+        }
+        return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+      }
+      function showInsight(curr, past) {
+        if (!insightEl) return;
+        const ins = computeInsight(curr, past);
+        if (!ins) { insightEl.style.display = 'none'; return; }
+        insIcon.textContent = ins.icon;
+        insText.innerHTML = ins.text;
+        insightEl.style.display = 'flex';
+      }
+
+      // ===== Streak milestone celebrations =====
+      const STREAK_MILESTONES = [5, 10, 15, 25, 50];
+      let firedStreakMilestones = new Set();
+      function checkStreakMilestone(streak) {
+        if (!STREAK_MILESTONES.includes(streak)) return;
+        if (firedStreakMilestones.has(streak)) return;
+        firedStreakMilestones.add(streak);
+        celebrateStreak(streak);
+      }
+      function celebrateStreak(n) {
+        const flame = n >= 25 ? '🔥🔥🔥' : n >= 10 ? '🔥🔥' : '🔥';
+        // Big toast
+        const toast = document.createElement('div');
+        toast.className = 'streak-milestone-toast';
+        toast.textContent = `${flame} Streak of ${n}!`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+        // Particle burst
+        burstStreakParticles(n >= 25 ? 36 : n >= 10 ? 28 : 22);
+        // Sound + haptic
+        try { playMilestoneSound?.(); } catch {}
+        if (hapticCheckbox?.checked && navigator.vibrate) {
+          navigator.vibrate(n >= 25 ? [40, 30, 60, 30, 90] : [30, 40, 50]);
+        }
+      }
+      function burstStreakParticles(count) {
+        if (!particlesContainer) return;
+        const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
+        const rect = particlesContainer.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height * 0.3;
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'streak-burst';
+          p.style.left = cx + 'px';
+          p.style.top = cy + 'px';
+          p.style.background = colors[i % colors.length];
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 80 + Math.random() * 140;
+          p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
+          p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
+          const dur = 800 + Math.random() * 400;
+          p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
+          particlesContainer.appendChild(p);
+          setTimeout(() => p.remove(), dur + 60);
+        }
+      }
+
       const getPB = () => parseInt(localStorage.getItem(KEYS.PB) || '0', 10);
       const setPB = (score) => localStorage.setItem(KEYS.PB, String(score));
       const getTotalShapes = () => parseInt(localStorage.getItem(KEYS.TOTAL_SHAPES) || '0', 10);
@@ -1355,6 +1574,7 @@
         shapesDone++;
         currentStreak++;
         sessionBestStreak = Math.max(sessionBestStreak, currentStreak);
+        checkStreakMilestone(currentStreak);
         doneV.textContent = String(shapesDone);
         streakV.textContent = String(currentStreak);
         const streakMultiplier = currentStreak >= 10 ? 2 : (currentStreak >= 5 ? 1.5 : 1);
@@ -1438,6 +1658,7 @@
           bestCov = 0;
           currentStreak = 0;
           sessionBestStreak = 0;
+          firedStreakMilestones = new Set();
           paused = false;
           playing = true;
           document.body.classList.add('playing');
@@ -1463,6 +1684,14 @@
         if (score > previousPB) { setPB(score); newRecordEl.classList.remove('hidden'); } else { newRecordEl.classList.add('hidden'); }
         saveToHistory({ date: new Date().toISOString(), difficulty: diffSelect.value, score, shapes: shapesDone });
         updateStats();
+
+        // Medal + per-session insight (compare against prior PB and last 10 sessions)
+        const currStats = { score, shapes: shapesDone, streak: sessionBestStreak, coverage: bestCov };
+        const past = loadPastSessions();
+        showMedal(score, previousPB);
+        showInsight(currStats, past);
+        savePastSession({ ...currStats, ts: Date.now() });
+
         if (completionModal) completionModal.classList.add('show');
         setScreen('settings');
       }

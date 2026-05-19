@@ -547,6 +547,117 @@
             clip: auto;
             white-space: normal;
         }
+
+        /* =====================================================================
+           Hybrid theme — dark exercise showcase that bridges into game pages.
+           The hero + credibility sections stay clinical white; #exercises is a
+           deep-space island that previews the game aesthetic.
+           ===================================================================== */
+        #exercises {
+            position: relative;
+            isolation: isolate;
+            background:
+                radial-gradient(900px 600px at 20% 30%, rgba(70, 30, 120, 0.35), transparent 60%),
+                radial-gradient(700px 500px at 80% 70%, rgba(20, 120, 160, 0.28), transparent 55%),
+                linear-gradient(180deg, #070b16 0%, #0f1630 50%, #0b1024 100%);
+            /* Extra top/bottom space so the curved divider has room to breathe */
+            padding-top: calc(var(--space-16) + 96px);
+            padding-bottom: calc(var(--space-16) + 96px);
+            color: #eaf6ff;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        /* Curved SVG dividers — top and bottom — that organically blend the dark
+           band into the adjacent white sections. The fill color matches the
+           surrounding section background, so it reads as one continuous canvas. */
+        .section-divider {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 90px;
+            display: block;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .section-divider svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .section-divider--top {
+            top: -1px; /* hides any sub-pixel hairline */
+        }
+        .section-divider--bottom {
+            bottom: -1px;
+            transform: rotate(180deg);
+        }
+        .section-divider path {
+            fill: var(--bg-primary, #fff);
+        }
+
+        /* Subtle stardust overlay inside the dark band (sparse near edges,
+           denser in the middle) to make the transition feel intentional. */
+        #exercises .stardust {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 12% 20%, rgba(255,255,255,0.55), transparent 60%),
+                radial-gradient(1px 1px at 78% 35%, rgba(255,255,255,0.45), transparent 60%),
+                radial-gradient(1px 1px at 32% 70%, rgba(255,255,255,0.5), transparent 60%),
+                radial-gradient(1px 1px at 65% 82%, rgba(255,255,255,0.35), transparent 60%),
+                radial-gradient(2px 2px at 50% 50%, rgba(150,220,255,0.4), transparent 60%),
+                radial-gradient(1px 1px at 20% 90%, rgba(180,235,255,0.3), transparent 60%),
+                radial-gradient(1px 1px at 88% 12%, rgba(180,235,255,0.3), transparent 60%);
+            background-size: 100% 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        #exercises > .container {
+            position: relative;
+            z-index: 3; /* above stardust + dividers */
+        }
+
+        #exercises .section-title {
+            color: #eaf6ff;
+        }
+        #exercises .section-subtitle {
+            color: #b8c5d1;
+        }
+
+        /* Dark cards inside the exercise showcase */
+        #exercises .card {
+            background: rgba(10, 16, 36, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+        }
+        #exercises .card:hover {
+            transform: translateY(-3px);
+            border-color: #6fd3f5;
+            box-shadow: 0 16px 48px rgba(111, 211, 245, 0.18);
+        }
+        #exercises .card-title {
+            color: #eaf6ff;
+        }
+        #exercises .card-description {
+            color: #b8c5d1;
+        }
+
+        /* Outline button restyled for dark cards */
+        #exercises .btn-outline {
+            background: transparent;
+            color: #6fd3f5;
+            border: 1px solid rgba(111, 211, 245, 0.45);
+        }
+        #exercises .btn-outline:hover {
+            background: rgba(111, 211, 245, 0.12);
+            border-color: #6fd3f5;
+            color: #bfe6ff;
+        }
     </style>
 </head>
 <body>
@@ -577,10 +688,10 @@
                 <p>Professional-grade therapeutic exercises designed to support upper limb rehabilitation, motor skills development, and cognitive function. Evidence-based, accessible, and always free.</p>
                 
                 <div class="exercise-quick-access">
-                    <a href="/exercises/bubble-exercise.html" class="btn btn-primary">Start Bubble Tap</a>
-                    <a href="/exercises/comet-exercise.html" class="btn btn-primary">Start Comet Tap</a>
-                    <a href="/exercises/trace-reveal-exercise.html" class="btn btn-primary">Start Trace & Reveal</a>
-                    <a href="/exercises/rhythm-exercise.html" class="btn btn-primary">Start Rhythm Reach</a>
+                    <a href="exercises/bubble-exercise.html" class="btn btn-primary">Start Bubble Tap</a>
+                    <a href="exercises/comet-exercise.html" class="btn btn-primary">Start Comet Tap</a>
+                    <a href="exercises/trace-reveal-exercise.html" class="btn btn-primary">Start Trace & Reveal</a>
+                    <a href="exercises/rhythm-exercise.html" class="btn btn-primary">Start Rhythm Reach</a>
                 </div>
                 
                 <a href="#exercises" class="btn btn-secondary">View All Exercises</a>
@@ -588,6 +699,12 @@
         </section>
         
         <section id="exercises">
+            <div class="section-divider section-divider--top" aria-hidden="true">
+                <svg viewBox="0 0 1440 90" preserveAspectRatio="none" focusable="false">
+                    <path d="M0,0 C320,90 720,90 1440,30 L1440,0 L0,0 Z"></path>
+                </svg>
+            </div>
+            <div class="stardust" aria-hidden="true"></div>
             <div class="container">
                 <div class="section-header">
                     <h2 class="section-title">Therapeutic Exercise Library</h2>
@@ -599,7 +716,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Bubble Tap Exercise</h3>
                             <p class="card-description">Enhances fine motor control, reaction time, and hand-eye coordination through interactive bubble tapping. Customizable timing and target sizes for progressive difficulty.</p>
-                            <a href="/exercises/bubble-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/bubble-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -607,7 +724,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Comet Tap Exercise</h3>
                             <p class="card-description">Develops dynamic tracking skills and bilateral coordination through moving target interaction. Adjustable speeds support motor planning progression.</p>
-                            <a href="/exercises/comet-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/comet-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -615,7 +732,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Trace and Reveal</h3>
                             <p class="card-description">Supports controlled movement patterns and sustained attention through guided tracing activities. Promotes motor learning and visual-motor integration.</p>
-                            <a href="/exercises/trace-reveal-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/trace-reveal-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -623,7 +740,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Rhythm Reach Exercise</h3>
                             <p class="card-description">Targets working memory and sequential processing through pattern recognition and reproduction. Combines cognitive and motor skill development.</p>
-                            <a href="/exercises/rhythm-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/rhythm-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -631,7 +748,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Precision Drop Exercise</h3>
                             <p class="card-description">Focuses on fine motor precision and spatial awareness through controlled drag-and-drop movements. Progressive difficulty supports skill refinement.</p>
-                            <a href="/exercises/precision-drop-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/precision-drop-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -639,7 +756,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Cosmic Maze Exercise</h3>
                             <p class="card-description">Enhances motor planning and problem-solving through guided navigation tasks. Supports executive function and controlled movement patterns.</p>
-                            <a href="/exercises/maze-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/maze-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -647,7 +764,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Mirror Match Exercise</h3>
                             <p class="card-description">Develops bilateral coordination and symmetrical movement patterns. Particularly beneficial for addressing motor asymmetries and promoting cross-body integration.</p>
-                            <a href="/exercises/mirror-match-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/mirror-match-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -655,7 +772,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Sequence Builder Exercise</h3>
                             <p class="card-description">Strengthens executive function, working memory, and sequential processing skills. Supports cognitive rehabilitation through progressive complexity.</p>
-                            <a href="/exercises/sequence-builder-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/sequence-builder-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -663,7 +780,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Sort & Categorize Exercise</h3>
                             <p class="card-description">Improves visual discrimination, decision-making, and attention through classification tasks. Combines cognitive processing with motor control.</p>
-                            <a href="/exercises/sort-categorize-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/sort-categorize-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                     
@@ -671,13 +788,18 @@
                         <div class="card-content">
                             <h3 class="card-title">Visual Scanner Exercise</h3>
                             <p class="card-description">Enhances visual scanning patterns and field-of-vision awareness. Specifically designed for addressing visual neglect and improving search strategies.</p>
-                            <a href="/exercises/visual-scanner-exercise.html" class="btn btn-outline">Start Exercise</a>
+                            <a href="exercises/visual-scanner-exercise.html" class="btn btn-outline">Start Exercise</a>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="section-divider section-divider--bottom" aria-hidden="true">
+                <svg viewBox="0 0 1440 90" preserveAspectRatio="none" focusable="false">
+                    <path d="M0,0 C320,90 720,90 1440,30 L1440,0 L0,0 Z"></path>
+                </svg>
+            </div>
         </section>
-        
+
         <section id="features">
             <div class="container">
                 <div class="section-header">
@@ -733,7 +855,7 @@
                 </div>
                 
                 <div style="text-align: center;">
-                    <a href="/exercises/bubble-exercise.html" class="btn btn-primary" style="margin: var(--space-2);">Try Your First Exercise</a>
+                    <a href="exercises/bubble-exercise.html" class="btn btn-primary" style="margin: var(--space-2);">Try Your First Exercise</a>
                     <a href="about.html" class="btn btn-secondary" style="margin: var(--space-2);">Learn More About Our Approach</a>
                 </div>
             </div>
@@ -751,10 +873,10 @@
                 <div class="footer-section">
                     <h4>Exercise Categories</h4>
                     <ul class="footer-links">
-                        <li><a href="/exercises/bubble-exercise.html">Fine Motor Control</a></li>
-                        <li><a href="/exercises/comet-exercise.html">Dynamic Tracking</a></li>
-                        <li><a href="/exercises/trace-reveal-exercise.html">Controlled Movement</a></li>
-                        <li><a href="/exercises/rhythm-exercise.html">Cognitive-Motor</a></li>
+                        <li><a href="exercises/bubble-exercise.html">Fine Motor Control</a></li>
+                        <li><a href="exercises/comet-exercise.html">Dynamic Tracking</a></li>
+                        <li><a href="exercises/trace-reveal-exercise.html">Controlled Movement</a></li>
+                        <li><a href="exercises/rhythm-exercise.html">Cognitive-Motor</a></li>
                     </ul>
                 </div>
                 

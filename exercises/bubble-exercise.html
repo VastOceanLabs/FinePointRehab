@@ -720,6 +720,105 @@
       border: 2px solid var(--gold);
     }
 
+    /* Streak milestone notification — bigger, more celebratory */
+    .game-notification.streak-milestone {
+      font-size: 32px;
+      color: var(--gold);
+      text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
+      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 40px rgba(255,215,0,.45);
+      animation: streakSlide 2.4s ease-out forwards;
+    }
+    @keyframes streakSlide {
+      0% { opacity: 0; transform: translateY(-30px) scale(.6); }
+      15% { opacity: 1; transform: translateY(0) scale(1.15); }
+      30% { transform: translateY(0) scale(1); }
+      80% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-12px) scale(.95); }
+    }
+
+    /* Streak-burst particles spawn near top center of play area */
+    .streak-burst {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    @keyframes streakBurst {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    }
+
+    /* ===== Session-complete medal ===== */
+    .medal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 4px 0 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text { text-align: left; line-height: 1.25; }
+    .medal-tier {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .medal-tier.bronze   { color: #f3a872; }
+    .medal-tier.silver   { color: #e8eef6; }
+    .medal-tier.gold     { color: #ffd700; }
+    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    @keyframes medalReveal {
+      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
+      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    /* ===== Per-session insight callout ===== */
+    .session-insight {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(111,211,245,.10);
+      border-left: 4px solid rgba(111,211,245,.65);
+      color: #e7f6ff;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
+    .session-insight .ins-text strong { color: #bfe6ff; }
+
     @keyframes notificationSlide {
       0% { opacity: 0; transform: translateY(-20px) scale(0.8); }
       15% { opacity: 1; transform: translateY(0) scale(1.05); }
@@ -969,10 +1068,12 @@
       border-radius: var(--radius-lg);
     }
   </style>
+  <!-- Unified game chrome -->
+  <link rel="stylesheet" href="/css/game-shell.css">
 </head>
-<body>
+<body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
-    <a class="home" href="/" aria-label="Back to Home">← Home</a>
+    <a class="home" href="../" aria-label="Back to Home">← Home</a>
     <h1>Bubble Tap</h1>
   </header>
 
@@ -1161,6 +1262,17 @@
         <span id="resultMessage">Excellent work!</span>
         <span id="improvementBadge"></span>
       </p>
+      <div id="medal" class="medal" style="display:none;" aria-live="polite">
+        <div id="medalDisc" class="medal-disc"></div>
+        <div class="medal-text">
+          <div id="medalTier" class="medal-tier"></div>
+          <div id="medalCaption" class="medal-caption"></div>
+        </div>
+      </div>
+      <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+        <span class="ins-icon" id="insIcon">✨</span>
+        <span class="ins-text" id="insText"></span>
+      </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
         <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
         <div class="metric"><div id="fTaps" class="v">0</div><div class="t">Taps</div></div>
@@ -1177,7 +1289,7 @@
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button id="restartSame" class="btn btn-ghost" type="button" style="flex:1;">↻ Restart</button>
         <button id="newSession" class="btn btn-primary" type="button" style="flex:1;">New Session</button>
-        <a class="btn btn-ghost" href="/" aria-label="Home" style="flex:0 0 auto;">Home</a>
+        <a class="btn btn-ghost" href="../" aria-label="Home" style="flex:0 0 auto;">Home</a>
       </div>
     </div>
   </div>
@@ -1235,6 +1347,9 @@
     const newSessionBtn = $('#newSession');
     const restartSameBtn = $('#restartSame');
     const starsContainer = $('#stars-container');
+    // Session-complete: medal + insight elements
+    const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
+    const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
     const particlesContainer = $('#particles-container');
     const resultMessage = $('#resultMessage');
     const improvementBadge = $('#improvementBadge');
@@ -1364,6 +1479,126 @@
       showNotification(text, key === 'newPB' ? 'newpb' : 'achievement');
     }
 
+    // Streak milestones — bigger celebration than a normal achievement
+    function checkStreakMilestone() {
+      if (!STREAK_MILESTONES.includes(currentStreak)) return;
+      if (firedStreakMilestones.has(currentStreak)) return;
+      firedStreakMilestones.add(currentStreak);
+      celebrateStreak(currentStreak);
+    }
+
+    function celebrateStreak(n) {
+      const flame = n >= 100 ? '🔥🔥🔥' : n >= 50 ? '🔥🔥' : '🔥';
+      showNotification(`${flame} Streak of ${n}!`, 'streak-milestone');
+      burstParticles(n >= 100 ? 36 : n >= 50 ? 28 : 22);
+      if (getToggle('toggleHaptic') && navigator.vibrate) {
+        navigator.vibrate(n >= 50 ? [40, 30, 60, 30, 90] : [30, 40, 50]);
+      }
+    }
+
+    function burstParticles(count) {
+      const container = particlesContainer;
+      if (!container) return;
+      const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
+      const rect = container.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height * 0.18; // near top of play area
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'streak-burst';
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.background = colors[i % colors.length];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 140;
+        p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
+        p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`); // bias upward
+        const dur = 800 + Math.random() * 400;
+        p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
+        container.appendChild(p);
+        setTimeout(() => p.remove(), dur + 60);
+      }
+    }
+
+    // Medal tier for session-complete modal
+    function computeMedalTier(currentScore, prevPb) {
+      if (prevPb <= 0) {
+        // First session — give them a Silver to mark the milestone.
+        return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+      }
+      if (currentScore > prevPb) {
+        return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+      }
+      const ratio = currentScore / prevPb;
+      if (ratio >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+      if (ratio >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+    }
+
+    function showMedal(currentScore, prevPb) {
+      const m = computeMedalTier(currentScore, prevPb);
+      medalDisc.className = 'medal-disc ' + m.tier;
+      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+      medalTier.className = 'medal-tier ' + m.tier;
+      medalTier.textContent = m.label;
+      medalCaption.textContent = m.caption;
+      medalEl.style.display = 'flex';
+    }
+
+    // Per-session insight — pick the most flattering true statement
+    const SESSIONS_KEY = 'SESSIONS_';
+    function loadPastSessions() {
+      try { return storage.get(SESSIONS_KEY + EXERCISE_ID, []) || []; } catch { return []; }
+    }
+    function savePastSession(stats) {
+      try {
+        const arr = loadPastSessions();
+        arr.unshift(stats);
+        if (arr.length > 10) arr.length = 10;
+        storage.set(SESSIONS_KEY + EXERCISE_ID, arr);
+      } catch {}
+    }
+
+    function computeInsight(curr, past) {
+      // past[0] is the most recent prior session
+      if (!past || past.length === 0) return null;
+      const prev = past[0];
+
+      // Prioritized list of insight candidates — pick the first true one.
+      if (curr.acc >= 95 && curr.taps >= 20) {
+        return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.acc}% this session.` };
+      }
+      if (prev.avg > 0 && curr.avg > 0 && (prev.avg - curr.avg) >= 30 && curr.taps >= 10) {
+        const diff = prev.avg - curr.avg;
+        return { icon: '⚡', text: `<strong>Reaction time improved ${diff}ms</strong> compared with your last session.` };
+      }
+      const bestStreak = Math.max(...past.map(p => p.maxStreak || 0));
+      if (curr.maxStreak > bestStreak && curr.maxStreak >= 5) {
+        return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.maxStreak} in a row.` };
+      }
+      const bestCombo = Math.max(...past.map(p => p.maxCombo || 0));
+      if (curr.maxCombo > bestCombo && curr.maxCombo >= 2) {
+        return { icon: '⚡', text: `<strong>Highest combo yet</strong> — ${curr.maxCombo.toFixed(1)}x.` };
+      }
+      const bestAcc = Math.max(...past.map(p => p.acc || 0));
+      if (curr.acc > bestAcc && curr.taps >= 10) {
+        return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.acc}%.` };
+      }
+      if (curr.acc >= 80 && curr.acc === prev.acc) {
+        return { icon: '📈', text: `<strong>Consistent performance</strong> — ${curr.acc}% accuracy two sessions in a row.` };
+      }
+      // Neutral fallback only if we have at least one past session
+      return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+    }
+
+    function showInsight(curr, past) {
+      const insight = computeInsight(curr, past);
+      if (!insight) { insightEl.style.display = 'none'; return; }
+      insIcon.textContent = insight.icon;
+      insText.innerHTML = insight.text;
+      insightEl.style.display = 'flex';
+    }
+
     // ===== Settings helpers =====
     function getToggle(id) {
       return document.getElementById(id)?.classList.contains('active') ?? false;
@@ -1378,6 +1613,9 @@
     let currentLevel = 1;
     let bubblesPopped = 0; // For level progression
     let sessionAchievements = []; // Achievements earned this session
+    // Track streak milestone celebrations so each fires once per session
+    const STREAK_MILESTONES = [10, 25, 50, 100, 200];
+    let firedStreakMilestones = new Set();
     let pbBrokenThisSession = false;
     let perfectStreakTime = 0; // For tracking perfect accuracy periods
     let goldenStreak = 0; // For consecutive golden bubbles
@@ -1414,7 +1652,7 @@
 
     // Achievement definitions for in-session
     const SESSION_ACHIEVEMENTS = {
-      firstBlood: { name: 'First Blood', icon: '🎯', condition: () => taps === 1 },
+      firstTap: { name: 'First Tap!', icon: '🎯', condition: () => taps === 1 },
       streak10: { name: '10 Streak!', icon: '🔥', condition: () => currentStreak === 10 },
       streak25: { name: '25 Streak!', icon: '🔥🔥', condition: () => currentStreak === 25 },
       streak50: { name: 'On Fire!', icon: '💥', condition: () => currentStreak === 50 },
@@ -1734,7 +1972,8 @@
       totalRT += rt;
       currentStreak++;
       maxStreak = Math.max(maxStreak, currentStreak);
-      
+      checkStreakMilestone();
+
       showPoints(bx, by, pts, bubbleType, currentCombo > 1);
       ripple(bx, by, bubbleType);
       
@@ -1889,6 +2128,7 @@
       currentLevel = 1;
       bubblesPopped = 0;
       sessionAchievements = [];
+      firedStreakMilestones = new Set();
       pbBrokenThisSession = false;
       goldenStreak = 0;
       hideBubble(); 
@@ -1969,15 +2209,25 @@
         resultMessage.textContent = 'Excellent work!';
       }
       
+      // Capture PB before save so medal/insight can compare against prior PB
+      const prevPb = prev;
+
       // Save last score and update PB
       storage.set('LAST_'+EXERCISE_ID, score);
-      if(score > prev){ 
+      if(score > prev){
         storage.set('PB_'+EXERCISE_ID, score);
         resultMessage.textContent = '🏆 New Personal Best!';
       }
-      
+
       // Update settings display
       lastScoreSettingsEl.textContent = String(score);
+
+      // ----- Medal tier + per-session insight -----
+      const currStats = { score, taps, acc, avg, maxStreak, maxCombo };
+      const past = loadPastSessions();
+      showMedal(score, prevPb);
+      showInsight(currStats, past);
+      savePastSession({ ...currStats, ts: Date.now() });
 
       // Show session achievements
       if (sessionAchievements.length > 0) {

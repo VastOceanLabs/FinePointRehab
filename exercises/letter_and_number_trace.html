@@ -237,10 +237,92 @@
     }
     body:not(.playing) #gameCol{ display:none; }
     @keyframes twinkle{ 0%,100%{opacity:.2; transform:scale(.8);} 50%{opacity:1; transform:scale(1.2);} }
+
+    /* ===== Session-complete medal (matches other games) ===== */
+    .medal {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; margin: 4px 0 14px;
+      padding: 14px 18px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text { text-align: left; line-height: 1.25; }
+    .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+    .medal-tier.bronze   { color: #f3a872; }
+    .medal-tier.silver   { color: #e8eef6; }
+    .medal-tier.gold     { color: #ffd700; }
+    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    @keyframes medalReveal {
+      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
+      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    /* ===== Per-session insight callout ===== */
+    .session-insight {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 14px; padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(111,211,245,.10);
+      border-left: 4px solid rgba(111,211,245,.65);
+      color: #e7f6ff;
+      font-size: 14px; line-height: 1.4;
+      text-align: left;
+    }
+    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
+    .session-insight .ins-text strong { color: #bfe6ff; }
+
+    /* ===== Streak milestone toast + particles ===== */
+    .streak-milestone-toast {
+      position: fixed; top: 18%; left: 50%;
+      transform: translate(-50%, -20px) scale(.6);
+      padding: 14px 32px; border-radius: 14px;
+      font-size: 32px; font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
+      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 40px rgba(255,215,0,.45);
+      z-index: 1300;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: streakSlide 2.4s ease-out forwards;
+    }
+    @keyframes streakSlide {
+      0% { opacity: 0; transform: translate(-50%, -30px) scale(.6); }
+      15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+      30% { transform: translate(-50%, 0) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -12px) scale(.95); }
+    }
+    .streak-burst-container { position: fixed; inset: 0; pointer-events: none; z-index: 1299; }
+    .streak-burst {
+      position: absolute; width: 8px; height: 8px;
+      border-radius: 50%; pointer-events: none;
+      will-change: transform, opacity;
+    }
+    @keyframes streakBurst {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    }
   </style>
+  <!-- Unified game chrome -->
+  <link rel="stylesheet" href="/css/game-shell.css">
 </head>
-<body>
-  <header class="app"><a class="home" href="/">← Home</a><h1>Letter & Number Trace</h1></header>
+<body class="game-page">
+  <header class="app"><a class="home" href="../">← Home</a><h1>Letter & Number Trace</h1></header>
   <main class="layout">
     <aside id="settings" class="panel">
       <h2>Settings</h2>
@@ -343,6 +425,17 @@
     <div class="card">
       <h2 style="margin:0 0 8px;">Session Complete! 🎉</h2>
       <div id="newPbBanner" class="new-pb" style="display:none;"><div class="new-pb-title">🏆 NEW PERSONAL BEST!</div><div id="newPbScore" class="new-pb-score"></div></div>
+      <div id="medal" class="medal" style="display:none;" aria-live="polite">
+        <div id="medalDisc" class="medal-disc"></div>
+        <div class="medal-text">
+          <div id="medalTier" class="medal-tier"></div>
+          <div id="medalCaption" class="medal-caption"></div>
+        </div>
+      </div>
+      <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+        <span class="ins-icon" id="insIcon">✨</span>
+        <span class="ins-text" id="insText"></span>
+      </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
         <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
         <div class="metric"><div id="fCompleted" class="v">0</div><div class="t">Done</div></div>
@@ -353,7 +446,7 @@
       <div id="sessionAch" style="margin-bottom:12px; display:none;"><div style="font-size:13px; font-weight:700; color:var(--gold); margin-bottom:6px;">🏆 Achievements Unlocked</div><div id="sessionAchList" style="display:flex; gap:6px; flex-wrap:wrap;"></div></div>
       <div style="display:flex; gap:8px; justify-content:flex-end;">
         <button id="newSession" class="btn btn-primary">New Session</button>
-        <a class="btn btn-ghost" href="/">Home</a>
+        <a class="btn btn-ghost" href="../">Home</a>
       </div>
     </div>
   </div>
@@ -370,6 +463,124 @@ const canvas=$('#trace-canvas'),ctx=canvas.getContext('2d');
 let state={active:false,paused:false,practice:false,muted:false,score:0,completed:0,perfectCount:0,char:'',queue:[],traced:new Set(),drawing:false,completing:false,pts:[],undoHist:[],durMs:120000,timeLeft:120000,scale:1,bw:20,tol:30,minAcc:90,baseBw:20,baseTol:30,baseMinAcc:90,rafId:0,prevTs:0,pathLen:0,covLen:0,segs:[],covSegs:new Set(),accSum:0,accCnt:0,DPR:1,CSS:0,compTimer:0,showedHint:false,streak:0,bestStreak:0,mult:1,adaptive:false,adaptLvl:1,adaptPerfect:0,adaptFail:0,unlocked:new Set(),sessionAch:[],startPos:{x:0,y:0}};
 
 const storage={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}};
+
+// ===== Medal + per-session insight =====
+const SESSIONS_KEY = 'letter-trace:sessions';
+function loadPastSessions() {
+  try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
+}
+function savePastSession(stats) {
+  try {
+    const arr = loadPastSessions();
+    arr.unshift(stats);
+    if (arr.length > 10) arr.length = 10;
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+  } catch {}
+}
+function computeMedalTier(currentScore, prevPb) {
+  if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+  if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+  const r = currentScore / prevPb;
+  if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+  if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+  return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+}
+function showMedal(currentScore, prevPb) {
+  const medalEl = $('#medal');
+  if (!medalEl) return;
+  const m = computeMedalTier(currentScore, prevPb);
+  $('#medalDisc').className = 'medal-disc ' + m.tier;
+  $('#medalDisc').textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+  $('#medalTier').className = 'medal-tier ' + m.tier;
+  $('#medalTier').textContent = m.label;
+  $('#medalCaption').textContent = m.caption;
+  medalEl.style.display = 'flex';
+}
+function computeInsight(curr, past) {
+  if (!past || past.length === 0) return null;
+  const prev = past[0];
+  if (curr.accuracy >= 95 && curr.completed >= 3) {
+    return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.accuracy}% this session.` };
+  }
+  const bestStreakEver = Math.max(...past.map(p => p.bestStreak || 0));
+  if (curr.bestStreak > bestStreakEver && curr.bestStreak >= 3) {
+    return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.bestStreak} clean traces in a row.` };
+  }
+  const bestPerfectEver = Math.max(...past.map(p => p.perfectCount || 0));
+  if (curr.perfectCount > bestPerfectEver && curr.perfectCount >= 1) {
+    return { icon: '✨', text: `<strong>Most perfect traces yet</strong> — ${curr.perfectCount} this session.` };
+  }
+  const bestCompletedEver = Math.max(...past.map(p => p.completed || 0));
+  if (curr.completed > bestCompletedEver && curr.completed >= 2) {
+    return { icon: '🚀', text: `<strong>Most traces completed</strong> — ${curr.completed} this session.` };
+  }
+  if (curr.completed > prev.completed && curr.completed >= 2) {
+    return { icon: '📈', text: `<strong>More traces</strong> than last session — ${curr.completed} vs ${prev.completed}.` };
+  }
+  const bestAccEver = Math.max(...past.map(p => p.accuracy || 0));
+  if (curr.accuracy > bestAccEver && curr.completed >= 2) {
+    return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.accuracy}%.` };
+  }
+  if (curr.completed >= 1 && curr.completed === prev.completed) {
+    return { icon: '📈', text: `<strong>Consistent output</strong> — ${curr.completed} traces two sessions in a row.` };
+  }
+  return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+}
+function showInsight(curr, past) {
+  const insightEl = $('#sessionInsight');
+  if (!insightEl) return;
+  const ins = computeInsight(curr, past);
+  if (!ins) { insightEl.style.display = 'none'; return; }
+  $('#insIcon').textContent = ins.icon;
+  $('#insText').innerHTML = ins.text;
+  insightEl.style.display = 'flex';
+}
+
+// ===== Streak milestone celebrations =====
+const STREAK_MILESTONES = [5, 10, 15, 25, 50];
+let firedStreakMilestones = new Set();
+function checkStreakMilestone(s) {
+  if (!STREAK_MILESTONES.includes(s)) return;
+  if (firedStreakMilestones.has(s)) return;
+  firedStreakMilestones.add(s);
+  celebrateStreak(s);
+}
+function celebrateStreak(n) {
+  const flame = n >= 25 ? '🔥🔥🔥' : n >= 10 ? '🔥🔥' : '🔥';
+  const toast = document.createElement('div');
+  toast.className = 'streak-milestone-toast';
+  toast.textContent = `${flame} ${n} Traces Clean!`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+  burstStreakParticles(n >= 25 ? 36 : n >= 10 ? 28 : 22);
+  try { audio.perfect(); } catch {}
+  vibrate(n >= 25 ? [40, 30, 60, 30, 90] : [30, 40, 50]);
+}
+function burstStreakParticles(count) {
+  const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
+  const target = canvas.parentElement || document.body;
+  const rect = target.getBoundingClientRect();
+  const container = document.createElement('div');
+  container.className = 'streak-burst-container';
+  document.body.appendChild(container);
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height * 0.4;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'streak-burst';
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.background = colors[i % colors.length];
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 80 + Math.random() * 140;
+    p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
+    p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
+    const dur = 800 + Math.random() * 400;
+    p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
+    container.appendChild(p);
+  }
+  setTimeout(() => container.remove(), 1400);
+}
 const audio={tone(f,dur,vol=.1){if(state.muted||!window.AudioContext)return;try{const c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.value=vol;o.start();o.stop(c.currentTime+dur)}catch{}},success(){this.tone(523,.1);setTimeout(()=>this.tone(659,.15),100)},perfect(){this.tone(523,.08);setTimeout(()=>this.tone(659,.08),80);setTimeout(()=>this.tone(784,.2),160)},click(){this.tone(440,.05,.05)},streakLost(){this.tone(300,.15,.08);setTimeout(()=>this.tone(250,.2,.06),100)},ach(){this.tone(523,.1,.12);setTimeout(()=>this.tone(659,.1,.12),100);setTimeout(()=>this.tone(784,.1,.12),200);setTimeout(()=>this.tone(1047,.2,.15),300)}};
 
 function msToClock(ms){const s=Math.max(0,Math.floor(ms/1000)),m=Math.floor(s/60),r=s%60;return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0')}
@@ -399,7 +610,7 @@ function startDraw(e){if(!state.active||state.paused)return;state.drawing=true;s
 function draw(e){if(!state.drawing||!state.active||state.paused)return;e.preventDefault();const p=getCoords(e);state.pts.push(p);ctx.save();ctx.strokeStyle='rgba(111,211,245,0.9)';ctx.lineWidth=10;if(state.pts.length>=4)drawCatmull(state.pts.slice(-4));else if(state.pts.length>1){const a=state.pts[state.pts.length-2],b=state.pts[state.pts.length-1];ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}ctx.restore();const c=state.pts[state.pts.length-1];state.segs.forEach(seg=>{if(!state.covSegs.has(seg.id)){const d=distToSeg(c.x,c.y,seg.x1,seg.y1,seg.x2,seg.y2);if(d<state.tol){state.covSegs.add(seg.id);state.covLen+=seg.len}}});if(state.pts.length%10===0){autoCheck();updateRing()}}
 function endDraw(){if(!state.drawing)return;state.drawing=false;autoCheck()}
 
-function incStreak(){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;state.mult=getMult(state.streak);updateStreakUI()}
+function incStreak(){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;state.mult=getMult(state.streak);updateStreakUI();checkStreakMilestone(state.streak)}
 function breakStreak(){if(state.streak>=3){$('#streakBreak').classList.add('show');setTimeout(()=>$('#streakBreak').classList.remove('show'),1500);audio.streakLost();vibrate([100,50,100])}state.streak=0;state.mult=1;updateStreakUI()}
 function updateStreakUI(){$('#streakHud').textContent=state.streak;$('#streakCount').textContent=state.streak;$('#streakMult').textContent=`x${state.mult.toFixed(1)}`;state.streak>=3?$('#streakDisplay').classList.add('visible'):$('#streakDisplay').classList.remove('visible')}
 
@@ -424,10 +635,10 @@ function manualComplete(){if(!state.active||state.paused||state.completing)retur
 function updateHUD(){$('#score').textContent=state.score;$('#completed').textContent=state.completed;$('#accuracy').textContent=(state.accCnt>0?Math.round(state.accSum/state.accCnt):0)+'%';$('#time').textContent=state.practice?'∞':msToClock(state.timeLeft);const pb=storage.get('PB_trace',0);$('#pbSettings').textContent=pb;$('#bestStreakSettings').textContent=storage.get('bestStreak',0);if($('#timer-bar')&&state.durMs>0&&!state.practice){const pct=Math.max(0,Math.min(1,state.timeLeft/state.durMs));$('#timer-bar').style.width=(pct*100).toFixed(2)+'%'}else if(state.practice)$('#timer-bar').style.width='100%'}
 
 function loop(now){if(!state.active)return;const dt=state.prevTs?(now-state.prevTs):16;state.prevTs=now;if(!state.paused&&!state.practice){state.timeLeft-=dt;if(state.timeLeft<=0){endSession();return}}updateHUD();state.rafId=requestAnimationFrame(loop)}
-function startSession(){const durMin=parseFloat($('#dur').value);if(isNaN(durMin)||durMin<.5||durMin>10){$('#dur-error').classList.add('show');$('#dur').focus();return}$('#dur-error').classList.remove('show');state.practice=$('#practiceToggle').classList.contains('active');state.durMs=durMin*60*1000;state.timeLeft=state.durMs;state.scale=SIZE_MAP[$('#size').value]||1;const diff=$('#difficulty').value;state.adaptive=diff==='adaptive';if(state.adaptive){state.adaptLvl=2;applyAdaptLvl()}else{const d=DIFF_MAP[diff]||DIFF_MAP.medium;state.baseBw=d.bw;state.baseTol=d.tol;state.baseMinAcc=d.minAcc}state.bw=state.baseBw;state.tol=state.baseTol;state.minAcc=state.baseMinAcc;state.score=state.completed=state.perfectCount=0;state.queue=[];state.traced=new Set();state.accSum=state.accCnt=0;state.undoHist=[];state.streak=state.bestStreak=0;state.mult=1;state.sessionAch=[];state.active=true;state.paused=false;state.prevTs=0;document.body.classList.add('playing');setupCanvas();nextChar();updateStreakUI();requestAnimationFrame(ts=>{state.prevTs=ts;state.rafId=requestAnimationFrame(loop)});audio.click()}
+function startSession(){const durMin=parseFloat($('#dur').value);if(isNaN(durMin)||durMin<.5||durMin>10){$('#dur-error').classList.add('show');$('#dur').focus();return}$('#dur-error').classList.remove('show');state.practice=$('#practiceToggle').classList.contains('active');state.durMs=durMin*60*1000;state.timeLeft=state.durMs;state.scale=SIZE_MAP[$('#size').value]||1;const diff=$('#difficulty').value;state.adaptive=diff==='adaptive';if(state.adaptive){state.adaptLvl=2;applyAdaptLvl()}else{const d=DIFF_MAP[diff]||DIFF_MAP.medium;state.baseBw=d.bw;state.baseTol=d.tol;state.baseMinAcc=d.minAcc}state.bw=state.baseBw;state.tol=state.baseTol;state.minAcc=state.baseMinAcc;state.score=state.completed=state.perfectCount=0;state.queue=[];state.traced=new Set();state.accSum=state.accCnt=0;state.undoHist=[];state.streak=state.bestStreak=0;state.mult=1;state.sessionAch=[];firedStreakMilestones=new Set();$('#medal').style.display='none';$('#sessionInsight').style.display='none';state.active=true;state.paused=false;state.prevTs=0;document.body.classList.add('playing');setupCanvas();nextChar();updateStreakUI();requestAnimationFrame(ts=>{state.prevTs=ts;state.rafId=requestAnimationFrame(loop)});audio.click()}
 function pauseSession(){if(!state.active)return;state.paused=!state.paused;$('#pauseBtn').textContent=state.paused?'Resume':'Pause';if(!state.paused)state.prevTs=0;audio.click()}
 function exitToSettings(){if(state.active){state.active=false;cancelAnimationFrame(state.rafId)}clearTimeout(state.compTimer);state.prevTs=0;document.body.classList.remove('playing');$('#pauseBtn').textContent='Pause';$('#done').classList.remove('open');audio.click()}
-function endSession(){state.active=false;cancelAnimationFrame(state.rafId);clearTimeout(state.compTimer);state.prevTs=0;document.body.classList.remove('playing');const avg=state.accCnt>0?Math.round(state.accSum/state.accCnt):0;$('#fScore').textContent=state.score;$('#fCompleted').textContent=state.completed;$('#fAccuracy').textContent=avg+'%';$('#fPerfect').textContent=state.perfectCount;$('#fStreak').textContent=state.bestStreak;const prev=storage.get('PB_trace',0);if(state.score>prev){storage.set('PB_trace',state.score);$('#newPbBanner').style.display='block';$('#newPbScore').textContent=`Previous: ${prev} → New: ${state.score}`}else $('#newPbBanner').style.display='none';const prevStreak=storage.get('bestStreak',0);if(state.bestStreak>prevStreak)storage.set('bestStreak',state.bestStreak);if(state.sessionAch.length){$('#sessionAch').style.display='block';$('#sessionAchList').innerHTML='';state.sessionAch.forEach(id=>{const a=ACHIEVEMENTS[id];if(a){const d=document.createElement('span');d.style.cssText='background:rgba(255,215,0,.2);border:1px solid rgba(255,215,0,.4);border-radius:8px;padding:4px 8px;font-size:12px;';d.textContent=a.icon+' '+a.name;$('#sessionAchList').appendChild(d)}})}else $('#sessionAch').style.display='none';$('#done').classList.add('open');setTimeout(()=>$('#newSession').focus(),100);audio.success()}
+function endSession(){state.active=false;cancelAnimationFrame(state.rafId);clearTimeout(state.compTimer);state.prevTs=0;document.body.classList.remove('playing');const avg=state.accCnt>0?Math.round(state.accSum/state.accCnt):0;$('#fScore').textContent=state.score;$('#fCompleted').textContent=state.completed;$('#fAccuracy').textContent=avg+'%';$('#fPerfect').textContent=state.perfectCount;$('#fStreak').textContent=state.bestStreak;const prev=storage.get('PB_trace',0);if(state.score>prev){storage.set('PB_trace',state.score);$('#newPbBanner').style.display='block';$('#newPbScore').textContent=`Previous: ${prev} → New: ${state.score}`}else $('#newPbBanner').style.display='none';const _currStats={score:state.score,completed:state.completed,accuracy:avg,perfectCount:state.perfectCount,bestStreak:state.bestStreak};const _past=loadPastSessions();showMedal(state.score,prev);showInsight(_currStats,_past);savePastSession({..._currStats,ts:Date.now()});const prevStreak=storage.get('bestStreak',0);if(state.bestStreak>prevStreak)storage.set('bestStreak',state.bestStreak);if(state.sessionAch.length){$('#sessionAch').style.display='block';$('#sessionAchList').innerHTML='';state.sessionAch.forEach(id=>{const a=ACHIEVEMENTS[id];if(a){const d=document.createElement('span');d.style.cssText='background:rgba(255,215,0,.2);border:1px solid rgba(255,215,0,.4);border-radius:8px;padding:4px 8px;font-size:12px;';d.textContent=a.icon+' '+a.name;$('#sessionAchList').appendChild(d)}})}else $('#sessionAch').style.display='none';$('#done').classList.add('open');setTimeout(()=>$('#newSession').focus(),100);audio.success()}
 
 function genStars(c,n=150){if(!c)return;c.innerHTML='';for(let i=0;i<n;i++){const s=document.createElement('div');s.style.cssText=`position:absolute;width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;background:${i%20===0?'#6fd3f5':'white'};border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${Math.random()*.7+.3};animation:twinkle ${Math.random()*4+2}s ease-in-out infinite;animation-delay:${Math.random()*3}s;`;c.appendChild(s)}}
 
