@@ -381,3 +381,264 @@ header.site-header .home:hover {
   background: var(--game-accent-soft);
   border-color: var(--game-accent);
 }
+
+/* =============================================================================
+   Responsive tier system — tuned for phones, tablets, and the Capacitor
+   Android shell. The mobile-first base styles above target ~360-640px; the
+   tiers below progressively enhance for larger phones, tablets, and landscape
+   orientation. We intentionally tune ONLY the shared chrome (header, HUD,
+   panel typography, metric cards, buttons) — each game's own canvas / play
+   area / grid keeps its per-game @media rules so we don't risk regressions.
+
+   Tiers chosen to align with real device widths:
+     ≤480px     small phones (iPhone SE, older Androids)
+     481-640    modern phones portrait
+     641-900    large phones landscape, 7" tablets portrait
+     901-1200   8-10" tablets portrait, smaller tablets landscape
+     ≥1201     10"+ tablets landscape, desktops
+   ============================================================================= */
+
+/* ---- Safe-area insets for notched phones and Android nav gestures --------
+   env(safe-area-inset-*) returns non-zero only when viewport-fit=cover is set
+   on the page's meta viewport (already true on every exercise page). max()
+   keeps the existing minimum padding when there's no inset to respect. */
+.app,
+header.site-header {
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
+}
+
+/* ---- Small phones (≤480) — tighten everything ---------------------------- */
+@media (max-width: 480px) {
+  .app,
+  header.site-header {
+    padding-top: max(8px, env(safe-area-inset-top, 8px));
+    padding-bottom: 8px;
+  }
+  .app h1,
+  header.site-header h1 {
+    font-size: 17px;
+  }
+  .panel {
+    padding: 14px;
+    border-radius: 12px;
+  }
+  .panel h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .stats-row {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 90px;
+    padding: 10px 8px;
+  }
+  .metric .v {
+    font-size: 20px;
+  }
+  .metric .t {
+    font-size: 11px;
+  }
+  .hud {
+    padding: 10px;
+    gap: 8px;
+    padding-top: 18px;
+  }
+  .hud-value {
+    font-size: 18px;
+  }
+  .hud-label {
+    font-size: 10px;
+  }
+  .panel .btn {
+    min-height: 48px;
+    font-size: 15px;
+    padding: 0 14px;
+  }
+  .panel .btn-row {
+    gap: 8px;
+  }
+}
+
+/* ---- Tablets portrait (641-900) — wider settings, bigger HUD ------------- */
+@media (min-width: 641px) and (max-width: 900px) {
+  .panel h2 {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+  .stats-row {
+    gap: 14px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 130px;
+    padding: 16px;
+  }
+  .metric .v {
+    font-size: 28px;
+  }
+  .metric .t {
+    font-size: 13px;
+  }
+  /* Override the legacy `@media (max-width: 900px)` HUD compression for this
+     larger tier — tablets have room to breathe. */
+  .hud {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    padding: 18px;
+    gap: 14px;
+    padding-top: 24px;
+  }
+  .hud-value {
+    font-size: 26px;
+  }
+  .hud-label {
+    font-size: 13px;
+  }
+}
+
+/* ---- Settings panel widen on tablets+ ------------------------------------
+   Several games hard-code `.settings-panel { max-width: 480px }` in their
+   inline styles — too narrow for 7"+ tablets. Game-shell loads after the
+   inline <style> block, so this rule wins at equal specificity. */
+@media (min-width: 641px) {
+  .settings-panel {
+    max-width: 640px;
+  }
+  .summary-panel {
+    max-width: 640px;
+  }
+}
+@media (min-width: 1025px) {
+  .settings-panel {
+    max-width: 720px;
+  }
+  .summary-panel {
+    max-width: 720px;
+  }
+}
+
+/* ---- Large tablets portrait & smaller landscape (901-1200) --------------- */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .panel h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 150px;
+    padding: 18px;
+  }
+  .metric .v {
+    font-size: 32px;
+  }
+  .metric .t {
+    font-size: 14px;
+  }
+  .hud {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    padding: 20px;
+    gap: 16px;
+  }
+  .hud-value {
+    font-size: 30px;
+  }
+  .hud-label {
+    font-size: 14px;
+  }
+  .panel .btn {
+    font-size: 17px;
+    min-height: 54px;
+  }
+}
+
+/* ---- 10"+ tablets landscape & desktops (≥1201) --------------------------- */
+@media (min-width: 1201px) {
+  .panel h2 {
+    font-size: 26px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 160px;
+    padding: 20px;
+  }
+  .metric .v {
+    font-size: 34px;
+  }
+  .hud {
+    padding: 22px;
+    gap: 20px;
+  }
+  .hud-value {
+    font-size: 32px;
+  }
+  .hud-label {
+    font-size: 15px;
+  }
+}
+
+/* ---- Phone landscape — compact header & HUD so play area dominates ------ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app,
+  header.site-header {
+    padding-top: max(4px, env(safe-area-inset-top, 4px));
+    padding-bottom: 4px;
+  }
+  .app h1,
+  header.site-header h1 {
+    font-size: 16px;
+  }
+  .hud {
+    padding: 8px 12px;
+    padding-top: 14px;
+    gap: 8px;
+  }
+  .hud-value {
+    font-size: 18px;
+  }
+  .hud-label {
+    font-size: 10px;
+  }
+}
+
+/* ---- Touch target compliance (Android Material 48×48, WCAG 2.5.5) ------- */
+@media (pointer: coarse) {
+  .panel .btn,
+  .app .home,
+  header.site-header a.btn,
+  header.site-header .home {
+    min-height: 48px;
+  }
+  .panel .btn-ghost {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* ---- Reduced-motion accessibility (relevant for vestibular sensitivity,
+   common after stroke / brain injury) -------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .panel .btn:hover:not(:disabled) {
+    transform: none;
+  }
+  .app .home,
+  header.site-header a.btn,
+  header.site-header .home {
+    transition: none;
+  }
+}
+
+/* ---- Forced colors / high contrast (Windows High Contrast, etc.) -------- */
+@media (forced-colors: active) {
+  .panel,
+  header.site-header,
+  .app {
+    border: 1px solid CanvasText;
+  }
+  .panel .btn {
+    border: 2px solid ButtonText;
+  }
+}

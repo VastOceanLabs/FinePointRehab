@@ -136,13 +136,16 @@
             padding: 0 var(--space-3);
         }
         
-        /* Header - Fixed with proper mobile layout */
+        /* Header - Fixed with proper mobile layout.
+           Safe-area-inset handling makes the wrapped Android app + notched
+           phones (iPhone 14+, Pixel 6+, foldables) feel native — the header
+           reaches into the status bar area instead of sitting below it. */
         header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: var(--header-height);
+            height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
@@ -151,6 +154,14 @@
             display: flex;
             align-items: center;
             padding: var(--space-2) 0;
+            padding-top: calc(var(--space-2) + env(safe-area-inset-top, 0px));
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
+        }
+        /* Bump the body / main padding so fixed-header content doesn't sit
+           underneath the status-bar inset. */
+        body {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         
         .header-content {
