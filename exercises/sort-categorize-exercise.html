@@ -1081,6 +1081,7 @@
   <!-- Unified game chrome -->
   <link rel="stylesheet" href="/css/game-shell.css">
   <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 
 <body class="game-page">
@@ -1679,9 +1680,8 @@
       setTimeout(() => toast.remove(), 2500);
       burstStreakParticles(n >= 25 ? 36 : n >= 10 ? 28 : 22);
       try { AudioSystem?.streak?.(n); } catch {}
-      if (navigator.vibrate && !/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        try { navigator.vibrate(n >= 25 ? [40, 30, 60, 30, 90] : [30, 40, 50]); } catch {}
-      }
+      // Native haptics in the Android app, web vibration fallback in browser.
+        FPRNative.haptic('milestone')
     }
     function burstStreakParticles(count) {
       const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];

@@ -1071,6 +1071,7 @@
   <!-- Unified game chrome -->
   <link rel="stylesheet" href="/css/game-shell.css">
   <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 <body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
@@ -1492,8 +1493,10 @@
       const flame = n >= 100 ? '🔥🔥🔥' : n >= 50 ? '🔥🔥' : '🔥';
       showNotification(`${flame} Streak of ${n}!`, 'streak-milestone');
       burstParticles(n >= 100 ? 36 : n >= 50 ? 28 : 22);
-      if (getToggle('toggleHaptic') && navigator.vibrate) {
-        navigator.vibrate(n >= 50 ? [40, 30, 60, 30, 90] : [30, 40, 50]);
+      if (getToggle('toggleHaptic')) {
+        // FPRNative gives rich layered haptics in the Android app, falls back
+        // to navigator.vibrate in the browser. Same call, both environments.
+        FPRNative.haptic('milestone');
       }
     }
 
@@ -1890,8 +1893,8 @@
         checkAchievements();
         
         // Haptic feedback for level up
-        if (getToggle('toggleHaptic') && navigator.vibrate) {
-          navigator.vibrate([50, 50, 50]);
+        if (getToggle('toggleHaptic')) {
+          FPRNative.haptic('success');
         }
       }
     }
@@ -1917,15 +1920,17 @@
     }
 
     function triggerHaptic(type = 'tap') {
-      if (!getToggle('toggleHaptic') || !navigator.vibrate) return;
-      
+      if (!getToggle('toggleHaptic')) return;
+      // FPRNative.haptic auto-picks native VibrationEffect when in the
+      // Android app (richer, amplitude-aware feedback) and falls back to
+      // navigator.vibrate on web. Each type maps to a distinct tactile feel.
       switch(type) {
-        case 'tap': navigator.vibrate(25); break;
-        case 'golden': navigator.vibrate([30, 20, 30]); break;
-        case 'freeze': navigator.vibrate([50, 30, 50]); break;
-        case 'speed': navigator.vibrate(15); break;
-        case 'miss': navigator.vibrate(100); break;
-        case 'levelUp': navigator.vibrate([50, 50, 50]); break;
+        case 'tap':     FPRNative.haptic('light');   break;
+        case 'golden':  FPRNative.haptic('success'); break;
+        case 'freeze':  FPRNative.haptic('warning'); break;
+        case 'speed':   FPRNative.haptic('tick');    break;
+        case 'miss':    FPRNative.haptic('error');   break;
+        case 'levelUp': FPRNative.haptic('success'); break;
       }
     }
 

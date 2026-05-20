@@ -741,6 +741,7 @@
   <!-- Unified game chrome -->
   <link rel="stylesheet" href="/css/game-shell.css">
   <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 
 <body class="game-page">
@@ -1080,7 +1081,19 @@
       });
 
       function vibrate(pattern = 50) {
-        if (hapticCheckbox.checked && navigator.vibrate) navigator.vibrate(pattern);
+        // Maps duration patterns to FPRNative semantic types so the Android
+        // app gets richer native VibrationEffect feedback (TICK/CLICK/HEAVY
+        // with amplitude curves) instead of just on/off pulses.
+        if (!hapticCheckbox.checked) return;
+        if (Array.isArray(pattern)) {
+          FPRNative.haptic('success');
+        } else if (pattern >= 80) {
+          FPRNative.haptic('heavy');
+        } else if (pattern >= 30) {
+          FPRNative.haptic('medium');
+        } else {
+          FPRNative.haptic('light');
+        }
       }
 
       function generateStars(container, count = 150) {
@@ -1180,8 +1193,9 @@
         burstStreakParticles(n >= 25 ? 36 : n >= 10 ? 28 : 22);
         // Sound + haptic
         try { playMilestoneSound?.(); } catch {}
-        if (hapticCheckbox?.checked && navigator.vibrate) {
-          navigator.vibrate(n >= 25 ? [40, 30, 60, 30, 90] : [30, 40, 50]);
+        if (hapticCheckbox?.checked) {
+          // Rich layered haptic on Android, web vibration fallback on browser.
+          FPRNative.haptic('milestone');
         }
       }
       function burstStreakParticles(count) {

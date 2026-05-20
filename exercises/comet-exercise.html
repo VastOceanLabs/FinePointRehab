@@ -279,6 +279,7 @@
   <!-- Unified game chrome -->
   <link rel="stylesheet" href="/css/game-shell.css">
   <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 <body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
@@ -932,8 +933,10 @@
           addCenterPopup(label);
         }
 
-        // Haptic feedback if available
-        if (navigator.vibrate) navigator.vibrate(c.type === 'normal' ? 10 : [10, 20, 30]);
+        // Haptic feedback — light tick for normal comets, success burst for
+        // special types (star/frost/prism). Native VibrationEffect in app,
+        // web vibration fallback in browser.
+        FPRNative.haptic(c.type === 'normal' ? 'tick' : 'success');
         
         break;
       }

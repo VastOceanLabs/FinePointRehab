@@ -465,6 +465,7 @@
   <!-- Unified game chrome -->
   <link rel="stylesheet" href="/css/game-shell.css">
   <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 <body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
@@ -776,9 +777,11 @@
         }
       },
       haptic(duration = 50) {
-        if (navigator.vibrate) {
-          navigator.vibrate(duration);
-        }
+        // Map raw duration to FPRNative semantic types so Android app gets
+        // rich native VibrationEffect feedback. Web falls back to vibrate.
+        if (duration >= 80)      FPRNative.haptic('heavy');
+        else if (duration >= 30) FPRNative.haptic('medium');
+        else                     FPRNative.haptic('light');
       }
     };
 
