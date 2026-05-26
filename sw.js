@@ -1,5 +1,5 @@
 // /sw.js (production-ready)
-const CACHE = 'fpr-v1-20250914b'; // bumped for redeploy
+const CACHE = 'fpr-v1-20260526a'; // bumped for redeploy
 const NAVIGATION_FALLBACK = '/'; // fallback for offline navigation
 
 self.addEventListener('install', (e) => {
