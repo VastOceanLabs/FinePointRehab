@@ -1,0 +1,644 @@
+/* =============================================================================
+   game-shell.css
+   Unifying chrome for all exercise pages: header, layout grid, settings panel,
+   metric cards, HUD bar, and shared button polish. Distilled from the canonical
+   pages (bubble / comet / precision-drop) so every game looks like the same
+   product.
+
+   Loaded AFTER tokens.css, base.css, components.css so it provides authoritative
+   structural rules. Page-specific inline <style> blocks may still override
+   details where intentional (per-game palettes, custom HUD slots, etc.).
+
+   Promote-to-live: when these test-redesign pages are copied over the live
+   /exercises/ files, this CSS file moves with them — no other changes needed.
+   ============================================================================= */
+
+/* ---- Shared theme (extracted from canonical exercise pages) ---------------- */
+:root {
+  --game-bg-1: #070b16;
+  --game-bg-2: #0f1630;
+  --game-bg-3: #0b1024;
+  --game-text: #eaf6ff;
+  --game-text-secondary: #b8c5d1;
+  --game-text-muted: #8a96a3;
+  --game-accent: #6fd3f5;
+  --game-accent-soft: rgba(111, 211, 245, 0.12);
+  --game-accent-strong: rgba(111, 211, 245, 0.95);
+  --game-good: #8ff5b2;
+  --game-gold: #ffd700;
+  --game-panel-bg: rgba(10, 16, 36, 0.9);
+  --game-panel-border: rgba(255, 255, 255, 0.08);
+  --game-hud-bg: rgba(15, 22, 41, 0.85);
+  --game-radius: 14px;
+  --game-radius-sm: 10px;
+}
+
+/* ---- Body background (shared deep-space gradient) ------------------------- */
+body.game-page {
+  margin: 0;
+  color: var(--game-text);
+  background:
+    radial-gradient(1200px 800px at 20% 25%, rgba(70, 30, 120, 0.35), transparent 60%),
+    radial-gradient(900px 700px at 75% 65%, rgba(20, 120, 160, 0.28), transparent 55%),
+    linear-gradient(180deg, var(--game-bg-1) 0%, var(--game-bg-2) 50%, var(--game-bg-3) 100%);
+  min-height: 100vh;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+body.game-page.playing { overflow: hidden; }
+body.game-page.playing .app { display: none; }
+
+/* ---- Header (unified across all games) ------------------------------------ */
+.app {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(8, 12, 26, 0.9), rgba(8, 12, 26, 0.55));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+}
+.app h1 {
+  margin: 0;
+  font-size: clamp(18px, 3vw, 24px);
+  color: var(--game-text);
+  font-weight: 700;
+}
+.app .home {
+  text-decoration: none;
+  color: var(--game-text);
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 8px 12px;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.app .home:hover {
+  background: var(--game-accent-soft);
+  border-color: var(--game-accent);
+}
+.app .home:focus-visible {
+  outline: 2px solid var(--game-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Layout grid ----------------------------------------------------------
+   NOTE: We intentionally do NOT define `.layout` or `main.page` grid rules
+   here. Each game has its own correct layout (some are 2-column with a
+   game preview on the right; others are single-column centered settings).
+   Forcing a 2-column grid universally squishes the settings panel on games
+   whose right column is hidden until play starts. Let each page own this.
+   ------------------------------------------------------------------------- */
+
+/* ---- Settings panel ------------------------------------------------------- */
+.panel {
+  background: var(--game-panel-bg);
+  border: 1px solid var(--game-panel-border);
+  border-radius: var(--game-radius);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 20px;
+  color: var(--game-text);
+}
+.panel h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  text-align: center;
+  color: var(--game-text);
+}
+
+/* Metric cards (used in settings stats and end-of-session results) */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.metric {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: var(--game-accent-soft);
+  min-width: 110px;
+}
+.metric .v {
+  font-weight: 900;
+  font-size: 24px;
+  color: #bfe6ff;
+  text-shadow: 0 0 6px rgba(150, 220, 255, 0.5);
+  line-height: 1.1;
+}
+.metric .t {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 4px;
+  color: var(--game-text-secondary);
+}
+
+/* ---- In-game HUD ---------------------------------------------------------- */
+.hud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  padding: 16px;
+  padding-top: 24px;
+  background: var(--game-hud-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--game-panel-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+.hud-group {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+.hud-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--game-accent);
+  text-shadow: 0 0 8px rgba(111, 211, 245, 0.7);
+  line-height: 1.1;
+}
+.hud-label {
+  font-size: 13px;
+  color: var(--game-text-secondary);
+  opacity: 0.9;
+}
+.hud-value.level {
+  color: var(--game-good);
+  text-shadow: 0 0 8px rgba(143, 245, 178, 0.7);
+}
+.hud-value.combo {
+  color: var(--game-gold);
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+}
+
+/* HUD timer-bar overlay (used by bubble; harmless on others) */
+.timer-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 8px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--game-accent), rgba(111, 211, 245, 0.35));
+  transform-origin: left center;
+  transition: width 0.1s linear;
+}
+
+/* HUD controls row */
+.hud .controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .hud {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 12px;
+  }
+  .hud-value { font-size: 22px; }
+  .hud-label { font-size: 11px; }
+}
+
+/* ---- Buttons (game-tuned, complement components.css .btn) ---------------- */
+.app .home,
+.btn.btn-game,
+.panel .btn {
+  font-family: inherit;
+}
+.panel .btn {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid rgba(111, 211, 245, 0.35);
+  background: var(--game-accent-soft);
+  color: var(--game-text);
+  border-radius: var(--game-radius-sm);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 16px;
+}
+.panel .btn:hover:not(:disabled) {
+  background: rgba(111, 211, 245, 0.22);
+  transform: translateY(-1px);
+}
+.panel .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.panel .btn-primary {
+  background: var(--game-accent-strong);
+  color: #07101e;
+  border-color: rgba(111, 211, 245, 1);
+}
+.panel .btn-primary:hover:not(:disabled) {
+  background: rgba(111, 211, 245, 1);
+  box-shadow: 0 6px 18px rgba(111, 211, 245, 0.45);
+}
+.panel .btn-secondary {
+  background: rgba(143, 245, 178, 0.15);
+  border-color: rgba(143, 245, 178, 0.4);
+  color: var(--game-good);
+}
+.panel .btn-secondary:hover:not(:disabled) {
+  background: rgba(143, 245, 178, 0.25);
+}
+.panel .btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  min-height: 44px;
+  width: auto;
+}
+
+.panel .btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.panel .btn-row .btn { flex: 1; }
+
+/* ---- Form controls in settings panel -------------------------------------- */
+.panel select,
+.panel input[type="number"],
+.panel input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--game-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 10, 26, 0.8);
+  color: var(--game-text);
+  font-size: 16px;
+}
+.panel select:focus,
+.panel input[type="number"]:focus,
+.panel input[type="text"]:focus {
+  outline: none;
+  border-color: rgba(111, 211, 245, 0.9);
+  box-shadow: 0 0 0 2px rgba(111, 211, 245, 0.25);
+}
+.panel .group { margin-bottom: 16px; }
+.panel .label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--game-text);
+}
+.panel .setting-help,
+.panel small {
+  color: var(--game-text-muted);
+  font-size: 12px;
+}
+
+/* Description / how-to-play callout */
+.panel .desc {
+  margin-bottom: 16px;
+  background: rgba(111, 211, 245, 0.08);
+  border-left: 4px solid rgba(111, 211, 245, 0.7);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--game-text);
+}
+
+/* ---- Pattern-B legacy aliases --------------------------------------------
+   Pages that still ship `.site-header`, `.page`, or `.metric-settings`
+   markup get the canonical chrome without an HTML rewrite. We touch only
+   the outer container and the home button, leaving each page's own .inner
+   wrapper (which sets max-width / padding / flex layout) to do its job.
+   ------------------------------------------------------------------------- */
+header.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(180deg, rgba(8, 12, 26, 0.9), rgba(8, 12, 26, 0.55));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+}
+header.site-header h1 {
+  margin: 0;
+  font-size: clamp(18px, 3vw, 24px);
+  color: var(--game-text);
+  font-weight: 700;
+}
+
+/* Pattern-B layout container — intentionally not overridden here (see note
+   above on .layout). Each Pattern B page keeps its own .page grid. */
+
+/* Pattern-B metric card alias */
+.metric-settings {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: var(--game-accent-soft);
+  min-width: 110px;
+  color: var(--game-text);
+}
+
+/* Pattern-B home button (was rendered as a generic .btn) — give it the
+   canonical pill look when it lives inside the site-header. */
+header.site-header a.btn,
+header.site-header .home {
+  text-decoration: none;
+  color: var(--game-text);
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: transparent;
+  min-height: 0;
+  width: auto;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+header.site-header a.btn:hover,
+header.site-header .home:hover {
+  background: var(--game-accent-soft);
+  border-color: var(--game-accent);
+}
+
+/* =============================================================================
+   Responsive tier system — tuned for phones, tablets, and the Capacitor
+   Android shell. The mobile-first base styles above target ~360-640px; the
+   tiers below progressively enhance for larger phones, tablets, and landscape
+   orientation. We intentionally tune ONLY the shared chrome (header, HUD,
+   panel typography, metric cards, buttons) — each game's own canvas / play
+   area / grid keeps its per-game @media rules so we don't risk regressions.
+
+   Tiers chosen to align with real device widths:
+     ≤480px     small phones (iPhone SE, older Androids)
+     481-640    modern phones portrait
+     641-900    large phones landscape, 7" tablets portrait
+     901-1200   8-10" tablets portrait, smaller tablets landscape
+     ≥1201     10"+ tablets landscape, desktops
+   ============================================================================= */
+
+/* ---- Safe-area insets for notched phones and Android nav gestures --------
+   env(safe-area-inset-*) returns non-zero only when viewport-fit=cover is set
+   on the page's meta viewport (already true on every exercise page). max()
+   keeps the existing minimum padding when there's no inset to respect. */
+.app,
+header.site-header {
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
+}
+
+/* ---- Small phones (≤480) — tighten everything ---------------------------- */
+@media (max-width: 480px) {
+  .app,
+  header.site-header {
+    padding-top: max(8px, env(safe-area-inset-top, 8px));
+    padding-bottom: 8px;
+  }
+  .app h1,
+  header.site-header h1 {
+    font-size: 17px;
+  }
+  .panel {
+    padding: 14px;
+    border-radius: 12px;
+  }
+  .panel h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .stats-row {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 90px;
+    padding: 10px 8px;
+  }
+  .metric .v {
+    font-size: 20px;
+  }
+  .metric .t {
+    font-size: 11px;
+  }
+  .hud {
+    padding: 10px;
+    gap: 8px;
+    padding-top: 18px;
+  }
+  .hud-value {
+    font-size: 18px;
+  }
+  .hud-label {
+    font-size: 10px;
+  }
+  .panel .btn {
+    min-height: 48px;
+    font-size: 15px;
+    padding: 0 14px;
+  }
+  .panel .btn-row {
+    gap: 8px;
+  }
+}
+
+/* ---- Tablets portrait (641-900) — wider settings, bigger HUD ------------- */
+@media (min-width: 641px) and (max-width: 900px) {
+  .panel h2 {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+  .stats-row {
+    gap: 14px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 130px;
+    padding: 16px;
+  }
+  .metric .v {
+    font-size: 28px;
+  }
+  .metric .t {
+    font-size: 13px;
+  }
+  /* Override the legacy `@media (max-width: 900px)` HUD compression for this
+     larger tier — tablets have room to breathe. */
+  .hud {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    padding: 18px;
+    gap: 14px;
+    padding-top: 24px;
+  }
+  .hud-value {
+    font-size: 26px;
+  }
+  .hud-label {
+    font-size: 13px;
+  }
+}
+
+/* ---- Settings panel widen on tablets+ ------------------------------------
+   Several games hard-code `.settings-panel { max-width: 480px }` in their
+   inline styles — too narrow for 7"+ tablets. Game-shell loads after the
+   inline <style> block, so this rule wins at equal specificity. */
+@media (min-width: 641px) {
+  .settings-panel {
+    max-width: 640px;
+  }
+  .summary-panel {
+    max-width: 640px;
+  }
+}
+@media (min-width: 1025px) {
+  .settings-panel {
+    max-width: 720px;
+  }
+  .summary-panel {
+    max-width: 720px;
+  }
+}
+
+/* ---- Large tablets portrait & smaller landscape (901-1200) --------------- */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .panel h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 150px;
+    padding: 18px;
+  }
+  .metric .v {
+    font-size: 32px;
+  }
+  .metric .t {
+    font-size: 14px;
+  }
+  .hud {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    padding: 20px;
+    gap: 16px;
+  }
+  .hud-value {
+    font-size: 30px;
+  }
+  .hud-label {
+    font-size: 14px;
+  }
+  .panel .btn {
+    font-size: 17px;
+    min-height: 54px;
+  }
+}
+
+/* ---- 10"+ tablets landscape & desktops (≥1201) --------------------------- */
+@media (min-width: 1201px) {
+  .panel h2 {
+    font-size: 26px;
+  }
+  .metric,
+  .metric-settings {
+    min-width: 160px;
+    padding: 20px;
+  }
+  .metric .v {
+    font-size: 34px;
+  }
+  .hud {
+    padding: 22px;
+    gap: 20px;
+  }
+  .hud-value {
+    font-size: 32px;
+  }
+  .hud-label {
+    font-size: 15px;
+  }
+}
+
+/* ---- Phone landscape — compact header & HUD so play area dominates ------ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app,
+  header.site-header {
+    padding-top: max(4px, env(safe-area-inset-top, 4px));
+    padding-bottom: 4px;
+  }
+  .app h1,
+  header.site-header h1 {
+    font-size: 16px;
+  }
+  .hud {
+    padding: 8px 12px;
+    padding-top: 14px;
+    gap: 8px;
+  }
+  .hud-value {
+    font-size: 18px;
+  }
+  .hud-label {
+    font-size: 10px;
+  }
+}
+
+/* ---- Touch target compliance (Android Material 48×48, WCAG 2.5.5) ------- */
+@media (pointer: coarse) {
+  .panel .btn,
+  .app .home,
+  header.site-header a.btn,
+  header.site-header .home {
+    min-height: 48px;
+  }
+  .panel .btn-ghost {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* ---- Reduced-motion accessibility (relevant for vestibular sensitivity,
+   common after stroke / brain injury) -------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .panel .btn:hover:not(:disabled) {
+    transform: none;
+  }
+  .app .home,
+  header.site-header a.btn,
+  header.site-header .home {
+    transition: none;
+  }
+}
+
+/* ---- Forced colors / high contrast (Windows High Contrast, etc.) -------- */
+@media (forced-colors: active) {
+  .panel,
+  header.site-header,
+  .app {
+    border: 1px solid CanvasText;
+  }
+  .panel .btn {
+    border: 2px solid ButtonText;
+  }
+}

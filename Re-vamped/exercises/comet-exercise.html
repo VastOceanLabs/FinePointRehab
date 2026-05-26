@@ -220,11 +220,70 @@
   /* Settings primary button row */
   .settings-actions { display:grid; grid-template-columns: 1fr; gap:10px; margin-top:12px; }
   .settings-actions.two-col{ grid-template-columns: 1fr 1fr; }
+
+  /* ===== Session-complete medal (matches Bubble Tap) ===== */
+  .medal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 4px 0 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+  }
+  .medal-disc {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+  }
+  .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+  .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+  .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+  .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+  .medal-text { text-align: left; line-height: 1.25; }
+  .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+  .medal-tier.bronze   { color: #f3a872; }
+  .medal-tier.silver   { color: #e8eef6; }
+  .medal-tier.gold     { color: #ffd700; }
+  .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+  .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  @keyframes medalReveal {
+    0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
+    60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+
+  /* ===== Per-session insight callout ===== */
+  .session-insight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(111,211,245,.10);
+    border-left: 4px solid rgba(111,211,245,.65);
+    color: #e7f6ff;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
+  .session-insight .ins-text strong { color: #bfe6ff; }
 </style>
+  <!-- Unified game chrome -->
+  <link rel="stylesheet" href="/css/game-shell.css">
+  <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
-<body>
+<body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
-    <a class="home" href="/" aria-label="Back to Home">← Home</a>
+    <a class="home" href="../" aria-label="Back to Home">← Home</a>
     <h1>Comet Tap</h1>
   </header>
 
@@ -276,6 +335,19 @@
         </select>
       </div>
 
+      <div class="group">
+        <label class="label" for="specials">Special Comets</label>
+        <select id="specials">
+          <option value="on" selected>On — adds Star, Frost, Prism</option>
+          <option value="off">Off — only standard comets</option>
+        </select>
+        <small class="setting-help">
+          <span style="color:#ffd700;">⭐ Star</span> = 3x points ·
+          <span style="color:#6fd3f5;">❄ Frost</span> = 5x + slows all comets ·
+          <span style="color:#ff77c6;">✦ Prism</span> = 5x, fast
+        </small>
+      </div>
+
       <div class="settings-actions">
         <button id="start" class="btn btn-primary" type="button">Start</button>
       </div>
@@ -321,6 +393,17 @@
           <h2 id="doneT">Session Complete!</h2>
           <div id="newBestBanner" class="hidden" style="text-align:center; margin-bottom:12px;">
             <span style="color:var(--gold); font-weight:900; font-size:18px;">🎉 NEW PERSONAL BEST! 🎉</span>
+          </div>
+          <div id="medal" class="medal" style="display:none;" aria-live="polite">
+            <div id="medalDisc" class="medal-disc"></div>
+            <div class="medal-text">
+              <div id="medalTier" class="medal-tier"></div>
+              <div id="medalCaption" class="medal-caption"></div>
+            </div>
+          </div>
+          <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+            <span class="ins-icon" id="insIcon">✨</span>
+            <span class="ins-text" id="insText"></span>
           </div>
           <div class="stats-grid">
             <div class="stat-item" id="scoreStatItem">
@@ -373,13 +456,16 @@
   const pauseHudBtn = $('#pauseHud'), exitHudBtn = $('#exitHud');
   [startBtn, pauseBtn, restartBtn, doneBtn, homeBtn, pauseHudBtn, exitHudBtn].forEach(b=>b && b.setAttribute('type','button'));
 
-  const durIn = $('#dur'), sizeSel = $('#size'), spdSel = $('#spd'), spawnSel = $('#spawn');
+  const durIn = $('#dur'), sizeSel = $('#size'), spdSel = $('#spd'), spawnSel = $('#spawn'), specialsSel = $('#specials');
   const scoreEl = $('#score'), pbEl = $('#pb'), timeEl = $('#time'), pbSettingsEl = $('#pbSettings');
   const comboEl = $('#combo'), comboMultEl = $('#comboMult'), comboWrap = $('.combo-wrap');
   const bestComboSettingsEl = $('#bestComboSettings');
   const doneModal = $('#done'), fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
   const fBestCombo = $('#fBestCombo'), fComboBonus = $('#fComboBonus');
   const newBestBanner = $('#newBestBanner'), scoreStatItem = $('#scoreStatItem');
+  // Session-complete polish: medal + insight
+  const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
+  const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
   const canvas = $('#stage'); const ctx = canvas.getContext('2d'); const hud = document.querySelector('.hud');
   const countdownOverlay = $('#countdown'), countNum = $('#countNum');
 
@@ -482,6 +568,8 @@
   let score=0, taps=0, misses=0, totalRT=0;
   let combo=0, bestCombo=0, comboBonus=0;
   let comets=[], particles=[], popups=[];
+  // Frost effect: when an active frost timer is set, all comets move slower.
+  let frostUntil = 0;
   let shakeT=0, hueBase=(160+Math.random()*60);
   let savedSettings = null; // For quick restart
 
@@ -500,6 +588,70 @@
     if (bestComboSettingsEl) bestComboSettingsEl.textContent = bcv;
   }
   refreshPB();
+
+  // ===== Medal + per-session insight =====
+  const SESSIONS_KEY = 'comet:sessions';
+  function loadPastSessions(){
+    try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
+  }
+  function savePastSession(stats){
+    try {
+      const arr = loadPastSessions();
+      arr.unshift(stats);
+      if (arr.length > 10) arr.length = 10;
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+    } catch {}
+  }
+  function computeMedalTier(currentScore, prevPb){
+    if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+    if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+    const r = currentScore / prevPb;
+    if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+    if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+    return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+  }
+  function showMedal(currentScore, prevPb){
+    const m = computeMedalTier(currentScore, prevPb);
+    medalDisc.className = 'medal-disc ' + m.tier;
+    medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+    medalTier.className = 'medal-tier ' + m.tier;
+    medalTier.textContent = m.label;
+    medalCaption.textContent = m.caption;
+    medalEl.style.display = 'flex';
+  }
+  function computeInsight(curr, past){
+    if (!past || past.length === 0) return null;
+    const prev = past[0];
+    // Comet 'avg' is in seconds (string like "1.23"); convert to ms for comparisons.
+    const currAvgMs = Math.round(parseFloat(curr.avg || '0') * 1000);
+    const prevAvgMs = Math.round(parseFloat(prev.avg || '0') * 1000);
+    if (curr.acc >= 95 && curr.taps >= 15) {
+      return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.acc}% this session.` };
+    }
+    if (prevAvgMs > 0 && currAvgMs > 0 && (prevAvgMs - currAvgMs) >= 50 && curr.taps >= 10) {
+      const diffMs = prevAvgMs - currAvgMs;
+      return { icon: '⚡', text: `<strong>Response time improved ${diffMs}ms</strong> compared with your last session.` };
+    }
+    const bestComboEver = Math.max(...past.map(p => p.bestCombo || 0));
+    if (curr.bestCombo > bestComboEver && curr.bestCombo >= 5) {
+      return { icon: '🔥', text: `<strong>Longest combo yet</strong> — ${curr.bestCombo} in a row.` };
+    }
+    const bestAccEver = Math.max(...past.map(p => p.acc || 0));
+    if (curr.acc > bestAccEver && curr.taps >= 10) {
+      return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.acc}%.` };
+    }
+    if (curr.acc >= 80 && curr.acc === prev.acc) {
+      return { icon: '📈', text: `<strong>Consistent performance</strong> — ${curr.acc}% accuracy two sessions in a row.` };
+    }
+    return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+  }
+  function showInsight(curr, past){
+    const ins = computeInsight(curr, past);
+    if (!ins) { insightEl.style.display = 'none'; return; }
+    insIcon.textContent = ins.icon;
+    insText.innerHTML = ins.text;
+    insightEl.style.display = 'flex';
+  }
 
   // ===== Combo System =====
   function updateComboUI(){
@@ -578,25 +730,45 @@
     return { x, y, tx, ty, spawnSide: side };
   }
 
+  // Rolls a special comet type — returns 'star' | 'frost' | 'prism' | 'normal'.
+  // Only fires if the "Special Comets" setting is on. Probabilities are low so
+  // specials feel rare and exciting.
+  function rollCometType(){
+    if (!specialsSel || specialsSel.value !== 'on') return 'normal';
+    const r = Math.random();
+    if (r < 0.04) return 'prism';   // 4%
+    if (r < 0.09) return 'frost';   // 5%
+    if (r < 0.17) return 'star';    // 8%
+    return 'normal';
+  }
+
+  const COMET_TYPE_HUE = { star: 50, frost: 190, prism: 320 };
+  const COMET_TYPE_SPEED_MULT = { star: 1.0, frost: 0.9, prism: 1.5 };
+
   function spawnComet(){
     if (playArea.w <= 0 || playArea.h <= 0) return;
     const r = sizeMap[sizeSel.value];
-    const spd = speedMap[spdSel.value]*(.85 + Math.random()*.4);
+    const type = rollCometType();
+    const speedMult = COMET_TYPE_SPEED_MULT[type] || 1.0;
+    const spd = speedMap[spdSel.value]*(.85 + Math.random()*.4) * speedMult;
     const {x,y,tx,ty,spawnSide} = spawnOppositeEdge();
 
     let vx = tx - x, vy = ty - y;
     const len = Math.hypot(vx,vy) || 1; vx/=len; vy/=len;
 
-    const hue = (hueBase + Math.random()*60) % 360;
-    comets.push({ x, y, vx, vy, r, spd, hue, born: now(), trail: [], spawnSide });
+    const hue = type === 'normal' ? (hueBase + Math.random()*60) % 360 : COMET_TYPE_HUE[type];
+    comets.push({ x, y, vx, vy, r, spd, hue, type, born: now(), trail: [], spawnSide });
   }
 
   function updateComets(dt){
     const px = dt/1000;
     const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
+    // Frost slows everything (excluding prism, which is supposed to feel fast)
+    const isFrosted = now() < frostUntil;
     comets.forEach(c=>{
-      c.x += c.vx*c.spd*px;
-      c.y += c.vy*c.spd*px;
+      const speedScale = (isFrosted && c.type !== 'prism') ? 0.45 : 1.0;
+      c.x += c.vx*c.spd*px*speedScale;
+      c.y += c.vy*c.spd*px*speedScale;
       c.trail.push({ x:c.x - c.vx*8, y:c.y - c.vy*8, life: 1, hue:c.hue });
       if (c.trail.length>28) c.trail.shift();
       c.trail.forEach(t=>t.life -= 0.025*px*60);
@@ -731,21 +903,40 @@
         const sizeB = sizeSel.value==='small'?1.6 : sizeSel.value==='medium'?1.2 : 1.0;
         const speedB = spdSel.value==='fast'?1.6 : spdSel.value==='medium'?1.2 : 1.0;
         const basePoints = Math.floor(10 * sizeB * speedB * clamp(3000/rt, 0.8, 6));
-        
+
+        // Special-type multipliers stack with combo
+        const typeMult = c.type === 'star' ? 3.0
+                        : c.type === 'frost' ? 5.0
+                        : c.type === 'prism' ? 5.0
+                        : 1.0;
+
         // Apply combo multiplier
         const mult = getComboMultiplier();
-        const bonusPts = Math.floor(basePoints * (mult - 1));
+        const totalMult = mult * typeMult;
+        const bonusPts = Math.floor(basePoints * (totalMult - 1));
         comboBonus += bonusPts;
         const pts = basePoints + bonusPts;
-        
+
         score += pts; scoreEl.textContent = String(score);
-        
-        // Show just the points earned - simple and clear
-        addPopup(c.x, c.y, `+${pts}`);
+
+        // Trigger frost effect on frost-comet tap
+        if (c.type === 'frost') {
+          frostUntil = now() + 3000;
+        }
+
+        // Show points with multiplier indicator
+        const popupText = totalMult > 1 ? `+${pts} ×${totalMult.toFixed(1)}` : `+${pts}`;
+        addPopup(c.x, c.y, popupText);
         burst(c.x,c.y,c.hue);
-        
-        // Haptic feedback if available
-        if (navigator.vibrate) navigator.vibrate(10);
+        if (c.type !== 'normal') {
+          const label = c.type === 'star' ? '⭐ STAR' : c.type === 'frost' ? '❄ FROST' : '✦ PRISM';
+          addCenterPopup(label);
+        }
+
+        // Haptic feedback — light tick for normal comets, success burst for
+        // special types (star/frost/prism). Native VibrationEffect in app,
+        // web vibration fallback in browser.
+        FPRNative.haptic(c.type === 'normal' ? 'tick' : 'success');
         
         break;
       }
@@ -825,8 +1016,12 @@
       dur: durIn.value,
       size: sizeSel.value,
       spd: spdSel.value,
-      spawn: spawnSel.value
+      spawn: spawnSel.value,
+      specials: specialsSel?.value
     };
+
+    // Clear any leftover frost effect from a prior session
+    frostUntil = 0;
 
     toImmersive();
 
@@ -866,6 +1061,7 @@
       sizeSel.value = savedSettings.size;
       spdSel.value = savedSettings.spd;
       spawnSel.value = savedSettings.spawn;
+      if (specialsSel && savedSettings.specials) specialsSel.value = savedSettings.specials;
     }
     
     setTimeout(startSession, 50);
@@ -887,12 +1083,13 @@
     running=false; paused=false;
     const acc = taps+misses>0 ? Math.round((taps/(taps+misses))*100) : 0;
     const avg = taps>0 ? (totalRT/taps/1000).toFixed(2) : '0.00';
-    
-    const isNewBest = score > getPB();
+
+    const prevPb = getPB();
+    const isNewBest = score > prevPb;
     if (isNewBest){ setPB(score); }
     if (bestCombo > getBestCombo()){ setBestCombo(bestCombo); }
     refreshPB();
-    
+
     // Update completion modal
     fScore.textContent = score;
     fTaps.textContent = taps;
@@ -900,7 +1097,7 @@
     fAvg.textContent = avg + 's';
     fBestCombo.textContent = bestCombo;
     fComboBonus.textContent = comboBonus;
-    
+
     // Highlight new best
     if (isNewBest) {
       newBestBanner.classList.remove('hidden');
@@ -909,7 +1106,14 @@
       newBestBanner.classList.add('hidden');
       scoreStatItem.classList.remove('highlight');
     }
-    
+
+    // Medal + per-session insight (compare against prior PB and last 10 sessions)
+    const currStats = { score, taps, acc, avg, bestCombo, comboBonus };
+    const past = loadPastSessions();
+    showMedal(score, prevPb);
+    showInsight(currStats, past);
+    savePastSession({ ...currStats, ts: Date.now() });
+
     doneModal.classList.remove('hidden');
     if (pauseBtn){ pauseBtn.disabled=true; }
   }
@@ -935,6 +1139,35 @@
     g2.addColorStop(0, '#fff'); g2.addColorStop(0.35, `hsla(${c.hue},95%,78%,1)`); g2.addColorStop(0.9, `hsla(${c.hue},95%,45%,.9)`); g2.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
 
+    // Glyph for special types — drawn over the comet body so it reads at a glance
+    if (c.type && c.type !== 'normal') {
+      const glyph = c.type === 'star' ? '★' : c.type === 'frost' ? '❄' : '✦';
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.font = `bold ${Math.round(c.r * 1.2)}px -apple-system, "Segoe UI Emoji", Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      ctx.shadowColor = `hsla(${c.hue},95%,60%,1)`;
+      ctx.shadowBlur = 12;
+      ctx.fillText(glyph, c.x, c.y);
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.restore();
+  }
+
+  // Frost overlay — subtle cyan vignette while the frost effect is active
+  function drawFrostOverlay(){
+    if (now() >= frostUntil) return;
+    const remaining = frostUntil - now();
+    const alpha = Math.min(0.18, remaining / 3000 * 0.18);
+    const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
+    const grad = ctx.createRadialGradient(X0 + W/2, Y0 + H/2, Math.min(W,H)*0.3, X0 + W/2, Y0 + H/2, Math.max(W,H)*0.6);
+    grad.addColorStop(0, 'rgba(0,210,255,0)');
+    grad.addColorStop(1, `rgba(80,200,255,${alpha})`);
+    ctx.save();
+    ctx.fillStyle = grad;
+    ctx.fillRect(X0, Y0, W, H);
     ctx.restore();
   }
 
@@ -972,6 +1205,7 @@
     drawStars(dt);
     comets.forEach(drawComet);
     drawParticles();
+    drawFrostOverlay();
     drawPopups();
   }
 

@@ -142,13 +142,6 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: var(--space-4);
-      overflow-x: hidden;
-    }
-
-    @media (max-width: 768px) {
-      .page {
-        padding: var(--space-2);
-      }
     }
 
     /* Screen system - simple and reliable */
@@ -354,13 +347,6 @@
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-lg);
       overflow: hidden;
-      max-width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      #game-container {
-        padding: var(--space-2);
-      }
     }
 
     #stars-container {
@@ -386,12 +372,12 @@
 
     @media (max-width: 768px) {
       #maze-container {
-        width: calc(100vw - 48px);
-        height: calc((100vw - 48px) * 0.7);
-        max-width: 420px;
-        max-height: 320px;
-        min-width: 280px;
-        min-height: 200px;
+        width: 95vw;
+        height: 70vw;
+        max-width: 450px;
+        max-height: 350px;
+        min-width: 300px;
+        min-height: 220px;
       }
     }
 
@@ -681,62 +667,36 @@
       100% { opacity: 0; }
     }
 
-    /* Perfect run indicator - shows briefly as celebration */
+    /* Perfect run indicator */
     .perfect-indicator {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 180, 0, 0.95));
-      border: 2px solid var(--gold);
-      border-radius: var(--radius-lg);
-      padding: var(--space-2) var(--space-4);
-      font-size: var(--font-size-lg);
-      font-weight: var(--font-weight-bold);
-      color: #1a1a2e;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--font-size-xs);
+      color: var(--gold);
       display: flex;
       align-items: center;
-      gap: var(--space-2);
+      gap: var(--space-1);
       opacity: 0;
       visibility: hidden;
-      transform: translate(-50%, -50%) scale(0.5);
-      transition: none;
-      z-index: 100;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 25;
       pointer-events: none;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
     }
 
     .perfect-indicator.show {
       opacity: 1;
       visibility: visible;
-      animation: perfectPopup 1.5s ease-out forwards;
-    }
-
-    @keyframes perfectPopup {
-      0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0;
-      }
-      15% {
-        transform: translate(-50%, -50%) scale(1.1);
-        opacity: 1;
-      }
-      25% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-      75% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(0.8);
-        opacity: 0;
-        visibility: hidden;
-      }
+      transform: translateY(0);
     }
 
     .perfect-indicator .star {
-      font-size: 24px;
+      font-size: 14px;
     }
 
     #error-message {
@@ -772,13 +732,96 @@
       height: 20px;
       cursor: pointer;
     }
+
+    /* ===== Session-complete medal (matches other games) ===== */
+    .medal {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; margin: 4px 0 14px;
+      padding: 14px 18px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text { text-align: left; line-height: 1.25; }
+    .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+    .medal-tier.bronze   { color: #f3a872; }
+    .medal-tier.silver   { color: #e8eef6; }
+    .medal-tier.gold     { color: #ffd700; }
+    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    @keyframes medalReveal {
+      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
+      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    /* ===== Per-session insight callout ===== */
+    .session-insight {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 14px; padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(111,211,245,.10);
+      border-left: 4px solid rgba(111,211,245,.65);
+      color: #e7f6ff;
+      font-size: 14px; line-height: 1.4;
+    }
+    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
+    .session-insight .ins-text strong { color: #bfe6ff; }
+
+    /* ===== Streak milestone toast + particles ===== */
+    .streak-milestone-toast {
+      position: fixed; top: 18%; left: 50%;
+      transform: translate(-50%, -20px) scale(.6);
+      padding: 14px 32px; border-radius: 14px;
+      font-size: 32px; font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
+      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 40px rgba(255,215,0,.45);
+      z-index: 80;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: streakSlide 2.4s ease-out forwards;
+    }
+    @keyframes streakSlide {
+      0% { opacity: 0; transform: translate(-50%, -30px) scale(.6); }
+      15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+      30% { transform: translate(-50%, 0) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -12px) scale(.95); }
+    }
+    .streak-burst-container { position: fixed; inset: 0; pointer-events: none; z-index: 79; }
+    .streak-burst {
+      position: absolute; width: 8px; height: 8px;
+      border-radius: 50%; pointer-events: none;
+      will-change: transform, opacity;
+    }
+    @keyframes streakBurst {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    }
   </style>
+  <!-- Unified game chrome -->
+  <link rel="stylesheet" href="/css/game-shell.css">
+  <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 
-<body>
+<body class="game-page">
   <header class="site-header">
     <div class="inner">
-      <a class="btn btn-secondary" href="/" aria-label="Go to Home">← Home</a>
+      <a class="btn btn-secondary" href="../" aria-label="Go to Home">← Home</a>
       <h1>Cosmic Maze</h1>
     </div>
   </header>
@@ -786,7 +829,7 @@
   <main class="page">
     <!-- Settings Screen -->
     <aside class="settings-panel panel active" data-screen="settings">
-      <h2>Session Settings</h2>
+      <h2>Settings</h2>
 
       <div class="game-description">
         <p>
@@ -901,6 +944,17 @@
 
   <div id="completion-message" class="completion panel">
     <h2>🎉 Therapy Session Complete!</h2>
+    <div id="medal" class="medal" style="display:none;" aria-live="polite">
+      <div id="medalDisc" class="medal-disc"></div>
+      <div class="medal-text">
+        <div id="medalTier" class="medal-tier"></div>
+        <div id="medalCaption" class="medal-caption"></div>
+      </div>
+    </div>
+    <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+      <span class="ins-icon" id="insIcon">✨</span>
+      <span class="ins-text" id="insText"></span>
+    </div>
     <div id="completion-scores">
       <p>Mazes Completed: <span id="final-completed" class="score-highlight">0</span></p>
       <p>Best Streak: <span id="final-streak" class="streak-highlight">0</span></p>
@@ -1244,6 +1298,14 @@
     const newRecordBanner = document.getElementById('new-record-banner');
     const newRecordScore = document.getElementById('new-record-score');
     const settingsPB = document.getElementById('settings-pb');
+    // Session-complete polish: medal + insight elements
+    const medalEl = document.getElementById('medal');
+    const medalDisc = document.getElementById('medalDisc');
+    const medalTier = document.getElementById('medalTier');
+    const medalCaption = document.getElementById('medalCaption');
+    const insightEl = document.getElementById('sessionInsight');
+    const insIcon = document.getElementById('insIcon');
+    const insText = document.getElementById('insText');
 
     // Generate initial stars
     generateStars(starsContainer, 150);
@@ -1281,6 +1343,120 @@
     let bestStreak = 0;
     let perfectRuns = 0;
     let isPerfectRun = true;
+    let firedStreakMilestones = new Set();
+
+    // ===== Medal + per-session insight =====
+    const SESSIONS_KEY = 'cosmic-maze:sessions';
+    function loadPastSessions() {
+      try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
+    }
+    function savePastSession(stats) {
+      try {
+        const arr = loadPastSessions();
+        arr.unshift(stats);
+        if (arr.length > 10) arr.length = 10;
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+      } catch {}
+    }
+    function computeMedalTier(currentScore, prevPb) {
+      if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+      if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+      const r = currentScore / prevPb;
+      if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+      if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+    }
+    function showMedal(currentScore, prevPb) {
+      if (!medalEl) return;
+      const m = computeMedalTier(currentScore, prevPb);
+      medalDisc.className = 'medal-disc ' + m.tier;
+      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+      medalTier.className = 'medal-tier ' + m.tier;
+      medalTier.textContent = m.label;
+      medalCaption.textContent = m.caption;
+      medalEl.style.display = 'flex';
+    }
+    function computeInsight(curr, past) {
+      if (!past || past.length === 0) return null;
+      const prev = past[0];
+      if (curr.perfectRuns > 0 && curr.mazes >= 3 && curr.perfectRuns === curr.mazes) {
+        return { icon: '✨', text: `<strong>Flawless run</strong> — every maze a perfect path.` };
+      }
+      const bestStreakEver = Math.max(...past.map(p => p.bestStreak || 0));
+      if (curr.bestStreak > bestStreakEver && curr.bestStreak >= 3) {
+        return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.bestStreak} mazes in a row.` };
+      }
+      if (prev.avgTime > 0 && curr.avgTime > 0 && (prev.avgTime - curr.avgTime) >= 1.0 && curr.mazes >= 2) {
+        const diff = (prev.avgTime - curr.avgTime).toFixed(1);
+        return { icon: '⚡', text: `<strong>${diff}s faster per maze</strong> than your last session.` };
+      }
+      const bestMazesEver = Math.max(...past.map(p => p.mazes || 0));
+      if (curr.mazes > bestMazesEver && curr.mazes >= 2) {
+        return { icon: '🚀', text: `<strong>Most mazes yet</strong> — completed ${curr.mazes} this session.` };
+      }
+      const bestPerfectEver = Math.max(...past.map(p => p.perfectRuns || 0));
+      if (curr.perfectRuns > bestPerfectEver && curr.perfectRuns >= 1) {
+        return { icon: '✨', text: `<strong>Most perfect runs yet</strong> — ${curr.perfectRuns} this session.` };
+      }
+      if (curr.mazes >= 1 && curr.mazes === prev.mazes) {
+        return { icon: '📈', text: `<strong>Consistent output</strong> — ${curr.mazes} mazes two sessions in a row.` };
+      }
+      return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+    }
+    function showInsight(curr, past) {
+      if (!insightEl) return;
+      const ins = computeInsight(curr, past);
+      if (!ins) { insightEl.style.display = 'none'; return; }
+      insIcon.textContent = ins.icon;
+      insText.innerHTML = ins.text;
+      insightEl.style.display = 'flex';
+    }
+
+    // ===== Streak milestone celebrations =====
+    const STREAK_MILESTONES = [3, 5, 10, 15, 25];
+    function checkStreakMilestone(streak) {
+      if (!STREAK_MILESTONES.includes(streak)) return;
+      if (firedStreakMilestones.has(streak)) return;
+      firedStreakMilestones.add(streak);
+      celebrateStreak(streak);
+    }
+    function celebrateStreak(n) {
+      const flame = n >= 15 ? '🔥🔥🔥' : n >= 10 ? '🔥🔥' : '🔥';
+      const toast = document.createElement('div');
+      toast.className = 'streak-milestone-toast';
+      toast.textContent = `${flame} ${n} Mazes in a Row!`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+      burstStreakParticles(n >= 15 ? 36 : n >= 10 ? 28 : 22);
+      try { AudioSystem?.playPerfect?.(); } catch {}
+      // Native haptics in the Android app, web vibration fallback in browser.
+        FPRNative.haptic('milestone')
+    }
+    function burstStreakParticles(count) {
+      const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
+      const target = (typeof mazeContainer !== 'undefined' && mazeContainer) ? mazeContainer : document.body;
+      const rect = target.getBoundingClientRect();
+      const container = document.createElement('div');
+      container.className = 'streak-burst-container';
+      document.body.appendChild(container);
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height * 0.4;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'streak-burst';
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.background = colors[i % colors.length];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 140;
+        p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
+        p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
+        const dur = 800 + Math.random() * 400;
+        p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
+        container.appendChild(p);
+      }
+      setTimeout(() => container.remove(), 1400);
+    }
     let visitedNodes = new Set();
     let optimalPathLength = 0;
 
@@ -1305,23 +1481,20 @@
     }
 
     function adjustMazeSize() {
-      const pageEl = document.querySelector('.page');
-      const pagePadding = 32; // 16px padding on each side
-      const availableWidth = Math.min(window.innerWidth - pagePadding, pageEl ? pageEl.clientWidth : window.innerWidth);
+      const containerWidth = mazeContainer.offsetWidth || 600;
       const containerHeight = getViewportHeight();
       const isLandscape = window.innerWidth > window.innerHeight;
 
       if (isLandscape) {
-        let w = Math.min(availableWidth * 0.95, containerHeight * 1.2);
-        let h = Math.min(containerHeight * 0.65, w * 0.65);
+        let w = Math.min(containerWidth * 0.95, containerHeight * 1.2);
+        let h = Math.min(containerHeight * 0.70, w * 0.70);
         mazeWidth = Math.max(220, Math.round(w));
         mazeHeight = Math.max(180, Math.round(h));
       } else {
-        // Portrait mode - be more conservative with width
-        let w = Math.min(availableWidth - 24, containerHeight * 0.85);
-        let h = Math.min(containerHeight * 0.60, w * 0.75);
+        let w = Math.min(containerWidth * 0.95, containerHeight * 0.90);
+        let h = Math.min(containerHeight * 0.70, w * 0.90);
         mazeWidth = Math.max(220, Math.round(w));
-        mazeHeight = Math.max(200, Math.round(h));
+        mazeHeight = Math.max(220, Math.round(h));
       }
 
       mazeContainer.style.width = `${mazeWidth}px`;
@@ -1705,7 +1878,7 @@
       pathTraces = [];
       visitedNodes = new Set();
       isPerfectRun = true;
-      // Don't show perfect indicator here - it will be shown when maze actually starts
+      perfectIndicator.classList.add('show');
 
       for (let i = 0; i < rows; i++) {
         const row = [];
@@ -1825,6 +1998,7 @@
         // Check if this is a backtrack (revisiting a node)
         if (visitedNodes.has(nodeIndex)) {
           isPerfectRun = false;
+          perfectIndicator.classList.remove('show');
         }
         
         const targetNode = pathNodes[nodeIndex];
@@ -1988,10 +2162,6 @@
         perfectRuns++;
         mazeScore = Math.round(mazeScore * 1.5);
         AudioSystem.playPerfect();
-        // Show perfect run celebration popup
-        perfectIndicator.classList.remove('show');
-        void perfectIndicator.offsetWidth; // Force reflow to restart animation
-        perfectIndicator.classList.add('show');
       } else {
         AudioSystem.playComplete();
       }
@@ -2001,6 +2171,7 @@
       if (currentStreak > bestStreak) {
         bestStreak = currentStreak;
       }
+      checkStreakMilestone(currentStreak);
 
       const multiplier = getStreakMultiplier();
       mazeScore = Math.round(mazeScore * multiplier);
@@ -2076,6 +2247,9 @@
       const averageTime = parseFloat(averageTimeString);
       const computedScore = score;
 
+      // Capture prior PB BEFORE writing the new one (used by the medal tier)
+      const prevPb = personalBest;
+
       // Check for new record
       let isNewRecord = false;
       if (computedScore > personalBest) {
@@ -2084,6 +2258,19 @@
         storage.set('mazePersonalBest', personalBest);
         settingsPB.textContent = personalBest;
       }
+
+      // Medal + per-session insight
+      const currStats = {
+        score: computedScore,
+        mazes: mazesCompleted,
+        bestStreak,
+        perfectRuns,
+        avgTime: averageTime
+      };
+      const past = loadPastSessions();
+      showMedal(computedScore, prevPb);
+      showInsight(currStats, past);
+      savePastSession({ ...currStats, ts: Date.now() });
 
       // Play appropriate sound
       if (isNewRecord) {
@@ -2156,6 +2343,9 @@
         currentStreak = 0;
         bestStreak = 0;
         perfectRuns = 0;
+        firedStreakMilestones = new Set();
+        if (medalEl) medalEl.style.display = 'none';
+        if (insightEl) insightEl.style.display = 'none';
 
         clearMaze();
         updateHUD();

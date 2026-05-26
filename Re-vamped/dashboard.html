@@ -145,6 +145,71 @@
             font-size: var(--font-size-2xl);
         }
 
+        /* ----- Reminders card ------------------------------------------- */
+        .reminder-help {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0 0 var(--space-4);
+        }
+        .reminder-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .reminder-row:last-of-type { border-bottom: 0; }
+        .reminder-row-label { font-weight: 600; color: white; }
+        .reminder-row-sub { display: block; font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+        /* iOS-style toggle */
+        .reminder-toggle { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
+        .reminder-toggle input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+        .reminder-toggle .track {
+            position: absolute; inset: 0;
+            background: rgba(255,255,255,0.18);
+            border-radius: 999px;
+            transition: background 0.2s;
+        }
+        .reminder-toggle .knob {
+            position: absolute; top: 3px; left: 3px;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .reminder-toggle input:checked ~ .track { background: #6fd3f5; }
+        .reminder-toggle input:checked ~ .knob { transform: translateX(22px); }
+        .reminder-toggle input:focus-visible ~ .track { outline: 2px solid #6fd3f5; outline-offset: 2px; }
+        /* Time picker */
+        #reminder-time {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-family: inherit;
+            min-height: 44px;
+        }
+        #reminder-time:focus { outline: 2px solid #6fd3f5; outline-offset: 2px; }
+        .reminder-status {
+            margin: var(--space-3) 0 0;
+            padding: var(--space-3);
+            background: rgba(111, 211, 245, 0.1);
+            border-left: 3px solid #6fd3f5;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #bfe6ff;
+        }
+        .reminder-web-note {
+            margin: var(--space-3) 0 0;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.5;
+        }
+
         .achievement-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -335,6 +400,8 @@
             }
         }
     </style>
+  <script src="/js/fpr-native.js" defer></script>
+  <script src="/js/fpr-reminders.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -447,6 +514,42 @@
                 </h2>
                 <div class="recommended-exercises" id="recommended-exercises">
                     <!-- Exercises will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Daily Reminders -->
+            <div class="dashboard-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🔔</span>
+                    Daily Practice Reminders
+                </h2>
+                <div id="reminders-card">
+                    <p class="reminder-help">
+                        A gentle daily nudge to keep your practice consistent.
+                        Reminders work offline — no account needed.
+                    </p>
+                    <div class="reminder-row">
+                        <div>
+                            <span class="reminder-row-label">Enable reminders</span>
+                            <span class="reminder-row-sub">Schedule a daily notification</span>
+                        </div>
+                        <label class="reminder-toggle" aria-label="Enable daily reminders">
+                            <input type="checkbox" id="reminder-enabled" />
+                            <span class="track" aria-hidden="true"></span>
+                            <span class="knob" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div class="reminder-row">
+                        <div>
+                            <span class="reminder-row-label">Reminder time</span>
+                            <span class="reminder-row-sub">When to send your daily nudge</span>
+                        </div>
+                        <input type="time" id="reminder-time" value="18:00" />
+                    </div>
+                    <p id="reminder-status" class="reminder-status" aria-live="polite">Reminders are off.</p>
+                    <p id="reminder-web-note" class="reminder-web-note">
+                        <em>Reminders fire natively through Android. They'll start working as soon as you install the FinePointRehab Android app — your preferences are saved here so they apply automatically.</em>
+                    </p>
                 </div>
             </div>
         </div>
