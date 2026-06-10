@@ -1,1226 +1,2330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Comet Tap — Fine Point Rehab</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Comet Tap — Visual Tracking Exercise | FinePoint Rehab</title>
+  <meta name="description" content="Catch glowing comets before they streak away. An adjustable visual-tracking and reaction exercise for hand–eye coordination after injury or illness.">
 
-<link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/components.css">
+  <!-- Brand font (same as homepage) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-<style>
-  :root{
-    --vh: 1vh;
-    --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
-    --accent: var(--brand-aqua, #6fd3f5);
-    --radius: 14px;
-    --panel: rgba(10,16,36,.9);
-    --panel-border: rgba(255,255,255,.08);
-    --text: #eaf6ff;
-    --gold: #ffd700;
-    --combo-glow: rgba(255,215,0,.6);
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left: env(safe-area-inset-left, 0px);
-    --safe-right: env(safe-area-inset-right, 0px);
-  }
-  
-  /* Prevent iOS rubber-banding / bounce scroll */
-  html, body {
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: auto;
-  }
-  
-  body{ margin:0; color:var(--text);
-    background:
-      radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
-      radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
-      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
-    min-height: calc(var(--vh) * 100);
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  body.playing { 
-    overflow: hidden; 
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(1200px 800px at 20% 25%, rgba(70,30,120,.35), transparent 60%),
-      radial-gradient(900px 700px at 75% 65%, rgba(20,120,160,.28), transparent 55%),
-      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
-  }
-  body.playing header.app { display: none; }
+  <!-- Global tokens & resets -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
 
-  header.app{
-    position: sticky; top:0; z-index: 50;
-    padding:12px 16px; display:flex; gap:12px; align-items:center;
-    background: linear-gradient(180deg, rgba(8,12,26,.9), rgba(8,12,26,.55));
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    backdrop-filter: blur(6px);
-  }
-  header .home { text-decoration:none; color:var(--text); font-weight:700;
-    border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:8px 12px; }
-  header h1{ margin:0; font-size: clamp(18px,3vw,24px); }
+  <style>
+    /* =========================================================
+       Comet Tap — v3 "warm cosmos" game shell
+       Follows the format set by bubble-exercise.html:
+       1) Welcome screen (hero + stats + presets + big Start)
+       2) Fine-tune panel (collapsible, persistent settings)
+       3) Immersive play screen (HUD + canvas stage + pause overlay)
+       4) Session-complete celebration (medal, insight, points)
+       Game accent: orange→rose (--ex-a/--ex-b from its homepage card)
+       ========================================================= */
+    :root{
+      --vh: 1vh;
+      --ex-a: #fb923c;             /* game accent (matches homepage card) */
+      --ex-b: #e11d48;
+      --ex-grad: linear-gradient(135deg, var(--ex-a), var(--ex-b));
+      --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
+      --accent: #fb923c;
+      --accent-2: #fdba74;
+      --panel: rgba(13, 19, 48, .78);
+      --panel-border: rgba(255,255,255,.09);
+      --text: #eef4ff;
+      --text-secondary: #b9c6e2;
+      --text-muted: #8a96b3;
+      --good: #8ff5b2;
+      --gold: #ffd700;
+      --frost: #6fd3f5;
+      --prism: #ff77c6;
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-pill: 999px;
+      --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
 
-  .layout{ display:grid; grid-template-columns: 1fr; gap:16px; padding:16px; height:auto; }
-  .panel{ background: var(--panel); border: 1px solid var(--panel-border); border-radius: var(--radius);
-          box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05); }
+    *{ box-sizing: border-box; }
 
-  /* Settings */
-  #settings { padding:18px; overflow:auto; position:relative; z-index: 5; max-width: 720px; margin: 0 auto; }
-  #settings h2{ margin:0 0 10px; font-size:20px; text-align:center; }
-  .desc{ margin-bottom:12px; background: rgba(111,211,245,.08);
-         border-left: 4px solid rgba(111,211,245,.7); padding:10px; border-radius:8px; font-size:14px; line-height:1.5; }
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(120,40,60,.30), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(150,80,20,.22), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: var(--font-sans);
+      font-size: 17px;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+    body.playing #welcome { display: none; }
 
-  /* Stats on settings (shows PB) */
-  .stats-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
-  .metric{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
-           text-align:center; padding:8px 12px; border:1px solid rgba(255,255,255,.12); border-radius:12px;
-           background: rgba(255,255,255,.05); min-width:110px; }
-  .v{ font-weight:900; font-size:18px; color:#bfe6ff; text-shadow: 0 0 6px rgba(150,220,255,.5); line-height:1.1; }
-  .t{ font-size:11px; opacity:.9; margin-top:3px; }
+    button, select, input { font-family: var(--font-sans); }
 
-  .group{ margin-bottom:12px; }
-  .label{ display:block; margin-bottom:6px; font-weight:700; letter-spacing:.2px; }
-  select, input[type="number"]{
-    width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
-    background: rgba(5,10,26,.8); color:var(--text); font-size:16px;
-  }
-  select:focus, input[type="number"]:focus{
-    outline:none; border-color: rgba(111,211,245,.9); box-shadow: 0 0 0 2px rgba(111,211,245,.25);
-  }
-  .btn{
-    min-height:46px; border:1px solid rgba(111,211,245,.35); background: rgba(111,211,245,.12);
-    color:var(--text); border-radius:10px; font-weight:800; letter-spacing:.2px; cursor:pointer; transition:.2s;
-  }
-  .btn:hover:not(:disabled){ background: rgba(111,211,245,.22); transform: translateY(-1px); }
-  .btn:disabled{ opacity:.55; cursor:not-allowed; }
-  .btn-primary{ background: rgba(111,211,245,.95); color:#07101e; border-color: rgba(111,211,245,1); }
-  .btn-primary:hover:not(:disabled){ background: rgba(111,211,245,1); box-shadow: 0 6px 18px rgba(111,211,245,.45); }
+    /* base.css colors headings with --text-primary (dark ink for light pages);
+       this page is dark, so headings must inherit the page text color */
+    h1, h2, h3, h4 { color: inherit; }
 
-  /* Game column – hidden until playing */
-  .right{ display:none; position:relative; }
-  body.playing .right{ display:block; }
+    :focus-visible{
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
 
-  .frame{ position:relative; border-radius: var(--radius); overflow:hidden;
-          border:1px solid var(--panel-border); box-shadow: inset 0 0 40px rgba(0,0,0,.35);
-          background: radial-gradient(60% 45% at 50% 40%, rgba(80,160,200,.12), transparent 68%); }
-  canvas#stage{ display:block; width:100%; height:62vh; max-height:760px; background: transparent; }
-  @media (max-width:900px){ canvas#stage{ height:58vh; } }
+    /* ---------- High contrast mode ---------- */
+    body.high-contrast {
+      --bg-1: #000; --bg-2: #000; --bg-3: #000;
+      --panel: rgba(0,0,0,.95);
+      --panel-border: rgba(255,255,255,.5);
+      --text: #fff;
+      --text-secondary: #fff;
+      --text-muted: #ddd;
+      --accent: #00ff00;
+      --good: #00ff00;
+      background: #000;
+    }
+    body.high-contrast #game-container { background: #000 !important; }
+    body.high-contrast .hero-card,
+    body.high-contrast .stat-chip,
+    body.high-contrast .preset,
+    body.high-contrast .seg button,
+    body.high-contrast details.customize,
+    body.high-contrast .legend-card { border-color: rgba(255,255,255,.6); }
+    body.high-contrast .hero-title { -webkit-text-fill-color: #fff; color: #fff; }
 
-  /* HUD (compact & wrap-friendly) */
-  .hud{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 10px; margin-bottom:10px;
-        background: rgba(8,14,36,.85); border: 1px solid var(--panel-border); border-radius: var(--radius);
-        box-shadow: 0 6px 16px rgba(0,0,0,.35); position:relative; z-index:4; }
-  #score.v{ font-size:20px; color:#d7f2ff; text-shadow: 0 0 8px rgba(160,220,255,.7); }
-  .actions{ flex:0 0 auto; display:flex; gap:8px; margin-left:auto; }
-  .btn-ghost{ min-height:34px; padding:6px 10px; font-weight:800; border:1px solid rgba(255,255,255,.22);
-              border-radius:999px; background: rgba(255,255,255,.06); color:var(--text); cursor:pointer; white-space:nowrap; }
-  .btn-ghost:hover{ background: rgba(255,255,255,.12); }
+    /* ---------- Reduced motion ----------
+       Applied automatically from the OS setting and by the manual toggle.
+       JS also skips particles/trails/ambient effects when this class is set. */
+    body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
+    }
+    body.reduced-motion .ambient { display:none; }
 
-  /* Combo display */
-  .combo-wrap{ display:flex; flex-direction:column; align-items:center; min-width: 70px; }
-  .combo-wrap .v{ font-size:18px; transition: all 0.15s ease; }
-  .combo-wrap.hot .v{ color: var(--gold); text-shadow: 0 0 12px var(--combo-glow); transform: scale(1.1); }
-  .combo-wrap.fire .v{ color: #ff6b35; text-shadow: 0 0 16px rgba(255,107,53,.8); transform: scale(1.15); }
-  .combo-multiplier{ font-size:10px; color: var(--gold); opacity: 0; transition: opacity 0.2s; }
-  .combo-wrap.hot .combo-multiplier, .combo-wrap.fire .combo-multiplier{ opacity: 1; }
+    /* ---------- Header ---------- */
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding: 10px 16px;
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(8,12,26,.92), rgba(8,12,26,.6));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(8px);
+    }
+    header .home {
+      text-decoration:none; color:var(--text); font-weight:800; font-size:.95rem;
+      border:1.5px solid rgba(255,255,255,.22); border-radius: var(--r-pill);
+      padding: 8px 16px; min-height: 44px; display:inline-flex; align-items:center;
+      transition: background .2s, border-color .2s;
+    }
+    header .home:hover { background: rgba(251,146,60,.12); border-color: var(--accent); }
+    header h1{
+      margin:0; font-size: clamp(18px, 3vw, 23px); font-weight: 900; letter-spacing:-.01em;
+      display:flex; align-items:center; gap:8px;
+    }
+    header .spacer{ flex:1; }
+    header .progress-link{
+      text-decoration:none; color:var(--text-secondary); font-weight:700; font-size:.9rem;
+      padding:8px 14px; border-radius: var(--r-pill); min-height:44px;
+      display:inline-flex; align-items:center; gap:6px;
+      transition: color .2s, background .2s;
+    }
+    header .progress-link:hover{ color: var(--accent-2); background: rgba(251,146,60,.1); }
 
-  /* Best combo indicator */
-  .best-combo{ font-size: 9px; color: rgba(255,215,0,.7); margin-top: 2px; }
+    /* =========================================================
+       1) WELCOME SCREEN
+       ========================================================= */
+    #welcome{
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+      display: grid;
+      gap: 18px;
+    }
 
-  /* Immersive */
-  body.playing .layout{ grid-template-columns: 1fr; padding:0; height: calc(var(--vh) * 100); }
-  body.playing #settings{ display:none; }
-  body.playing .right{ height: calc(var(--vh) * 100); }
-  body.playing .frame{ 
-    border:none; 
-    border-radius:0; 
-    height: calc(var(--vh) * 100); 
-    box-shadow: none; 
-    background: radial-gradient(ellipse at 50% 40%, rgba(15,22,48,1) 0%, rgba(7,11,22,1) 100%);
-    padding-bottom: var(--safe-bottom);
-  }
-  body.playing canvas#stage{ 
-    width:100vw; 
-    height: calc(var(--vh) * 100); 
-    max-height:none; 
-    background: transparent; 
-  }
-  body.playing .hud{
-    position:absolute; 
-    top: calc(var(--safe-top) + 10px); 
-    left: calc(var(--safe-left) + 10px); 
-    right: calc(var(--safe-right) + 10px); 
-    margin:0;
-    background: linear-gradient(180deg, rgba(6,10,24,.65), rgba(6,10,24,.35)); border: 1px solid rgba(255,255,255,.12);
-  }
-  
-  /* Ensure canvas respects safe areas on iPad */
-  body.playing .frame{
-    padding-bottom: var(--safe-bottom);
-  }
+    /* --- Hero card --- */
+    .hero-card{
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 34px 22px 30px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.4);
+    }
+    /* Ambient ember-comets drifting up through the hero */
+    .ambient{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .ambient span{
+      position:absolute;
+      bottom:-15%;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(251,146,60,.32) 45%, rgba(225,29,72,.18) 75%, transparent 100%);
+      opacity:.28;
+      animation: ambientRise linear infinite;
+    }
+    .ambient span:nth-child(1){ left:8%;  width:42px; height:42px; animation-duration: 11s; }
+    .ambient span:nth-child(2){ left:24%; width:20px; height:20px; animation-duration: 14s; animation-delay: 2s; }
+    .ambient span:nth-child(3){ left:46%; width:32px; height:32px; animation-duration: 12s; animation-delay: 5s; }
+    .ambient span:nth-child(4){ left:64%; width:16px; height:16px; animation-duration: 16s; animation-delay: 1s; }
+    .ambient span:nth-child(5){ left:78%; width:38px; height:38px; animation-duration: 13s; animation-delay: 7s; }
+    .ambient span:nth-child(6){ left:90%; width:24px; height:24px; animation-duration: 15s; animation-delay: 4s; }
+    @keyframes ambientRise{
+      0%   { transform: translateY(0) translateX(0); opacity:0; }
+      8%   { opacity:.3; }
+      92%  { opacity:.25; }
+      100% { transform: translateY(-90vh) translateX(18px); opacity:0; }
+    }
 
-  /* Countdown overlay */
-  #countdown{ position:absolute; inset:0; display:grid; place-items:center; background: rgba(0,0,0,.7);
-              backdrop-filter: blur(8px); z-index:20; }
-  #countdown .count-num{ font-size: clamp(80px, 20vw, 160px); font-weight:900; color: var(--accent);
-                         text-shadow: 0 0 40px rgba(111,211,245,.8), 0 0 80px rgba(111,211,245,.4);
-                         animation: countPulse 0.5s ease-out; }
-  #countdown .count-text{ font-size: 18px; margin-top: 10px; opacity: 0.8; }
-  @keyframes countPulse{
-    0%{ transform: scale(1.4); opacity: 0; }
-    50%{ opacity: 1; }
-    100%{ transform: scale(1); opacity: 1; }
-  }
+    .hero-icon{
+      font-size: 58px;
+      line-height: 1;
+      margin-bottom: 6px;
+      display:inline-block;
+      animation: heroFloat 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 8px 22px rgba(251,146,60,.45));
+    }
+    @keyframes heroFloat{
+      0%,100%{ transform: translateY(0) rotate(-4deg); }
+      50%    { transform: translateY(-9px) rotate(4deg); }
+    }
+    .hero-title{
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 6vw, 2.7rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fdba74, var(--ex-a) 45%, #fb7185 85%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--ex-a); /* fallback */
+    }
+    .hero-tagline{
+      margin: 0 auto 16px;
+      max-width: 470px;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .skill-chips{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .skill-chips span{
+      font-size: .8rem; font-weight: 800;
+      padding: 5px 13px;
+      border-radius: var(--r-pill);
+      background: rgba(251,146,60,.12);
+      border: 1px solid rgba(251,146,60,.3);
+      color: var(--accent-2);
+    }
 
-  /* Completion modal */
-  #done{ position:absolute; inset:0; display:grid; place-items:center; background: rgba(0,0,0,.65);
-         backdrop-filter: blur(4px); z-index:10; }
-  #doneCard{ max-width:min(520px, 92vw); max-height:80vh; overflow:auto; padding:22px; }
-  #done h2{ margin-top:0; color:var(--accent); }
-  .hi{ color:#9ee7ff; font-weight:900; }
-  .new-best{ color: var(--gold) !important; }
-  .hidden{ display:none !important; }
-  :focus-visible{ outline: 3px solid rgba(111,211,245,.85); outline-offset:2px; }
+    /* --- Stats strip --- */
+    .stats-strip{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .stat-chip{
+      text-align:center;
+      padding: 14px 8px 11px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+    }
+    .stat-chip .num{
+      font-size: 1.45rem; font-weight: 900; line-height: 1.15;
+      color: #ffd9b8;
+      text-shadow: 0 0 10px rgba(251,146,60,.4);
+    }
+    .stat-chip .lbl{
+      font-size: .74rem; font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-top: 2px;
+    }
 
-  /* New best celebration */
-  .celebration{ position: absolute; top: 0; font-size: 14px; color: var(--gold); 
-                animation: celebrateBounce 0.6s ease-out; }
-  @keyframes celebrateBounce{
-    0%{ transform: translateY(0) scale(0.5); opacity: 0; }
-    50%{ transform: translateY(-10px) scale(1.2); opacity: 1; }
-    100%{ transform: translateY(-5px) scale(1); opacity: 1; }
-  }
+    /* --- Daily challenge chip --- */
+    .challenge-chip{
+      display:none; /* shown by JS when engagement layer is available */
+      align-items:center; gap:10px;
+      padding: 12px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(251,191,36,.14), rgba(245,158,11,.08));
+      border: 1px solid rgba(251,191,36,.35);
+      font-weight: 700; font-size: .95rem;
+      color: #ffe9b3;
+    }
+    .challenge-chip.done{
+      background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(16,185,129,.08));
+      border-color: rgba(16,185,129,.4);
+      color: #b9f5dd;
+    }
+    .challenge-chip .ch-icon{ font-size: 1.3rem; flex-shrink:0; }
 
-  /* Stats grid in completion */
-  .stats-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
-  .stat-item{ background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
-              border-radius: 10px; padding: 12px; text-align: center; }
-  .stat-item .stat-val{ font-size: 24px; font-weight: 900; color: #bfe6ff; }
-  .stat-item .stat-label{ font-size: 11px; opacity: 0.8; margin-top: 4px; }
-  .stat-item.highlight{ border-color: var(--gold); background: rgba(255,215,0,.08); }
-  .stat-item.highlight .stat-val{ color: var(--gold); }
+    /* --- Section labels --- */
+    .pick-label{
+      font-size: .85rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted);
+      margin: 4px 2px -8px;
+    }
 
-  /* Miss flash effect */
-  .miss-flash{ position: absolute; pointer-events: none; z-index: 5; }
-  .miss-flash.edge-top{ top: 0; left: 0; right: 0; height: 4px; 
-                        background: linear-gradient(180deg, rgba(255,80,80,.8), transparent); }
-  .miss-flash.edge-bottom{ bottom: 0; left: 0; right: 0; height: 4px;
-                           background: linear-gradient(0deg, rgba(255,80,80,.8), transparent); }
-  .miss-flash.edge-left{ top: 0; bottom: 0; left: 0; width: 4px;
-                         background: linear-gradient(90deg, rgba(255,80,80,.8), transparent); }
-  .miss-flash.edge-right{ top: 0; bottom: 0; right: 0; width: 4px;
-                          background: linear-gradient(270deg, rgba(255,80,80,.8), transparent); }
-  @keyframes flashFade{ 0%{ opacity:1; } 100%{ opacity:0; } }
+    /* --- Difficulty presets --- */
+    .presets{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .preset{
+      position:relative;
+      text-align:center;
+      padding: 16px 10px 14px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .15s, transform .15s, background .15s;
+      min-height: 108px;
+    }
+    .preset:hover{ transform: translateY(-2px); border-color: rgba(251,146,60,.45); }
+    .preset[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(251,146,60,.14), rgba(225,29,72,.08));
+      box-shadow: 0 6px 22px rgba(251,146,60,.22);
+    }
+    .preset[aria-checked="true"]::after{
+      content:'✓';
+      position:absolute; top:8px; right:10px;
+      width:22px; height:22px; border-radius:50%;
+      background: var(--ex-grad); color:#38090f;
+      font-size:.8rem; font-weight:900;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .preset .p-icon{ font-size: 1.6rem; line-height:1.2; }
+    .preset .p-name{ font-weight: 900; font-size: 1.05rem; margin-top:2px; }
+    .preset .p-desc{ font-size: .8rem; color: var(--text-secondary); font-weight:600; margin-top:2px; line-height:1.35; }
+    .custom-note{
+      display:none;
+      font-size:.85rem; font-weight:700; color: var(--gold);
+      margin: -8px 2px 0;
+    }
+    .custom-note.show{ display:block; }
 
-  /* Settings primary button row */
-  .settings-actions { display:grid; grid-template-columns: 1fr; gap:10px; margin-top:12px; }
-  .settings-actions.two-col{ grid-template-columns: 1fr 1fr; }
+    /* --- Session length segmented control --- */
+    .seg{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .seg button{
+      padding: 13px 8px;
+      min-height: 52px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
+      font-weight: 800; font-size: 1rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .seg button:hover{ border-color: rgba(251,146,60,.45); }
+    .seg button[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(251,146,60,.16), rgba(225,29,72,.1));
+    }
 
-  /* ===== Session-complete medal (matches Bubble Tap) ===== */
-  .medal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin: 4px 0 14px;
-    padding: 14px 18px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.08);
-    animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
-  }
-  .medal-disc {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
-  }
-  .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
-  .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
-  .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
-  .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
-  .medal-text { text-align: left; line-height: 1.25; }
-  .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
-  .medal-tier.bronze   { color: #f3a872; }
-  .medal-tier.silver   { color: #e8eef6; }
-  .medal-tier.gold     { color: #ffd700; }
-  .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
-  .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-  @keyframes medalReveal {
-    0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
-    60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
-    100% { opacity: 1; transform: scale(1) rotate(0); }
-  }
+    /* --- CTA block --- */
+    .cta-block{ display:grid; gap:10px; margin-top: 4px; }
+    .btn-start{
+      width:100%;
+      min-height: 64px;
+      border:none;
+      border-radius: var(--r-pill);
+      background: var(--ex-grad);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: .01em;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(251,146,60,.35);
+      transition: transform .18s, box-shadow .18s, filter .18s;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .btn-start:hover{ transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 14px 38px rgba(251,146,60,.45); }
+    .btn-start:active{ transform: scale(.985); }
+    .cta-hint{
+      text-align:center;
+      font-size: .92rem; font-weight: 700;
+      color: var(--text-secondary);
+      min-height: 1.3em;
+    }
+    .btn-practice{
+      justify-self: center;
+      background: none; border: none;
+      color: var(--good);
+      font-size: .95rem; font-weight: 800;
+      cursor: pointer;
+      padding: 10px 18px; min-height: 44px;
+      border-radius: var(--r-pill);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .btn-practice:hover{ background: rgba(143,245,178,.1); }
 
-  /* ===== Per-session insight callout ===== */
-  .session-insight {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: rgba(111,211,245,.10);
-    border-left: 4px solid rgba(111,211,245,.65);
-    color: #e7f6ff;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-  .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
-  .session-insight .ins-text strong { color: #bfe6ff; }
-</style>
-  <!-- Unified game chrome -->
-  <link rel="stylesheet" href="/css/game-shell.css">
+    /* --- Special-comet legend --- */
+    .legend{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .legend-card{
+      display:flex; align-items:center; gap:10px;
+      padding: 11px 12px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      font-size: .82rem; font-weight: 700;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+    .legend-card strong{ color: var(--text); display:block; font-size:.88rem; }
+    .mini-comet{
+      width: 34px; height: 34px; border-radius: 50%;
+      flex-shrink: 0;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 16px; color:#fff;
+      text-shadow: 0 0 6px rgba(0,0,0,.5);
+    }
+    .mini-comet.star{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,215,0,.7) 45%, rgba(218,165,32,.4) 100%);
+      box-shadow: 0 0 12px rgba(255,215,0,.55);
+    }
+    .mini-comet.frost{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.98), rgba(111,211,245,.75) 45%, rgba(0,100,150,.4) 100%);
+      box-shadow: 0 0 12px rgba(111,211,245,.55);
+    }
+    .mini-comet.prism{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,119,198,.75) 45%, rgba(150,20,100,.4) 100%);
+      box-shadow: 0 0 12px rgba(255,119,198,.55);
+    }
+
+    /* --- Fine-tune (collapsible) --- */
+    details.customize{
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      padding: 0;
+      overflow: hidden;
+    }
+    details.customize summary{
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 800;
+      font-size: 1rem;
+      display:flex; align-items:center; gap:10px;
+      min-height: 52px;
+    }
+    details.customize summary::-webkit-details-marker{ display:none; }
+    details.customize summary::after{
+      content:'▾';
+      margin-left:auto;
+      transition: transform .2s;
+      color: var(--text-muted);
+    }
+    details.customize[open] summary::after{ transform: rotate(180deg); }
+    details.customize .cz-body{
+      padding: 4px 18px 20px;
+      border-top: 1px solid var(--panel-border);
+      display:grid;
+      gap: 4px;
+    }
+    .cz-body h4{
+      margin: 16px 0 6px;
+      font-size: .82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing:.07em;
+      color: var(--text-muted);
+    }
+    .group{ margin-bottom: 12px; }
+    .label{ display:block; margin-bottom: 7px; font-weight: 800; font-size: .95rem; }
+    select, input[type="number"]{
+      width:100%;
+      padding: 12px;
+      min-height: 48px;
+      border-radius: 10px;
+      border:1.5px solid rgba(255,255,255,.2);
+      background: rgba(5,10,26,.8);
+      color:var(--text);
+      font-size:16px;
+      font-weight: 600;
+    }
+    select:focus, input[type="number"]:focus{
+      outline:none;
+      border-color: rgba(251,146,60,.9);
+      box-shadow: 0 0 0 2px rgba(251,146,60,.25);
+    }
+    .setting-help{
+      display:block;
+      color: var(--text-muted);
+      font-size: .82rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .toggle-row{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      gap: 12px;
+    }
+    .toggle-row:last-child{ border-bottom:none; }
+    .toggle-label{ font-size: .95rem; font-weight: 700; }
+    .toggle{
+      position:relative;
+      width: 52px; height: 30px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,.16);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+    }
+    .toggle.active{ background: var(--ex-a); }
+    .toggle::after{
+      content:'';
+      position:absolute; top:3px; left:3px;
+      width:24px; height:24px;
+      background:#fff; border-radius:50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+    .toggle.active::after{ transform: translateX(22px); }
+
+    /* =========================================================
+       2) PLAY SCREEN
+       ========================================================= */
+    #gameCol{ display:none; }
+    body.playing #gameCol{
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
+      z-index: 100;
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(120,40,60,.30), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(150,80,20,.22), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    }
+
+    /* --- HUD --- */
+    .hud{
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      align-items: center;
+      position: relative;
+      padding: 14px 16px 10px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      background: rgba(10, 16, 36, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      flex-shrink: 0;
+    }
+    .timer-bar{
+      position:absolute;
+      top:0; left:0;
+      height: 6px;
+      width:100%;
+      background: var(--ex-grad);
+      border-radius: 0 3px 3px 0;
+      transition: width .1s linear;
+    }
+    .hud-group{ display:grid; gap:1px; text-align:center; }
+    .hud-value{
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 8px rgba(251,146,60,.6);
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+    .hud-label{
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+    }
+    .hud-value.stage{ color: var(--good); text-shadow: 0 0 8px rgba(143,245,178,.6); }
+    .hud-value.combo-hot{
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,215,0,.8);
+      animation: pulse .5s ease-in-out;
+    }
+    .hud-value.new-pb{ animation: pbFlash .8s ease-in-out; }
+    @keyframes pbFlash{
+      0%,100%{ color: var(--accent); }
+      50%{ color: var(--gold); transform: scale(1.2); }
+    }
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); }
+      50%{ transform: scale(1.1); }
+    }
+    .controls{
+      display:flex; gap:10px; justify-content:center;
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+    .btn-ghost{
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,.18);
+      color: var(--text);
+      border-radius: var(--r-pill);
+      padding: 8px 22px;
+      min-height: 44px;
+      font-weight: 800;
+      font-size: .92rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-ghost:hover{ background: rgba(251,146,60,.1); border-color: rgba(251,146,60,.5); }
+
+    /* --- Stage (canvas) --- */
+    #game-container{
+      position:relative;
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      background: rgba(0,0,0,.2);
+    }
+    canvas#stage{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      touch-action:none;
+      cursor: crosshair;
+    }
+
+    /* --- Miss flash (edge a comet escaped from) --- */
+    .miss-flash{ position: absolute; pointer-events: none; z-index: 5; }
+    .miss-flash.edge-top{ top: 0; left: 0; right: 0; height: 4px;
+                          background: linear-gradient(180deg, rgba(255,120,100,.8), transparent); }
+    .miss-flash.edge-bottom{ bottom: 0; left: 0; right: 0; height: 4px;
+                             background: linear-gradient(0deg, rgba(255,120,100,.8), transparent); }
+    .miss-flash.edge-left{ top: 0; bottom: 0; left: 0; width: 4px;
+                           background: linear-gradient(90deg, rgba(255,120,100,.8), transparent); }
+    .miss-flash.edge-right{ top: 0; bottom: 0; right: 0; width: 4px;
+                            background: linear-gradient(270deg, rgba(255,120,100,.8), transparent); }
+    .hidden{ display:none !important; }
+    @keyframes flashFade{ 0%{ opacity:1; } 100%{ opacity:0; } }
+
+    /* --- Countdown --- */
+    .countdown-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      z-index:300;
+    }
+    .countdown-number{
+      font-size:180px; font-weight:900;
+      color: var(--accent);
+      text-shadow: 0 0 60px rgba(251,146,60,.8);
+      animation: countdownPop .8s ease-out;
+    }
+    .countdown-go{
+      font-size:100px;
+      color: var(--good);
+      text-shadow: 0 0 60px rgba(143,245,178,.8);
+    }
+    @keyframes countdownPop{
+      0%{ transform: scale(2); opacity:0; }
+      30%{ transform: scale(1); opacity:1; }
+      100%{ transform: scale(.8); opacity:0; }
+    }
+
+    /* --- Pause overlay --- */
+    .pause-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(5,8,20,.78);
+      backdrop-filter: blur(10px);
+      z-index:250;
+    }
+    .pause-overlay[hidden]{ display:none; }
+    .pause-card{
+      text-align:center;
+      padding: 34px 40px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.5);
+    }
+    .pause-card h2{ margin:0 0 6px; font-size:1.8rem; font-weight:900; }
+    .pause-card p{ margin:0 0 18px; color: var(--text-secondary); font-weight:600; }
+    .pause-card .btn-start{ min-height: 54px; font-size: 1.1rem; padding: 0 34px; width:auto; margin: 0 auto 10px; }
+    .pause-card .btn-ghost{ display:block; margin: 0 auto; }
+
+    /* =========================================================
+       3) SESSION COMPLETE
+       ========================================================= */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      z-index:200;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
+    }
+    .modal.open{ display:flex; }
+    .modal .card{
+      width:min(580px, 94vw);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      padding:26px;
+      animation: modalSlideIn .3s ease-out;
+      max-height: 92vh;
+      overflow-y:auto;
+    }
+    .modal h2{ font-weight: 900; letter-spacing:-.01em; }
+    @keyframes modalSlideIn{
+      from{ opacity:0; transform: translateY(-20px) scale(.95); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+    .medal{
+      display:flex; align-items:center; justify-content:center;
+      gap:14px;
+      margin:4px 0 14px;
+      padding:14px 18px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc{
+      width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; flex-shrink:0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze{ background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver{ background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold{ background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum{ background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text{ text-align:left; line-height:1.25; }
+    .medal-tier{ font-size:18px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; }
+    .medal-tier.bronze{ color:#f3a872; }
+    .medal-tier.silver{ color:#e8eef6; }
+    .medal-tier.gold{ color:#ffd700; }
+    .medal-tier.platinum{ color:#b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption{ font-size:13px; color: var(--text-secondary); margin-top:2px; }
+    @keyframes medalReveal{
+      0%{ opacity:0; transform: scale(.6) rotate(-8deg); }
+      60%{ opacity:1; transform: scale(1.05) rotate(2deg); }
+      100%{ opacity:1; transform: scale(1) rotate(0); }
+    }
+    .earn-chip{
+      display:none;
+      align-items:center; justify-content:center;
+      gap:8px;
+      margin: 0 0 14px;
+      padding: 11px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(251,146,60,.16), rgba(225,29,72,.1));
+      border: 1px solid rgba(251,146,60,.4);
+      font-weight: 800;
+      font-size: .95rem;
+      color: #ffe2c4;
+      text-align:center;
+    }
+    .session-insight{
+      display:flex; align-items:center; gap:10px;
+      margin:0 0 14px;
+      padding:12px 14px;
+      border-radius: var(--r-md);
+      background: rgba(251,146,60,.10);
+      border-left: 4px solid rgba(251,146,60,.65);
+      color:#fff3e7;
+      font-size:14px;
+      line-height:1.4;
+    }
+    .session-insight .ins-icon{ font-size:20px; flex-shrink:0; }
+    .session-insight .ins-text strong{ color:#ffd9b8; }
+    .final-metrics{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .metric{
+      flex:1 1 auto;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r-md);
+      background: rgba(251,146,60,.08);
+      min-width:96px;
+    }
+    .metric .v{
+      font-weight:900; font-size:22px;
+      color:#ffd9b8;
+      text-shadow: 0 0 6px rgba(255,200,150,.5);
+      line-height:1.1;
+    }
+    .metric .t{
+      font-size:11px;
+      font-weight:700;
+      text-transform: uppercase;
+      letter-spacing:.05em;
+      margin-top:4px;
+      color: var(--text-secondary);
+    }
+    .improvement{
+      display:inline-flex; align-items:center; gap:4px;
+      padding:4px 10px;
+      border-radius: var(--r-pill);
+      font-size:13px; font-weight:700;
+      margin-left:8px;
+    }
+    .improvement.positive{ background: rgba(143,245,178,.15); color: var(--good); }
+    .improvement.negative{ background: rgba(255,107,107,.15); color:#ff6b6b; }
+    .improvement.neutral{ background: rgba(255,255,255,.1); color: var(--text-secondary); }
+    .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .modal-actions .btn-start{ min-height: 52px; font-size:1.05rem; flex:1; }
+    .modal-actions .btn-ghost{ flex:1; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+
+    /* =========================================================
+       Responsive
+       ========================================================= */
+    @media (max-width: 700px){
+      #welcome{ padding: 16px 12px 56px; }
+      .hero-card{ padding: 26px 16px 24px; }
+      .stats-strip{ grid-template-columns: repeat(2, 1fr); }
+      .presets{ grid-template-columns: 1fr; }
+      .preset{ min-height:0; display:flex; align-items:center; gap:12px; text-align:left; padding:13px 16px; }
+      .preset .p-icon{ font-size:1.5rem; }
+      .preset .p-name{ margin-top:0; }
+      .preset > div{ flex:1; }
+      .legend{ grid-template-columns: 1fr; }
+      .hud{
+        grid-template-columns: repeat(3, 1fr);
+        gap:8px;
+        padding:12px 12px 8px;
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      }
+      .hud-value{ font-size:20px; }
+      .hud-label{ font-size:10px; }
+      .controls .btn-ghost{ padding:8px 16px; font-size:14px; min-height:40px; }
+      .countdown-number{ font-size:120px; }
+      .countdown-go{ font-size:70px; }
+      header .progress-link .pl-text{ display:none; }
+    }
+  </style>
+
   <script src="/js/fpr-native.js" defer></script>
   <script src="/js/fpr-reminders.js" defer></script>
+  <!-- Engagement layer (points / level / daily challenge). Relative path works
+       in test-redesign AND after promote (exercises/../js/ -> /js/). -->
+  <script src="../js/fpr-engagement.js" defer></script>
 </head>
 <body class="game-page">
   <header class="app" role="banner" aria-label="Exercise header">
-    <a class="home" href="../" aria-label="Back to Home">← Home</a>
-    <h1>Comet Tap</h1>
+    <a class="home" href="../" aria-label="Back to home">← Home</a>
+    <h1><span aria-hidden="true">☄️</span> Comet Tap</h1>
+    <span class="spacer"></span>
+    <a class="progress-link" href="../dashboard.html"><span aria-hidden="true">📊</span> <span class="pl-text">My Progress</span></a>
   </header>
 
-  <main class="layout">
-    <!-- SETTINGS -->
-    <aside id="settings" class="panel" aria-label="Settings">
-      <h2>Settings</h2>
-      <div class="desc"><strong>How to play:</strong> Tap glowing comets before they escape! Build combos for bonus points. Smaller &amp; faster = harder (more points).</div>
+  <!-- =================== 1) WELCOME SCREEN =================== -->
+  <main id="welcome" aria-label="Get ready to play">
 
-      <!-- Stats (shows PB on settings) -->
-      <div class="stats-row" role="region" aria-label="Player stats">
-        <div class="metric" aria-live="polite">
-          <div id="pbSettings" class="v">0</div>
-          <div class="t">Personal Best</div>
-        </div>
-        <div class="metric" aria-live="polite">
-          <div id="bestComboSettings" class="v">0</div>
-          <div class="t">Best Combo</div>
-        </div>
+    <section class="hero-card">
+      <div class="ambient" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
-
-      <div class="group">
-        <label class="label" for="dur">Session Duration (minutes)</label>
-        <input id="dur" type="number" min="0.5" step="0.5" max="10" value="2" inputmode="decimal" />
-      </div>
-      <div class="group">
-        <label class="label" for="size">Comet Size</label>
-        <select id="size">
-          <option value="large">Large (Easier)</option>
-          <option value="medium" selected>Medium (Balanced)</option>
-          <option value="small">Small (Challenging)</option>
-        </select>
-      </div>
-      <div class="group">
-        <label class="label" for="spd">Comet Speed</label>
-        <select id="spd">
-          <option value="slow" selected>Slow (Beginner)</option>
-          <option value="medium">Medium (Intermediate)</option>
-          <option value="fast">Fast (Advanced)</option>
-        </select>
-      </div>
-      <div class="group">
-        <label class="label" for="spawn">Spawn Rate</label>
-        <select id="spawn">
-          <option value="slow">Slow (2s)</option>
-          <option value="medium">Medium (1.5s)</option>
-          <option value="fast" selected>Fast (1s)</option>
-          <option value="vfast">Very Fast (0.5s)</option>
-        </select>
-      </div>
-
-      <div class="group">
-        <label class="label" for="specials">Special Comets</label>
-        <select id="specials">
-          <option value="on" selected>On — adds Star, Frost, Prism</option>
-          <option value="off">Off — only standard comets</option>
-        </select>
-        <small class="setting-help">
-          <span style="color:#ffd700;">⭐ Star</span> = 3x points ·
-          <span style="color:#6fd3f5;">❄ Frost</span> = 5x + slows all comets ·
-          <span style="color:#ff77c6;">✦ Prism</span> = 5x, fast
-        </small>
-      </div>
-
-      <div class="settings-actions">
-        <button id="start" class="btn btn-primary" type="button">Start</button>
-      </div>
-    </aside>
-
-    <!-- GAME (hidden until playing) -->
-    <section class="right" aria-label="Game area">
-      <div class="hud" role="region" aria-label="Session HUD">
-        <div class="metric" aria-live="polite"><div id="score" class="v">0</div><div class="t">Score</div></div>
-        <div class="metric combo-wrap" aria-live="polite">
-          <div id="combo" class="v">0</div>
-          <div class="t">Combo</div>
-          <div id="comboMult" class="combo-multiplier">×1.0</div>
-        </div>
-        <div class="metric" aria-live="polite"><div id="pb" class="v">0</div><div class="t">Best</div></div>
-        <div class="metric" aria-live="polite"><div id="time" class="v">02:00</div><div class="t">Time</div></div>
-        <div class="actions">
-          <button id="pauseHud" class="btn-ghost" type="button" aria-label="Pause or resume">Pause</button>
-          <button id="exitHud" class="btn-ghost" type="button" aria-label="Exit to results">Exit</button>
-        </div>
-      </div>
-
-      <div class="frame panel">
-        <canvas id="stage" width="1280" height="720" aria-label="Game stage"></canvas>
-        <!-- Miss flash elements -->
-        <div id="flashTop" class="miss-flash edge-top hidden"></div>
-        <div id="flashBottom" class="miss-flash edge-bottom hidden"></div>
-        <div id="flashLeft" class="miss-flash edge-left hidden"></div>
-        <div id="flashRight" class="miss-flash edge-right hidden"></div>
-      </div>
-
-      <!-- Countdown overlay -->
-      <div id="countdown" class="hidden" role="alert" aria-live="assertive">
-        <div style="text-align:center;">
-          <div id="countNum" class="count-num">3</div>
-          <div class="count-text">Get ready...</div>
-        </div>
-      </div>
-
-      <!-- Completion -->
-      <div id="done" class="hidden" role="dialog" aria-modal="true" aria-labelledby="doneT">
-        <div id="doneCard" class="panel">
-          <h2 id="doneT">Session Complete!</h2>
-          <div id="newBestBanner" class="hidden" style="text-align:center; margin-bottom:12px;">
-            <span style="color:var(--gold); font-weight:900; font-size:18px;">🎉 NEW PERSONAL BEST! 🎉</span>
-          </div>
-          <div id="medal" class="medal" style="display:none;" aria-live="polite">
-            <div id="medalDisc" class="medal-disc"></div>
-            <div class="medal-text">
-              <div id="medalTier" class="medal-tier"></div>
-              <div id="medalCaption" class="medal-caption"></div>
-            </div>
-          </div>
-          <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
-            <span class="ins-icon" id="insIcon">✨</span>
-            <span class="ins-text" id="insText"></span>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-item" id="scoreStatItem">
-              <div id="fScore" class="stat-val">0</div>
-              <div class="stat-label">Final Score</div>
-            </div>
-            <div class="stat-item">
-              <div id="fTaps" class="stat-val">0</div>
-              <div class="stat-label">Comets Tapped</div>
-            </div>
-            <div class="stat-item">
-              <div id="fAcc" class="stat-val">0%</div>
-              <div class="stat-label">Accuracy</div>
-            </div>
-            <div class="stat-item">
-              <div id="fAvg" class="stat-val">0.00s</div>
-              <div class="stat-label">Avg Response</div>
-            </div>
-            <div class="stat-item">
-              <div id="fBestCombo" class="stat-val">0</div>
-              <div class="stat-label">Best Combo</div>
-            </div>
-            <div class="stat-item">
-              <div id="fComboBonus" class="stat-val">0</div>
-              <div class="stat-label">Combo Bonus Pts</div>
-            </div>
-          </div>
-          <div class="settings-actions two-col">
-            <button id="doneBtn" class="btn btn-primary" type="button">Play Again</button>
-            <button id="homeBtn" class="btn" type="button">Home</button>
-          </div>
-        </div>
+      <div class="hero-icon" aria-hidden="true">☄️</div>
+      <h2 class="hero-title">Ready to catch some comets?</h2>
+      <p class="hero-tagline">Tap each comet before it streaks across the sky — a moving-target workout for visual tracking, aim and reaction speed.</p>
+      <div class="skill-chips" aria-label="Skills trained">
+        <span>Visual tracking</span><span>Reaction speed</span><span>Coordination</span>
       </div>
     </section>
+
+    <section class="stats-strip" aria-label="Your stats">
+      <div class="stat-chip">
+        <div id="pbSettings" class="num">0</div>
+        <div class="lbl">Personal best</div>
+      </div>
+      <div class="stat-chip">
+        <div id="lastScoreSettings" class="num">–</div>
+        <div class="lbl">Last score</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statStreak" class="num">🔥 0</div>
+        <div class="lbl">Day streak</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statLevel" class="num">1</div>
+        <div class="lbl">Your level</div>
+      </div>
+    </section>
+
+    <div id="challengeChip" class="challenge-chip" role="status">
+      <span class="ch-icon" aria-hidden="true">⭐</span>
+      <span id="challengeText"></span>
+    </div>
+
+    <p class="pick-label" id="presetLabel">Choose your pace</p>
+    <div class="presets" role="radiogroup" aria-labelledby="presetLabel">
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="gentle">
+        <span class="p-icon" aria-hidden="true">🌊</span>
+        <div>
+          <div class="p-name">Gentle</div>
+          <div class="p-desc">Big, unhurried comets</div>
+        </div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="steady">
+        <span class="p-icon" aria-hidden="true">✨</span>
+        <div>
+          <div class="p-name">Steady</div>
+          <div class="p-desc">The classic pace</div>
+        </div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="swift">
+        <span class="p-icon" aria-hidden="true">⚡</span>
+        <div>
+          <div class="p-name">Swift</div>
+          <div class="p-desc">Small, speedy streakers</div>
+        </div>
+      </button>
+    </div>
+    <p id="customNote" class="custom-note">Custom settings active — chosen in Fine-tune below.</p>
+
+    <p class="pick-label" id="lengthLabel">Session length</p>
+    <div class="seg" role="radiogroup" aria-labelledby="lengthLabel">
+      <button type="button" role="radio" aria-checked="false" data-min="1">1 min</button>
+      <button type="button" role="radio" aria-checked="true" data-min="2">2 min</button>
+      <button type="button" role="radio" aria-checked="false" data-min="5">5 min</button>
+    </div>
+
+    <div class="cta-block">
+      <button id="startBtn" class="btn-start" type="button">
+        <span aria-hidden="true">▶</span> Start session
+      </button>
+      <div id="ctaHint" class="cta-hint"></div>
+      <button id="practiceBtn" class="btn-practice" type="button">
+        Or warm up in Practice mode — no timer, no pressure
+      </button>
+    </div>
+
+    <p class="pick-label">Watch for special comets</p>
+    <div class="legend" aria-label="Special comet guide">
+      <div class="legend-card">
+        <div class="mini-comet star" aria-hidden="true">★</div>
+        <div><strong>Star</strong> 3× points</div>
+      </div>
+      <div class="legend-card">
+        <div class="mini-comet frost" aria-hidden="true">❄</div>
+        <div><strong>Frost</strong> 5× points + slows every comet</div>
+      </div>
+      <div class="legend-card">
+        <div class="mini-comet prism" aria-hidden="true">✦</div>
+        <div><strong>Prism</strong> 5× points — quick, it's fast!</div>
+      </div>
+    </div>
+
+    <details class="customize" id="customize">
+      <summary><span aria-hidden="true">⚙️</span> Fine-tune <span style="font-weight:600; color:var(--text-muted); font-size:.85rem;">— size, speed, frequency, accessibility</span></summary>
+      <div class="cz-body">
+
+        <h4>Session</h4>
+        <div class="group">
+          <label class="label" for="dur">Custom duration (minutes)</label>
+          <input id="dur" type="number" min="0.5" step="0.5" max="10" value="2" inputmode="decimal" />
+          <small class="setting-help">0.5–10 minutes. The quick picks above set this for you.</small>
+        </div>
+
+        <h4>Difficulty</h4>
+        <div class="group">
+          <label class="label" for="size">Comet size</label>
+          <select id="size">
+            <option value="large">Large (easier)</option>
+            <option value="medium" selected>Medium</option>
+            <option value="small">Small (harder)</option>
+          </select>
+        </div>
+        <div class="group">
+          <label class="label" for="spd">Comet speed</label>
+          <select id="spd">
+            <option value="slow" selected>Slow (gentle glide)</option>
+            <option value="medium">Medium</option>
+            <option value="fast">Fast (real shooting stars)</option>
+          </select>
+        </div>
+        <div class="group">
+          <label class="label" for="spawn">How often comets appear</label>
+          <select id="spawn">
+            <option value="slow">Relaxed (every 2 seconds)</option>
+            <option value="medium" selected>Regular (every 1.5 seconds)</option>
+            <option value="fast">Busy (every second)</option>
+            <option value="vfast">Meteor shower (every half second)</option>
+          </select>
+        </div>
+
+        <h4>Game options</h4>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblProgressive">Progressive pace</span>
+          <button type="button" id="toggleProgressive" class="toggle active" onclick="toggleSwitch(this)" data-setting="progressive" role="switch" aria-checked="true" aria-labelledby="lblProgressive"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Comets get a little faster and more frequent each stage you clear.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblSpecials">Special comets</span>
+          <button type="button" id="toggleSpecials" class="toggle active" onclick="toggleSwitch(this)" data-setting="specials" role="switch" aria-checked="true" aria-labelledby="lblSpecials"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Star, Frost and Prism comets. Turn off for a cleaner visual field.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblSound">Sound effects</span>
+          <button type="button" id="toggleSound" class="toggle active" onclick="toggleSwitch(this)" data-setting="sound" role="switch" aria-checked="true" aria-labelledby="lblSound"></button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblHaptic">Haptic feedback</span>
+          <button type="button" id="toggleHaptic" class="toggle active" onclick="toggleSwitch(this)" data-setting="haptic" role="switch" aria-checked="true" aria-labelledby="lblHaptic"></button>
+        </div>
+
+        <h4>Accessibility</h4>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblContrast">High contrast mode</span>
+          <button type="button" id="toggleContrast" class="toggle" onclick="toggleSwitch(this)" data-setting="highContrast" role="switch" aria-checked="false" aria-labelledby="lblContrast"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Black background with bold, high-visibility comets.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblReduceMotion">Reduce motion</span>
+          <button type="button" id="toggleMotion" class="toggle" onclick="toggleSwitch(this)" data-setting="reducedMotion" role="switch" aria-checked="false" aria-labelledby="lblReduceMotion"></button>
+        </div>
+        <small class="setting-help">Calms trails, particles and twinkling. Follows your device setting automatically.</small>
+
+      </div>
+    </details>
   </main>
 
-<script>
-(function(){
-  // ===== Helpers & DOM =====
-  const $ = (s, r=document)=>r.querySelector(s);
-  const rnd = (a,b)=>Math.random()*(b-a)+a;
-  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  const now = ()=>performance.now();
+  <!-- =================== 2) PLAY SCREEN =================== -->
+  <section id="gameCol" aria-label="Game">
+    <div class="hud" role="region" aria-label="In-game scoreboard">
+      <div class="timer-bar" id="timer-bar"></div>
 
-  const startBtn = $('#start'),
-        pauseBtn = $('#pause'),
-        restartBtn = $('#restart'),
-        doneBtn = $('#doneBtn'),
-        homeBtn = $('#homeBtn');
-  const pauseHudBtn = $('#pauseHud'), exitHudBtn = $('#exitHud');
-  [startBtn, pauseBtn, restartBtn, doneBtn, homeBtn, pauseHudBtn, exitHudBtn].forEach(b=>b && b.setAttribute('type','button'));
+      <div class="hud-group">
+        <div id="score" class="hud-value">0</div>
+        <div class="hud-label">Score</div>
+      </div>
+      <div class="hud-group">
+        <div id="stageNum" class="hud-value stage">1</div>
+        <div class="hud-label">Stage</div>
+      </div>
+      <div class="hud-group">
+        <div id="combo" class="hud-value">0</div>
+        <div class="hud-label">Combo</div>
+      </div>
+      <div class="hud-group">
+        <div id="comboMult" class="hud-value">×1.0</div>
+        <div class="hud-label">Multiplier</div>
+      </div>
+      <div class="hud-group">
+        <div id="pb" class="hud-value">0</div>
+        <div class="hud-label">Best</div>
+      </div>
+      <div class="hud-group">
+        <div id="time" class="hud-value">00:00</div>
+        <div class="hud-label">Time left</div>
+      </div>
 
-  const durIn = $('#dur'), sizeSel = $('#size'), spdSel = $('#spd'), spawnSel = $('#spawn'), specialsSel = $('#specials');
-  const scoreEl = $('#score'), pbEl = $('#pb'), timeEl = $('#time'), pbSettingsEl = $('#pbSettings');
-  const comboEl = $('#combo'), comboMultEl = $('#comboMult'), comboWrap = $('.combo-wrap');
-  const bestComboSettingsEl = $('#bestComboSettings');
-  const doneModal = $('#done'), fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
-  const fBestCombo = $('#fBestCombo'), fComboBonus = $('#fComboBonus');
-  const newBestBanner = $('#newBestBanner'), scoreStatItem = $('#scoreStatItem');
-  // Session-complete polish: medal + insight
-  const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
-  const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
-  const canvas = $('#stage'); const ctx = canvas.getContext('2d'); const hud = document.querySelector('.hud');
-  const countdownOverlay = $('#countdown'), countNum = $('#countNum');
+      <div class="controls">
+        <button id="pauseBtn" class="btn-ghost" type="button" aria-label="Pause session">Pause</button>
+        <button id="exitBtn" class="btn-ghost" type="button" aria-label="Exit session">Exit</button>
+      </div>
+    </div>
 
-  // Miss flash elements
-  const flashEls = {
-    top: $('#flashTop'), bottom: $('#flashBottom'),
-    left: $('#flashLeft'), right: $('#flashRight')
-  };
+    <div id="game-container">
+      <canvas id="stage" aria-label="Game stage — tap the comets"></canvas>
+      <div id="flashTop" class="miss-flash edge-top hidden"></div>
+      <div id="flashBottom" class="miss-flash edge-bottom hidden"></div>
+      <div id="flashLeft" class="miss-flash edge-left hidden"></div>
+      <div id="flashRight" class="miss-flash edge-right hidden"></div>
+    </div>
+  </section>
 
-  // ===== DPR & geometry =====
-  let DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-  const playArea = { x0:0, y0:0, w:0, h:0 };
+  <!-- Pause overlay -->
+  <div id="pauseOverlay" class="pause-overlay" hidden role="dialog" aria-modal="true" aria-label="Paused">
+    <div class="pause-card">
+      <h2>Paused</h2>
+      <p>Take your time — the comets will wait.</p>
+      <button id="resumeBtn" class="btn-start" type="button"><span aria-hidden="true">▶</span> Resume</button>
+      <button id="pauseExitBtn" class="btn-ghost" type="button">Exit session</button>
+    </div>
+  </div>
 
-  function setVH(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+  <!-- =================== 3) SESSION COMPLETE =================== -->
+  <div id="done" class="modal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneDesc">
+    <div class="card">
+      <h2 id="doneTitle" style="margin:0 0 8px 0;">Session complete! 🎉</h2>
+      <p id="doneDesc" style="margin:0 0 12px 0;">
+        <span id="resultMessage">Excellent work!</span>
+        <span id="improvementBadge"></span>
+      </p>
+      <div id="medal" class="medal" style="display:none;" aria-live="polite">
+        <div id="medalDisc" class="medal-disc"></div>
+        <div class="medal-text">
+          <div id="medalTier" class="medal-tier"></div>
+          <div id="medalCaption" class="medal-caption"></div>
+        </div>
+      </div>
+      <div id="earnChip" class="earn-chip" aria-live="polite"></div>
+      <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+        <span class="ins-icon" id="insIcon">✨</span>
+        <span class="ins-text" id="insText"></span>
+      </div>
+      <div class="final-metrics">
+        <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric"><div id="fTaps" class="v">0</div><div class="t">Comets caught</div></div>
+        <div class="metric"><div id="fAcc" class="v">0%</div><div class="t">Accuracy</div></div>
+        <div class="metric"><div id="fAvg" class="v">0.00s</div><div class="t">Avg response</div></div>
+        <div class="metric"><div id="fBestCombo" class="v">0</div><div class="t">Best combo</div></div>
+        <div class="metric"><div id="fComboBonus" class="v">0</div><div class="t">Combo bonus</div></div>
+        <div class="metric"><div id="fStage" class="v">1</div><div class="t">Stage reached</div></div>
+      </div>
+      <div id="achievementsSummary" style="margin-bottom:12px; display:none;">
+        <h3 style="margin:0 0 8px 0; font-size:14px; color:var(--gold);">🏆 Achievements unlocked</h3>
+        <div id="achievementsList" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="restartSame" class="btn-ghost" type="button">↻ Play again</button>
+        <button id="newSession" class="btn-start" type="button">Adjust &amp; play</button>
+        <a class="btn-ghost" href="../" aria-label="Back to home" style="flex:0 0 auto;">Home</a>
+      </div>
+    </div>
+  </div>
 
-  function refreshGeometry(){
-    const W = canvas.width / DPR, H = canvas.height / DPR;
-    const hudRect = hud ? hud.getBoundingClientRect() : { height: 60 };
-    const reservedTop = document.body.classList.contains('playing') ? Math.max(56, Math.ceil(hudRect.height)+12) : 0;
-    playArea.x0 = 0; playArea.y0 = reservedTop; playArea.w = W; playArea.h = Math.max(140, H - playArea.y0);
-  }
-
-  function fit(){
-    const r = canvas.getBoundingClientRect();
-    const w = Math.max(640, Math.floor(r.width * DPR));
-    const h = Math.max(360, Math.floor(r.height * DPR));
-    canvas.width = w; canvas.height = h;
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-    refreshGeometry();
-  }
-
-  window.addEventListener('resize', ()=>{ setVH(); fit(); }, {passive:true});
-  window.addEventListener('orientationchange', ()=>setTimeout(()=>{ setVH(); fit(); }, 200));
-  setVH(); fit();
-
-  try{
-    if ('ResizeObserver' in window){
-      new ResizeObserver(()=>refreshGeometry()).observe(hud);
-    }
-  }catch{}
-
-  // ===== Starfield =====
-  const layers = [
-    { count: 80, speed: .02, stars: [], alpha:.45 },
-    { count: 50, speed: .06, stars: [], alpha:.75 },
-    { count: 25, speed: .12, stars: [], alpha:1.0 }
-  ];
-  function initStars(){
-    const W = canvas.width/DPR, H = canvas.height/DPR;
-    layers.forEach((L,i)=>{
-      L.stars = Array.from({length:L.count}, () => ({
-        x: Math.random()*W,
-        y: Math.random()*H,
-        r: Math.random()*(i+1)*.8 + .5,
-        tw: Math.random()*2*Math.PI
-      }));
-    });
-  }
-  initStars();
-  
-  // Reinitialize stars when canvas size changes significantly
-  function reinitStarsIfNeeded(){
-    const W = canvas.width/DPR, H = canvas.height/DPR;
-    layers.forEach((L,i)=>{
-      L.stars.forEach(s => {
-        // If star is outside current canvas bounds, reposition it
-        if (s.y > H) s.y = Math.random() * H;
-        if (s.x > W) s.x = Math.random() * W;
-      });
-    });
-  }
-  
-  function drawStars(dt){
-    const W = canvas.width/DPR, H = canvas.height/DPR;
-    layers.forEach(L=>{
-      ctx.save(); ctx.globalAlpha = L.alpha;
-      L.stars.forEach(s=>{
-        s.x -= L.speed * dt * 0.06;
-        // When star exits left, wrap to right at random Y across full canvas height
-        if (s.x < -4) {
-          s.x = W + 4;
-          s.y = Math.random() * H;
-        }
-        s.tw += dt*0.002;
-        const o = 0.65 + Math.sin(s.tw)*0.35;
-        ctx.fillStyle = `rgba(255,255,255,${o})`;
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
-      });
-      ctx.restore();
-    });
-  }
-
-  // ===== Game State =====
-  const sizeMap = { small: 16, medium: 22, large: 28 };
-  const speedMap = { slow: 55, medium: 90, fast: 140 };
-  const spawnMap = { slow: 2000, medium: 1500, fast: 1000, vfast: 500 };
-
-  let running=false, paused=false;
-  let durationMs=120000, timeLeft=0, lastTick=0, lastSpawn=0;
-  let score=0, taps=0, misses=0, totalRT=0;
-  let combo=0, bestCombo=0, comboBonus=0;
-  let comets=[], particles=[], popups=[];
-  // Frost effect: when an active frost timer is set, all comets move slower.
-  let frostUntil = 0;
-  let shakeT=0, hueBase=(160+Math.random()*60);
-  let savedSettings = null; // For quick restart
-
-  const PB_KEY='comet:best';
-  const BEST_COMBO_KEY='comet:bestCombo';
-  const getPB=()=>parseInt(localStorage.getItem(PB_KEY)||'0',10);
-  const setPB=(v)=>localStorage.setItem(PB_KEY,String(v));
-  const getBestCombo=()=>parseInt(localStorage.getItem(BEST_COMBO_KEY)||'0',10);
-  const setBestCombo=(v)=>localStorage.setItem(BEST_COMBO_KEY,String(v));
-  
-  function refreshPB(){
-    const pbv = getPB();
-    const bcv = getBestCombo();
-    if (pbEl) pbEl.textContent = pbv;
-    if (pbSettingsEl) pbSettingsEl.textContent = pbv;
-    if (bestComboSettingsEl) bestComboSettingsEl.textContent = bcv;
-  }
-  refreshPB();
-
-  // ===== Medal + per-session insight =====
-  const SESSIONS_KEY = 'comet:sessions';
-  function loadPastSessions(){
-    try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
-  }
-  function savePastSession(stats){
-    try {
-      const arr = loadPastSessions();
-      arr.unshift(stats);
-      if (arr.length > 10) arr.length = 10;
-      localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
-    } catch {}
-  }
-  function computeMedalTier(currentScore, prevPb){
-    if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
-    if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
-    const r = currentScore / prevPb;
-    if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
-    if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
-    return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
-  }
-  function showMedal(currentScore, prevPb){
-    const m = computeMedalTier(currentScore, prevPb);
-    medalDisc.className = 'medal-disc ' + m.tier;
-    medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
-    medalTier.className = 'medal-tier ' + m.tier;
-    medalTier.textContent = m.label;
-    medalCaption.textContent = m.caption;
-    medalEl.style.display = 'flex';
-  }
-  function computeInsight(curr, past){
-    if (!past || past.length === 0) return null;
-    const prev = past[0];
-    // Comet 'avg' is in seconds (string like "1.23"); convert to ms for comparisons.
-    const currAvgMs = Math.round(parseFloat(curr.avg || '0') * 1000);
-    const prevAvgMs = Math.round(parseFloat(prev.avg || '0') * 1000);
-    if (curr.acc >= 95 && curr.taps >= 15) {
-      return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.acc}% this session.` };
-    }
-    if (prevAvgMs > 0 && currAvgMs > 0 && (prevAvgMs - currAvgMs) >= 50 && curr.taps >= 10) {
-      const diffMs = prevAvgMs - currAvgMs;
-      return { icon: '⚡', text: `<strong>Response time improved ${diffMs}ms</strong> compared with your last session.` };
-    }
-    const bestComboEver = Math.max(...past.map(p => p.bestCombo || 0));
-    if (curr.bestCombo > bestComboEver && curr.bestCombo >= 5) {
-      return { icon: '🔥', text: `<strong>Longest combo yet</strong> — ${curr.bestCombo} in a row.` };
-    }
-    const bestAccEver = Math.max(...past.map(p => p.acc || 0));
-    if (curr.acc > bestAccEver && curr.taps >= 10) {
-      return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.acc}%.` };
-    }
-    if (curr.acc >= 80 && curr.acc === prev.acc) {
-      return { icon: '📈', text: `<strong>Consistent performance</strong> — ${curr.acc}% accuracy two sessions in a row.` };
-    }
-    return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
-  }
-  function showInsight(curr, past){
-    const ins = computeInsight(curr, past);
-    if (!ins) { insightEl.style.display = 'none'; return; }
-    insIcon.textContent = ins.icon;
-    insText.innerHTML = ins.text;
-    insightEl.style.display = 'flex';
-  }
-
-  // ===== Combo System =====
-  function updateComboUI(){
-    comboEl.textContent = combo;
-    const mult = getComboMultiplier();
-    comboMultEl.textContent = `×${mult.toFixed(1)}`;
-    
-    // Visual states
-    comboWrap.classList.remove('hot', 'fire');
-    if (combo >= 15) comboWrap.classList.add('fire');
-    else if (combo >= 5) comboWrap.classList.add('hot');
-  }
-
-  function getComboMultiplier(){
-    if (combo < 3) return 1.0;
-    if (combo < 5) return 1.2;
-    if (combo < 10) return 1.5;
-    if (combo < 15) return 1.8;
-    if (combo < 25) return 2.0;
-    return 2.5;
-  }
-
-  function resetCombo(){
-    combo = 0;
-    updateComboUI();
-  }
-
-  function incrementCombo(){
-    combo++;
-    if (combo > bestCombo) bestCombo = combo;
-    updateComboUI();
-    
-    // Milestone popups
-    if (combo === 5) addCenterPopup('🔥 5 COMBO!');
-    else if (combo === 10) addCenterPopup('⚡ 10 COMBO!');
-    else if (combo === 15) addCenterPopup('💫 15 COMBO!');
-    else if (combo === 25) addCenterPopup('🌟 25 COMBO!');
-    else if (combo === 50) addCenterPopup('👑 50 COMBO!');
-  }
-
-  // ===== Miss Flash Effect =====
-  function showMissFlash(side){
-    const el = flashEls[side];
-    if (!el) return;
-    el.classList.remove('hidden');
-    el.style.animation = 'none';
-    el.offsetHeight; // Trigger reflow
-    el.style.animation = 'flashFade 0.3s ease-out forwards';
-    setTimeout(() => el.classList.add('hidden'), 300);
-  }
-
-  // ===== Spawning: edge → opposite edge =====
-  function spawnOppositeEdge(){
-    const r = sizeMap[sizeSel.value], pad = r + 8;
-    const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
-    const side = Math.floor(Math.random()*4);
-    let x, y, tx, ty;
-
-    if (side===0){ x = X0 + Math.random()*(W - 2*pad) + pad; y = Y0 - pad;         tx = X0 + Math.random()*(W - 2*pad) + pad; ty = Y0 + H + pad; }
-    else if (side===1){ x = X0 + W + pad; y = Y0 + Math.random()*(H - 2*pad) + pad; tx = X0 - pad;                ty = Y0 + Math.random()*(H - 2*pad) + pad; }
-    else if (side===2){ x = X0 + Math.random()*(W - 2*pad) + pad; y = Y0 + H + pad; tx = X0 + Math.random()*(W - 2*pad) + pad;  ty = Y0 - pad; }
-    else { x = X0 - pad; y = Y0 + Math.random()*(H - 2*pad) + pad;                   tx = X0 + W + pad;            ty = Y0 + Math.random()*(H - 2*pad) + pad; }
-
-    // ensure long path
-    if (side===0 || side===2){
-      const minDx = 0.4*W;
-      if (Math.abs(tx - x) < minDx){
-        tx = clamp(x + (Math.random()<0.5? -1:1) * (minDx + Math.random()*0.2*W), X0+pad, X0+W-pad);
+  <script>
+    // Global toggle helper (HTML uses onclick)
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      const active = el.classList.contains('active');
+      el.setAttribute('aria-checked', active ? 'true' : 'false');
+      const setting = el.dataset.setting;
+      if (setting === 'highContrast') {
+        document.body.classList.toggle('high-contrast', active);
       }
-    } else {
-      const minDy = 0.4*H;
-      if (Math.abs(ty - y) < minDy){
-        ty = clamp(y + (Math.random()<0.5? -1:1) * (minDy + Math.random()*0.2*H), Y0+pad, Y0+H-pad);
+      if (setting === 'reducedMotion') {
+        document.body.classList.toggle('reduced-motion', active);
       }
     }
-    return { x, y, tx, ty, spawnSide: side };
-  }
+  </script>
 
-  // Rolls a special comet type — returns 'star' | 'frost' | 'prism' | 'normal'.
-  // Only fires if the "Special Comets" setting is on. Probabilities are low so
-  // specials feel rare and exciting.
-  function rollCometType(){
-    if (!specialsSel || specialsSel.value !== 'on') return 'normal';
-    const r = Math.random();
-    if (r < 0.04) return 'prism';   // 4%
-    if (r < 0.09) return 'frost';   // 5%
-    if (r < 0.17) return 'star';    // 8%
-    return 'normal';
-  }
+  <script type="module">
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(text!=null) e.textContent = text;
+      return e;
+    };
+    const rnd = (a,b)=>Math.random()*(b-a)+a;
+    const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+    const now = ()=>performance.now();
 
-  const COMET_TYPE_HUE = { star: 50, frost: 190, prism: 320 };
-  const COMET_TYPE_SPEED_MULT = { star: 1.0, frost: 0.9, prism: 1.5 };
-
-  function spawnComet(){
-    if (playArea.w <= 0 || playArea.h <= 0) return;
-    const r = sizeMap[sizeSel.value];
-    const type = rollCometType();
-    const speedMult = COMET_TYPE_SPEED_MULT[type] || 1.0;
-    const spd = speedMap[spdSel.value]*(.85 + Math.random()*.4) * speedMult;
-    const {x,y,tx,ty,spawnSide} = spawnOppositeEdge();
-
-    let vx = tx - x, vy = ty - y;
-    const len = Math.hypot(vx,vy) || 1; vx/=len; vy/=len;
-
-    const hue = type === 'normal' ? (hueBase + Math.random()*60) % 360 : COMET_TYPE_HUE[type];
-    comets.push({ x, y, vx, vy, r, spd, hue, type, born: now(), trail: [], spawnSide });
-  }
-
-  function updateComets(dt){
-    const px = dt/1000;
-    const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
-    // Frost slows everything (excluding prism, which is supposed to feel fast)
-    const isFrosted = now() < frostUntil;
-    comets.forEach(c=>{
-      const speedScale = (isFrosted && c.type !== 'prism') ? 0.45 : 1.0;
-      c.x += c.vx*c.spd*px*speedScale;
-      c.y += c.vy*c.spd*px*speedScale;
-      c.trail.push({ x:c.x - c.vx*8, y:c.y - c.vy*8, life: 1, hue:c.hue });
-      if (c.trail.length>28) c.trail.shift();
-      c.trail.forEach(t=>t.life -= 0.025*px*60);
-    });
-    const margin = 60;
-    const before = comets.length;
-    
-    // Track which comets escaped and from which side
-    const escaped = comets.filter(c => 
-      c.x <= X0 - margin || c.x >= X0 + W + margin || 
-      c.y <= Y0 - margin || c.y >= Y0 + H + margin
-    );
-    
-    comets = comets.filter(c => c.x > X0 - margin && c.x < X0 + W + margin && c.y > Y0 - margin && c.y < Y0 + H + margin);
-    
-    const missCount = Math.max(0, before - comets.length);
-    if (missCount > 0) {
-      misses += missCount;
-      resetCombo(); // Break combo on miss
-      
-      // Show flash on escape side
-      escaped.forEach(c => {
-        if (c.y <= Y0 - margin + 10) showMissFlash('top');
-        else if (c.y >= Y0 + H + margin - 10) showMissFlash('bottom');
-        else if (c.x <= X0 - margin + 10) showMissFlash('left');
-        else if (c.x >= X0 + W + margin - 10) showMissFlash('right');
-      });
-    }
-  }
-
-  // ===== Particles & Popups =====
-  function burst(x,y,hue){
-    for (let i=0;i<24;i++){
-      particles.push({ x, y, vx: rnd(-2.4,2.4), vy: rnd(-2.4,2.4), life: 1, r: rnd(1,2.6), hue: hue + rnd(-10,10) });
-    }
-    shakeT = 120;
-  }
-
-  function addPopup(x, y, text){
-    const nearby = popups.filter(p => p.life > 0.45 && Math.hypot(p.x - x, p.y - y) < 64).length;
-    const offsetY = -nearby * 18;
-    const offsetX = (nearby % 2 ? -1 : 1) * (6 + nearby * 2);
-    popups.push({ x, y, life:1, text, oX: offsetX, oY: offsetY, isCenter: false });
-  }
-
-  function addCenterPopup(text){
-    const cx = playArea.x0 + playArea.w / 2;
-    const cy = playArea.y0 + playArea.h / 2;
-    popups.push({ x: cx, y: cy, life: 1.2, text, oX: 0, oY: 0, isCenter: true, scale: 1.5 });
-  }
-
-  function roundRect(ctx, x, y, w, h, r){
-    const rr = Math.min(r, h/2, w/2);
-    ctx.beginPath();
-    ctx.moveTo(x+rr, y);
-    ctx.arcTo(x+w, y,   x+w, y+h, rr);
-    ctx.arcTo(x+w, y+h, x,   y+h, rr);
-    ctx.arcTo(x,   y+h, x,   y,   rr);
-    ctx.arcTo(x,   y,   x+w, y,   rr);
-    ctx.closePath();
-  }
-
-  function updateParticles(dt){
-    const px = dt/1000;
-    particles.forEach(p=>{ p.x += p.vx*60*px; p.y += p.vy*60*px; p.vy += 0.2; p.life -= 1.6*px; });
-    particles = particles.filter(p=>p.life>0);
-    popups.forEach(s=>{ s.y -= (s.isCenter ? 12 : 24)*px; s.life -= (s.isCenter ? 0.7 : 1)*px; });
-    popups = popups.filter(s=>s.life>0);
-  }
-
-  function drawPopups(){
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    popups.forEach(s=>{
-      const a = Math.max(0, Math.min(1, s.life));
-      const x = s.x + (s.oX || 0);
-      const y = s.y + (s.oY || 0);
-      const text = s.text;
-      const scale = s.scale || 1;
-      const fontSize = Math.round(18 * scale);
-
-      ctx.font = `900 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
-
-      const m = ctx.measureText(text);
-      const w = Math.ceil(m.width) + 14 * scale;
-      const h = 24 * scale;
-      const rx = x - w/2;
-      const ry = y - h/2;
-
-      ctx.save();
-      ctx.globalAlpha = 0.85 * a;
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 12;
-      ctx.fillStyle = s.isCenter ? 'rgba(20,10,40,0.85)' : 'rgba(10,16,36,0.75)';
-      roundRect(ctx, rx, ry, w, h, 10);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.save();
-      ctx.globalAlpha = a;
-      ctx.shadowColor = s.isCenter ? 'rgba(255,215,0,0.9)' : 'rgba(170,220,255,0.9)';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = s.isCenter ? '#ffd700' : '#ffffff';
-      ctx.fillText(text, x, y);
-      ctx.restore();
-    });
-
-    ctx.restore();
-  }
-
-  // ===== Input =====
-  function getPos(e){
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches?e.touches[0].clientX:e.clientX) - rect.left;
-    const y = (e.touches?e.touches[0].clientY:e.clientY) - rect.top;
-    return { x, y };
-  }
-  function onTap(e){
-    if (!running || paused) return;
-    const {x,y} = getPos(e);
-    for (let i=0;i<comets.length;i++){
-      const c = comets[i];
-      if (Math.hypot(c.x-x, c.y-y) <= c.r*1.15){
-        e.preventDefault();
-        comets.splice(i,1);
-        taps++;
-        incrementCombo();
-        
-        const rt = now() - c.born; totalRT += rt;
-        const sizeB = sizeSel.value==='small'?1.6 : sizeSel.value==='medium'?1.2 : 1.0;
-        const speedB = spdSel.value==='fast'?1.6 : spdSel.value==='medium'?1.2 : 1.0;
-        const basePoints = Math.floor(10 * sizeB * speedB * clamp(3000/rt, 0.8, 6));
-
-        // Special-type multipliers stack with combo
-        const typeMult = c.type === 'star' ? 3.0
-                        : c.type === 'frost' ? 5.0
-                        : c.type === 'prism' ? 5.0
-                        : 1.0;
-
-        // Apply combo multiplier
-        const mult = getComboMultiplier();
-        const totalMult = mult * typeMult;
-        const bonusPts = Math.floor(basePoints * (totalMult - 1));
-        comboBonus += bonusPts;
-        const pts = basePoints + bonusPts;
-
-        score += pts; scoreEl.textContent = String(score);
-
-        // Trigger frost effect on frost-comet tap
-        if (c.type === 'frost') {
-          frostUntil = now() + 3000;
-        }
-
-        // Show points with multiplier indicator
-        const popupText = totalMult > 1 ? `+${pts} ×${totalMult.toFixed(1)}` : `+${pts}`;
-        addPopup(c.x, c.y, popupText);
-        burst(c.x,c.y,c.hue);
-        if (c.type !== 'normal') {
-          const label = c.type === 'star' ? '⭐ STAR' : c.type === 'frost' ? '❄ FROST' : '✦ PRISM';
-          addCenterPopup(label);
-        }
-
-        // Haptic feedback — light tick for normal comets, success burst for
-        // special types (star/frost/prism). Native VibrationEffect in app,
-        // web vibration fallback in browser.
-        FPRNative.haptic(c.type === 'normal' ? 'tick' : 'success');
-        
-        break;
-      }
-    }
-  }
-  canvas.addEventListener('click', onTap);
-  canvas.addEventListener('touchstart', onTap, {passive:false});
-  
-  // Prevent default touch behaviors on canvas (stops iPad gestures interfering)
-  canvas.addEventListener('touchmove', (e) => { if (running) e.preventDefault(); }, {passive:false});
-  canvas.addEventListener('touchend', (e) => { if (running) e.preventDefault(); }, {passive:false});
-  
-  // Prevent double-tap zoom on iOS
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) e.preventDefault();
-    lastTouchEnd = now;
-  }, {passive:false});
-
-  // ===== Timer/UI helpers =====
-  function fmtTime(ms){
-    const s = Math.max(0, Math.ceil(ms/1000));
-    const m = Math.floor(s/60);
-    const ss = String(s%60).padStart(2,'0');
-    return `${String(m).padStart(2,'0')}:${ss}`;
-  }
-  function updateTimeUI(){ timeEl.textContent = fmtTime(timeLeft); }
-
-  // Immersive mode without fullscreen API (avoids Safari security warnings)
-  function toImmersive(){ 
-    document.body.classList.add('playing'); 
-    window.scrollTo({ top: 0, behavior: 'instant' }); 
-  }
-  function fromImmersive(){ 
-    document.body.classList.remove('playing'); 
-  }
-
-  // ===== Countdown =====
-  function showCountdown(callback){
-    countdownOverlay.classList.remove('hidden');
-    let count = 3;
-    countNum.textContent = count;
-    countNum.style.animation = 'none';
-    countNum.offsetHeight;
-    countNum.style.animation = 'countPulse 0.5s ease-out';
-    
-    const interval = setInterval(() => {
-      count--;
-      if (count > 0) {
-        countNum.textContent = count;
-        countNum.style.animation = 'none';
-        countNum.offsetHeight;
-        countNum.style.animation = 'countPulse 0.5s ease-out';
-      } else {
-        countNum.textContent = 'GO!';
-        countNum.style.animation = 'none';
-        countNum.offsetHeight;
-        countNum.style.animation = 'countPulse 0.5s ease-out';
-        setTimeout(() => {
-          countdownOverlay.classList.add('hidden');
-          callback();
-        }, 400);
-        clearInterval(interval);
-      }
-    }, 600);
-  }
-
-  // ===== Lifecycle =====
-  function startSession(){
-    const mins = parseFloat(durIn.value);
-    durationMs = Number.isFinite(mins) && mins>0 ? mins*60*1000 : 120000;
-    timeLeft = durationMs; updateTimeUI();
-
-    // Save settings for quick restart
-    savedSettings = {
-      dur: durIn.value,
-      size: sizeSel.value,
-      spd: spdSel.value,
-      spawn: spawnSel.value,
-      specials: specialsSel?.value
+    // DOM
+    const canvas = $('#stage');
+    const ctx = canvas.getContext('2d');
+    const gameContainer = $('#game-container');
+    const startBtn = $('#startBtn');
+    const practiceBtn = $('#practiceBtn');
+    const pauseBtn = $('#pauseBtn');
+    const exitBtn = $('#exitBtn');
+    const pauseOverlay = $('#pauseOverlay');
+    const resumeBtn = $('#resumeBtn');
+    const pauseExitBtn = $('#pauseExitBtn');
+    const timeEl = $('#time');
+    const scoreEl = $('#score');
+    const stageEl = $('#stageNum');
+    const comboEl = $('#combo');
+    const comboMultEl = $('#comboMult');
+    const pbEl = $('#pb');
+    const pbSettingsEl = $('#pbSettings');
+    const lastScoreSettingsEl = $('#lastScoreSettings');
+    const statStreakEl = $('#statStreak');
+    const statLevelEl = $('#statLevel');
+    const challengeChip = $('#challengeChip');
+    const challengeText = $('#challengeText');
+    const ctaHint = $('#ctaHint');
+    const customNote = $('#customNote');
+    const timerBar = $('#timer-bar');
+    const doneModal = $('#done');
+    const fScore = $('#fScore'), fTaps = $('#fTaps'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
+    const fBestCombo = $('#fBestCombo'), fComboBonus = $('#fComboBonus'), fStage = $('#fStage');
+    const newSessionBtn = $('#newSession');
+    const restartSameBtn = $('#restartSame');
+    const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
+    const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
+    const earnChip = $('#earnChip');
+    const resultMessage = $('#resultMessage');
+    const improvementBadge = $('#improvementBadge');
+    const achievementsSummary = $('#achievementsSummary');
+    const achievementsList = $('#achievementsList');
+    const flashEls = {
+      top: $('#flashTop'), bottom: $('#flashBottom'),
+      left: $('#flashLeft'), right: $('#flashRight')
     };
 
-    // Clear any leftover frost effect from a prior session
-    frostUntil = 0;
+    // Settings inputs
+    const durIn = $('#dur'), sizeSel = $('#size'), spdSel = $('#spd'), spawnSel = $('#spawn');
+    const presetBtns = $$('.preset');
+    const segBtns = $$('.seg button');
 
-    toImmersive();
+    // ===== Storage & modules (graceful fallbacks) =====
+    // EXERCISE_ID 'comet' matches what this game has always recorded.
+    // Score history keeps its original raw localStorage keys.
+    const EXERCISE_ID = 'comet';
+    const PB_KEY = 'comet:best';
+    const BEST_COMBO_KEY = 'comet:bestCombo';
+    const SESSIONS_KEY = 'comet:sessions';
+    const LAST_KEY = 'comet:last';
+    const getPB = () => parseInt(localStorage.getItem(PB_KEY)||'0',10);
+    const setPB = (v) => { try { localStorage.setItem(PB_KEY, String(v)); } catch {} };
+    const getBestComboEver = () => parseInt(localStorage.getItem(BEST_COMBO_KEY)||'0',10);
+    const setBestComboEver = (v) => { try { localStorage.setItem(BEST_COMBO_KEY, String(v)); } catch {} };
+    const getLast = () => { const v = localStorage.getItem(LAST_KEY); return v === null ? null : parseInt(v,10); };
+    const setLast = (v) => { try { localStorage.setItem(LAST_KEY, String(v)); } catch {} };
 
-    requestAnimationFrame(()=>{
-      fit(); refreshGeometry();
-      initStars(); // Reinitialize stars for the new canvas size
+    const storageFallback = {
+      get:(k, def)=>{ try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
+      set:(k,v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    let storage = storageFallback;
+    try {
+      const u = await import('/js/utils.js');
+      storage = u.storage ?? storage;
+      try { u.initUtils?.(); } catch {}
+    } catch {}
 
-      // Show countdown, then start
-      showCountdown(() => {
-        running=true; paused=false; score=0; taps=0; misses=0; totalRT=0;
-        combo=0; bestCombo=0; comboBonus=0;
-        scoreEl.textContent='0'; hueBase = (160+Math.random()*60);
-        updateComboUI();
+    // ===== Reduced motion =====
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('reduced-motion');
+        const t = document.getElementById('toggleMotion');
+        t?.classList.add('active');
+        t?.setAttribute('aria-checked', 'true');
+      }
+    } catch {}
+    const motionReduced = () => document.body.classList.contains('reduced-motion');
+    const hiContrast = () => document.body.classList.contains('high-contrast');
 
-        if (pauseBtn){ pauseBtn.disabled=false; pauseBtn.textContent='Pause'; }
-        if (restartBtn){ restartBtn.disabled=false; }
-        if (pauseHudBtn){ pauseHudBtn.textContent='Pause'; }
+    // ===== Sound engine (WebAudio — no audio files needed) =====
+    let actx = null;
+    function ac(){
+      if(!actx){
+        try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+      }
+      if(actx && actx.state === 'suspended') actx.resume().catch(()=>{});
+      return actx;
+    }
+    function tone(freq, dur = 0.12, type = 'sine', gain = 0.15, when = 0, slideTo = null){
+      const c = ac(); if(!c) return;
+      const t = c.currentTime + when;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(c.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    const sfx = {
+      pop(combo = 1){ const f = 300 + Math.min(combo, 10) * 30; tone(f, .09, 'sine', .16, 0, f * 1.5); },
+      star(){ tone(660, .12, 'triangle', .16); tone(990, .16, 'triangle', .16, .09); },
+      frost(){ tone(520, .2, 'sine', .15, 0, 220); },
+      prism(){ tone(420, .06, 'square', .08, 0, 1260); },
+      miss(){ tone(160, .16, 'sine', .09, 0, 95); },
+      stray(){ tone(220, .08, 'sine', .05); },
+      stage(){ tone(523, .11, 'triangle', .15); tone(659, .11, 'triangle', .15, .1); tone(784, .16, 'triangle', .16, .2); },
+      milestone(){ tone(587, .1, 'triangle', .15); tone(880, .18, 'triangle', .16, .1); },
+      tick(){ tone(700, .06, 'sine', .12); },
+      go(){ tone(880, .18, 'triangle', .18); },
+      fanfare(){ tone(523, .12, 'triangle', .16); tone(659, .12, 'triangle', .16, .12); tone(784, .12, 'triangle', .16, .24); tone(1047, .26, 'triangle', .18, .36); }
+    };
+    function playSfx(name, arg){
+      if(!getToggle('toggleSound')) return;
+      try { sfx[name]?.(arg); } catch {}
+    }
+    function triggerHaptic(kind){
+      if (!getToggle('toggleHaptic')) return;
+      try { window.FPRNative?.haptic(kind); } catch {}
+    }
 
-        lastTick = performance.now();
-        lastSpawn = -1e9;
-        spawnComet();
+    // ===== Geometry & fullscreen =====
+    let DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    const playArea = { x0:0, y0:0, w:0, h:0 };
 
-        requestAnimationFrame(loop);
+    function setVH(){
+      document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px');
+    }
+    function fit(){
+      DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      const r = canvas.getBoundingClientRect();
+      const w = Math.max(320, Math.floor(r.width * DPR));
+      const h = Math.max(240, Math.floor(r.height * DPR));
+      canvas.width = w; canvas.height = h;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      playArea.x0 = 0; playArea.y0 = 0;
+      playArea.w = w / DPR; playArea.h = h / DPR;
+    }
+    function onViewportChange(){
+      setVH();
+      if (document.body.classList.contains('playing')) { fit(); initStars(); }
+    }
+    setVH();
+    addEventListener('resize', onViewportChange, { passive:true });
+    addEventListener('orientationchange', ()=>setTimeout(onViewportChange, 200));
+
+    // Detect iOS to skip fullscreen (iOS shows scary warnings)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    async function enterImmersive(){
+      document.body.classList.add('playing');
+      if (!isIOS) {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          }
+        } catch {}
+      }
+    }
+    async function exitImmersive(){
+      document.body.classList.remove('playing');
+      if (!isIOS) {
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen();
+          }
+        } catch {}
+      }
+    }
+
+    // ===== Starfield backdrop (canvas, 3 parallax layers) =====
+    const layers = [
+      { count: 80, speed: .02, stars: [], alpha:.45 },
+      { count: 50, speed: .06, stars: [], alpha:.75 },
+      { count: 25, speed: .12, stars: [], alpha:1.0 }
+    ];
+    function initStars(){
+      const W = playArea.w, H = playArea.h;
+      layers.forEach((L,i)=>{
+        L.stars = Array.from({length:L.count}, () => ({
+          x: Math.random()*W,
+          y: Math.random()*H,
+          r: Math.random()*(i+1)*.8 + .5,
+          tw: Math.random()*2*Math.PI
+        }));
+      });
+    }
+    function drawStars(dt){
+      const W = playArea.w, H = playArea.h;
+      const still = motionReduced();
+      layers.forEach(L=>{
+        ctx.save(); ctx.globalAlpha = L.alpha;
+        L.stars.forEach(s=>{
+          if (!still){
+            s.x -= L.speed * dt * 0.06;
+            if (s.x < -4) { s.x = W + 4; s.y = Math.random() * H; }
+            s.tw += dt*0.002;
+          }
+          const o = still ? 0.7 : 0.65 + Math.sin(s.tw)*0.35;
+          ctx.fillStyle = hiContrast() ? `rgba(255,255,255,${o})` : `rgba(255,255,255,${o})`;
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.restore();
+      });
+    }
+
+    // ===== Presets & session length =====
+    const PRESETS = {
+      gentle: { size: 'large',  spd: 'slow',   spawn: 'slow' },
+      steady: { size: 'medium', spd: 'medium', spawn: 'medium' },
+      swift:  { size: 'small',  spd: 'fast',   spawn: 'fast' }
+    };
+    let suppressCustomNote = false;
+
+    function selectPreset(name, applyValues = true) {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', b.dataset.preset === name ? 'true' : 'false'));
+      customNote.classList.remove('show');
+      if (applyValues && PRESETS[name]) {
+        suppressCustomNote = true;
+        sizeSel.value = PRESETS[name].size;
+        spdSel.value = PRESETS[name].spd;
+        spawnSel.value = PRESETS[name].spawn;
+        suppressCustomNote = false;
+      }
+    }
+    function clearPresetSelection() {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', 'false'));
+      customNote.classList.add('show');
+    }
+    function currentPresetName() {
+      const checked = presetBtns.find(b => b.getAttribute('aria-checked') === 'true');
+      return checked ? checked.dataset.preset : null;
+    }
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => selectPreset(btn.dataset.preset));
+    });
+    [sizeSel, spdSel, spawnSel].forEach(sel => {
+      sel.addEventListener('change', () => {
+        if (suppressCustomNote) return;
+        // If the manual choice matches a preset exactly, keep that preset lit.
+        const match = Object.entries(PRESETS).find(([, p]) =>
+          p.size === sizeSel.value && p.spd === spdSel.value && p.spawn === spawnSel.value);
+        if (match) selectPreset(match[0], false);
+        else clearPresetSelection();
       });
     });
-  }
 
-  function quickRestart(){
-    // Restart with same settings immediately
-    running=false; paused=false;
-    doneModal.classList.add('hidden');
-    comets.length=0; particles.length=0; popups.length=0;
-    
-    // Restore saved settings
-    if (savedSettings) {
-      durIn.value = savedSettings.dur;
-      sizeSel.value = savedSettings.size;
-      spdSel.value = savedSettings.spd;
-      spawnSel.value = savedSettings.spawn;
-      if (specialsSel && savedSettings.specials) specialsSel.value = savedSettings.specials;
+    function selectLength(min) {
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === min ? 'true' : 'false'));
+      durIn.value = String(min);
     }
-    
-    setTimeout(startSession, 50);
-  }
-
-  function pauseSession(){ if (!running||paused) return; paused=true; if (pauseBtn){ pauseBtn.textContent='Resume'; } if (pauseHudBtn){ pauseHudBtn.textContent='Resume'; } }
-  function resumeSession(){ if (!running||!paused) return; paused=false; if (pauseBtn){ pauseBtn.textContent='Pause'; } if (pauseHudBtn){ pauseHudBtn.textContent='Pause'; } lastTick = performance.now(); requestAnimationFrame(loop); }
-  function restartSession(){
-    running=false; paused=false;
-    if (pauseBtn){ pauseBtn.textContent='Pause'; pauseBtn.disabled=true; }
-    if (restartBtn){ restartBtn.disabled=true; }
-    doneModal.classList.add('hidden');
-    comets.length=0; particles.length=0; popups.length=0; timeLeft=0; updateTimeUI(); scoreEl.textContent='0';
-    combo=0; updateComboUI();
-    fromImmersive();
-    fit(); refreshGeometry();
-  }
-  function endSession(){
-    running=false; paused=false;
-    const acc = taps+misses>0 ? Math.round((taps/(taps+misses))*100) : 0;
-    const avg = taps>0 ? (totalRT/taps/1000).toFixed(2) : '0.00';
-
-    const prevPb = getPB();
-    const isNewBest = score > prevPb;
-    if (isNewBest){ setPB(score); }
-    if (bestCombo > getBestCombo()){ setBestCombo(bestCombo); }
-    refreshPB();
-
-    // Update completion modal
-    fScore.textContent = score;
-    fTaps.textContent = taps;
-    fAcc.textContent = acc+'%';
-    fAvg.textContent = avg + 's';
-    fBestCombo.textContent = bestCombo;
-    fComboBonus.textContent = comboBonus;
-
-    // Highlight new best
-    if (isNewBest) {
-      newBestBanner.classList.remove('hidden');
-      scoreStatItem.classList.add('highlight');
-    } else {
-      newBestBanner.classList.add('hidden');
-      scoreStatItem.classList.remove('highlight');
-    }
-
-    // Medal + per-session insight (compare against prior PB and last 10 sessions)
-    const currStats = { score, taps, acc, avg, bestCombo, comboBonus };
-    const past = loadPastSessions();
-    showMedal(score, prevPb);
-    showInsight(currStats, past);
-    savePastSession({ ...currStats, ts: Date.now() });
-
-    if (window.__fprRecordSession) window.__fprRecordSession('comet', 'default', score);
-
-    doneModal.classList.remove('hidden');
-    if (pauseBtn){ pauseBtn.disabled=true; }
-  }
-
-  // ===== Render =====
-  function drawComet(c){
-    ctx.save(); ctx.globalCompositeOperation='lighter';
-
-    c.trail.forEach((t,i)=>{
-      const alpha = Math.max(0, Math.min(1, t.life)) * (0.35 + 0.65 * (i/28));
-      const grad = ctx.createLinearGradient(c.x, c.y, t.x, t.y);
-      grad.addColorStop(0, `hsla(${c.hue},95%,70%,${alpha})`);
-      grad.addColorStop(1, `hsla(${c.hue+40},95%,55%,0)`);
-      ctx.strokeStyle = grad; ctx.lineWidth = Math.max(1, c.r*0.9*(i/28));
-      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+    segBtns.forEach(btn => {
+      btn.addEventListener('click', () => selectLength(parseFloat(btn.dataset.min)));
+    });
+    durIn.addEventListener('input', () => {
+      const v = parseFloat(durIn.value);
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
     });
 
-    const g1 = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r*2.4);
-    g1.addColorStop(0, `hsla(${c.hue},95%,85%,.9)`); g1.addColorStop(1, `hsla(${c.hue},95%,50%,0)`);
-    ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*2.4,0,Math.PI*2); ctx.fill();
+    // ===== Settings helpers =====
+    function getToggle(id) {
+      return document.getElementById(id)?.classList.contains('active') ?? false;
+    }
+    function setToggle(id, on) {
+      const t = document.getElementById(id);
+      if (!t) return;
+      t.classList.toggle('active', !!on);
+      t.setAttribute('aria-checked', on ? 'true' : 'false');
+      const setting = t.dataset.setting;
+      if (setting === 'highContrast') document.body.classList.toggle('high-contrast', !!on);
+      if (setting === 'reducedMotion') document.body.classList.toggle('reduced-motion', !!on);
+    }
 
-    const g2 = ctx.createRadialGradient(c.x- c.r*0.4, c.y- c.r*0.4, 0, c.x, c.y, c.r);
-    g2.addColorStop(0, '#fff'); g2.addColorStop(0.35, `hsla(${c.hue},95%,78%,1)`); g2.addColorStop(0.9, `hsla(${c.hue},95%,45%,.9)`); g2.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+    // ===== Persistent settings =====
+    const SETTINGS_KEY = 'SETTINGS_' + EXERCISE_ID;
+    function saveSettings() {
+      try {
+        storage.set(SETTINGS_KEY, {
+          preset: currentPresetName(),
+          dur: durIn.value,
+          size: sizeSel.value,
+          spd: spdSel.value,
+          spawn: spawnSel.value,
+          progressive: getToggle('toggleProgressive'),
+          specials: getToggle('toggleSpecials'),
+          sound: getToggle('toggleSound'),
+          haptic: getToggle('toggleHaptic'),
+          highContrast: getToggle('toggleContrast'),
+          reducedMotion: getToggle('toggleMotion')
+        });
+      } catch {}
+    }
+    function loadSettings() {
+      let s = null;
+      try { s = storage.get(SETTINGS_KEY, null); } catch {}
+      if (!s || typeof s !== 'object') {
+        // First visit: default to Gentle so the first session feels like a win.
+        selectPreset('gentle');
+        selectLength(2);
+        return;
+      }
+      if (s.size) sizeSel.value = s.size;
+      if (s.spd) spdSel.value = s.spd;
+      if (s.spawn) spawnSel.value = s.spawn;
+      if (s.dur) {
+        durIn.value = s.dur;
+        const v = parseFloat(s.dur);
+        segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+      }
+      if (s.preset && PRESETS[s.preset]) selectPreset(s.preset, false);
+      else clearPresetSelection();
+      setToggle('toggleProgressive', s.progressive !== false);
+      setToggle('toggleSpecials', s.specials !== false);
+      setToggle('toggleSound', s.sound !== false);
+      setToggle('toggleHaptic', s.haptic !== false);
+      setToggle('toggleContrast', !!s.highContrast);
+      if (s.reducedMotion) setToggle('toggleMotion', true);
+    }
 
-    // Glyph for special types — drawn over the comet body so it reads at a glance
-    if (c.type && c.type !== 'normal') {
-      const glyph = c.type === 'star' ? '★' : c.type === 'frost' ? '❄' : '✦';
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.font = `bold ${Math.round(c.r * 1.2)}px -apple-system, "Segoe UI Emoji", Arial`;
+    // ===== Game state =====
+    const sizeMap = { small: 16, medium: 22, large: 28 };
+    const speedMap = { slow: 55, medium: 90, fast: 140 };
+    const spawnMap = { slow: 2000, medium: 1500, fast: 1000, vfast: 500 };
+
+    // Progressive pace: each stage nudges speed up and spawn gap down.
+    const TAPS_PER_STAGE = 12;
+    const MAX_STAGE = 8;
+    const SPEED_RAMP = 1.06;     // ×1.06 speed per stage
+    const SPAWN_TIGHTEN = 0.94;  // ×0.94 spawn interval per stage
+
+    let running=false, paused=false, isPracticeMode=false;
+    let durationMs=120000, timeLeft=0, lastTick=0, lastSpawn=0;
+    let score=0, taps=0, misses=0, totalRT=0;
+    let combo=0, bestCombo=0, comboBonus=0;
+    let stage=1, specialsCaught=0;
+    let comets=[], particles=[], popups=[], rings=[];
+    // Frost effect: while the frost timer is active, all comets move slower.
+    let frostUntil = 0;
+    let hueBase=(160+Math.random()*60);
+    let sessionAchievements = [];
+    let pbBrokenThisSession = false;
+    let prevPbAtStart = 0;
+    let rafId = 0;
+    // Invalidates a pending countdown if the user exits before it finishes,
+    // so a "ghost" session can't start behind the welcome screen.
+    let startToken = 0;
+
+    // ===== Session achievements (shown in the completion modal) =====
+    const SESSION_ACHIEVEMENTS = {
+      firstCatch: { name: 'First Catch!', icon: '🎯', condition: () => taps === 1 },
+      combo5:  { name: '5 Combo',  icon: '🔥', condition: () => combo >= 5 },
+      combo10: { name: '10 Combo', icon: '⚡', condition: () => combo >= 10 },
+      combo25: { name: '25 Combo', icon: '🌟', condition: () => combo >= 25 },
+      specials3: { name: 'Special Hunter', icon: '✨', condition: () => specialsCaught >= 3 },
+      stage5: { name: 'Stage 5', icon: '⭐', condition: () => stage >= 5 },
+      newPB: { name: 'New Personal Best!', icon: '🏆', condition: () => false },
+    };
+    function checkAchievementsLocal() {
+      for (const [key, a] of Object.entries(SESSION_ACHIEVEMENTS)) {
+        if (!sessionAchievements.includes(key) && a.condition()) {
+          sessionAchievements.push(key);
+        }
+      }
+    }
+
+    // ===== Medal + per-session insight =====
+    function loadPastSessions(){
+      try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
+    }
+    function savePastSession(stats){
+      try {
+        const arr = loadPastSessions();
+        arr.unshift(stats);
+        if (arr.length > 10) arr.length = 10;
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+      } catch {}
+    }
+    function computeMedalTier(currentScore, prevPb){
+      if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+      if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+      const r = currentScore / prevPb;
+      if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+      if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+    }
+    function showMedal(currentScore, prevPb){
+      const m = computeMedalTier(currentScore, prevPb);
+      medalDisc.className = 'medal-disc ' + m.tier;
+      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+      medalTier.className = 'medal-tier ' + m.tier;
+      medalTier.textContent = m.label;
+      medalCaption.textContent = m.caption;
+      medalEl.style.display = 'flex';
+    }
+    function computeInsight(curr, past){
+      if (!past || past.length === 0) return null;
+      const prev = past[0];
+      // Comet 'avg' is in seconds (string like "1.23"); convert to ms for comparisons.
+      const currAvgMs = Math.round(parseFloat(curr.avg || '0') * 1000);
+      const prevAvgMs = Math.round(parseFloat(prev.avg || '0') * 1000);
+      if (curr.acc >= 95 && curr.taps >= 15) {
+        return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.acc}% this session.` };
+      }
+      if (prevAvgMs > 0 && currAvgMs > 0 && (prevAvgMs - currAvgMs) >= 50 && curr.taps >= 10) {
+        const diffMs = prevAvgMs - currAvgMs;
+        return { icon: '⚡', text: `<strong>Response time improved ${diffMs}ms</strong> compared with your last session.` };
+      }
+      const bestComboEver = Math.max(...past.map(p => p.bestCombo || 0));
+      if (curr.bestCombo > bestComboEver && curr.bestCombo >= 5) {
+        return { icon: '🔥', text: `<strong>Longest combo yet</strong> — ${curr.bestCombo} in a row.` };
+      }
+      const bestAccEver = Math.max(...past.map(p => p.acc || 0));
+      if (curr.acc > bestAccEver && curr.taps >= 10) {
+        return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.acc}%.` };
+      }
+      if (curr.acc >= 80 && curr.acc === prev.acc) {
+        return { icon: '📈', text: `<strong>Consistent performance</strong> — ${curr.acc}% accuracy two sessions in a row.` };
+      }
+      return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
+    }
+    function showInsight(curr, past){
+      const ins = computeInsight(curr, past);
+      if (!ins) { insightEl.style.display = 'none'; return; }
+      insIcon.textContent = ins.icon;
+      insText.innerHTML = ins.text;
+      insightEl.style.display = 'flex';
+    }
+
+    // ===== Combo system =====
+    function getComboMultiplier(){
+      if (combo < 3) return 1.0;
+      if (combo < 5) return 1.2;
+      if (combo < 10) return 1.5;
+      if (combo < 15) return 1.8;
+      if (combo < 25) return 2.0;
+      return 2.5;
+    }
+    function resetCombo(){ combo = 0; }
+    function incrementCombo(){
+      combo++;
+      if (combo > bestCombo) bestCombo = combo;
+      // Milestone popups + sound
+      if (combo === 5) { addCenterPopup('🔥 5 COMBO!'); playSfx('milestone'); }
+      else if (combo === 10) { addCenterPopup('⚡ 10 COMBO!'); playSfx('milestone'); }
+      else if (combo === 15) { addCenterPopup('💫 15 COMBO!'); playSfx('milestone'); }
+      else if (combo === 25) { addCenterPopup('🌟 25 COMBO!'); playSfx('milestone'); triggerHaptic('milestone'); }
+      else if (combo === 50) { addCenterPopup('👑 50 COMBO!'); playSfx('milestone'); triggerHaptic('milestone'); }
+      checkAchievementsLocal();
+    }
+
+    // ===== Stage progression =====
+    function stageSpeedMult(){ return Math.pow(SPEED_RAMP, stage - 1); }
+    function stageSpawnMult(){ return Math.pow(SPAWN_TIGHTEN, stage - 1); }
+    function updateStage(){
+      if (!getToggle('toggleProgressive')) return;
+      const ns = Math.min(MAX_STAGE, Math.floor(taps / TAPS_PER_STAGE) + 1);
+      if (ns > stage){
+        stage = ns;
+        addCenterPopup(`🚀 STAGE ${stage}!`);
+        playSfx('stage');
+        triggerHaptic('success');
+        checkAchievementsLocal();
+      }
+    }
+
+    // ===== Miss flash effect =====
+    function showMissFlash(side){
+      const flashEl = flashEls[side];
+      if (!flashEl) return;
+      flashEl.classList.remove('hidden');
+      flashEl.style.animation = 'none';
+      flashEl.offsetHeight; // Trigger reflow
+      flashEl.style.animation = 'flashFade 0.3s ease-out forwards';
+      setTimeout(() => flashEl.classList.add('hidden'), 300);
+    }
+
+    // ===== Spawning: edge → opposite edge =====
+    function spawnOppositeEdge(){
+      const r = sizeMap[sizeSel.value], pad = r + 8;
+      const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
+      const side = Math.floor(Math.random()*4);
+      let x, y, tx, ty;
+
+      if (side===0){ x = X0 + Math.random()*(W - 2*pad) + pad; y = Y0 - pad;         tx = X0 + Math.random()*(W - 2*pad) + pad; ty = Y0 + H + pad; }
+      else if (side===1){ x = X0 + W + pad; y = Y0 + Math.random()*(H - 2*pad) + pad; tx = X0 - pad;                ty = Y0 + Math.random()*(H - 2*pad) + pad; }
+      else if (side===2){ x = X0 + Math.random()*(W - 2*pad) + pad; y = Y0 + H + pad; tx = X0 + Math.random()*(W - 2*pad) + pad;  ty = Y0 - pad; }
+      else { x = X0 - pad; y = Y0 + Math.random()*(H - 2*pad) + pad;                   tx = X0 + W + pad;            ty = Y0 + Math.random()*(H - 2*pad) + pad; }
+
+      // ensure long path
+      if (side===0 || side===2){
+        const minDx = 0.4*W;
+        if (Math.abs(tx - x) < minDx){
+          tx = clamp(x + (Math.random()<0.5? -1:1) * (minDx + Math.random()*0.2*W), X0+pad, X0+W-pad);
+        }
+      } else {
+        const minDy = 0.4*H;
+        if (Math.abs(ty - y) < minDy){
+          ty = clamp(y + (Math.random()<0.5? -1:1) * (minDy + Math.random()*0.2*H), Y0+pad, Y0+H-pad);
+        }
+      }
+      return { x, y, tx, ty, spawnSide: side };
+    }
+
+    // Rolls a special comet type — returns 'star' | 'frost' | 'prism' | 'normal'.
+    // Probabilities are low so specials feel rare and exciting.
+    function rollCometType(){
+      if (!getToggle('toggleSpecials')) return 'normal';
+      const r = Math.random();
+      if (r < 0.04) return 'prism';   // 4%
+      if (r < 0.09) return 'frost';   // 5%
+      if (r < 0.17) return 'star';    // 8%
+      return 'normal';
+    }
+
+    const COMET_TYPE_HUE = { star: 50, frost: 190, prism: 320 };
+    const COMET_TYPE_SPEED_MULT = { star: 1.0, frost: 0.9, prism: 1.5 };
+
+    function spawnComet(){
+      if (playArea.w <= 0 || playArea.h <= 0) return;
+      const r = sizeMap[sizeSel.value];
+      const type = rollCometType();
+      const speedMult = (COMET_TYPE_SPEED_MULT[type] || 1.0) * stageSpeedMult();
+      const spd = speedMap[spdSel.value]*(.85 + Math.random()*.4) * speedMult;
+      const {x,y,tx,ty,spawnSide} = spawnOppositeEdge();
+
+      let vx = tx - x, vy = ty - y;
+      const len = Math.hypot(vx,vy) || 1; vx/=len; vy/=len;
+
+      const hue = type === 'normal' ? (hueBase + Math.random()*60) % 360 : COMET_TYPE_HUE[type];
+      comets.push({ x, y, vx, vy, r, spd, hue, type, born: now(), trail: [], spawnSide });
+    }
+
+    function updateComets(dt){
+      const px = dt/1000;
+      const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
+      // Frost slows everything (excluding prism, which is supposed to feel fast)
+      const isFrosted = now() < frostUntil;
+      const keepTrail = !motionReduced();
+      comets.forEach(c=>{
+        const speedScale = (isFrosted && c.type !== 'prism') ? 0.45 : 1.0;
+        c.x += c.vx*c.spd*px*speedScale;
+        c.y += c.vy*c.spd*px*speedScale;
+        if (keepTrail){
+          c.trail.push({ x:c.x - c.vx*8, y:c.y - c.vy*8, life: 1, hue:c.hue });
+          if (c.trail.length>28) c.trail.shift();
+          c.trail.forEach(t=>t.life -= 0.025*px*60);
+        }
+      });
+      const margin = 60;
+      const before = comets.length;
+
+      // Track which comets escaped and from which side
+      const escaped = comets.filter(c =>
+        c.x <= X0 - margin || c.x >= X0 + W + margin ||
+        c.y <= Y0 - margin || c.y >= Y0 + H + margin
+      );
+
+      comets = comets.filter(c => c.x > X0 - margin && c.x < X0 + W + margin && c.y > Y0 - margin && c.y < Y0 + H + margin);
+
+      const missCount = Math.max(0, before - comets.length);
+      if (missCount > 0) {
+        misses += missCount;
+        resetCombo(); // Break combo on miss
+        playSfx('miss');
+
+        // Show flash on escape side
+        escaped.forEach(c => {
+          if (c.y <= Y0 - margin + 10) showMissFlash('top');
+          else if (c.y >= Y0 + H + margin - 10) showMissFlash('bottom');
+          else if (c.x <= X0 - margin + 10) showMissFlash('left');
+          else if (c.x >= X0 + W + margin - 10) showMissFlash('right');
+        });
+      }
+    }
+
+    // ===== Particles, popups & ripples =====
+    function burst(x,y,hue){
+      if (motionReduced()) return;
+      for (let i=0;i<24;i++){
+        particles.push({ x, y, vx: rnd(-2.4,2.4), vy: rnd(-2.4,2.4), life: 1, r: rnd(1,2.6), hue: hue + rnd(-10,10) });
+      }
+    }
+    function addRipple(x, y){
+      rings.push({ x, y, r: 6, life: 1 });
+    }
+
+    function addPopup(x, y, text){
+      const nearby = popups.filter(p => p.life > 0.45 && Math.hypot(p.x - x, p.y - y) < 64).length;
+      const offsetY = -nearby * 18;
+      const offsetX = (nearby % 2 ? -1 : 1) * (6 + nearby * 2);
+      popups.push({ x, y, life:1, text, oX: offsetX, oY: offsetY, isCenter: false });
+    }
+    function addCenterPopup(text){
+      const cx = playArea.x0 + playArea.w / 2;
+      const cy = playArea.y0 + playArea.h / 2;
+      popups.push({ x: cx, y: cy, life: 1.2, text, oX: 0, oY: 0, isCenter: true, scale: 1.5 });
+    }
+
+    function roundRect(ctx, x, y, w, h, r){
+      const rr = Math.min(r, h/2, w/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y,   x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x,   y+h, rr);
+      ctx.arcTo(x,   y+h, x,   y,   rr);
+      ctx.arcTo(x,   y,   x+w, y,   rr);
+      ctx.closePath();
+    }
+
+    function updateParticles(dt){
+      const px = dt/1000;
+      particles.forEach(p=>{ p.x += p.vx*60*px; p.y += p.vy*60*px; p.vy += 0.2; p.life -= 1.6*px; });
+      particles = particles.filter(p=>p.life>0);
+      popups.forEach(s=>{ s.y -= (s.isCenter ? 12 : 24)*px; s.life -= (s.isCenter ? 0.7 : 1)*px; });
+      popups = popups.filter(s=>s.life>0);
+      rings.forEach(r=>{ r.r += 240*px; r.life -= 2.4*px; });
+      rings = rings.filter(r=>r.life>0);
+    }
+
+    function drawPopups(){
+      ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fff';
-      ctx.shadowColor = `hsla(${c.hue},95%,60%,1)`;
-      ctx.shadowBlur = 12;
-      ctx.fillText(glyph, c.x, c.y);
-      ctx.shadowBlur = 0;
+
+      popups.forEach(s=>{
+        const a = Math.max(0, Math.min(1, s.life));
+        const x = s.x + (s.oX || 0);
+        const y = s.y + (s.oY || 0);
+        const text = s.text;
+        const scale = s.scale || 1;
+        const fontSize = Math.round(18 * scale);
+
+        ctx.font = `900 ${fontSize}px Nunito, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+
+        const m = ctx.measureText(text);
+        const w = Math.ceil(m.width) + 14 * scale;
+        const h = 24 * scale;
+        const rx = x - w/2;
+        const ry = y - h/2;
+
+        ctx.save();
+        ctx.globalAlpha = 0.85 * a;
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = s.isCenter ? 'rgba(40,12,20,0.85)' : 'rgba(10,16,36,0.75)';
+        roundRect(ctx, rx, ry, w, h, 10);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.shadowColor = s.isCenter ? 'rgba(255,215,0,0.9)' : 'rgba(255,200,150,0.9)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = s.isCenter ? '#ffd700' : '#ffffff';
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      });
+
+      ctx.restore();
     }
 
-    ctx.restore();
-  }
+    function drawRings(){
+      ctx.save();
+      rings.forEach(r=>{
+        const a = Math.max(0, Math.min(1, r.life)) * 0.35;
+        ctx.strokeStyle = `rgba(255,255,255,${a})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke();
+      });
+      ctx.restore();
+    }
 
-  // Frost overlay — subtle cyan vignette while the frost effect is active
-  function drawFrostOverlay(){
-    if (now() >= frostUntil) return;
-    const remaining = frostUntil - now();
-    const alpha = Math.min(0.18, remaining / 3000 * 0.18);
-    const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
-    const grad = ctx.createRadialGradient(X0 + W/2, Y0 + H/2, Math.min(W,H)*0.3, X0 + W/2, Y0 + H/2, Math.max(W,H)*0.6);
-    grad.addColorStop(0, 'rgba(0,210,255,0)');
-    grad.addColorStop(1, `rgba(80,200,255,${alpha})`);
-    ctx.save();
-    ctx.fillStyle = grad;
-    ctx.fillRect(X0, Y0, W, H);
-    ctx.restore();
-  }
+    // ===== Render =====
+    function drawComet(c){
+      if (hiContrast()){
+        // High contrast: solid white body, bold green ring, no glow/trail
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(c.x, c.y, c.r + 3, 0, Math.PI*2); ctx.stroke();
+        if (c.type && c.type !== 'normal') {
+          const glyph = c.type === 'star' ? '★' : c.type === 'frost' ? '❄' : '✦';
+          ctx.font = `bold ${Math.round(c.r * 1.2)}px -apple-system, "Segoe UI Emoji", Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#000';
+          ctx.fillText(glyph, c.x, c.y);
+        }
+        ctx.restore();
+        return;
+      }
 
-  function drawParticles(){
-    ctx.save(); ctx.globalCompositeOperation='lighter';
-    particles.forEach(p=>{
-      const a = Math.max(0, Math.min(1, p.life));
-      ctx.fillStyle = `hsla(${p.hue},95%,70%,${0.8*a})`;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+
+      c.trail.forEach((t,i)=>{
+        const alpha = Math.max(0, Math.min(1, t.life)) * (0.35 + 0.65 * (i/28));
+        const grad = ctx.createLinearGradient(c.x, c.y, t.x, t.y);
+        grad.addColorStop(0, `hsla(${c.hue},95%,70%,${alpha})`);
+        grad.addColorStop(1, `hsla(${c.hue+40},95%,55%,0)`);
+        ctx.strokeStyle = grad; ctx.lineWidth = Math.max(1, c.r*0.9*(i/28));
+        ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+      });
+
+      const g1 = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r*2.4);
+      g1.addColorStop(0, `hsla(${c.hue},95%,85%,.9)`); g1.addColorStop(1, `hsla(${c.hue},95%,50%,0)`);
+      ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*2.4,0,Math.PI*2); ctx.fill();
+
+      const g2 = ctx.createRadialGradient(c.x- c.r*0.4, c.y- c.r*0.4, 0, c.x, c.y, c.r);
+      g2.addColorStop(0, '#fff'); g2.addColorStop(0.35, `hsla(${c.hue},95%,78%,1)`); g2.addColorStop(0.9, `hsla(${c.hue},95%,45%,.9)`); g2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+
+      // Glyph for special types — drawn over the comet body so it reads at a glance
+      if (c.type && c.type !== 'normal') {
+        const glyph = c.type === 'star' ? '★' : c.type === 'frost' ? '❄' : '✦';
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.font = `bold ${Math.round(c.r * 1.2)}px -apple-system, "Segoe UI Emoji", Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.shadowColor = `hsla(${c.hue},95%,60%,1)`;
+        ctx.shadowBlur = 12;
+        ctx.fillText(glyph, c.x, c.y);
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.restore();
+    }
+
+    // Frost overlay — subtle cyan vignette while the frost effect is active
+    function drawFrostOverlay(){
+      if (hiContrast()) return;
+      if (now() >= frostUntil) return;
+      const remaining = frostUntil - now();
+      const alpha = Math.min(0.18, remaining / 3000 * 0.18);
+      const W = playArea.w, H = playArea.h, X0 = playArea.x0, Y0 = playArea.y0;
+      const grad = ctx.createRadialGradient(X0 + W/2, Y0 + H/2, Math.min(W,H)*0.3, X0 + W/2, Y0 + H/2, Math.max(W,H)*0.6);
+      grad.addColorStop(0, 'rgba(0,210,255,0)');
+      grad.addColorStop(1, `rgba(80,200,255,${alpha})`);
+      ctx.save();
+      ctx.fillStyle = grad;
+      ctx.fillRect(X0, Y0, W, H);
+      ctx.restore();
+    }
+
+    function drawParticles(){
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      particles.forEach(p=>{
+        const a = Math.max(0, Math.min(1, p.life));
+        ctx.fillStyle = `hsla(${p.hue},95%,70%,${0.8*a})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    // ===== Input =====
+    function onTap(e){
+      if (!running || paused) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      for (let i=0;i<comets.length;i++){
+        const c = comets[i];
+        if (Math.hypot(c.x-x, c.y-y) <= c.r*1.15){
+          e.preventDefault();
+          comets.splice(i,1);
+          taps++;
+          incrementCombo();
+
+          const rt = now() - c.born; totalRT += rt;
+          const sizeB = sizeSel.value==='small'?1.6 : sizeSel.value==='medium'?1.2 : 1.0;
+          const speedB = spdSel.value==='fast'?1.6 : spdSel.value==='medium'?1.2 : 1.0;
+          const basePoints = Math.floor(10 * sizeB * speedB * clamp(3000/rt, 0.8, 6));
+
+          // Special-type multipliers stack with combo
+          const typeMult = c.type === 'star' ? 3.0
+                          : c.type === 'frost' ? 5.0
+                          : c.type === 'prism' ? 5.0
+                          : 1.0;
+
+          // Apply combo multiplier
+          const mult = getComboMultiplier();
+          const totalMult = mult * typeMult;
+          const bonusPts = Math.floor(basePoints * (totalMult - 1));
+          comboBonus += bonusPts;
+          const pts = basePoints + bonusPts;
+
+          score += pts;
+
+          // Trigger frost effect on frost-comet tap
+          if (c.type === 'frost') {
+            frostUntil = now() + 3000;
+          }
+          if (c.type !== 'normal') specialsCaught++;
+
+          // Show points earned (total only — multiplier math stays behind the scenes)
+          addPopup(c.x, c.y, `+${pts}`);
+          burst(c.x,c.y,c.hue);
+          if (c.type !== 'normal') {
+            const label = c.type === 'star' ? '⭐ STAR' : c.type === 'frost' ? '❄ FROST' : '✦ PRISM';
+            addCenterPopup(label);
+          }
+
+          // Sound + haptics — light tick for normal comets, richer for specials
+          if (c.type === 'star') { playSfx('star'); triggerHaptic('success'); }
+          else if (c.type === 'frost') { playSfx('frost'); triggerHaptic('success'); }
+          else if (c.type === 'prism') { playSfx('prism'); triggerHaptic('success'); }
+          else { playSfx('pop', combo); triggerHaptic('tick'); }
+
+          // Mid-game new-best celebration (once per session)
+          if (!pbBrokenThisSession && prevPbAtStart > 0 && score > prevPbAtStart) {
+            pbBrokenThisSession = true;
+            if (!sessionAchievements.includes('newPB')) sessionAchievements.push('newPB');
+            addCenterPopup('🏆 NEW BEST!');
+            playSfx('milestone');
+            pbEl.classList.add('new-pb');
+            setTimeout(() => pbEl.classList.remove('new-pb'), 800);
+          }
+
+          updateStage();
+          checkAchievementsLocal();
+          return;
+        }
+      }
+
+      // Stray tap: gentle acknowledgement, never a penalty
+      addRipple(x, y);
+      playSfx('stray');
+    }
+    canvas.addEventListener('pointerdown', onTap);
+
+    // ===== Timer/HUD =====
+    function fmtTime(ms){
+      const s = Math.max(0, Math.ceil(ms/1000));
+      const m = Math.floor(s/60);
+      const ss = String(s%60).padStart(2,'0');
+      return `${String(m).padStart(2,'0')}:${ss}`;
+    }
+    function updateHUD(){
+      timeEl.textContent = isPracticeMode ? '∞' : fmtTime(timeLeft);
+      scoreEl.textContent = String(score);
+      stageEl.textContent = String(stage);
+      comboEl.textContent = String(combo);
+      const mult = getComboMultiplier();
+      comboMultEl.textContent = `×${mult.toFixed(1)}`;
+      comboEl.classList.toggle('combo-hot', combo >= 5);
+      comboMultEl.classList.toggle('combo-hot', mult > 1);
+      pbEl.textContent = String(getPB());
+
+      if (timerBar && durationMs > 0 && !isPracticeMode) {
+        const pct = Math.max(0, Math.min(1, timeLeft / durationMs));
+        timerBar.style.width = (pct * 100).toFixed(2) + '%';
+        timerBar.style.background = '';
+      } else if (isPracticeMode) {
+        timerBar.style.width = '100%';
+        timerBar.style.background = 'linear-gradient(90deg, var(--good), rgba(143,245,178,.35))';
+      }
+    }
+
+    // ===== Countdown =====
+    function showCountdown(callback) {
+      const overlay = el('div', 'countdown-overlay');
+      const numEl = el('div', 'countdown-number', '3');
+      overlay.appendChild(numEl);
+      document.body.appendChild(overlay);
+      playSfx('tick');
+
+      let count = 3;
+      const tick = () => {
+        count--;
+        if (count > 0) {
+          numEl.textContent = String(count);
+          numEl.style.animation = 'none';
+          void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('tick');
+          setTimeout(tick, 800);
+        } else {
+          numEl.textContent = 'GO!';
+          numEl.classList.add('countdown-go');
+          numEl.style.animation = 'none';
+          void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('go');
+          setTimeout(() => {
+            overlay.remove();
+            callback();
+          }, 600);
+        }
+      };
+      setTimeout(tick, 800);
+    }
+
+    // ===== Main loop =====
+    function loop(ts){
+      if (!running) return;
+      rafId = requestAnimationFrame(loop);
+      const dt = ts - lastTick; lastTick = ts;
+      if (paused) return;
+
+      if (!isPracticeMode){
+        timeLeft -= dt;
+        if (timeLeft<=0){ updateHUD(); endSession(); return; }
+      }
+
+      const baseInt = spawnMap[spawnSel.value] ?? 1000;
+      const sInt = Math.max(380, Math.round(baseInt * stageSpawnMult()));
+      if (ts - lastSpawn >= sInt){ spawnComet(); lastSpawn = ts; }
+
+      updateComets(dt);
+      updateParticles(dt);
+
+      // Fill with dark cosmic background instead of clearing to transparent
+      ctx.fillStyle = hiContrast() ? '#000' : '#070b16';
+      ctx.fillRect(0,0,playArea.w,playArea.h);
+      drawStars(dt);
+      comets.forEach(drawComet);
+      drawParticles();
+      drawRings();
+      drawFrostOverlay();
+      drawPopups();
+
+      updateHUD();
+    }
+
+    // ===== Lifecycle =====
+    function startSession(practice = false){
+      isPracticeMode = practice;
+
+      const mins = parseFloat(durIn.value);
+      durationMs = Number.isFinite(mins) && mins>0 ? mins*60*1000 : 120000;
+      timeLeft = durationMs;
+
+      running=false; paused=false;
+      score=0; taps=0; misses=0; totalRT=0;
+      combo=0; bestCombo=0; comboBonus=0;
+      stage=1; specialsCaught=0;
+      comets.length=0; particles.length=0; popups.length=0; rings.length=0;
+      frostUntil = 0;
+      hueBase = (160+Math.random()*60);
+      sessionAchievements = [];
+      pbBrokenThisSession = false;
+      prevPbAtStart = getPB();
+      pauseBtn.textContent = 'Pause';
+      pauseOverlay.hidden = true;
+
+      saveSettings();
+      // Warm up the audio context inside the user gesture (required on iOS)
+      if (getToggle('toggleSound')) ac();
+
+      enterImmersive();
+
+      const token = ++startToken;
+      requestAnimationFrame(()=>{
+        fit();
+        initStars();
+        updateHUD();
+
+        showCountdown(() => {
+          if (token !== startToken) return; // user exited during the countdown
+          running=true; paused=false;
+          lastTick = performance.now();
+          lastSpawn = -1e9;
+          spawnComet();
+          rafId = requestAnimationFrame(loop);
+        });
+      });
+    }
+
+    function pauseSession(){
+      if(!running) return;
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      pauseOverlay.hidden = !paused;
+      if (!paused) lastTick = performance.now();
+    }
+
+    function exitToWelcome(){
+      running=false; paused=false;
+      startToken++; // cancel any countdown still pending
+      cancelAnimationFrame(rafId);
+      document.querySelectorAll('.countdown-overlay').forEach(o => o.remove());
+      pauseOverlay.hidden = true;
+      pauseBtn.textContent = 'Pause';
+      comets.length=0; particles.length=0; popups.length=0; rings.length=0;
+      doneModal.classList.remove('open');
+      exitImmersive();
+      refreshWelcomeStats();
+    }
+
+    function endSession(){
+      running=false; paused=false;
+      startToken++; // cancel any countdown still pending
+      cancelAnimationFrame(rafId);
+      document.querySelectorAll('.countdown-overlay').forEach(o => o.remove());
+      pauseOverlay.hidden = true;
+      pauseBtn.textContent = 'Pause';
+      exitImmersive();
+
+      const acc = taps+misses>0 ? Math.round((taps/(taps+misses))*100) : 0;
+      const avg = taps>0 ? (totalRT/taps/1000).toFixed(2) : '0.00';
+
+      const prevPb = getPB();
+      const isNewBest = score > prevPb;
+      if (isNewBest){ setPB(score); }
+      if (bestCombo > getBestComboEver()){ setBestComboEver(bestCombo); }
+
+      // Update completion modal
+      fScore.textContent = String(score);
+      fTaps.textContent = String(taps);
+      fAcc.textContent = acc+'%';
+      fAvg.textContent = avg + 's';
+      fBestCombo.textContent = String(bestCombo);
+      fComboBonus.textContent = String(comboBonus);
+      fStage.textContent = String(stage);
+
+      // Improvement vs last session
+      const lastScore = getLast();
+      if (lastScore !== null) {
+        const diff = score - lastScore;
+        const pct = lastScore > 0 ? Math.round((diff / lastScore) * 100) : 0;
+        if (diff > 0) {
+          improvementBadge.innerHTML = `<span class="improvement positive">↑ ${pct}% improvement</span>`;
+          resultMessage.textContent = 'Great progress!';
+        } else if (diff < 0) {
+          improvementBadge.innerHTML = `<span class="improvement negative">↓ ${Math.abs(pct)}%</span>`;
+          resultMessage.textContent = 'Keep practicing!';
+        } else {
+          improvementBadge.innerHTML = `<span class="improvement neutral">Same as last time</span>`;
+          resultMessage.textContent = 'Consistent performance!';
+        }
+      } else {
+        improvementBadge.innerHTML = '';
+        resultMessage.textContent = 'Excellent work!';
+      }
+      if (isNewBest) resultMessage.textContent = '🏆 New Personal Best!';
+      setLast(score);
+
+      // Medal + per-session insight (compare against prior PB and last 10 sessions)
+      const currStats = { score, taps, acc, avg, bestCombo, comboBonus };
+      const past = loadPastSessions();
+      showMedal(score, prevPb);
+      showInsight(currStats, past);
+      savePastSession({ ...currStats, ts: Date.now() });
+
+      // Session achievements list
+      checkAchievementsLocal();
+      if (sessionAchievements.length > 0) {
+        achievementsSummary.style.display = 'block';
+        achievementsList.innerHTML = sessionAchievements.map(key => {
+          const a = SESSION_ACHIEVEMENTS[key];
+          if (!a) return '';
+          return `<span style="background:rgba(255,215,0,.15); padding:4px 10px; border-radius:20px; font-size:13px;">${a.icon} ${a.name}</span>`;
+        }).join('');
+      } else {
+        achievementsSummary.style.display = 'none';
+      }
+
+      // ----- Record + show site-wide points earned -----
+      let pointsBefore = null;
+      try { if (window.FPREngagement) pointsBefore = window.FPREngagement.getStats().points; } catch {}
+
+      // Same recording path this game has always used (progress + achievements)
+      try { if (window.__fprRecordSession) window.__fprRecordSession(EXERCISE_ID, 'default', score); } catch {}
+
+      earnChip.style.display = 'none';
+      try {
+        if (window.FPREngagement && pointsBefore !== null) {
+          const after = window.FPREngagement.getStats();
+          const gained = after.points - pointsBefore;
+          if (gained > 0) {
+            let msg = `✨ +${gained} points — Level ${after.level.level}: ${after.level.title}`;
+            if (gained > 50 && after.challenge && after.challenge.bonusAwarded) {
+              msg = `⭐ Daily challenge complete! ` + msg;
+            }
+            earnChip.textContent = msg;
+            earnChip.style.display = 'flex';
+          }
+        }
+      } catch {}
+
+      playSfx('fanfare');
+      doneModal.classList.add('open');
+      refreshWelcomeStats();
+    }
+
+    // ===== Welcome screen data =====
+    function refreshWelcomeStats() {
+      const pb = getPB();
+      pbSettingsEl.textContent = String(pb);
+      const last = getLast();
+      if (last !== null) lastScoreSettingsEl.textContent = String(last);
+
+      ctaHint.textContent = pb > 0
+        ? `Beat your best of ${pb.toLocaleString()} for a Platinum medal 🏆`
+        : 'Your first medal is one session away ✨';
+
+      try {
+        if (window.FPREngagement) {
+          const s = window.FPREngagement.getStats();
+          statStreakEl.textContent = '🔥 ' + s.streak;
+          statLevelEl.textContent = String(s.level.level);
+          const ch = s.challenge;
+          if (ch) {
+            challengeChip.style.display = 'flex';
+            challengeChip.classList.toggle('done', !!ch.done);
+            challengeChip.querySelector('.ch-icon').textContent = ch.done ? '✅' : '⭐';
+            challengeText.textContent = ch.done
+              ? `Daily challenge complete! +${ch.bonus} points earned — come back tomorrow for a new one.`
+              : `Daily challenge: ${ch.text} (${ch.progress}/${ch.target}) · +${ch.bonus} pts`;
+          }
+        }
+      } catch {}
+    }
+
+    // The engagement layer loads as a deferred plain script; retry briefly
+    // until it appears (or give up quietly — the page works fine without it).
+    let engagementTries = 0;
+    function waitForEngagement() {
+      if (window.FPREngagement || engagementTries >= 10) { refreshWelcomeStats(); return; }
+      engagementTries++;
+      setTimeout(waitForEngagement, 250);
+    }
+
+    // ===== Event listeners =====
+    startBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+      startSession(false);
     });
-    ctx.restore();
-  }
+    practiceBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+      startSession(true);
+    });
+    pauseBtn.addEventListener('click', pauseSession);
+    resumeBtn.addEventListener('click', pauseSession);
+    pauseExitBtn.addEventListener('click', () => {
+      if (isPracticeMode) { paused = false; pauseOverlay.hidden = true; endSession(); }
+      else exitToWelcome();
+    });
+    exitBtn.addEventListener('click', () => {
+      if (isPracticeMode) endSession();
+      else exitToWelcome();
+    });
+    newSessionBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+    });
+    restartSameBtn.addEventListener('click', () => {
+      doneModal.classList.remove('open');
+      startSession(isPracticeMode);
+    });
+    doneModal.addEventListener('click', (e) => {
+      if(e.target === doneModal){
+        doneModal.classList.remove('open');
+      }
+    });
+    addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') doneModal.classList.remove('open');
+    });
 
-  // ===== Main loop =====
-  function loop(ts){
-    if (!running) return;
-    requestAnimationFrame(loop);
-    const dt = ts - lastTick; lastTick = ts;
-    if (paused) return;
+    // ===== Init =====
+    loadSettings();
+    refreshWelcomeStats();
+    waitForEngagement();
+  </script>
 
-    if (document.body.classList.contains('playing')) refreshGeometry();
-
-    timeLeft -= dt; if (timeLeft<=0){ updateTimeUI(); endSession(); return; }
-    updateTimeUI();
-
-    const sInt = ({ vfast:500, fast:1000, medium:1500, slow:2000 })[spawnSel.value];
-    if (ts - lastSpawn >= sInt){ spawnComet(); lastSpawn = ts; }
-
-    updateComets(dt);
-    updateParticles(dt);
-
-    // Fill with dark cosmic background instead of clearing to transparent
-    ctx.fillStyle = '#070b16';
-    ctx.fillRect(0,0,canvas.width/DPR,canvas.height/DPR);
-    drawStars(dt);
-    comets.forEach(drawComet);
-    drawParticles();
-    drawFrostOverlay();
-    drawPopups();
-  }
-
-  // ===== Wire controls =====
-  startBtn.addEventListener('click', ()=>{ if (!running) startSession(); });
-  if (pauseBtn){ pauseBtn.addEventListener('click', ()=>{ if (!running) return; paused?resumeSession():pauseSession(); }); }
-  if (restartBtn){ restartBtn.addEventListener('click', restartSession); }
-  doneBtn?.addEventListener('click', quickRestart);
-  homeBtn?.addEventListener('click', ()=>{ restartSession(); });
-  pauseHudBtn.addEventListener('click', ()=>{ if (!running) return; paused?resumeSession():pauseSession(); });
-  exitHudBtn.addEventListener('click', ()=>{ if (running){ endSession(); } restartSession(); });
-})();
-</script>
   <script type="module">
     // Engagement hook: feed completed sessions into the shared progress and
     // achievements systems (streak, points, dashboard, badges). No-ops if
