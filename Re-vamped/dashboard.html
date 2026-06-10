@@ -15,9 +15,10 @@
     <meta property="og:url" content="https://finepointrehab.com/dashboard">
     
     <!-- Design System CSS -->
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <script src="js/fpr-engagement.js" defer></script>
     
     <style>
         body {
@@ -577,22 +578,31 @@
     <div id="toast-container" aria-live="polite"></div>
 
     <!-- JavaScript -->
-    <script type="module">
-        import { getFromStorage, setToStorage, showToast } from './js/utils.js';
-        import { EXERCISES } from './js/exercises.js';
+    <script>
+    (function () {
+        'use strict';
 
-        // Storage keys (matching the roadmap specification)
-        const STORAGE_KEYS = {
-            points: 'FPR_v1_points',
-            level: 'FPR_v1_level',
-            streak: 'FPR_v1_streak',
-            lastActiveDate: 'FPR_v1_lastActiveDate',
-            achievements: 'FPR_v1_achievements',
-            totalSessions: 'FPR_v1_totalSessions'
-        };
+        var PREFIX = 'FPR_v1_';
 
-        // Achievement definitions
-        const ACHIEVEMENT_DEFINITIONS = {
+        function getRaw(key) {
+            try { return localStorage.getItem(PREFIX + key); } catch (e) { return null; }
+        }
+        function setRaw(key, val) {
+            try { localStorage.setItem(PREFIX + key, String(val)); } catch (e) { }
+        }
+        // The shared storage wrapper JSON-stringifies values ("10" with quotes,
+        // arrays sometimes double-encoded) — unwrap tolerates every format.
+        function unwrap(raw) {
+            if (raw === null || raw === undefined) return null;
+            try { return JSON.parse(raw); } catch (e) { return raw; }
+        }
+        function getIntVal(key, fallback) {
+            var v = parseInt(unwrap(getRaw(key)), 10);
+            return isNaN(v) ? (fallback || 0) : v;
+        }
+
+        // Achievement definitions (ids match /js/achievements.js)
+        var ACHIEVEMENT_DEFINITIONS = {
             firstSteps: { icon: '🚀', name: 'First Steps', description: 'Complete your first session' },
             consistent: { icon: '📅', name: 'Consistent', description: 'Achieve a 7-day streak' },
             dedicated: { icon: '💪', name: 'Dedicated', description: 'Complete 50 total sessions' },
@@ -600,307 +610,255 @@
             explorer: { icon: '🗺️', name: 'Explorer', description: 'Try all available exercises' }
         };
 
-        // Helper function to clear only FPR storage keys
-        function clearFPRStorage(prefix = 'FPR_v1_') {
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith(prefix)) {
-                    localStorage.removeItem(key);
-                }
-            });
+        // Friendly names for every exercise id convention games have used
+        var EXERCISE_NAMES = {
+            'bubble': 'Bubble Tap', 'bubble_tap': 'Bubble Tap',
+            'comet': 'Comet Tap', 'comet_tap': 'Comet Tap',
+            'trace': 'Trace & Reveal', 'trace-reveal': 'Trace & Reveal', 'traceReveal': 'Trace & Reveal',
+            'rhythm': 'Rhythm Reach', 'rhythm_reach': 'Rhythm Reach',
+            'precision': 'Precision Drop', 'precision-drop': 'Precision Drop',
+            'maze': 'Cosmic Maze',
+            'mirror': 'Mirror Match', 'mirror-match': 'Mirror Match',
+            'sequence': 'Sequence Builder', 'sequence-builder': 'Sequence Builder',
+            'sort': 'Sort & Categorize', 'sort-categorize': 'Sort & Categorize',
+            'scanner': 'Visual Scanner', 'visual-scanner': 'Visual Scanner',
+            'letter-number-trace': 'Letter & Number Trace'
+        };
+
+        var RECOMMENDED = [
+            { icon: '🫧', title: 'Bubble Tap', path: 'exercises/bubble-exercise.html', description: 'Fine motor control and reaction time' },
+            { icon: '☄️', title: 'Comet Tap', path: 'exercises/comet-exercise.html', description: 'Dynamic tracking and coordination' },
+            { icon: '🎯', title: 'Precision Drop', path: 'exercises/precision-drop-exercise.html', description: 'Fine motor precision and spatial awareness' },
+            { icon: '🎵', title: 'Rhythm Reach', path: 'exercises/rhythm-exercise.html', description: 'Working memory and sequencing' }
+        ];
+
+        function showToast(message, type) {
+            var container = document.getElementById('toast-container');
+            if (!container) { alert(message); return; }
+            var toast = document.createElement('div');
+            toast.setAttribute('role', 'status');
+            toast.style.cssText = 'background:' + (type === 'error' ? '#7f1d1d' : '#064e3b') +
+                ';color:#fff;padding:12px 20px;border-radius:10px;margin-top:8px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.35);';
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 3500);
         }
 
-        // Load and display dashboard data
-        function loadDashboardData() {
-            // Load basic stats
-            const points = parseInt(getFromStorage(STORAGE_KEYS.points) || '0');
-            const level = parseInt(getFromStorage(STORAGE_KEYS.level) || '1');
-            const streak = parseInt(getFromStorage(STORAGE_KEYS.streak) || '0');
-            const totalSessions = parseInt(getFromStorage(STORAGE_KEYS.totalSessions) || '0');
+        // Scan localStorage for per-exercise data, merging duplicate id conventions
+        function collectExerciseData() {
+            var byName = {};
+            try {
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    var m = k && k.match(/^FPR_v1_exercise:([^:]+):(best|sessions)$/);
+                    if (!m) continue;
+                    var id = m[1];
+                    var name = EXERCISE_NAMES[id] || id;
+                    var val = parseInt(unwrap(localStorage.getItem(k)), 10) || 0;
+                    if (!byName[name]) byName[name] = { best: 0, sessions: 0 };
+                    byName[name][m[2]] = Math.max(byName[name][m[2]], val);
+                }
+            } catch (e) { }
+            return byName;
+        }
 
-            // Update stat displays
+        function loadDashboardData() {
+            var stats = window.FPREngagement ? window.FPREngagement.getStats() : null;
+
+            var points = stats ? stats.points : getIntVal('points', 0);
+            var level = stats ? stats.level.level : getIntVal('level', 1);
+            var streak = stats ? stats.streak : getIntVal('streak', 0);
+            var totalSessions = stats ? stats.totalSessions : getIntVal('totalSessions', 0);
+
             document.getElementById('total-points').textContent = points.toLocaleString();
             document.getElementById('current-level').textContent = level;
             document.getElementById('current-streak').textContent = streak;
-            document.getElementById('total-sessions').textContent = totalSessions;
+            document.getElementById('total-sessions').textContent = totalSessions.toLocaleString();
 
-            // Calculate level progress with safety guards
-            const basePointsPerLevel = 1000;
-            const currentLevelStart = Math.max(0, (level - 1) * basePointsPerLevel);
-            const nextLevelStart = level * basePointsPerLevel;
-            const progressInLevel = Math.max(0, points - currentLevelStart);
-            const progressPercent = Math.min((progressInLevel / basePointsPerLevel) * 100, 100);
+            var fill = document.getElementById('level-progress');
+            var text = document.getElementById('progress-text');
+            if (stats) {
+                fill.style.width = stats.level.progressPct + '%';
+                text.textContent = stats.level.isMax
+                    ? 'Level ' + level + ' — ' + stats.level.title + ' (max level!)'
+                    : stats.level.pointsIntoLevel + ' / ' + stats.level.pointsForNext + ' XP to next level — ' + stats.level.title;
+            } else {
+                fill.style.width = '0%';
+                text.textContent = '';
+            }
 
-            document.getElementById('level-progress').style.width = `${progressPercent}%`;
-            document.getElementById('progress-text').textContent = 
-                `${progressInLevel} / ${basePointsPerLevel} XP to next level`;
-
-            // Load achievements
             loadAchievements();
-
-            // Load best scores
             loadBestScores();
-
-            // Load recommended exercises
             loadRecommendedExercises();
-
-            // Initialize chart (lazy loading)
             initializeChart();
         }
 
         function loadAchievements() {
-            let unlockedAchievements = [];
+            var unlocked = [];
             try {
-                unlockedAchievements = JSON.parse(getFromStorage(STORAGE_KEYS.achievements) || '[]');
-            } catch (error) {
-                console.warn('Failed to parse achievements, resetting to empty array');
-                unlockedAchievements = [];
-            }
-            
-            const container = document.getElementById('achievements-container');
-            
+                unlocked = JSON.parse(getRaw('achievements'));
+                if (typeof unlocked === 'string') unlocked = JSON.parse(unlocked);
+                if (!Array.isArray(unlocked)) unlocked = [];
+            } catch (e) { unlocked = []; }
+            var container = document.getElementById('achievements-container');
             container.innerHTML = '';
-            
-            Object.entries(ACHIEVEMENT_DEFINITIONS).forEach(([key, achievement]) => {
-                const isUnlocked = unlockedAchievements.includes(key);
-                const badge = document.createElement('div');
-                badge.className = `achievement-badge ${isUnlocked ? 'unlocked' : 'locked'}`;
-                badge.innerHTML = `
-                    <div class="achievement-icon">${achievement.icon}</div>
-                    <div class="achievement-name">${achievement.name}</div>
-                `;
-                badge.title = achievement.description;
+            Object.keys(ACHIEVEMENT_DEFINITIONS).forEach(function (key) {
+                var a = ACHIEVEMENT_DEFINITIONS[key];
+                var isUnlocked = unlocked.indexOf(key) !== -1;
+                var badge = document.createElement('div');
+                badge.className = 'achievement-badge ' + (isUnlocked ? 'unlocked' : 'locked');
+                badge.innerHTML = '<div class="achievement-icon">' + a.icon + '</div>' +
+                    '<div class="achievement-name">' + a.name + '</div>';
+                badge.title = a.description + (isUnlocked ? ' — unlocked!' : ' (locked)');
                 container.appendChild(badge);
             });
         }
 
         function loadBestScores() {
-            const container = document.getElementById('scores-container');
+            var container = document.getElementById('scores-container');
             container.innerHTML = '';
+            var data = collectExerciseData();
+            var names = Object.keys(data).filter(function (n) { return data[n].best > 0; })
+                .sort(function (a, b) { return data[b].best - data[a].best; });
 
-            let hasScores = false;
-
-            EXERCISES.forEach(exercise => {
-                const bestScore = getFromStorage(`FPR_v1_exercise:${exercise.id}:best`);
-                const parsedScore = parseInt(bestScore, 10);
-                
-                if (!Number.isNaN(parsedScore) && parsedScore > 0) {
-                    hasScores = true;
-                    const scoreItem = document.createElement('div');
-                    scoreItem.className = 'score-item';
-                    scoreItem.innerHTML = `
-                        <span class="exercise-name">${exercise.title}</span>
-                        <span class="exercise-score">${parsedScore.toLocaleString()}</span>
-                    `;
-                    container.appendChild(scoreItem);
-                }
-            });
-
-            if (!hasScores) {
-                const noScores = document.createElement('div');
-                noScores.className = 'score-item';
-                noScores.innerHTML = `
-                    <span class="exercise-name">No sessions completed yet</span>
-                    <span class="exercise-score">-</span>
-                `;
-                container.appendChild(noScores);
+            if (!names.length) {
+                container.innerHTML = '<div class="score-item">' +
+                    '<span class="exercise-name">No sessions completed yet</span>' +
+                    '<span class="exercise-score">-</span></div>';
+                return;
             }
+            names.forEach(function (name) {
+                var item = document.createElement('div');
+                item.className = 'score-item';
+                var nameSpan = document.createElement('span');
+                nameSpan.className = 'exercise-name';
+                nameSpan.textContent = name;
+                var scoreSpan = document.createElement('span');
+                scoreSpan.className = 'exercise-score';
+                scoreSpan.textContent = data[name].best.toLocaleString();
+                item.appendChild(nameSpan);
+                item.appendChild(scoreSpan);
+                container.appendChild(item);
+            });
         }
 
         function loadRecommendedExercises() {
-            const container = document.getElementById('recommended-exercises');
+            var container = document.getElementById('recommended-exercises');
             container.innerHTML = '';
-
-            if (!EXERCISES || EXERCISES.length === 0) {
-                container.innerHTML = `<p style="opacity: 0.7; text-align: center; grid-column: 1 / -1;">No exercises available yet.</p>`;
-                return;
-            }
-
-            // Show first 4 exercises as recommendations
-            EXERCISES.slice(0, 4).forEach(exercise => {
-                const card = document.createElement('a');
+            RECOMMENDED.forEach(function (exercise) {
+                var card = document.createElement('a');
                 card.className = 'exercise-card';
                 card.href = exercise.path;
-                card.innerHTML = `
-                    <div class="exercise-card-icon">${exercise.icon || '🎯'}</div>
-                    <div class="exercise-card-title">${exercise.title}</div>
-                    <div class="exercise-card-description">${exercise.description || 'Improve your motor skills'}</div>
-                `;
+                card.innerHTML = '<div class="exercise-card-icon">' + exercise.icon + '</div>' +
+                    '<div class="exercise-card-title">' + exercise.title + '</div>' +
+                    '<div class="exercise-card-description">' + exercise.description + '</div>';
                 container.appendChild(card);
             });
         }
 
-        async function initializeChart() {
-            // Simulate loading delay
-            setTimeout(async () => {
-                try {
-                    // Try to dynamically import Chart.js (when available)
-                    // For now, show placeholder
-                    const placeholder = document.getElementById('chart-placeholder');
-                    placeholder.innerHTML = `
-                        <div style="text-align: center;">
-                            <p>📈</p>
-                            <p>Progress charts coming soon!</p>
-                            <p style="font-size: var(--font-size-sm); opacity: 0.7;">Continue practicing to see your trends</p>
-                        </div>
-                    `;
-                } catch (error) {
-                    console.log('Chart.js not available yet');
-                    const placeholder = document.getElementById('chart-placeholder');
-                    placeholder.innerHTML = `
-                        <div style="text-align: center;">
-                            <p>📊</p>
-                            <p>Charts loading...</p>
-                        </div>
-                    `;
-                }
-            }, 1000);
+        function initializeChart() {
+            var placeholder = document.getElementById('chart-placeholder');
+            if (!placeholder) return;
+            placeholder.innerHTML = '<div style="text-align: center;">' +
+                '<p>📈</p><p>Progress charts coming soon!</p>' +
+                '<p style="font-size: var(--font-size-sm); opacity: 0.7;">Continue practicing to see your trends</p></div>';
         }
 
-        // Export functionality
+        // ---- Export / Import ------------------------------------------------
         function exportProgress() {
             try {
-                const exportData = {
-                    version: 1,
+                var keys = {};
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && k.indexOf(PREFIX) === 0) keys[k] = localStorage.getItem(k);
+                }
+                var exportData = {
+                    version: 2,
                     exportedAt: new Date().toISOString(),
-                    profileName: "My Progress",
-                    stats: {
-                        points: parseInt(getFromStorage(STORAGE_KEYS.points) || '0'),
-                        level: parseInt(getFromStorage(STORAGE_KEYS.level) || '1'),
-                        streak: parseInt(getFromStorage(STORAGE_KEYS.streak) || '0'),
-                        lastActiveDate: getFromStorage(STORAGE_KEYS.lastActiveDate) || null,
-                        totalSessions: parseInt(getFromStorage(STORAGE_KEYS.totalSessions) || '0')
-                    },
-                    exercises: {},
-                    achievements: JSON.parse(getFromStorage(STORAGE_KEYS.achievements) || '[]')
+                    profileName: 'My Progress',
+                    storage: keys
                 };
-
-                // Collect exercise data
-                EXERCISES.forEach(exercise => {
-                    const best = getFromStorage(`FPR_v1_exercise:${exercise.id}:best`);
-                    const sessions = getFromStorage(`FPR_v1_exercise:${exercise.id}:sessions`);
-                    if (best || sessions) {
-                        exportData.exercises[exercise.id] = {
-                            best: parseInt(best || '0'),
-                            sessions: parseInt(sessions || '0')
-                        };
-                    }
-                });
-
-                const dataStr = JSON.stringify(exportData, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                
-                const link = document.createElement('a');
+                var dataBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(dataBlob);
+                var link = document.createElement('a');
                 link.href = url;
-                link.download = `finepointrehab-progress-${new Date().toISOString().split('T')[0]}.json`;
+                link.download = 'finepointrehab-progress-' + new Date().toISOString().split('T')[0] + '.json';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-                // Delay URL revocation to ensure download completes
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
                 showToast('Progress exported successfully!', 'success');
             } catch (error) {
-                console.error('Export failed:', error);
                 showToast('Export failed. Please try again.', 'error');
             }
         }
 
-        // Import functionality
-        function importProgress() {
-            const modal = document.getElementById('import-modal');
-            modal.style.display = 'block';
+        function clearFPRStorage() {
+            var toRemove = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var k = localStorage.key(i);
+                if (k && k.indexOf(PREFIX) === 0) toRemove.push(k);
+            }
+            toRemove.forEach(function (k) { localStorage.removeItem(k); });
         }
 
         function confirmImport() {
-            const importData = document.getElementById('import-data').value.trim();
-            
-            if (!importData) {
-                showToast('Please paste your export data', 'error');
-                return;
-            }
-
+            var raw = document.getElementById('import-data').value.trim();
+            if (!raw) { showToast('Please paste your export data', 'error'); return; }
             try {
-                const data = JSON.parse(importData);
-                
-                if (!data.version || data.version !== 1) {
+                var data = JSON.parse(raw);
+                if (data.version === 2 && data.storage) {
+                    clearFPRStorage();
+                    Object.keys(data.storage).forEach(function (k) {
+                        if (k.indexOf(PREFIX) === 0) localStorage.setItem(k, data.storage[k]);
+                    });
+                } else if (data.version === 1) {
+                    // Legacy format from the previous dashboard
+                    clearFPRStorage();
+                    if (data.stats) {
+                        setRaw('points', data.stats.points || 0);
+                        setRaw('level', data.stats.level || 1);
+                        setRaw('streak', data.stats.streak || 0);
+                        setRaw('totalSessions', data.stats.totalSessions || 0);
+                        if (data.stats.lastActiveDate) setRaw('lastActiveDate', data.stats.lastActiveDate);
+                    }
+                    if (data.exercises) {
+                        Object.keys(data.exercises).forEach(function (id) {
+                            var ex = data.exercises[id];
+                            if (ex.best !== undefined) setRaw('exercise:' + id + ':best', ex.best);
+                            if (ex.sessions !== undefined) setRaw('exercise:' + id + ':sessions', ex.sessions);
+                        });
+                    }
+                    if (data.achievements) setRaw('achievements', JSON.stringify(data.achievements));
+                } else {
                     showToast('Invalid or outdated export format', 'error');
                     return;
                 }
-
-                // Clear existing FPR data and import new data
-                clearFPRStorage();
-                
-                // Import stats
-                if (data.stats) {
-                    setToStorage(STORAGE_KEYS.points, data.stats.points.toString());
-                    setToStorage(STORAGE_KEYS.level, data.stats.level.toString());
-                    setToStorage(STORAGE_KEYS.streak, data.stats.streak.toString());
-                    setToStorage(STORAGE_KEYS.totalSessions, data.stats.totalSessions.toString());
-                    if (data.stats.lastActiveDate) {
-                        setToStorage(STORAGE_KEYS.lastActiveDate, data.stats.lastActiveDate);
-                    }
-                }
-
-                // Import exercise data
-                if (data.exercises) {
-                    Object.entries(data.exercises).forEach(([exerciseId, exerciseData]) => {
-                        if (exerciseData.best !== undefined) {
-                            setToStorage(`FPR_v1_exercise:${exerciseId}:best`, exerciseData.best.toString());
-                        }
-                        if (exerciseData.sessions !== undefined) {
-                            setToStorage(`FPR_v1_exercise:${exerciseId}:sessions`, exerciseData.sessions.toString());
-                        }
-                    });
-                }
-
-                // Import achievements
-                if (data.achievements) {
-                    setToStorage(STORAGE_KEYS.achievements, JSON.stringify(data.achievements));
-                }
-
-                // Close modal and reload data
                 document.getElementById('import-modal').style.display = 'none';
                 document.getElementById('import-data').value = '';
                 loadDashboardData();
-                
                 showToast('Progress imported successfully!', 'success');
             } catch (error) {
-                console.error('Import failed:', error);
                 showToast('Invalid JSON data. Please check your export file.', 'error');
             }
         }
 
-        // Event listeners
-        document.getElementById('export-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            exportProgress();
-        });
-
-        document.getElementById('import-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            importProgress();
-        });
-
-        document.getElementById('import-modal-close').addEventListener('click', () => {
-            document.getElementById('import-modal').style.display = 'none';
-        });
-
-        document.getElementById('import-cancel').addEventListener('click', () => {
-            document.getElementById('import-modal').style.display = 'none';
-        });
-
+        // ---- Event wiring ---------------------------------------------------
+        document.getElementById('export-btn').addEventListener('click', function (e) { e.preventDefault(); exportProgress(); });
+        document.getElementById('import-btn').addEventListener('click', function (e) { e.preventDefault(); document.getElementById('import-modal').style.display = 'block'; });
+        document.getElementById('import-modal-close').addEventListener('click', function () { document.getElementById('import-modal').style.display = 'none'; });
+        document.getElementById('import-cancel').addEventListener('click', function () { document.getElementById('import-modal').style.display = 'none'; });
         document.getElementById('import-confirm').addEventListener('click', confirmImport);
-
-        // Close modal when clicking outside
-        document.getElementById('import-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'import-modal') {
-                document.getElementById('import-modal').style.display = 'none';
-            }
+        document.getElementById('import-modal').addEventListener('click', function (e) {
+            if (e.target.id === 'import-modal') document.getElementById('import-modal').style.display = 'none';
         });
 
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', loadDashboardData);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadDashboardData);
+        } else {
+            loadDashboardData();
+        }
+    })();
     </script>
 </body>
 </html>

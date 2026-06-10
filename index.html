@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVKCCWBFKE"></script>
     <script>
@@ -14,940 +14,441 @@
       gtag('config', 'G-RVKCCWBFKE');
     </script>
     <title>Fine Point Rehab - Evidence-Based Digital Rehabilitation Exercises</title>
-    
+
     <!-- SEO and PWA Meta Tags -->
     <link rel="canonical" href="https://finepointrehab.com/">
     <link rel="icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-    <!-- SEO Meta Tags -->
     <meta name="description" content="Professional digital rehabilitation platform offering evidence-based therapeutic exercises for stroke recovery, brain injury rehabilitation, and motor skills development. Free, accessible, and clinically-informed.">
     <meta name="keywords" content="digital rehabilitation, stroke recovery, occupational therapy, physical therapy, brain injury rehabilitation, motor skills training, therapeutic exercises, healthcare technology">
-    <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:title" content="Fine Point Rehab - Evidence-Based Digital Rehabilitation">
     <meta property="og:description" content="Professional therapeutic exercises designed for recovery and motor skills development">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://finepointrehab.com">
     <meta property="og:image" content="https://finepointrehab.com/images/site-preview.jpg">
-    
+
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#0c122e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Fine Point Rehab">
-    
-    <style>
-        /* Design Tokens - Mobile-first approach */
-        :root {
-            /* Header height - compact two-line mobile layout */
-            --header-height: 90px;
-            
-            /* Light theme (default - clinical credibility) */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-card: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --text-muted: #9ca3af;
-            --brand-blue: #2563eb;
-            --brand-aqua: #48cae4;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --border: #e5e7eb;
-            --border-light: #f3f4f6;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            --radius: 8px;
-            --radius-lg: 12px;
-            
-            /* Typography */
-            --font-size-sm: 0.875rem;
-            --font-size-base: 1rem;
-            --font-size-lg: 1.125rem;
-            --font-size-xl: 1.25rem;
-            --font-size-2xl: 1.5rem;
-            --font-size-3xl: 1.875rem;
-            --font-size-4xl: 2.25rem;
-            --line-height-tight: 1.25;
-            --line-height-normal: 1.5;
-            --line-height-relaxed: 1.75;
-            
-            /* Spacing - 4px base unit */
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-            --space-12: 3rem;
-            --space-16: 4rem;
-            --space-20: 5rem;
-        }
 
-        /* Dark theme support */
-        [data-theme="dark"] {
-            --bg-primary: #1e293b;
-            --bg-secondary: #334155;
-            --bg-card: #475569;
-            --text-primary: #f9fafb;
-            --text-secondary: #cbd5e1;
-            --text-muted: #94a3b8;
-            --border: #475569;
-            --border-light: #64748b;
-        }
+    <!-- Fonts + design system -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/site.css">
 
-        /* Base styles - Mobile-first */
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: var(--line-height-normal);
-            min-height: 100vh;
-            font-size: var(--font-size-base);
-        }
-        
-        /* Typography */
-        h1, h2, h3, h4, h5, h6 {
-            margin: 0 0 var(--space-4) 0;
-            line-height: var(--line-height-tight);
-            font-weight: 600;
-        }
-        
-        h1 { font-size: var(--font-size-3xl); }
-        h2 { font-size: var(--font-size-2xl); }
-        h3 { font-size: var(--font-size-xl); }
-        h4 { font-size: var(--font-size-lg); }
-        
-        p {
-            margin: 0 0 var(--space-4) 0;
-            line-height: var(--line-height-relaxed);
-        }
-        
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--space-3);
-        }
-        
-        /* Header - Fixed with proper mobile layout.
-           Safe-area-inset handling makes the wrapped Android app + notched
-           phones (iPhone 14+, Pixel 6+, foldables) feel native — the header
-           reaches into the status bar area instead of sitting below it. */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: var(--space-2) 0;
-            padding-top: calc(var(--space-2) + env(safe-area-inset-top, 0px));
-            padding-left: env(safe-area-inset-left, 0px);
-            padding-right: env(safe-area-inset-right, 0px);
-        }
-        /* Bump the body / main padding so fixed-header content doesn't sit
-           underneath the status-bar inset. */
-        body {
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-        }
-        
-        .header-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-3);
-            text-align: center;
-            width: 100%;
-        }
-        
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--brand-blue);
-            margin: 0;
-            line-height: 1.2;
-            white-space: nowrap;
-            flex-shrink: 0;
-            overflow: visible;
-        }
-        
-        .tagline {
-            display: none;
-            font-size: var(--font-size-lg);
-            color: var(--text-secondary);
-        }
-        
-        /* Navigation */
-        header nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-2);
-            flex-wrap: wrap;
-            width: 100%;
-        }
-        
-        header nav a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            padding: var(--space-2) var(--space-3);
-            border-radius: var(--radius);
-            transition: all 0.2s ease;
-            min-height: 40px;
-            display: inline-flex;
-            align-items: center;
-            font-size: 0.875rem;
-            white-space: nowrap;
-        }
-        
-        header nav a:hover,
-        header nav a.active {
-            color: var(--brand-blue);
-            background: var(--bg-secondary);
-        }
-        
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-3) var(--space-6);
-            border-radius: var(--radius);
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-height: 44px;
-            font-size: var(--font-size-base);
-        }
-        
-        .btn-primary {
-            background: var(--brand-blue);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--brand-blue);
-            border: 2px solid var(--brand-blue);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--brand-blue);
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-outline:hover {
-            background: var(--bg-secondary);
-            border-color: var(--brand-blue);
-        }
-        
-        /* Hero Section */
-        .hero {
-            padding: var(--space-16) 0;
-            text-align: center;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-        }
-        
-        .hero h1 {
-            font-size: var(--font-size-4xl);
-            margin-bottom: var(--space-6);
-            color: var(--text-primary);
-        }
-        
-        .hero p {
-            font-size: var(--font-size-lg);
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto var(--space-8);
-        }
-        
-        /* Exercise Grid */
-        .exercise-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-4);
-            margin-bottom: var(--space-8);
-        }
-        
-        .exercise-quick-access {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-3);
-            margin-bottom: var(--space-6);
-        }
-        
-        /* Cards */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--brand-blue);
-        }
-        
-        .card-content {
-            padding: var(--space-6);
-        }
-        
-        .card-title {
-            font-size: var(--font-size-xl);
-            font-weight: 600;
-            margin-bottom: var(--space-3);
-            color: var(--text-primary);
-        }
-        
-        .card-description {
-            color: var(--text-secondary);
-            margin-bottom: var(--space-6);
-            line-height: var(--line-height-relaxed);
-        }
-        
-        /* Sections */
-        section {
-            padding: var(--space-16) 0;
-            scroll-margin-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: var(--space-12);
-        }
-        
-        .section-title {
-            font-size: var(--font-size-3xl);
-            margin-bottom: var(--space-4);
-        }
-        
-        .section-subtitle {
-            font-size: var(--font-size-lg);
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--space-8);
-            margin-top: var(--space-12);
-        }
-        
-        .feature {
-            text-align: center;
-        }
-        
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--brand-blue);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--space-4);
-            font-size: var(--font-size-2xl);
-            color: white;
-        }
-        
-        /* Footer */
-        footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
-            padding: var(--space-12) 0 var(--space-8);
-            margin-top: var(--space-20);
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--space-8);
-            margin-bottom: var(--space-8);
-        }
-        
-        .footer-section h4 {
-            font-size: var(--font-size-lg);
-            margin-bottom: var(--space-4);
-        }
-        
-        .footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .footer-links li {
-            margin-bottom: var(--space-2);
-        }
-        
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        
-        .footer-links a:hover {
-            color: var(--brand-blue);
-        }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: var(--space-6);
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-        }
-        
-        /* Responsive Design */
-        @media (min-width: 768px) {
-            :root {
-                --header-height: 80px;
-            }
-            
-            header {
-                padding: 0;
-            }
-            
-            .container {
-                padding: 0 var(--space-4);
-            }
-            
-            .header-content {
-                flex-direction: row;
-                justify-content: space-between;
-                gap: var(--space-4);
-                text-align: left;
-            }
-            
-            .logo {
-                font-size: var(--font-size-3xl);
-            }
-            
-            header nav {
-                gap: var(--space-4);
-                justify-content: flex-end;
-                flex-wrap: nowrap;
-                width: auto;
-            }
-            
-            header nav a {
-                font-size: var(--font-size-base);
-                padding: var(--space-2) var(--space-4);
-                min-height: 44px;
-            }
-            
-            .tagline {
-                display: block;
-                margin: 0;
-            }
-            
-            .hero h1 {
-                font-size: 3.5rem;
-            }
-            
-            .exercise-quick-access {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .container {
-                padding: 0 var(--space-6);
-            }
-            
-            .exercise-grid {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            }
-        }
-        
-        /* Accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Focus styles */
-        :focus-visible {
-            outline: 2px solid var(--brand-blue);
-            outline-offset: 2px;
-        }
-        
-        /* High contrast and forced colors support */
-        @media (prefers-contrast: high) {
-            :root {
-                --border: #000000;
-                --text-secondary: #000000;
-            }
-        }
-        
-        @media (forced-colors: active) {
-            :root {
-                --border: CanvasText;
-                --text-secondary: CanvasText;
-            }
-        }
-        
-        /* Skip link for accessibility */
-        .visually-hidden-focusable {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            width: 1px;
-            height: 1px;
-            padding: 8px 16px;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-            background: var(--brand-blue);
-            color: white;
-            text-decoration: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            z-index: 100;
-        }
-        
-        .visually-hidden-focusable:focus {
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            width: auto;
-            height: auto;
-            padding: 8px 16px;
-            margin: 0;
-            overflow: visible;
-            clip: auto;
-            white-space: normal;
-        }
-
-        /* =====================================================================
-           Hybrid theme — dark exercise showcase that bridges into game pages.
-           The hero + credibility sections stay clinical white; #exercises is a
-           deep-space island that previews the game aesthetic.
-           ===================================================================== */
-        #exercises {
-            position: relative;
-            isolation: isolate;
-            background:
-                radial-gradient(900px 600px at 20% 30%, rgba(70, 30, 120, 0.35), transparent 60%),
-                radial-gradient(700px 500px at 80% 70%, rgba(20, 120, 160, 0.28), transparent 55%),
-                linear-gradient(180deg, #070b16 0%, #0f1630 50%, #0b1024 100%);
-            /* Extra top/bottom space so the curved divider has room to breathe */
-            padding-top: calc(var(--space-16) + 96px);
-            padding-bottom: calc(var(--space-16) + 96px);
-            color: #eaf6ff;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        /* Curved SVG dividers — top and bottom — that organically blend the dark
-           band into the adjacent white sections. The fill color matches the
-           surrounding section background, so it reads as one continuous canvas. */
-        .section-divider {
-            position: absolute;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 90px;
-            display: block;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .section-divider svg {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        .section-divider--top {
-            top: -1px; /* hides any sub-pixel hairline */
-        }
-        .section-divider--bottom {
-            bottom: -1px;
-            transform: rotate(180deg);
-        }
-        .section-divider path {
-            fill: var(--bg-primary, #fff);
-        }
-
-        /* Subtle stardust overlay inside the dark band (sparse near edges,
-           denser in the middle) to make the transition feel intentional. */
-        #exercises .stardust {
-            position: absolute;
-            inset: 0;
-            background-image:
-                radial-gradient(1px 1px at 12% 20%, rgba(255,255,255,0.55), transparent 60%),
-                radial-gradient(1px 1px at 78% 35%, rgba(255,255,255,0.45), transparent 60%),
-                radial-gradient(1px 1px at 32% 70%, rgba(255,255,255,0.5), transparent 60%),
-                radial-gradient(1px 1px at 65% 82%, rgba(255,255,255,0.35), transparent 60%),
-                radial-gradient(2px 2px at 50% 50%, rgba(150,220,255,0.4), transparent 60%),
-                radial-gradient(1px 1px at 20% 90%, rgba(180,235,255,0.3), transparent 60%),
-                radial-gradient(1px 1px at 88% 12%, rgba(180,235,255,0.3), transparent 60%);
-            background-size: 100% 100%;
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0.9;
-        }
-
-        #exercises > .container {
-            position: relative;
-            z-index: 3; /* above stardust + dividers */
-        }
-
-        #exercises .section-title {
-            color: #eaf6ff;
-        }
-        #exercises .section-subtitle {
-            color: #b8c5d1;
-        }
-
-        /* Dark cards inside the exercise showcase */
-        #exercises .card {
-            background: rgba(10, 16, 36, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(6px);
-        }
-        #exercises .card:hover {
-            transform: translateY(-3px);
-            border-color: #6fd3f5;
-            box-shadow: 0 16px 48px rgba(111, 211, 245, 0.18);
-        }
-        #exercises .card-title {
-            color: #eaf6ff;
-        }
-        #exercises .card-description {
-            color: #b8c5d1;
-        }
-
-        /* Outline button restyled for dark cards */
-        #exercises .btn-outline {
-            background: transparent;
-            color: #6fd3f5;
-            border: 1px solid rgba(111, 211, 245, 0.45);
-        }
-        #exercises .btn-outline:hover {
-            background: rgba(111, 211, 245, 0.12);
-            border-color: #6fd3f5;
-            color: #bfe6ff;
-        }
-    </style>
-  <script src="/js/fpr-native.js" defer></script>
-  <script src="/js/fpr-reminders.js" defer></script>
+    <script src="js/fpr-engagement.js" defer></script>
+    <script src="/js/fpr-native.js" defer></script>
+    <script src="/js/fpr-reminders.js" defer></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to content</a>
-    
-    <header>
+
+    <header class="site-header">
         <div class="container">
-            <div class="header-content">
-                <div>
-                    <div class="logo">Fine Point Rehab</div>
-                    <div class="tagline">Evidence-based digital rehabilitation platform</div>
-                </div>
-                <nav>
-                    <a href="index.html" class="active" aria-current="page">Home</a>
-                    <a href="#exercises">Exercises</a>
-                    <a href="about.html">About</a>
-                    <a href="faq.html">FAQ</a>
-                    <a href="contact.html">Contact</a>
-                </nav>
-            </div>
+            <a href="index.html" class="brand">
+                <span class="brand-dot" aria-hidden="true">🎯</span>
+                <span class="brand-name">Fine Point Rehab</span>
+            </a>
+            <nav class="site-nav" aria-label="Main navigation">
+                <a href="index.html" class="active nav-mid" aria-current="page">Home</a>
+                <a href="#exercises" class="nav-mid">Exercises</a>
+                <a href="about.html" class="nav-optional">About</a>
+                <a href="faq.html" class="nav-optional">FAQ</a>
+                <a href="contact.html" class="nav-optional">Contact</a>
+                <a href="dashboard.html" class="nav-cta">My Progress</a>
+            </nav>
         </div>
     </header>
-    
+
     <main id="main">
-        <section class="hero">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="orb" style="width:120px;height:120px;top:18%;left:7%;animation-delay:0s;" aria-hidden="true"></div>
+            <div class="orb o2" style="width:70px;height:70px;top:60%;left:14%;animation-delay:-3s;" aria-hidden="true"></div>
+            <div class="orb o3" style="width:95px;height:95px;top:24%;right:9%;animation-delay:-6s;" aria-hidden="true"></div>
+            <div class="orb" style="width:50px;height:50px;top:68%;right:16%;animation-delay:-8s;" aria-hidden="true"></div>
+            <div class="orb o2" style="width:36px;height:36px;top:42%;right:30%;animation-delay:-4.5s;" aria-hidden="true"></div>
+
             <div class="container">
-                <h1>Your Guided Path to Recovery</h1>
-                <p>Professional-grade therapeutic exercises designed to support upper limb rehabilitation, motor skills development, and cognitive function. Evidence-based, accessible, and always free.</p>
-                
-                <div class="exercise-quick-access">
-                    <a href="exercises/bubble-exercise.html" class="btn btn-primary">Start Bubble Tap</a>
-                    <a href="exercises/comet-exercise.html" class="btn btn-primary">Start Comet Tap</a>
-                    <a href="exercises/trace-reveal-exercise.html" class="btn btn-primary">Start Trace & Reveal</a>
-                    <a href="exercises/rhythm-exercise.html" class="btn btn-primary">Start Rhythm Reach</a>
+                <h1 id="hero-title">Rebuild your <span class="grad-word">fine motor skills</span> — one game at a time</h1>
+                <p class="hero-sub">Professional-grade therapeutic exercises designed to support upper limb rehabilitation, motor skills development, and cognitive function. Evidence-based, accessible, and always free.</p>
+                <div class="hero-cta">
+                    <a href="#exercises" class="btn btn-sun">🎮 Start playing — it's free</a>
+                    <a href="dashboard.html" class="btn btn-ghost-light">View my progress</a>
                 </div>
-                
-                <a href="#exercises" class="btn btn-secondary">View All Exercises</a>
+                <ul class="hero-trust">
+                    <li>✅ Always free</li>
+                    <li>🔒 No account needed</li>
+                    <li>♿ Accessibility built in</li>
+                    <li>🧠 Designed for recovery</li>
+                </ul>
             </div>
-        </section>
-        
-        <section id="exercises">
-            <div class="section-divider section-divider--top" aria-hidden="true">
-                <svg viewBox="0 0 1440 90" preserveAspectRatio="none" focusable="false">
-                    <path d="M0,0 C320,90 720,90 1440,30 L1440,0 L0,0 Z"></path>
-                </svg>
-            </div>
-            <div class="stardust" aria-hidden="true"></div>
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Therapeutic Exercise Library</h2>
-                    <p class="section-subtitle">Clinically-informed exercises targeting specific rehabilitation goals. Each exercise is designed with adjustable difficulty levels to support progressive recovery.</p>
-                </div>
-                
-                <div class="exercise-grid">
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Bubble Tap Exercise</h3>
-                            <p class="card-description">Enhances fine motor control, reaction time, and hand-eye coordination through interactive bubble tapping. Customizable timing and target sizes for progressive difficulty.</p>
-                            <a href="exercises/bubble-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Comet Tap Exercise</h3>
-                            <p class="card-description">Develops dynamic tracking skills and bilateral coordination through moving target interaction. Adjustable speeds support motor planning progression.</p>
-                            <a href="exercises/comet-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Trace and Reveal</h3>
-                            <p class="card-description">Supports controlled movement patterns and sustained attention through guided tracing activities. Promotes motor learning and visual-motor integration.</p>
-                            <a href="exercises/trace-reveal-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Rhythm Reach Exercise</h3>
-                            <p class="card-description">Targets working memory and sequential processing through pattern recognition and reproduction. Combines cognitive and motor skill development.</p>
-                            <a href="exercises/rhythm-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Precision Drop Exercise</h3>
-                            <p class="card-description">Focuses on fine motor precision and spatial awareness through controlled drag-and-drop movements. Progressive difficulty supports skill refinement.</p>
-                            <a href="exercises/precision-drop-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Cosmic Maze Exercise</h3>
-                            <p class="card-description">Enhances motor planning and problem-solving through guided navigation tasks. Supports executive function and controlled movement patterns.</p>
-                            <a href="exercises/maze-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Mirror Match Exercise</h3>
-                            <p class="card-description">Develops bilateral coordination and symmetrical movement patterns. Particularly beneficial for addressing motor asymmetries and promoting cross-body integration.</p>
-                            <a href="exercises/mirror-match-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Sequence Builder Exercise</h3>
-                            <p class="card-description">Strengthens executive function, working memory, and sequential processing skills. Supports cognitive rehabilitation through progressive complexity.</p>
-                            <a href="exercises/sequence-builder-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Sort & Categorize Exercise</h3>
-                            <p class="card-description">Improves visual discrimination, decision-making, and attention through classification tasks. Combines cognitive processing with motor control.</p>
-                            <a href="exercises/sort-categorize-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="card-title">Visual Scanner Exercise</h3>
-                            <p class="card-description">Enhances visual scanning patterns and field-of-vision awareness. Specifically designed for addressing visual neglect and improving search strategies.</p>
-                            <a href="exercises/visual-scanner-exercise.html" class="btn btn-outline">Start Exercise</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="section-divider section-divider--bottom" aria-hidden="true">
-                <svg viewBox="0 0 1440 90" preserveAspectRatio="none" focusable="false">
-                    <path d="M0,0 C320,90 720,90 1440,30 L1440,0 L0,0 Z"></path>
+            <div class="hero-curve" aria-hidden="true">
+                <svg viewBox="0 0 1440 70" preserveAspectRatio="none" focusable="false">
+                    <path d="M0,70 C360,0 1080,0 1440,70 L1440,70 L0,70 Z"></path>
                 </svg>
             </div>
         </section>
 
-        <section id="features">
+        <div class="container progress-strip" id="fpr-progress-strip" aria-live="polite"></div>
+
+        <section id="exercises" aria-labelledby="exercises-title">
             <div class="container">
                 <div class="section-header">
-                    <h2 class="section-title">Why Choose Fine Point Rehab</h2>
-                    <p class="section-subtitle">Our platform combines clinical expertise with user-centered design to deliver effective, accessible rehabilitation tools.</p>
+                    <span class="kicker">11 therapeutic games</span>
+                    <h2 id="exercises-title">Ready to play?</h2>
+                    <p>Clinically-informed exercises targeting specific rehabilitation goals. Each game has adjustable difficulty levels to support progressive recovery.</p>
                 </div>
-                
-                <div class="features">
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">🎯</div>
-                        <h3>Evidence-Based Design</h3>
-                        <p>Each exercise is grounded in rehabilitation science and designed with input from healthcare professionals to target specific therapeutic goals.</p>
+
+                <div class="exercise-grid">
+                    <article class="exercise-card" style="--ex-a:#22d3ee;--ex-b:#0284c7;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🫧</div>
+                            <div>
+                                <h3 class="ex-title">Bubble Tap</h3>
+                                <div class="ex-best" data-ex-ids="bubble,bubble_tap"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Enhances fine motor control, reaction time, and hand-eye coordination through interactive bubble tapping. Customizable timing and target sizes for progressive difficulty.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Fine motor</span>
+                            <span class="chip">Reaction time</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/bubble-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#fb923c;--ex-b:#e11d48;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">☄️</div>
+                            <div>
+                                <h3 class="ex-title">Comet Tap</h3>
+                                <div class="ex-best" data-ex-ids="comet,comet_tap"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Develops dynamic tracking skills and bilateral coordination through moving target interaction. Adjustable speeds support motor planning progression.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Tracking</span>
+                            <span class="chip">Coordination</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/comet-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#a78bfa;--ex-b:#7c3aed;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">✨</div>
+                            <div>
+                                <h3 class="ex-title">Trace &amp; Reveal</h3>
+                                <div class="ex-best" data-ex-ids="trace,trace-reveal,traceReveal"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Supports controlled movement patterns and sustained attention through guided tracing activities. Promotes motor learning and visual-motor integration.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Controlled movement</span>
+                            <span class="chip">Attention</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/trace-reveal-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#f472b6;--ex-b:#be185d;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🎵</div>
+                            <div>
+                                <h3 class="ex-title">Rhythm Reach</h3>
+                                <div class="ex-best" data-ex-ids="rhythm,rhythm_reach"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Targets working memory and sequential processing through pattern recognition and reproduction. Combines cognitive and motor skill development.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Memory</span>
+                            <span class="chip">Sequencing</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/rhythm-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#34d399;--ex-b:#047857;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🎯</div>
+                            <div>
+                                <h3 class="ex-title">Precision Drop</h3>
+                                <div class="ex-best" data-ex-ids="precision,precision-drop"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Focuses on fine motor precision and spatial awareness through controlled drag-and-drop movements. Progressive difficulty supports skill refinement.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Precision</span>
+                            <span class="chip">Spatial awareness</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/precision-drop-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#818cf8;--ex-b:#4338ca;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🚀</div>
+                            <div>
+                                <h3 class="ex-title">Cosmic Maze</h3>
+                                <div class="ex-best" data-ex-ids="maze"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Enhances motor planning and problem-solving through guided navigation tasks. Supports executive function and controlled movement patterns.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Motor planning</span>
+                            <span class="chip">Problem-solving</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/maze-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#67e8f9;--ex-b:#0e7490;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🦋</div>
+                            <div>
+                                <h3 class="ex-title">Mirror Match</h3>
+                                <div class="ex-best" data-ex-ids="mirror,mirror-match"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Develops bilateral coordination and symmetrical movement patterns. Particularly beneficial for addressing motor asymmetries and promoting cross-body integration.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Bilateral coordination</span>
+                            <span class="chip">Symmetry</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/mirror-match-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#fbbf24;--ex-b:#b45309;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🧩</div>
+                            <div>
+                                <h3 class="ex-title">Sequence Builder</h3>
+                                <div class="ex-best" data-ex-ids="sequence,sequence-builder"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Strengthens executive function, working memory, and sequential processing skills. Supports cognitive rehabilitation through progressive complexity.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Executive function</span>
+                            <span class="chip">Memory</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/sequence-builder-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#a3e635;--ex-b:#4d7c0f;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🗂️</div>
+                            <div>
+                                <h3 class="ex-title">Sort &amp; Categorize</h3>
+                                <div class="ex-best" data-ex-ids="sort,sort-categorize"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Improves visual discrimination, decision-making, and attention through classification tasks. Combines cognitive processing with motor control.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Decision-making</span>
+                            <span class="chip">Attention</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/sort-categorize-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#60a5fa;--ex-b:#1d4ed8;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">🔍</div>
+                            <div>
+                                <h3 class="ex-title">Visual Scanner</h3>
+                                <div class="ex-best" data-ex-ids="scanner,visual-scanner"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Enhances visual scanning patterns and field-of-vision awareness. Specifically designed for addressing visual neglect and improving search strategies.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Visual scanning</span>
+                            <span class="chip">Field awareness</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/visual-scanner-exercise.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+
+                    <article class="exercise-card" style="--ex-a:#fb7185;--ex-b:#be123c;">
+                        <div class="ex-head">
+                            <div class="ex-icon" aria-hidden="true">✏️</div>
+                            <div>
+                                <h3 class="ex-title">Letter &amp; Number Trace</h3>
+                                <div class="ex-best" data-ex-ids="letter-number-trace"></div>
+                            </div>
+                        </div>
+                        <p class="ex-desc">Practice tracing letters and numbers with guided strokes. Supports handwriting rehabilitation, controlled movement, and visual-motor precision.</p>
+                        <div class="ex-chips">
+                            <span class="chip">Handwriting</span>
+                            <span class="chip">Stroke control</span>
+                            <span class="chip">2–10 min</span>
+                        </div>
+                        <div class="ex-foot">
+                            <a href="exercises/letter_and_number_trace.html" class="btn-play"><span class="play-tri" aria-hidden="true">▶</span> Play now</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" aria-labelledby="how-title" style="background:#fff;">
+            <div class="container">
+                <div class="section-header">
+                    <span class="kicker">Simple by design</span>
+                    <h2 id="how-title">How it works</h2>
+                    <p>No sign-up, no setup, no cost. Open a game and start building skills in under a minute.</p>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num" aria-hidden="true">1</div>
+                        <h3>Pick a game</h3>
+                        <p>Choose any exercise that matches your goals — fine motor control, coordination, memory, or visual skills.</p>
                     </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">📱</div>
-                        <h3>Mobile-Optimized</h3>
-                        <p>Responsive design ensures optimal performance across all devices, from smartphones to tablets, supporting therapy wherever you are.</p>
+                    <div class="step">
+                        <div class="step-num" aria-hidden="true">2</div>
+                        <h3>Play a few minutes a day</h3>
+                        <p>Sessions are short and adjustable. Set the difficulty that feels right and progress at your own pace.</p>
                     </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">⚙️</div>
-                        <h3>Adaptive Difficulty</h3>
-                        <p>Customizable settings allow you to adjust challenge levels, ensuring exercises remain engaging and appropriately challenging.</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">🔒</div>
-                        <h3>Privacy-First</h3>
-                        <p>All data remains on your device. No accounts required, no personal information collected. Your privacy is our priority.</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">♿</div>
-                        <h3>Accessibility Built-In</h3>
-                        <p>Designed with universal access in mind, featuring high contrast options, large touch targets, and screen reader compatibility.</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon" aria-hidden="true">🆓</div>
-                        <h3>Always Free</h3>
-                        <p>Full access to all exercises and features at no cost. Healthcare should be accessible to everyone, regardless of financial circumstances.</p>
+                    <div class="step">
+                        <div class="step-num" aria-hidden="true">3</div>
+                        <h3>Watch your progress grow</h3>
+                        <p>Earn points, build streaks, unlock achievements, and see your scores improve on your personal dashboard.</p>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <section id="getting-started" style="background: var(--bg-secondary);">
+
+        <section id="features" aria-labelledby="features-title">
             <div class="container">
                 <div class="section-header">
-                    <h2 class="section-title">Begin Your Recovery Journey</h2>
-                    <p class="section-subtitle">Start with any exercise that matches your current abilities. Progress at your own pace with adjustable difficulty levels.</p>
+                    <span class="kicker">Why Fine Point Rehab</span>
+                    <h2 id="features-title">Built for real recovery</h2>
+                    <p>Our platform combines clinical expertise with user-centered design to deliver effective, accessible rehabilitation tools.</p>
                 </div>
-                
-                <div style="text-align: center;">
-                    <a href="exercises/bubble-exercise.html" class="btn btn-primary" style="margin: var(--space-2);">Try Your First Exercise</a>
-                    <a href="about.html" class="btn btn-secondary" style="margin: var(--space-2);">Learn More About Our Approach</a>
+
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#e7f2ff;" aria-hidden="true">🎯</div>
+                        <div>
+                            <h3>Evidence-Based Design</h3>
+                            <p>Each exercise is grounded in rehabilitation science and designed with input from healthcare professionals to target specific therapeutic goals.</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#ecfdf5;" aria-hidden="true">📱</div>
+                        <div>
+                            <h3>Mobile-Optimized</h3>
+                            <p>Responsive design ensures optimal performance across all devices, from smartphones to tablets, supporting therapy wherever you are.</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#fef3c7;" aria-hidden="true">⚙️</div>
+                        <div>
+                            <h3>Adaptive Difficulty</h3>
+                            <p>Customizable settings allow you to adjust challenge levels, ensuring exercises remain engaging and appropriately challenging.</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#fce7f3;" aria-hidden="true">🔒</div>
+                        <div>
+                            <h3>Privacy-First</h3>
+                            <p>All data remains on your device. No accounts required, no personal information collected. Your privacy is our priority.</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#ede9fe;" aria-hidden="true">♿</div>
+                        <div>
+                            <h3>Accessibility Built-In</h3>
+                            <p>Designed with universal access in mind, featuring high contrast options, large touch targets, and screen reader compatibility.</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon" style="background:#dcfce7;" aria-hidden="true">🆓</div>
+                        <div>
+                            <h3>Always Free</h3>
+                            <p>Full access to all exercises and features at no cost. Healthcare should be accessible to everyone, regardless of financial circumstances.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="getting-started" aria-labelledby="cta-title">
+            <div class="container">
+                <div class="cta-band">
+                    <h2 id="cta-title">Begin your recovery journey today</h2>
+                    <p>Start with any exercise that matches your current abilities. Progress at your own pace with adjustable difficulty levels.</p>
+                    <div class="hero-cta">
+                        <a href="exercises/bubble-exercise.html" class="btn btn-sun">🎮 Play your first game</a>
+                        <a href="about.html" class="btn btn-ghost-light">Learn about our approach</a>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
-    
-    <footer>
+
+    <footer class="site-footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
+            <div class="footer-grid">
+                <div>
                     <h4>Fine Point Rehab</h4>
                     <p>Professional digital rehabilitation platform supporting recovery through evidence-based therapeutic exercises.</p>
                 </div>
-                
-                <div class="footer-section">
+                <div>
                     <h4>Exercise Categories</h4>
-                    <ul class="footer-links">
+                    <ul>
                         <li><a href="exercises/bubble-exercise.html">Fine Motor Control</a></li>
                         <li><a href="exercises/comet-exercise.html">Dynamic Tracking</a></li>
                         <li><a href="exercises/trace-reveal-exercise.html">Controlled Movement</a></li>
                         <li><a href="exercises/rhythm-exercise.html">Cognitive-Motor</a></li>
                     </ul>
                 </div>
-                
-                <div class="footer-section">
+                <div>
                     <h4>Resources</h4>
-                    <ul class="footer-links">
+                    <ul>
+                        <li><a href="dashboard.html">My Progress Dashboard</a></li>
                         <li><a href="about.html">About Our Platform</a></li>
                         <li><a href="faq.html">Frequently Asked Questions</a></li>
                         <li><a href="contact.html">Contact Support</a></li>
                     </ul>
                 </div>
-                
-                <div class="footer-section">
+                <div>
                     <h4>Legal</h4>
-                    <ul class="footer-links">
+                    <ul>
                         <li><a href="privacy-policy.html">Privacy Policy</a></li>
                         <li><a href="terms-of-service.html">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
-            
             <div class="footer-bottom">
-                <p>&copy; 2025 Fine Point Rehab. All rights reserved. | Supporting recovery through evidence-based digital therapeutics.</p>
+                <p>&copy; 2026 Fine Point Rehab. All rights reserved. | Supporting recovery through evidence-based digital therapeutics.</p>
             </div>
         </div>
     </footer>
-    
-    <script>
-        // Theme detection and accessibility
-        document.addEventListener('DOMContentLoaded', function() {
-            // Apply user's theme preference
-            if (localStorage.getItem('theme') === 'dark' || 
-                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-            
-            // Respect reduced motion preference
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.documentElement.style.setProperty('--transition-duration', '0ms');
-            }
-            
-            // Smooth scrolling for internal links with error handling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    if (href === '#') return;
-                    
-                    const target = document.querySelector(href);
-                    if (!target) return;
-                    
-                    e.preventDefault();
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                });
-            });
-        });
-    </script>
 </body>
 </html>

@@ -2256,6 +2256,8 @@
       showInsight(currStats, past);
       savePastSession({ ...currStats, ts: Date.now() });
 
+      if (window.__fprRecordSession) window.__fprRecordSession('mirror', (typeof difficultySelect !== 'undefined' && difficultySelect && difficultySelect.value) || 'default', score);
+
       // Update completion modal
       if (finalPatternsEl) finalPatternsEl.textContent = `${patternsCompleted}`;
       if (finalSyncRateEl) finalSyncRateEl.textContent = `${syncRate}%`;
@@ -2333,6 +2335,22 @@
     updateHUD();
     updateInstructionsText();
     setScreen('settings');
+  </script>
+  <script type="module">
+    // Engagement hook: feed completed sessions into the shared progress and
+    // achievements systems (streak, points, dashboard, badges). No-ops if
+    // the modules fail to load, so gameplay is never affected.
+    import('/js/progress.js')
+      .then((p) => {
+        window.__fprRecordSession = (id, difficulty, score) => {
+          try { p.recordSession(id, difficulty, Number(score) || 0); } catch (e) {}
+          import('/js/achievements.js').then((a) => {
+            try { a.markExerciseTried(id); } catch (e) {}
+            try { a.checkAndUnlockAchievements(); } catch (e) {}
+          }).catch(() => {});
+        };
+      })
+      .catch(() => {});
   </script>
 </body>
 </html>
