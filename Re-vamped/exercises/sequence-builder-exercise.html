@@ -2,998 +2,1740 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Sequence Builder — Cognitive Rehabilitation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sequence Builder — Memory &amp; Sequencing Exercise | FinePoint Rehab</title>
+  <meta name="description" content="Study a pattern, then rebuild it piece by piece. A calm memory-and-sequencing workout that trains executive function and finger control after injury or illness.">
+
+  <!-- Brand font (same as homepage) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Global tokens & resets -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
 
   <style>
-    :root {
-      --bg-primary: #0f1629;
-      --bg-secondary: #1a1f3a;
-      --bg-tertiary: #252b47;
-      --text-primary: #e8eef5;
-      --text-secondary: #b8c5d1;
-      --text-muted: #8a96a3;
-      --brand-aqua: #6fd3f5;
-      --success: #4caf50;
-      --error: #ff6b6b;
-      --error-bg: #2d1b1b;
-      --border: #374151;
-      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
-      --radius: 8px;
-      --radius-lg: 12px;
-      --radius-xl: 16px;
-      --radius-full: 50%;
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-6: 24px;
-      --font-size-xs: 12px;
-      --font-size-base: 16px;
-      --font-size-lg: 20px;
-      --font-size-xl: 24px;
-      --font-weight-semibold: 600;
-      --font-weight-bold: 700;
-      --duration-fast: 150ms;
-      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+    /* =========================================================
+       Sequence Builder — v3 "warm cosmos" game shell
+       1) Welcome screen (hero + stats + presets + big Start)
+       2) Fine-tune panel (collapsible, persistent settings)
+       3) Immersive play screen (HUD + status bar + build area)
+       4) Session-complete celebration (medal, insight, points)
+       Game accent: amber (--ex-a/--ex-b from its homepage card)
+       ========================================================= */
+    :root{
+      --vh: 1vh;
+      --ex-a: #fbbf24;             /* game accent (matches homepage card) */
+      --ex-b: #b45309;
+      --ex-grad: linear-gradient(135deg, var(--ex-a), var(--ex-b));
+      --bg-1:#100a04; --bg-2:#251603; --bg-3:#160d05;
+      --accent: #fbbf24;
+      --accent-2: #fde68a;
+      --panel: rgba(38, 24, 6, .78);
+      --panel-border: rgba(255,255,255,.09);
+      --text: #fdf6e8;
+      --text-secondary: #e6d4b4;
+      --text-muted: #b09a78;
+      --good: #8ff5b2;
+      --gold: #ffd700;
+      --warn: #ffc878;
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-pill: 999px;
+      --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    *{ box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
-      color: var(--text-primary);
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(180,110,20,.30), transparent 60%),
+        radial-gradient(900px 700px at 78% 68%, rgba(140,70,10,.28), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
       min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: var(--font-sans);
+      font-size: 17px;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+    body.playing #welcome { display: none; }
+
+    button, select, input { font-family: var(--font-sans); }
+
+    /* base.css colors headings with --text-primary (dark ink for light pages);
+       this page is dark, so headings must inherit the page text color */
+    h1, h2, h3, h4 { color: inherit; }
+
+    :focus-visible{
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
-      text-decoration: none;
-      cursor: pointer;
-      transition: all var(--duration-fast) var(--easing);
+    /* ---------- High contrast mode ---------- */
+    body.high-contrast {
+      --bg-1: #000; --bg-2: #000; --bg-3: #000;
+      --panel: rgba(0,0,0,.95);
+      --panel-border: rgba(255,255,255,.5);
+      --text: #fff;
+      --text-secondary: #fff;
+      --text-muted: #ddd;
+      --accent: #ffd000;
+      --accent-2: #ffe600;
+      --good: #00ff00;
+      background: #000;
     }
-
-    .btn:hover {
-      border-color: var(--brand-aqua);
-      background-color: var(--bg-tertiary);
+    body.high-contrast .seq-piece{
+      background: #111;
+      border: 3px solid #fff;
+      color: #fff;
+      box-shadow: none;
     }
+    body.high-contrast .seq-piece.model{ background:#000; border-color:#ffe600; }
+    body.high-contrast .seq-piece.correct{ background:#003b00; border-color:#00ff00; color:#fff; box-shadow:0 0 0 3px #00ff00; }
+    body.high-contrast .seq-piece.incorrect{ background:#3b0000; border-color:#ff5555; box-shadow:0 0 0 3px #ff5555; }
+    body.high-contrast .seq-piece.placeholder{ background:#000; border:3px dashed #fff; }
+    body.high-contrast .seq-piece.placeholder.next{ border-color:#ffe600; background:#1a1500; }
+    body.high-contrast .seq-row.concealed .seq-piece.model::after{ color:#ffe600; }
+    body.high-contrast .hero-card,
+    body.high-contrast .stat-chip,
+    body.high-contrast .preset,
+    body.high-contrast .seg button,
+    body.high-contrast details.customize,
+    body.high-contrast .legend-card,
+    body.high-contrast .seq-area { border-color: rgba(255,255,255,.6); }
+    body.high-contrast .hero-title { -webkit-text-fill-color: #fff; color: #fff; }
+    body.high-contrast .status-bar{ background:#000; border-color:#fff; color:#fff; }
+    body.high-contrast .btn-check{ background:#ffd000; color:#000; }
 
-    .btn-primary {
-      background-color: var(--brand-aqua);
-      color: #000;
-      border-color: var(--brand-aqua);
+    /* ---------- Reduced motion ----------
+       Applied automatically from the OS setting and by the manual toggle.
+       JS also skips particles/ambient effects when this class is present. */
+    body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
     }
+    body.reduced-motion .ambient { display:none; }
 
-    .btn-primary:hover {
-      background-color: #5bc2e7;
-    }
-
-    .btn-secondary {
-      background-color: var(--bg-tertiary);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .input, select {
-      width: 100%;
-      padding: var(--space-2) var(--space-3);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: var(--font-size-base);
-    }
-
-    .panel {
-      background: rgba(15, 22, 41, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    /* ---------- Header ---------- */
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding: 10px 16px;
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(20,12,4,.92), rgba(20,12,4,.6));
+      border-bottom: 1px solid rgba(255,255,255,.06);
       backdrop-filter: blur(8px);
-      background: rgba(8, 15, 35, 0.8);
-      border-bottom: 1px solid var(--border);
     }
+    header .home {
+      text-decoration:none; color:var(--text); font-weight:800; font-size:.95rem;
+      border:1.5px solid rgba(255,255,255,.22); border-radius: var(--r-pill);
+      padding: 8px 16px; min-height: 44px; display:inline-flex; align-items:center;
+      transition: background .2s, border-color .2s;
+    }
+    header .home:hover { background: rgba(251,191,36,.12); border-color: var(--accent); }
+    header h1{
+      margin:0; font-size: clamp(18px, 3vw, 23px); font-weight: 900; letter-spacing:-.01em;
+      display:flex; align-items:center; gap:8px;
+    }
+    header .spacer{ flex:1; }
+    header .progress-link{
+      text-decoration:none; color:var(--text-secondary); font-weight:700; font-size:.9rem;
+      padding:8px 14px; border-radius: var(--r-pill); min-height:44px;
+      display:inline-flex; align-items:center; gap:6px;
+      transition: color .2s, background .2s;
+    }
+    header .progress-link:hover{ color: var(--accent-2); background: rgba(251,191,36,.1); }
 
-    .site-header .inner {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-4);
-      max-width: 1200px;
+    /* =========================================================
+       1) WELCOME SCREEN
+       ========================================================= */
+    #welcome{
+      max-width: 820px;
       margin: 0 auto;
+      padding: 24px 16px 64px;
+      display: grid;
+      gap: 18px;
     }
 
-    .site-header h1 {
-      margin: 0;
-      font-size: var(--font-size-xl);
-      line-height: 1.2;
-    }
-
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-4);
-    }
-
-    /* Screen system */
-    [data-screen] {
-      display: none !important;
-    }
-
-    [data-screen].active {
-      display: block !important;
-    }
-
-    /* Settings screen styling */
-    .settings-panel {
-      max-width: 480px;
-      margin: 0 auto;
-      padding-top: var(--space-6);
-    }
-
-    .settings-panel h2 {
-      margin: 0 0 var(--space-4);
-      font-size: var(--font-size-lg);
+    /* --- Hero card --- */
+    .hero-card{
+      position: relative;
+      overflow: hidden;
       text-align: center;
+      padding: 34px 22px 30px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.4);
+    }
+    .ambient{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .ambient span{
+      position:absolute;
+      bottom:-12%;
+      font-size: 26px;
+      opacity:.22;
+      filter: drop-shadow(0 0 14px rgba(251,191,36,.6));
+      animation: ambientRise linear infinite;
+    }
+    .ambient span:nth-child(1){ left:8%;  font-size:30px; animation-duration: 12s; }
+    .ambient span:nth-child(2){ left:24%; font-size:18px; animation-duration: 15s; animation-delay: 2s; }
+    .ambient span:nth-child(3){ left:46%; font-size:24px; animation-duration: 13s; animation-delay: 5s; }
+    .ambient span:nth-child(4){ left:64%; font-size:16px; animation-duration: 17s; animation-delay: 1s; }
+    .ambient span:nth-child(5){ left:78%; font-size:28px; animation-duration: 14s; animation-delay: 7s; }
+    .ambient span:nth-child(6){ left:90%; font-size:20px; animation-duration: 16s; animation-delay: 4s; }
+    @keyframes ambientRise{
+      0%   { transform: translateY(0) translateX(0) rotate(-8deg); opacity:0; }
+      8%   { opacity:.26; }
+      92%  { opacity:.2; }
+      100% { transform: translateY(-90vh) translateX(14px) rotate(8deg); opacity:0; }
     }
 
-    .game-description {
-      background: var(--bg-tertiary);
-      border-radius: var(--radius);
-      padding: var(--space-4);
-      margin-bottom: var(--space-4);
-      border: 1px solid var(--border);
+    .hero-icon{
+      font-size: 58px;
+      line-height: 1;
+      margin-bottom: 6px;
+      display:inline-block;
+      animation: heroFloat 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 8px 22px rgba(251,191,36,.45));
+    }
+    @keyframes heroFloat{
+      0%,100%{ transform: translateY(0) rotate(-3deg); }
+      50%    { transform: translateY(-9px) rotate(3deg); }
+    }
+    .hero-title{
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 6vw, 2.7rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fde68a, var(--ex-a) 40%, #f59e0b 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--ex-a); /* fallback */
+    }
+    .hero-tagline{
+      margin: 0 auto 16px;
+      max-width: 500px;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .skill-chips{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .skill-chips span{
+      font-size: .8rem; font-weight: 800;
+      padding: 5px 13px;
+      border-radius: var(--r-pill);
+      background: rgba(251,191,36,.12);
+      border: 1px solid rgba(251,191,36,.3);
+      color: var(--accent-2);
     }
 
-    .stats-row {
-      display: flex;
+    /* --- Stats strip --- */
+    .stats-strip{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: var(--space-4);
     }
-
-    .metric-settings {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: var(--space-2) var(--space-3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(111, 211, 245, 0.08);
-      min-width: 110px;
+    .stat-chip{
+      text-align:center;
+      padding: 14px 8px 11px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
     }
-
-    .pb-value {
-      font-weight: var(--font-weight-bold);
-      font-size: var(--font-size-lg);
-      color: var(--brand-aqua);
-      text-shadow: 0 0 6px rgba(111, 211, 245, 0.5);
-      line-height: 1.1;
+    .stat-chip .num{
+      font-size: 1.45rem; font-weight: 900; line-height: 1.15;
+      color: #ffe9b3;
+      text-shadow: 0 0 10px rgba(251,191,36,.4);
     }
-
-    .pb-label {
-      font-size: var(--font-size-xs);
-      opacity: 0.9;
-      margin-top: var(--space-1);
-      color: var(--text-secondary);
-    }
-
-    .settings-group {
-      margin-bottom: var(--space-4);
-    }
-
-    .settings-label {
-      display: block;
-      margin-bottom: var(--space-2);
-      font-weight: var(--font-weight-semibold);
-    }
-
-    .setting-help {
-      display: block;
+    .stat-chip .lbl{
+      font-size: .74rem; font-weight: 700;
       color: var(--text-muted);
-      font-size: var(--font-size-xs);
-      margin-top: var(--space-1);
-      font-style: italic;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-top: 2px;
     }
 
-    .right-col {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: var(--space-3);
+    /* --- Daily challenge chip --- */
+    .challenge-chip{
+      display:none; /* shown by JS when engagement layer is available */
+      align-items:center; gap:10px;
+      padding: 12px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(251,191,36,.16), rgba(245,158,11,.08));
+      border: 1px solid rgba(251,191,36,.35);
+      font-weight: 700; font-size: .95rem;
+      color: #ffe9b3;
+    }
+    .challenge-chip.done{
+      background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(16,185,129,.08));
+      border-color: rgba(16,185,129,.4);
+      color: #b9f5dd;
+    }
+    .challenge-chip .ch-icon{ font-size: 1.3rem; flex-shrink:0; }
+
+    /* --- Section labels --- */
+    .pick-label{
+      font-size: .85rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted);
+      margin: 4px 2px -8px;
     }
 
-    .hud {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 1fr;
-      gap: var(--space-2);
-      align-items: center;
-      position: relative;
-      padding-top: calc(var(--space-3) + 8px);
+    /* --- Difficulty presets --- */
+    .presets{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .preset{
+      position:relative;
+      text-align:center;
+      padding: 16px 10px 14px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .15s, transform .15s, background .15s;
+      min-height: 118px;
+    }
+    .preset:hover{ transform: translateY(-2px); border-color: rgba(251,191,36,.45); }
+    .preset[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(251,191,36,.14), rgba(180,83,9,.08));
+      box-shadow: 0 6px 22px rgba(251,191,36,.22);
+    }
+    .preset[aria-checked="true"]::after{
+      content:'✓';
+      position:absolute; top:8px; right:10px;
+      width:22px; height:22px; border-radius:50%;
+      background: var(--ex-grad); color:#3a1d02;
+      font-size:.8rem; font-weight:900;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .preset .p-icon{ font-size: 1.6rem; line-height:1.2; }
+    .preset .p-name{ font-weight: 900; font-size: 1.05rem; margin-top:2px; }
+    .preset .p-desc{ font-size: .8rem; color: var(--text-secondary); font-weight:600; margin-top:2px; line-height:1.35; }
+    .custom-note{
+      display:none;
+      font-size:.85rem; font-weight:700; color: var(--gold);
+      margin: -8px 2px 0;
+    }
+    .custom-note.show{ display:block; }
+
+    /* --- Session length segmented control --- */
+    .seg{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .seg button{
+      padding: 13px 8px;
+      min-height: 52px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
+      font-weight: 800; font-size: 1rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .seg button:hover{ border-color: rgba(251,191,36,.45); }
+    .seg button[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(251,191,36,.16), rgba(180,83,9,.1));
     }
 
-    @media (max-width: 768px) {
-      .hud {
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-auto-flow: row;
-        gap: var(--space-1);
-        padding: var(--space-2);
-        padding-top: calc(var(--space-2) + 6px);
-      }
-      
-      .hud-value {
-        font-size: var(--font-size-base);
-      }
-      
-      .hud-label {
-        font-size: 11px;
-      }
-      
-      .controls {
-        grid-column: 1 / -1;
-        display: flex;
-        gap: var(--space-2);
-        justify-content: center;
-        margin-top: var(--space-1);
-      }
-      
-      .controls .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-      }
+    /* --- CTA block --- */
+    .cta-block{ display:grid; gap:10px; margin-top: 4px; }
+    .btn-start{
+      width:100%;
+      min-height: 64px;
+      border:none;
+      border-radius: var(--r-pill);
+      background: var(--ex-grad);
+      color: #2a1500;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: .01em;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(251,191,36,.35);
+      transition: transform .18s, box-shadow .18s, filter .18s;
+      display:flex; align-items:center; justify-content:center; gap:10px;
     }
-
-    .hud-group {
-      display: grid;
-      gap: var(--space-1);
-      text-align: center;
-    }
-
-    .hud-value {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-bold);
-      color: var(--brand-aqua);
-    }
-
-    .hud-label {
-      font-size: var(--font-size-xs);
+    .btn-start:hover{ transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 14px 38px rgba(251,191,36,.45); }
+    .btn-start:active{ transform: scale(.985); }
+    .cta-hint{
+      text-align:center;
+      font-size: .92rem; font-weight: 700;
       color: var(--text-secondary);
+      min-height: 1.3em;
     }
-
-    .timer-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--brand-aqua), rgba(111,211,245,.35));
-      transform-origin: left center;
-      transition: transform .1s linear;
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
+    .btn-practice{
+      justify-self: center;
+      background: none; border: none;
+      color: var(--good);
+      font-size: .95rem; font-weight: 800;
+      cursor: pointer;
+      padding: 10px 18px; min-height: 44px;
+      border-radius: var(--r-pill);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
+    .btn-practice:hover{ background: rgba(143,245,178,.1); }
 
-    .controls {
-      display: flex;
-      gap: var(--space-2);
-      justify-content: center;
-      flex-wrap: wrap;
+    /* --- How-it-works legend --- */
+    .legend{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-
-    .instructions {
-      text-align: center;
+    .legend-card{
+      display:flex; align-items:center; gap:10px;
+      padding: 11px 12px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      font-size: .82rem; font-weight: 700;
       color: var(--text-secondary);
-      margin: 0 0 var(--space-3);
-      font-size: var(--font-size-base);
-      padding: var(--space-3);
-      background-color: rgba(8, 15, 35, 0.7);
-      border-radius: var(--radius);
+      line-height: 1.3;
+    }
+    .legend-card strong{ color: var(--text); display:block; font-size:.88rem; }
+    .legend-icon{
+      width: 34px; height: 34px; border-radius: 10px;
+      flex-shrink: 0;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 18px;
+    }
+    .legend-icon.watch{
+      background: radial-gradient(circle at 30% 30%, rgba(251,191,36,.5), rgba(180,83,9,.25));
+      box-shadow: 0 0 12px rgba(251,191,36,.45);
+    }
+    .legend-icon.build{
+      background: radial-gradient(circle at 30% 30%, rgba(125,211,252,.5), rgba(2,132,199,.25));
+      box-shadow: 0 0 12px rgba(125,211,252,.45);
+    }
+    .legend-icon.streak{
+      background: radial-gradient(circle at 30% 30%, rgba(255,140,80,.5), rgba(200,80,30,.25));
+      box-shadow: 0 0 12px rgba(255,140,80,.45);
     }
 
-    #game-container {
-      position: relative;
-      display: grid;
-      gap: var(--space-4);
-      padding: var(--space-4);
-      background: rgba(0,0,0,0.15);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
+    /* --- Fine-tune (collapsible) --- */
+    details.customize{
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      padding: 0;
       overflow: hidden;
     }
-
-    #stars-container {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    /* Sequence Areas */
-    .sequence-area {
-      background: rgba(8, 15, 35, 0.4);
-      border: 2px solid rgba(111, 211, 245, 0.3);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      margin-bottom: var(--space-3);
-    }
-
-    .area-label {
-      font-size: var(--font-size-xs);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--brand-aqua);
-      margin-bottom: var(--space-2);
-      text-align: center;
-    }
-
-    .sequence-display {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-3);
-      min-height: 100px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: var(--radius);
-      border: 1px dashed rgba(111, 211, 245, 0.5);
-    }
-
-    #model-display.hidden {
-      opacity: 0.1;
-      filter: blur(4px);
-      transition: all 0.3s ease;
-    }
-
-    /* Sequence Pieces */
-    .sequence-piece {
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--brand-aqua));
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
+    details.customize summary{
+      list-style: none;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(111, 211, 245, 0.35);
-      transition: all var(--duration-fast) var(--easing);
+      padding: 16px 18px;
+      font-weight: 800;
+      font-size: 1rem;
+      display:flex; align-items:center; gap:10px;
+      min-height: 52px;
+    }
+    details.customize summary::-webkit-details-marker{ display:none; }
+    details.customize summary::after{
+      content:'▾';
+      margin-left:auto;
+      transition: transform .2s;
+      color: var(--text-muted);
+    }
+    details.customize[open] summary::after{ transform: rotate(180deg); }
+    details.customize .cz-body{
+      padding: 4px 18px 20px;
+      border-top: 1px solid var(--panel-border);
+      display:grid;
+      gap: 4px;
+    }
+    .cz-body h4{
+      margin: 16px 0 6px;
+      font-size: .82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing:.07em;
+      color: var(--text-muted);
+    }
+    .group{ margin-bottom: 12px; }
+    .label{ display:block; margin-bottom: 7px; font-weight: 800; font-size: .95rem; }
+    select, input[type="number"]{
+      width:100%;
+      padding: 12px;
+      min-height: 48px;
+      border-radius: 10px;
+      border:1.5px solid rgba(255,255,255,.2);
+      background: rgba(20,12,4,.8);
+      color:var(--text);
+      font-size:16px;
+      font-weight: 600;
+    }
+    select:focus, input[type="number"]:focus{
+      outline:none;
+      border-color: rgba(251,191,36,.9);
+      box-shadow: 0 0 0 2px rgba(251,191,36,.25);
+    }
+    .setting-help{
+      display:block;
+      color: var(--text-muted);
+      font-size: .82rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .toggle-row{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      gap: 12px;
+    }
+    .toggle-row:last-child{ border-bottom:none; }
+    .toggle-label{ font-size: .95rem; font-weight: 700; }
+    .toggle{
+      position:relative;
+      width: 52px; height: 30px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,.16);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+    }
+    .toggle.active{ background: var(--ex-a); }
+    .toggle::after{
+      content:'';
+      position:absolute; top:3px; left:3px;
+      width:24px; height:24px;
+      background:#fff; border-radius:50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+    .toggle.active::after{ transform: translateX(22px); }
+
+    /* =========================================================
+       2) PLAY SCREEN
+       ========================================================= */
+    #gameCol{ display:none; }
+    body.playing #gameCol{
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
+      z-index: 100;
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(180,110,20,.30), transparent 60%),
+        radial-gradient(900px 700px at 78% 68%, rgba(140,70,10,.28), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    }
+
+    /* --- HUD --- */
+    .hud{
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      align-items: center;
       position: relative;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      touch-action: manipulation;
+      padding: 14px 16px 10px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      background: rgba(28, 17, 4, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      flex-shrink: 0;
+    }
+    .timer-bar{
+      position:absolute;
+      top:0; left:0;
+      height: 6px;
+      width:100%;
+      background: var(--ex-grad);
+      border-radius: 0 3px 3px 0;
+      transition: width .1s linear;
+    }
+    .hud-group{ display:grid; gap:1px; text-align:center; }
+    .hud-value{
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 8px rgba(251,191,36,.6);
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+    .hud-label{
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+    }
+    .hud-value.stage{ color: var(--accent-2); text-shadow: 0 0 8px rgba(253,230,138,.5); }
+    .hud-value.streak-val{ color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,.6); }
+    .hud-value.new-pb{ animation: pbFlash .8s ease-in-out; }
+    @keyframes pbFlash{
+      0%,100%{ color: var(--accent); }
+      50%{ color: var(--gold); transform: scale(1.2); }
+    }
+    .controls{
+      display:flex; gap:10px; justify-content:center;
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+    .btn-ghost{
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,.18);
+      color: var(--text);
+      border-radius: var(--r-pill);
+      padding: 8px 22px;
+      min-height: 44px;
+      font-weight: 800;
+      font-size: .92rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-ghost:hover{ background: rgba(251,191,36,.1); border-color: rgba(251,191,36,.5); }
+
+    /* --- Stage / surface --- */
+    #game-container{
+      position:relative;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      background: rgba(0,0,0,.2);
+      overflow:hidden;
+    }
+    #stars-container{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+    #particles-container{ position:absolute; inset:0; pointer-events:none; z-index:5; }
+    @keyframes twinkle{
+      0%,100%{ opacity:.2; transform: scale(.8); }
+      50%{ opacity:1; transform: scale(1.2); }
     }
 
-    .sequence-piece:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(111, 211, 245, 0.6);
+    /* --- Status bar --- */
+    .status-bar{
+      position: relative;
+      z-index: 3;
+      display:flex; justify-content:center; align-items:center; gap:10px;
+      margin: 12px auto 0;
+      padding: 10px 22px;
+      width: min(520px, calc(94vw));
+      border-radius: var(--r-pill);
+      font-weight: 800;
+      font-size: 1.02rem;
+      min-height: 52px;
+      border: 2px solid var(--panel-border);
+      background: var(--panel);
+      transition: border-color .3s, background .3s, color .3s;
+      flex-shrink: 0;
+      text-align: center;
+    }
+    .status-bar.watching{
+      border-color: rgba(255,200,120,.65);
+      color: var(--warn);
+      background: linear-gradient(135deg, rgba(255,193,7,.14), rgba(255,152,0,.08));
+    }
+    .status-bar.your-turn{
+      border-color: rgba(143,245,178,.7);
+      color: var(--good);
+      background: linear-gradient(135deg, rgba(76,175,80,.16), rgba(56,142,60,.1));
+      animation: pulseGreen 1.6s ease-in-out infinite;
+    }
+    .status-bar.success{
+      border-color: rgba(143,245,178,.8);
+      color: var(--good);
+      background: linear-gradient(135deg, rgba(76,175,80,.24), rgba(56,142,60,.14));
+    }
+    .status-bar.oops{
+      border-color: rgba(255,180,120,.75);
+      color: var(--warn);
+      background: linear-gradient(135deg, rgba(255,150,60,.16), rgba(200,90,20,.08));
+    }
+    @keyframes pulseGreen{
+      0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,.35); }
+      50% { box-shadow: 0 0 0 8px rgba(76,175,80,0); }
+    }
+    .status-icon{ font-size: 1.3rem; flex-shrink:0; }
+    .progress-indicator{
+      font-size: .88rem;
+      opacity: .9;
+      font-variant-numeric: tabular-nums;
     }
 
-    .sequence-piece:active {
-      transform: scale(0.98);
+    /* --- Build area --- */
+    .play-wrap{
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 14px clamp(10px, 3vw, 22px) 18px;
+      overflow-y: auto;
     }
-
-    .sequence-piece:focus {
-      outline: 2px solid var(--brand-aqua);
-      outline-offset: 2px;
+    .seq-area{
+      width: min(640px, 96vw);
+      background: rgba(0,0,0,.22);
+      border: 1.5px solid rgba(251,191,36,.22);
+      border-radius: var(--r-md);
+      padding: 10px 12px 12px;
     }
-
-    .sequence-piece.selected {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(111, 211, 245, 0.9);
-      animation: selectedPulse 1s ease-in-out infinite;
+    .seq-area.your-area{ border-color: rgba(143,245,178,.3); }
+    .area-label{
+      font-size: .72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent-2);
+      text-align: center;
+      margin-bottom: 8px;
     }
-
-    @keyframes selectedPulse {
-      0%, 100% { box-shadow: 0 0 30px rgba(111, 211, 245, 0.9); }
-      50% { box-shadow: 0 0 40px rgba(111, 211, 245, 1); }
-    }
-
-    .sequence-piece.model {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), rgba(111, 211, 245, 0.7));
-      cursor: default;
-      transform: none;
-      box-shadow: 0 0 10px rgba(111, 211, 245, 0.25);
-    }
-
-    .sequence-piece.correct {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--success));
-      box-shadow: 0 0 15px var(--success);
-      animation: correctPulse 0.5s ease-out;
-    }
-
-    @keyframes correctPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
-
-    .sequence-piece.incorrect {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--error));
-      box-shadow: 0 0 15px var(--error);
-      animation: shake 0.4s ease;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-    }
-
-    .sequence-piece.placeholder {
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: none;
-      border: 2px dashed rgba(111, 211, 245, 0.5);
-      font-size: 0;
-    }
-
-    .sequence-piece.placeholder.next {
-      border-color: rgba(111, 211, 245, 0.8);
-      background: rgba(111, 211, 245, 0.12);
-      animation: nextPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes nextPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(111, 211, 245, 0.4); }
-      50% { box-shadow: 0 0 15px 3px rgba(111, 211, 245, 0.25); }
-    }
-
-    /* Pieces palette */
-    .pieces-area {
-      background: rgba(8, 15, 35, 0.4);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: var(--space-3);
-    }
-
-    .pieces-container {
+    .your-area .area-label{ color: var(--good); }
+    .palette-area .area-label{ color: var(--text-secondary); }
+    .seq-row{
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: var(--space-2);
-      padding: var(--space-2);
-    }
-
-    /* Status display */
-    .status-display {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: rgba(111, 211, 245, 0.08);
-      border: 1px solid rgba(111, 211, 245, 0.25);
-      border-radius: var(--radius);
-      padding: var(--space-2) var(--space-3);
-      margin: var(--space-3) 0;
-      font-size: var(--font-size-base);
+      gap: 8px;
+      min-height: 64px;
+    }
+    .seq-row.palette{ min-height: 56px; }
+
+    /* --- Sequence pieces --- */
+    .seq-piece{
+      --sz: clamp(46px, 11vw, 60px);
+      width: var(--sz);
+      height: var(--sz);
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(24px, 6vw, 30px);
+      cursor: pointer;
+      position: relative;
+      border: 2px solid rgba(255,255,255,.18);
+      background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95), var(--ex-a));
+      color: #2a1500;
+      box-shadow: 0 0 14px rgba(251,191,36,.3);
+      transition: transform .12s ease, box-shadow .16s ease, opacity .16s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .seq-piece:hover{ transform: translateY(-2px) scale(1.04); box-shadow: 0 0 20px rgba(251,191,36,.55); }
+    .seq-piece:active{ transform: scale(.97); }
+    .seq-piece.model{
+      background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.8), rgba(251,191,36,.62));
+      cursor: default;
+      box-shadow: 0 0 10px rgba(251,191,36,.22);
+    }
+    .seq-piece.model:hover{ transform:none; }
+    .seq-piece.placeholder{
+      background: rgba(255,255,255,.05);
+      border: 2px dashed rgba(143,245,178,.45);
+      box-shadow: none;
+      cursor: default;
+      color: transparent;
+    }
+    .seq-piece.placeholder.next{
+      border-color: rgba(143,245,178,.85);
+      background: rgba(143,245,178,.1);
+      animation: nextPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes nextPulse{
+      0%,100%{ box-shadow: 0 0 0 0 rgba(143,245,178,.4); }
+      50%{ box-shadow: 0 0 14px 3px rgba(143,245,178,.3); }
+    }
+    .seq-piece.filled{
+      background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95), #7dd3fc);
+      border-color: rgba(125,211,252,.6);
+      box-shadow: 0 0 14px rgba(125,211,252,.4);
+      color: #052a3a;
+      cursor: pointer;
+      animation: placePop .25s ease;
+    }
+    @keyframes placePop{
+      0%{ transform: scale(.6); opacity:.4; }
+      60%{ transform: scale(1.12); }
+      100%{ transform: scale(1); opacity:1; }
+    }
+    .seq-piece.correct{
+      background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95), #4caf50);
+      border-color: #8ff5b2;
+      box-shadow: 0 0 18px rgba(76,175,80,.7);
+      color: #04240f;
+      animation: correctPulse .5s ease-out;
+    }
+    @keyframes correctPulse{
+      0%{ transform: scale(1); } 50%{ transform: scale(1.16); } 100%{ transform: scale(1); }
+    }
+    .seq-piece.incorrect{
+      background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95), #ff7a59);
+      border-color: #ffb199;
+      box-shadow: 0 0 16px rgba(255,107,107,.6);
+      color: #3a0d00;
+      animation: shake .4s ease;
+    }
+    @keyframes shake{
+      0%,100%{ transform: translateX(0); }
+      25%{ transform: translateX(-5px); } 50%{ transform: translateX(5px); } 75%{ transform: translateX(-4px); }
+    }
+    /* Concealed target (memory mode): pieces flip to a face-down "?" back */
+    .seq-row.concealed .seq-piece.model{
+      background: linear-gradient(145deg, rgba(60,38,8,.95), rgba(40,24,4,.95));
+      color: transparent;
+      border-color: rgba(251,191,36,.4);
+      box-shadow: inset 0 0 14px rgba(251,191,36,.12);
+    }
+    .seq-row.concealed .seq-piece.model::after{
+      content: '?';
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(22px, 5.5vw, 28px);
+      font-weight: 900;
+      color: rgba(251,191,36,.7);
     }
 
-    .current-step {
-      color: var(--brand-aqua);
-      font-weight: var(--font-weight-bold);
+    /* --- Play actions --- */
+    .play-actions{
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+      width: min(640px, 96vw);
+      margin-top: 2px;
     }
+    .btn-check{
+      flex: 1 1 auto;
+      min-height: 52px;
+      max-width: 320px;
+      border:none;
+      border-radius: var(--r-pill);
+      background: rgba(143,245,178,.18);
+      border: 2px solid rgba(143,245,178,.4);
+      color: var(--good);
+      font-size: 1.05rem; font-weight: 900;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .2s, background .2s, opacity .2s;
+    }
+    .btn-check:disabled{ opacity:.45; cursor:not-allowed; }
+    .btn-check.ready{
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
+      border-color: #8ff5b2;
+      color: #fff;
+      box-shadow: 0 0 22px rgba(76,175,80,.5);
+      animation: checkReady 1.5s ease-in-out infinite;
+    }
+    @keyframes checkReady{
+      0%,100%{ box-shadow: 0 0 0 0 rgba(76,175,80,.45); }
+      50%{ box-shadow: 0 0 0 7px rgba(76,175,80,0); }
+    }
+    .btn-clear{
+      flex: 0 0 auto;
+      min-height: 52px;
+      border: 1.5px solid rgba(255,255,255,.2);
+      background: transparent;
+      color: var(--text);
+      border-radius: var(--r-pill);
+      padding: 0 22px;
+      font-weight: 800; font-size: .95rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-clear:hover{ background: rgba(251,191,36,.1); border-color: rgba(251,191,36,.5); }
 
-    /* Feedback message */
-    .feedback-message {
+    /* --- Success message --- */
+    .success-message{
       position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 22, 41, 0.95);
-      border: 2px solid var(--brand-aqua);
-      border-radius: var(--radius-lg);
-      padding: var(--space-3) var(--space-4);
-      color: var(--text-primary);
-      font-weight: var(--font-weight-semibold);
-      text-align: center;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow-lg);
+      top: 42%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(24px, 5vw, 34px);
+      font-weight: 900;
+      color: var(--good);
+      text-shadow: 0 0 20px rgba(76,175,80,.8);
       opacity: 0;
-      transition: opacity var(--duration-fast) var(--easing);
       pointer-events: none;
-      font-size: var(--font-size-base);
+      z-index: 8;
+      white-space: nowrap;
+    }
+    .success-message.show{ animation: successPop 1s ease-out forwards; }
+    @keyframes successPop{
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-34px); }
     }
 
-    .feedback-message:not(.hidden) {
-      opacity: 1;
+    /* --- Notifications --- */
+    .notification-queue{
+      position:fixed;
+      top:14%; left:50%;
+      transform: translateX(-50%);
+      display:flex; flex-direction:column; align-items:center;
+      gap:12px;
+      pointer-events:none;
+      z-index:15;
     }
-
-    .feedback-message.success {
-      border-color: var(--success);
-      color: var(--success);
+    .game-notification{
+      padding: 12px 28px;
+      border-radius: var(--r-md);
+      font-weight: 900;
+      text-align:center;
+      pointer-events:none;
+      animation: notificationSlide 1.8s ease-out forwards;
+      white-space: nowrap;
     }
-
-    .feedback-message.error {
-      border-color: var(--error);
-      color: var(--error);
+    .game-notification.achievement{
+      font-size:18px; color: var(--gold);
+      text-shadow: 0 0 10px rgba(255,215,0,.6);
+      background: linear-gradient(135deg, rgba(255,215,0,.2), rgba(255,165,0,.15));
+      border: 2px solid var(--gold);
     }
-
-    /* Completion modal */
-    .completion {
-      position: fixed;
-      inset: 50% auto auto 50%;
-      transform: translate(-50%, -50%) scale(1);
-      max-width: 90%;
-      width: 560px;
-      z-index: 1100;
-      text-align: center;
-      display: none;
+    .game-notification.stage{
+      font-size:24px; color: var(--accent-2);
+      text-shadow: 0 0 16px rgba(253,230,138,.8);
+      background: linear-gradient(135deg, rgba(251,191,36,.22), rgba(180,83,9,.12));
+      border: 2px solid var(--ex-a);
     }
-
-    .completion.show {
-      display: block;
-      animation: pop 0.25s ease;
+    .game-notification.newpb{
+      font-size:24px; color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,215,0,.9);
+      background: linear-gradient(135deg, rgba(255,215,0,.25), rgba(255,165,0,.2));
+      border: 2px solid var(--gold);
     }
-
-    @keyframes pop {
-      from {
-        transform: translate(-50%, -50%) scale(0.95);
-        opacity: 0.6;
-      }
-      to {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-    }
-
-    .score-highlight {
-      color: var(--brand-aqua);
-      font-weight: var(--font-weight-bold);
-    }
-
-    .celebrate {
-      animation: celebrate 900ms ease-out 1;
-    }
-
-    @keyframes celebrate {
-      0% { box-shadow: 0 0 0 rgba(111,211,245,0); }
-      40% { box-shadow: 0 0 40px rgba(111,211,245,.8); }
-      100% { box-shadow: 0 0 20px rgba(111,211,245,.2); }
-    }
-
-    .memory-timer {
-      color: var(--brand-aqua);
-      font-weight: var(--font-weight-bold);
-      text-align: center;
-      margin-top: var(--space-2);
-      display: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .sequence-piece.selected,
-      .sequence-piece.correct,
-      .sequence-piece.incorrect,
-      .celebrate { 
-        animation: none; 
-      }
-    }
-
-    @media (max-width: 768px) {
-      .sequence-piece {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-      }
-
-      .settings-panel {
-        padding: var(--space-3);
-        margin: var(--space-2);
-      }
-
-      .page {
-        padding: var(--space-2);
-      }
-    }
-
-    /* ===== Session-complete medal (matches other games) ===== */
-    .medal {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; margin: 4px 0 14px;
-      padding: 14px 18px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.08);
-      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
-    }
-    .medal-disc {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; flex-shrink: 0;
-      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
-    }
-    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
-    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
-    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
-    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
-    .medal-text { text-align: left; line-height: 1.25; }
-    .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
-    .medal-tier.bronze   { color: #f3a872; }
-    .medal-tier.silver   { color: #e8eef6; }
-    .medal-tier.gold     { color: #ffd700; }
-    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
-    .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-    @keyframes medalReveal {
-      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
-      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
-      100% { opacity: 1; transform: scale(1) rotate(0); }
-    }
-
-    /* ===== Per-session insight callout ===== */
-    .session-insight {
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 0 14px; padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(111,211,245,.10);
-      border-left: 4px solid rgba(111,211,245,.65);
-      color: #e7f6ff;
-      font-size: 14px; line-height: 1.4;
-      text-align: left;
-    }
-    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
-    .session-insight .ins-text strong { color: #bfe6ff; }
-
-    /* ===== Streak milestone toast + particles ===== */
-    .streak-milestone-toast {
-      position: fixed; top: 18%; left: 50%;
-      transform: translate(-50%, -20px) scale(.6);
-      padding: 14px 32px; border-radius: 14px;
-      font-size: 32px; font-weight: 900;
-      color: #ffd700;
+    .game-notification.streak-milestone{
+      font-size:30px; color: var(--gold);
       text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
       background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
-      border: 3px solid #ffd700;
+      border: 3px solid var(--gold);
       box-shadow: 0 0 40px rgba(255,215,0,.45);
-      z-index: 1300;
-      pointer-events: none;
-      white-space: nowrap;
       animation: streakSlide 2.4s ease-out forwards;
     }
-    @keyframes streakSlide {
-      0% { opacity: 0; transform: translate(-50%, -30px) scale(.6); }
-      15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
-      30% { transform: translate(-50%, 0) scale(1); }
-      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -12px) scale(.95); }
+    @keyframes streakSlide{
+      0%{ opacity:0; transform: translateY(-30px) scale(.6); }
+      15%{ opacity:1; transform: translateY(0) scale(1.15); }
+      30%{ transform: translateY(0) scale(1); }
+      80%{ opacity:1; transform: translateY(0) scale(1); }
+      100%{ opacity:0; transform: translateY(-12px) scale(.95); }
     }
-    .streak-burst-container { position: fixed; inset: 0; pointer-events: none; z-index: 1299; }
-    .streak-burst {
-      position: absolute; width: 8px; height: 8px;
-      border-radius: 50%; pointer-events: none;
+    @keyframes notificationSlide{
+      0%{ opacity:0; transform: translateY(-20px) scale(.8); }
+      15%{ opacity:1; transform: translateY(0) scale(1.05); }
+      25%{ transform: translateY(0) scale(1); }
+      75%{ opacity:1; transform: translateY(0) scale(1); }
+      100%{ opacity:0; transform: translateY(-10px) scale(.95); }
+    }
+    .streak-burst{
+      position:absolute;
+      width:8px; height:8px; border-radius:50%;
+      pointer-events:none;
       will-change: transform, opacity;
     }
-    @keyframes streakBurst {
-      0% { opacity: 1; transform: translate(0,0) scale(1); }
-      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    @keyframes streakBurst{
+      0%{ opacity:1; transform: translate(0,0) scale(1); }
+      100%{ opacity:0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    }
+
+    /* --- Countdown --- */
+    .countdown-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      z-index:300;
+    }
+    .countdown-number{
+      font-size:180px; font-weight:900;
+      color: var(--accent);
+      text-shadow: 0 0 60px rgba(251,191,36,.8);
+      animation: countdownPop .8s ease-out;
+    }
+    .countdown-go{
+      font-size:100px;
+      color: var(--good);
+      text-shadow: 0 0 60px rgba(143,245,178,.8);
+    }
+    @keyframes countdownPop{
+      0%{ transform: scale(2); opacity:0; }
+      30%{ transform: scale(1); opacity:1; }
+      100%{ transform: scale(.8); opacity:0; }
+    }
+
+    /* --- Pause overlay --- */
+    .pause-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(12,7,2,.78);
+      backdrop-filter: blur(10px);
+      z-index:250;
+    }
+    .pause-overlay[hidden]{ display:none; }
+    .pause-card{
+      text-align:center;
+      padding: 34px 40px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.5);
+    }
+    .pause-card h2{ margin:0 0 6px; font-size:1.8rem; font-weight:900; }
+    .pause-card p{ margin:0 0 18px; color: var(--text-secondary); font-weight:600; }
+    .pause-card .btn-start{ min-height: 54px; font-size: 1.1rem; padding: 0 34px; width:auto; margin: 0 auto 10px; }
+    .pause-card .btn-ghost{ display:block; margin: 0 auto; }
+
+    /* =========================================================
+       3) SESSION COMPLETE
+       ========================================================= */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      z-index:200;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
+    }
+    .modal.open{ display:flex; }
+    .modal .card{
+      width:min(580px, 94vw);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      padding:26px;
+      animation: modalSlideIn .3s ease-out;
+      max-height: 92vh;
+      overflow-y:auto;
+    }
+    .modal h2{ font-weight: 900; letter-spacing:-.01em; }
+    @keyframes modalSlideIn{
+      from{ opacity:0; transform: translateY(-20px) scale(.95); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+    .medal{
+      display:flex; align-items:center; justify-content:center;
+      gap:14px;
+      margin:4px 0 14px;
+      padding:14px 18px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc{
+      width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; flex-shrink:0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze{ background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver{ background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold{ background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum{ background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text{ text-align:left; line-height:1.25; }
+    .medal-tier{ font-size:18px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; }
+    .medal-tier.bronze{ color:#f3a872; }
+    .medal-tier.silver{ color:#e8eef6; }
+    .medal-tier.gold{ color:#ffd700; }
+    .medal-tier.platinum{ color:#b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption{ font-size:13px; color: var(--text-secondary); margin-top:2px; }
+    @keyframes medalReveal{
+      0%{ opacity:0; transform: scale(.6) rotate(-8deg); }
+      60%{ opacity:1; transform: scale(1.05) rotate(2deg); }
+      100%{ opacity:1; transform: scale(1) rotate(0); }
+    }
+    .earn-chip{
+      display:none;
+      align-items:center; justify-content:center;
+      gap:8px;
+      margin: 0 0 14px;
+      padding: 11px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(251,191,36,.16), rgba(180,83,9,.1));
+      border: 1px solid rgba(251,191,36,.4);
+      font-weight: 800;
+      font-size: .95rem;
+      color: #ffe9b3;
+      text-align:center;
+    }
+    .session-insight{
+      display:flex; align-items:center; gap:10px;
+      margin:0 0 14px;
+      padding:12px 14px;
+      border-radius: var(--r-md);
+      background: rgba(251,191,36,.10);
+      border-left: 4px solid rgba(251,191,36,.65);
+      color:#fdf0d6;
+      font-size:14px;
+      line-height:1.4;
+    }
+    .session-insight .ins-icon{ font-size:20px; flex-shrink:0; }
+    .session-insight .ins-text strong{ color:#ffe0a8; }
+    .final-metrics{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .metric{
+      flex:1 1 auto;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r-md);
+      background: rgba(251,191,36,.08);
+      min-width:90px;
+    }
+    .metric .v{
+      font-weight:900; font-size:22px;
+      color:#ffe0a8;
+      text-shadow: 0 0 6px rgba(251,191,36,.5);
+      line-height:1.1;
+    }
+    .metric .t{
+      font-size:11px;
+      font-weight:700;
+      text-transform: uppercase;
+      letter-spacing:.05em;
+      margin-top:4px;
+      color: var(--text-secondary);
+    }
+    .improvement{
+      display:inline-flex; align-items:center; gap:4px;
+      padding:4px 10px;
+      border-radius: var(--r-pill);
+      font-size:13px; font-weight:700;
+      margin-left:8px;
+    }
+    .improvement.positive{ background: rgba(143,245,178,.15); color: var(--good); }
+    .improvement.negative{ background: rgba(255,107,107,.15); color:#ff6b6b; }
+    .improvement.neutral{ background: rgba(255,255,255,.1); color: var(--text-secondary); }
+    .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .modal-actions .btn-start{ min-height: 52px; font-size:1.05rem; flex:1; }
+    .modal-actions .btn-ghost{ flex:1; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+
+    /* =========================================================
+       Responsive
+       ========================================================= */
+    @media (max-width: 700px){
+      #welcome{ padding: 16px 12px 56px; }
+      .hero-card{ padding: 26px 16px 24px; }
+      .stats-strip{ grid-template-columns: repeat(2, 1fr); }
+      .presets{ grid-template-columns: 1fr; }
+      .preset{ min-height:0; display:flex; align-items:center; gap:12px; text-align:left; padding:13px 16px; }
+      .preset .p-icon{ font-size:1.5rem; }
+      .preset .p-name{ margin-top:0; }
+      .preset > div{ flex:1; }
+      .legend{ grid-template-columns: 1fr; }
+      .hud{
+        grid-template-columns: repeat(3, 1fr);
+        gap:8px;
+        padding:12px 12px 8px;
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      }
+      .hud-value{ font-size:20px; }
+      .hud-label{ font-size:10px; }
+      .controls .btn-ghost{ padding:8px 16px; font-size:14px; min-height:40px; }
+      .status-bar{ font-size:.92rem; min-height:48px; padding:8px 16px; }
+      .game-notification.stage{ font-size:20px; }
+      .game-notification.achievement{ font-size:16px; }
+      .game-notification.newpb{ font-size:20px; }
+      .game-notification.streak-milestone{ font-size:24px; }
+      .countdown-number{ font-size:120px; }
+      .countdown-go{ font-size:70px; }
+      header .progress-link .pl-text{ display:none; }
     }
   </style>
-  <!-- Unified game chrome -->
-  <link rel="stylesheet" href="/css/game-shell.css">
+
   <script src="/js/fpr-native.js" defer></script>
   <script src="/js/fpr-reminders.js" defer></script>
+  <!-- Engagement layer (points / level / daily challenge). Relative path works
+       in test-redesign AND after promote (exercises/../js/ -> /js/). -->
+  <script src="../js/fpr-engagement.js" defer></script>
 </head>
-
 <body class="game-page">
-  <header class="site-header">
-    <div class="inner">
-      <a class="btn btn-secondary" href="../" aria-label="Go to Home">← Home</a>
-      <h1>Sequence Builder</h1>
-    </div>
+  <header class="app" role="banner" aria-label="Exercise header">
+    <a class="home" href="../" aria-label="Back to home">← Home</a>
+    <h1><span aria-hidden="true">🧩</span> Sequence Builder</h1>
+    <span class="spacer"></span>
+    <a class="progress-link" href="../dashboard.html"><span aria-hidden="true">📊</span> <span class="pl-text">My Progress</span></a>
   </header>
 
-  <main class="page">
-    <!-- Settings Screen -->
-    <aside class="settings-panel panel active" data-screen="settings">
-      <h2>Settings</h2>
+  <!-- =================== 1) WELCOME SCREEN =================== -->
+  <main id="welcome" aria-label="Get ready to play">
 
-      <div class="game-description">
-        <p>
-          Build cognitive sequences by recreating target patterns. Improves sequential processing,
-          working memory, and executive planning. Study the pattern, then recreate it step by step.
-        </p>
+    <section class="hero-card">
+      <div class="ambient" aria-hidden="true">
+        <span>🧩</span><span>🔶</span><span>⭐</span><span>🔷</span><span>✨</span><span>🔸</span>
       </div>
+      <div class="hero-icon" aria-hidden="true">🧩</div>
+      <h2 class="hero-title">Ready to rebuild the pattern?</h2>
+      <p class="hero-tagline">Study the order, then recreate it piece by piece — a calm workout for memory, sequencing and finger control.</p>
+      <div class="skill-chips" aria-label="Skills trained">
+        <span>Memory</span><span>Sequencing</span><span>Planning</span>
+      </div>
+    </section>
 
-      <!-- Personal Best display -->
-      <div class="stats-row">
-        <div class="metric-settings">
-          <div id="pb-settings" class="pb-value">0</div>
-          <div class="pb-label">Personal Best</div>
+    <section class="stats-strip" aria-label="Your stats">
+      <div class="stat-chip">
+        <div id="pbSettings" class="num">0</div>
+        <div class="lbl">Personal best</div>
+      </div>
+      <div class="stat-chip">
+        <div id="lastScoreSettings" class="num">–</div>
+        <div class="lbl">Last score</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statStreak" class="num">🔥 0</div>
+        <div class="lbl">Day streak</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statLevel" class="num">1</div>
+        <div class="lbl">Your level</div>
+      </div>
+    </section>
+
+    <div id="challengeChip" class="challenge-chip" role="status">
+      <span class="ch-icon" aria-hidden="true">⭐</span>
+      <span id="challengeText"></span>
+    </div>
+
+    <p class="pick-label" id="presetLabel">Choose your pace</p>
+    <div class="presets" role="radiogroup" aria-labelledby="presetLabel">
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="gentle">
+        <span class="p-icon" aria-hidden="true">🌊</span>
+        <div>
+          <div class="p-name">Gentle</div>
+          <div class="p-desc">Short patterns, always in view</div>
         </div>
-      </div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="steady">
+        <span class="p-icon" aria-hidden="true">✨</span>
+        <div>
+          <div class="p-name">Steady</div>
+          <div class="p-desc">Memorize, then rebuild</div>
+        </div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="swift">
+        <span class="p-icon" aria-hidden="true">⚡</span>
+        <div>
+          <div class="p-name">Swift</div>
+          <div class="p-desc">Longer patterns from memory</div>
+        </div>
+      </button>
+    </div>
+    <p id="customNote" class="custom-note">Custom settings active — chosen in Fine-tune below.</p>
 
-      <div class="settings-group">
-        <label class="settings-label" for="sequence-type">Sequence Type</label>
-        <select id="sequence-type">
-          <option value="pattern" selected>Pattern — Symbols & shapes</option>
-          <option value="assembly">Assembly — Building blocks</option>
-          <option value="numerical">Numerical — Math sequences</option>
-          <option value="spatial">Spatial — Directional movement</option>
-        </select>
-        <small class="setting-help">Different types challenge different cognitive skills.</small>
-      </div>
+    <p class="pick-label" id="lengthLabel">Session length</p>
+    <div class="seg" role="radiogroup" aria-labelledby="lengthLabel">
+      <button type="button" role="radio" aria-checked="false" data-min="2">2 min</button>
+      <button type="button" role="radio" aria-checked="true" data-min="3">3 min</button>
+      <button type="button" role="radio" aria-checked="false" data-min="5">5 min</button>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="difficulty-select">Difficulty</label>
-        <select id="difficulty-select">
-          <option value="easy">Easy — 3-4 steps, simple patterns</option>
-          <option value="medium" selected>Medium — 5-6 steps, moderate complexity</option>
-          <option value="hard">Hard — 7-8 steps, complex patterns</option>
-        </select>
-        <small class="setting-help">Higher difficulty increases sequence length and distractors.</small>
-      </div>
+    <div class="cta-block">
+      <button id="startBtn" class="btn-start" type="button">
+        <span aria-hidden="true">▶</span> Start session
+      </button>
+      <div id="ctaHint" class="cta-hint"></div>
+      <button id="practiceBtn" class="btn-practice" type="button">
+        Or warm up in Practice mode — no timer, no pressure
+      </button>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="show-completed">Model Visibility</label>
-        <select id="show-completed">
-          <option value="always">Always Visible — reference available</option>
-          <option value="initially" selected>Initially Visible — memory challenge</option>
-          <option value="never">Never Visible — maximum challenge</option>
-        </select>
-        <small class="setting-help">Controls how long the target pattern remains visible.</small>
+    <p class="pick-label">How it works</p>
+    <div class="legend" aria-label="How the game works">
+      <div class="legend-card">
+        <div class="legend-icon watch" aria-hidden="true">👀</div>
+        <div><strong>Study the pattern</strong> Take in the order of the target pieces.</div>
       </div>
+      <div class="legend-card">
+        <div class="legend-icon build" aria-hidden="true">🧩</div>
+        <div><strong>Rebuild it</strong> Tap the matching pieces to recreate the sequence.</div>
+      </div>
+      <div class="legend-card">
+        <div class="legend-icon streak" aria-hidden="true">🔥</div>
+        <div><strong>Build a streak</strong> Nail patterns in a row for bonus points and new stages.</div>
+      </div>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
-        <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
-        <small class="setting-help">1—10 minutes recommended.</small>
+    <details class="customize" id="customize">
+      <summary><span aria-hidden="true">⚙️</span> Fine-tune <span style="font-weight:600; color:var(--text-muted); font-size:.85rem;">— pattern type, difficulty, memory, accessibility</span></summary>
+      <div class="cz-body">
+
+        <h4>Session</h4>
+        <div class="group">
+          <label class="label" for="dur">Custom duration (minutes)</label>
+          <input id="dur" type="number" min="1" step="1" max="10" value="3" inputmode="numeric" />
+          <small class="setting-help">1–10 minutes. The quick picks above set this for you.</small>
+        </div>
+
+        <h4>Pattern</h4>
+        <div class="group">
+          <label class="label" for="seqType">Sequence type</label>
+          <select id="seqType">
+            <option value="pattern">Patterns — symbols &amp; shapes</option>
+            <option value="assembly">Assembly — building blocks</option>
+            <option value="numerical">Numbers — counting &amp; math</option>
+            <option value="spatial">Spatial — arrows &amp; directions</option>
+          </select>
+          <small class="setting-help">Each type trains a slightly different skill. Mix them up over time.</small>
+        </div>
+        <div class="group">
+          <label class="label" for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy — 3–4 pieces, few distractors</option>
+            <option value="medium">Medium — 5–6 pieces</option>
+            <option value="hard">Hard — 7–8 pieces, more distractors</option>
+          </select>
+          <small class="setting-help">Sets how long each pattern is and how many extra pieces sit in the tray.</small>
+        </div>
+        <div class="group">
+          <label class="label" for="model">Memory challenge</label>
+          <select id="model">
+            <option value="always">Always visible — reference stays in view</option>
+            <option value="initially">Memorize, then hide — a memory workout</option>
+            <option value="never">Quick look — hides almost at once</option>
+          </select>
+          <small class="setting-help">How long the target pattern stays on screen before you rebuild it.</small>
+        </div>
+
+        <h4>Game options</h4>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblStages">Progressive stages</span>
+          <button type="button" id="toggleStages" class="toggle active" onclick="toggleSwitch(this)" data-setting="stages" role="switch" aria-checked="true" aria-labelledby="lblStages"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Patterns grow a little longer as you complete more — a gentle ramp that keeps it interesting.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblSound">Sound effects</span>
+          <button type="button" id="toggleSound" class="toggle active" onclick="toggleSwitch(this)" data-setting="sound" role="switch" aria-checked="true" aria-labelledby="lblSound"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Each piece you place plays a rising note — a helpful cue for memory.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblHaptic">Haptic feedback</span>
+          <button type="button" id="toggleHaptic" class="toggle active" onclick="toggleSwitch(this)" data-setting="haptic" role="switch" aria-checked="true" aria-labelledby="lblHaptic"></button>
+        </div>
+
+        <h4>Accessibility</h4>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblContrast">High contrast mode</span>
+          <button type="button" id="toggleContrast" class="toggle" onclick="toggleSwitch(this)" data-setting="highContrast" role="switch" aria-checked="false" aria-labelledby="lblContrast"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Black background with bright, high-contrast pieces and outlines.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblReduceMotion">Reduce motion</span>
+          <button type="button" id="toggleMotion" class="toggle" onclick="toggleSwitch(this)" data-setting="reducedMotion" role="switch" aria-checked="false" aria-labelledby="lblReduceMotion"></button>
+        </div>
+        <small class="setting-help">Calms animations and particle effects. Follows your device setting automatically.</small>
+
+      </div>
+    </details>
+  </main>
+
+  <!-- =================== 2) PLAY SCREEN =================== -->
+  <section id="gameCol" aria-label="Game">
+    <div class="hud" role="region" aria-label="In-game scoreboard">
+      <div class="timer-bar" id="timer-bar"></div>
+
+      <div class="hud-group">
+        <div id="score" class="hud-value">0</div>
+        <div class="hud-label">Score</div>
+      </div>
+      <div class="hud-group">
+        <div id="stage" class="hud-value stage">1</div>
+        <div class="hud-label">Stage</div>
+      </div>
+      <div class="hud-group">
+        <div id="streak" class="hud-value streak-val">0</div>
+        <div class="hud-label">Streak</div>
+      </div>
+      <div class="hud-group">
+        <div id="built" class="hud-value">0</div>
+        <div class="hud-label">Built</div>
+      </div>
+      <div class="hud-group">
+        <div id="pb" class="hud-value">0</div>
+        <div class="hud-label">Best</div>
+      </div>
+      <div class="hud-group">
+        <div id="time" class="hud-value">00:00</div>
+        <div class="hud-label">Time left</div>
       </div>
 
       <div class="controls">
-        <button id="start-session" class="btn btn-primary">Start</button>
-        <button id="restart-session" class="btn">Restart</button>
-      </div>
-    </aside>
-
-    <!-- Game Screen -->
-    <section class="right-col" data-screen="game">
-      <!-- HUD Row -->
-      <div class="hud panel">
-        <div class="timer-bar" id="timer-bar"></div>
-
-        <div class="hud-group">
-          <div id="hud-score" class="hud-value">0</div>
-          <div class="hud-label">Score</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-pb" class="hud-value">0</div>
-          <div class="hud-label">Personal Best</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-correct" class="hud-value">0</div>
-          <div class="hud-label">Completed</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-time" class="hud-value">3:00</div>
-          <div class="hud-label">Time Left</div>
-        </div>
-
-        <div class="controls">
-          <button id="pause-session" class="btn btn-secondary">Pause</button>
-          <button id="end-session" class="btn">End</button>
-        </div>
-      </div>
-
-      <!-- Game Area -->
-      <div class="panel" id="game-container">
-        <div id="stars-container"></div>
-
-        <p class="instructions" id="instructions">
-          Study the target pattern, then recreate it by selecting pieces below.
-        </p>
-
-        <!-- Target Pattern Area -->
-        <div class="sequence-area" id="model-area">
-          <div class="area-label">Target Pattern</div>
-          <div class="sequence-display" id="model-display"></div>
-          <div class="memory-timer" id="memory-timer"></div>
-        </div>
-
-        <!-- User Sequence Area -->
-        <div class="sequence-area" id="user-area">
-          <div class="area-label">Your Sequence</div>
-          <div class="sequence-display" id="user-sequence"></div>
-          
-          <div class="status-display">
-            <span id="status-text">Select a piece below to place</span>
-            <span class="current-step">Step: <span id="current-step-display">1</span>/<span id="total-steps">5</span></span>
-          </div>
-        </div>
-
-        <!-- Available Pieces -->
-        <div class="pieces-area">
-          <div class="area-label">Available Pieces</div>
-          <div class="pieces-container" id="pieces-container"></div>
-        </div>
-
-        <div class="controls">
-          <button id="check-button" class="btn btn-primary" disabled>Check Sequence</button>
-          <button id="reset-button" class="btn btn-secondary">Clear All</button>
-        </div>
-
-        <div class="feedback-message hidden" id="feedback-message" role="status" aria-live="polite"></div>
-      </div>
-    </section>
-  </main>
-
-  <div id="completion-message" class="completion panel">
-    <h2>Therapy Session Complete!</h2>
-    <div id="medal" class="medal" style="display:none;" aria-live="polite">
-      <div id="medalDisc" class="medal-disc"></div>
-      <div class="medal-text">
-        <div id="medalTier" class="medal-tier"></div>
-        <div id="medalCaption" class="medal-caption"></div>
+        <button id="pauseBtn" class="btn-ghost" type="button" aria-label="Pause session">Pause</button>
+        <button id="exitBtn" class="btn-ghost" type="button" aria-label="Exit session">Exit</button>
       </div>
     </div>
-    <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
-      <span class="ins-icon" id="insIcon">✨</span>
-      <span class="ins-text" id="insText"></span>
+
+    <div id="game-container">
+      <div id="stars-container" aria-hidden="true"></div>
+      <div id="particles-container" aria-hidden="true"></div>
+      <div id="notification-queue" class="notification-queue" aria-hidden="true"></div>
+
+      <div class="status-bar watching" id="statusBar" role="status">
+        <span class="status-icon" id="statusIcon" aria-hidden="true">👀</span>
+        <span id="statusText">Get ready...</span>
+        <span class="progress-indicator" id="progressIndicator"></span>
+      </div>
+
+      <div class="play-wrap">
+        <div class="success-message" id="successMessage">Perfect! 🎉</div>
+
+        <div class="seq-area target-area">
+          <div class="area-label">Target pattern</div>
+          <div class="seq-row" id="modelDisplay" aria-label="Target pattern"></div>
+        </div>
+
+        <div class="seq-area your-area">
+          <div class="area-label">Your sequence</div>
+          <div class="seq-row" id="userSequence" aria-label="Your sequence"></div>
+        </div>
+
+        <div class="seq-area palette-area">
+          <div class="area-label" id="paletteLabel">Tap a piece to place it</div>
+          <div class="seq-row palette" id="piecesContainer" role="group" aria-labelledby="paletteLabel"></div>
+        </div>
+
+        <div class="play-actions">
+          <button id="checkBtn" class="btn-check" type="button" disabled>Check ✓</button>
+          <button id="clearBtn" class="btn-clear" type="button">Clear</button>
+        </div>
+      </div>
     </div>
-    <div id="completion-scores">
-      <p>Sequences Completed: <span id="final-sequences" class="score-highlight">0</span></p>
-      <p>Success Rate: <span id="final-accuracy" class="score-highlight">0%</span></p>
-      <p>Cognitive Performance Score: <span id="final-score" class="score-highlight">0</span></p>
-      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
-    </div>
-    <div class="controls">
-      <button id="restart-button" class="btn btn-primary">Start New Therapy Session</button>
-      <button class="btn" id="close-complete">Close</button>
+  </section>
+
+  <!-- Pause overlay -->
+  <div id="pauseOverlay" class="pause-overlay" hidden role="dialog" aria-modal="true" aria-label="Paused">
+    <div class="pause-card">
+      <h2>Paused</h2>
+      <p>Take your time — the pattern will wait.</p>
+      <button id="resumeBtn" class="btn-start" type="button"><span aria-hidden="true">▶</span> Resume</button>
+      <button id="pauseExitBtn" class="btn-ghost" type="button">Exit session</button>
     </div>
   </div>
 
-
+  <!-- =================== 3) SESSION COMPLETE =================== -->
+  <div id="done" class="modal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneDesc">
+    <div class="card">
+      <h2 id="doneTitle" style="margin:0 0 8px 0;">Session complete! 🎉</h2>
+      <p id="doneDesc" style="margin:0 0 12px 0;">
+        <span id="resultMessage">Excellent work!</span>
+        <span id="improvementBadge"></span>
+      </p>
+      <div id="medal" class="medal" style="display:none;" aria-live="polite">
+        <div id="medalDisc" class="medal-disc"></div>
+        <div class="medal-text">
+          <div id="medalTier" class="medal-tier"></div>
+          <div id="medalCaption" class="medal-caption"></div>
+        </div>
+      </div>
+      <div id="earnChip" class="earn-chip" aria-live="polite"></div>
+      <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+        <span class="ins-icon" id="insIcon">✨</span>
+        <span class="ins-text" id="insText"></span>
+      </div>
+      <div class="final-metrics">
+        <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric"><div id="fBuilt" class="v">0</div><div class="t">Sequences</div></div>
+        <div class="metric"><div id="fAcc" class="v">0%</div><div class="t">Accuracy</div></div>
+        <div class="metric"><div id="fStreak" class="v">0</div><div class="t">Best streak</div></div>
+        <div class="metric"><div id="fStage" class="v">1</div><div class="t">Top stage</div></div>
+        <div class="metric"><div id="fTime" class="v">00:00</div><div class="t">Time played</div></div>
+      </div>
+      <div id="achievementsSummary" style="margin-bottom:12px; display:none;">
+        <h3 style="margin:0 0 8px 0; font-size:14px; color:var(--gold);">🏆 Achievements unlocked</h3>
+        <div id="achievementsList" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="restartSame" class="btn-ghost" type="button">↻ Play again</button>
+        <button id="newSession" class="btn-start" type="button">Adjust &amp; play</button>
+        <a class="btn-ghost" href="../" aria-label="Back to home" style="flex:0 0 auto;">Home</a>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Simple storage utility
-    const storage = {
-      get: (key, defaultValue) => {
-        try {
-          const item = localStorage.getItem(key);
-          return item ? JSON.parse(item) : defaultValue;
-        } catch {
-          return defaultValue;
-        }
-      },
-      set: (key, value) => {
-        try {
-          localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-          console.error('Storage error:', e);
-        }
-      }
+    // Global toggle helper (HTML uses onclick)
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      const active = el.classList.contains('active');
+      el.setAttribute('aria-checked', active ? 'true' : 'false');
+      const setting = el.dataset.setting;
+      if (setting === 'highContrast') document.body.classList.toggle('high-contrast', active);
+      if (setting === 'reducedMotion') document.body.classList.toggle('reduced-motion', active);
+    }
+  </script>
+
+  <script type="module">
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(text!=null) e.textContent = text;
+      return e;
     };
 
-    // Generate starfield
-    function generateStars(container, count = 150) {
-      if (!container) return;
-      container.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.style.position = 'absolute';
-        star.style.width = Math.random() * 3 + 'px';
-        star.style.height = star.style.width;
-        star.style.backgroundColor = 'white';
-        star.style.borderRadius = '50%';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.opacity = Math.random() * 0.8 + 0.2;
-        container.appendChild(star);
+    // DOM
+    const startBtn = $('#startBtn');
+    const practiceBtn = $('#practiceBtn');
+    const pauseBtn = $('#pauseBtn');
+    const exitBtn = $('#exitBtn');
+    const pauseOverlay = $('#pauseOverlay');
+    const resumeBtn = $('#resumeBtn');
+    const pauseExitBtn = $('#pauseExitBtn');
+    const timeEl = $('#time');
+    const scoreEl = $('#score');
+    const stageEl = $('#stage');
+    const streakEl = $('#streak');
+    const builtEl = $('#built');
+    const pbEl = $('#pb');
+    const pbSettingsEl = $('#pbSettings');
+    const lastScoreSettingsEl = $('#lastScoreSettings');
+    const statStreakEl = $('#statStreak');
+    const statLevelEl = $('#statLevel');
+    const challengeChip = $('#challengeChip');
+    const challengeText = $('#challengeText');
+    const ctaHint = $('#ctaHint');
+    const customNote = $('#customNote');
+    const timerBar = $('#timer-bar');
+    const statusBar = $('#statusBar');
+    const statusIcon = $('#statusIcon');
+    const statusText = $('#statusText');
+    const progressIndicator = $('#progressIndicator');
+    const successMessage = $('#successMessage');
+    const modelDisplay = $('#modelDisplay');
+    const userSequence = $('#userSequence');
+    const piecesContainer = $('#piecesContainer');
+    const paletteLabel = $('#paletteLabel');
+    const checkBtn = $('#checkBtn');
+    const clearBtn = $('#clearBtn');
+    const doneModal = $('#done');
+    const fScore = $('#fScore'), fBuilt = $('#fBuilt'), fAcc = $('#fAcc');
+    const fStreak = $('#fStreak'), fStage = $('#fStage'), fTime = $('#fTime');
+    const newSessionBtn = $('#newSession');
+    const restartSameBtn = $('#restartSame');
+    const starsContainer = $('#stars-container');
+    const particlesContainer = $('#particles-container');
+    const notificationQueue = $('#notification-queue');
+    const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
+    const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
+    const earnChip = $('#earnChip');
+    const resultMessage = $('#resultMessage');
+    const improvementBadge = $('#improvementBadge');
+    const achievementsSummary = $('#achievementsSummary');
+    const achievementsList = $('#achievementsList');
+
+    // Settings inputs
+    const durIn = $('#dur');
+    const typeSel = $('#seqType'), diffSel = $('#difficulty'), modelSel = $('#model');
+    const presetBtns = $$('.preset');
+    const segBtns = $$('.seg button');
+
+    // Storage & modules (graceful fallbacks)
+    const EXERCISE_ID = 'sequence';                 // recordSession id — do not change
+    const PB_KEY = 'sequence-builder:best';         // legacy raw key — do not change
+    const SESSIONS_KEY = 'sequence-builder:sessions';// legacy raw key — do not change
+    const storageFallback = {
+      get:(k, def)=>{ try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
+      set:(k,v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    let storage = storageFallback;
+    let recordSession = (id, diff, score)=>{}, checkAndUnlockAchievements = ()=>{}, markExerciseTried = ()=>{};
+    let initUtils = ()=>{};
+
+    try {
+      const u = await import('/js/utils.js');
+      storage = u.storage ?? storage;
+      initUtils = u.initUtils ?? initUtils;
+    } catch {}
+    try {
+      const p = await import('/js/progress.js');
+      recordSession = p.recordSession ?? recordSession;
+    } catch {}
+    try {
+      const a = await import('/js/achievements.js');
+      checkAndUnlockAchievements = a.checkAndUnlockAchievements ?? checkAndUnlockAchievements;
+      markExerciseTried = a.markExerciseTried ?? markExerciseTried;
+    } catch {}
+
+    try { initUtils?.(); } catch {}
+
+    // ===== Reduced motion =====
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('reduced-motion');
+        const t = document.getElementById('toggleMotion');
+        t?.classList.add('active');
+        t?.setAttribute('aria-checked', 'true');
+      }
+    } catch {}
+    const motionReduced = () => document.body.classList.contains('reduced-motion');
+
+    // ===== Settings helpers =====
+    function getToggle(id) {
+      return document.getElementById(id)?.classList.contains('active') ?? false;
+    }
+    function setToggle(id, on) {
+      const t = document.getElementById(id);
+      if (!t) return;
+      t.classList.toggle('active', !!on);
+      t.setAttribute('aria-checked', on ? 'true' : 'false');
+      const setting = t.dataset.setting;
+      if (setting === 'highContrast') document.body.classList.toggle('high-contrast', !!on);
+      if (setting === 'reducedMotion') document.body.classList.toggle('reduced-motion', !!on);
+    }
+
+    // ===== Sound engine (WebAudio — no audio files needed) =====
+    let actx = null;
+    function ac(){
+      if(!actx){
+        try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+      }
+      if(actx && actx.state === 'suspended') actx.resume().catch(()=>{});
+      return actx;
+    }
+    function tone(freq, dur = 0.12, type = 'sine', gain = 0.15, when = 0, slideTo = null){
+      const c = ac(); if(!c) return;
+      const t = c.currentTime + when;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(c.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    // A pentatonic ladder so placing pieces in order sounds like a rising scale
+    const PLACE_FREQS = [392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.50, 1174.66, 1318.51];
+    const sfx = {
+      select(){ tone(520, .05, 'sine', .10); },
+      place(pos){ tone(PLACE_FREQS[Math.min(pos, PLACE_FREQS.length-1)] || 440, .11, 'sine', .18); },
+      remove(){ tone(300, .07, 'sine', .10, 0, 220); },
+      correct(){ tone(523.25, .12, 'triangle', .16); tone(659.25, .12, 'triangle', .16, .1); tone(783.99, .2, 'triangle', .17, .2); },
+      quick(){ tone(1046.5, .08, 'triangle', .14); },
+      wrong(){ tone(196, .2, 'sine', .09, 0, 130); },
+      stageUp(){ tone(587, .12, 'triangle', .16); tone(740, .12, 'triangle', .16, .1); tone(988, .22, 'triangle', .17, .2); },
+      milestone(){ tone(587, .1, 'triangle', .15); tone(880, .18, 'triangle', .16, .1); },
+      tick(){ tone(700, .06, 'sine', .12); },
+      go(){ tone(880, .18, 'triangle', .18); },
+      fanfare(){ tone(523, .12, 'triangle', .16); tone(659, .12, 'triangle', .16, .12); tone(784, .12, 'triangle', .16, .24); tone(1047, .26, 'triangle', .18, .36); }
+    };
+    function playSfx(name, a){
+      if(!getToggle('toggleSound')) return;
+      try { sfx[name]?.(a); } catch {}
+    }
+    function haptic(type){
+      if(!getToggle('toggleHaptic')) return;
+      try { window.FPRNative?.haptic?.(type); } catch {}
+    }
+
+    // ===== Geometry & fullscreen =====
+    function setVH(){
+      document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px');
+    }
+    setVH();
+    addEventListener('resize', setVH);
+    addEventListener('orientationchange', setVH);
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    async function enterImmersive(){
+      document.body.classList.add('playing');
+      if (!isIOS) {
+        try { if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); } catch {}
+      }
+    }
+    async function exitImmersive(){
+      document.body.classList.remove('playing');
+      if (!isIOS) {
+        try { if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen(); } catch {}
       }
     }
 
-    // DOM elements
-    const starsContainer = document.getElementById('stars-container');
-    const timerBarEl = document.getElementById('timer-bar');
-    const hudScore = document.getElementById('hud-score');
-    const hudPB = document.getElementById('hud-pb');
-    const pbSettingsEl = document.getElementById('pb-settings');
-    const hudCorrect = document.getElementById('hud-correct');
-    const hudTime = document.getElementById('hud-time');
-    const instructions = document.getElementById('instructions');
-    const modelDisplay = document.getElementById('model-display');
-    const userSequence = document.getElementById('user-sequence');
-    const piecesContainer = document.getElementById('pieces-container');
-    const memoryTimer = document.getElementById('memory-timer');
-    const statusText = document.getElementById('status-text');
-    const currentStepElement = document.getElementById('current-step-display');
-    const totalStepsElement = document.getElementById('total-steps');
-    const startBtn = document.getElementById('start-session');
-    const pauseBtn = document.getElementById('pause-session');
-    const restartBtn = document.getElementById('restart-session');
-    const checkBtn = document.getElementById('check-button');
-    const resetBtn = document.getElementById('reset-button');
-    const endBtn = document.getElementById('end-session');
-    const completionModal = document.getElementById('completion-message');
-    const finalSequencesEl = document.getElementById('final-sequences');
-    const finalAccuracyEl = document.getElementById('final-accuracy');
-    const finalScoreEl = document.getElementById('final-score');
-    const finalXPEl = document.getElementById('final-xp');
-    const completeClose = document.getElementById('close-complete');
-    const restartModalBtn = document.getElementById('restart-button');
-    const feedbackMessage = document.getElementById('feedback-message');
-    const sequenceTypeSelect = document.getElementById('sequence-type');
-    const difficultySelect = document.getElementById('difficulty-select');
-    const showCompletedSelect = document.getElementById('show-completed');
-    const sessionDurationInp = document.getElementById('session-duration');
-    const medalEl = document.getElementById('medal');
-    const medalDisc = document.getElementById('medalDisc');
-    const medalTier = document.getElementById('medalTier');
-    const medalCaption = document.getElementById('medalCaption');
-    const insightEl = document.getElementById('sessionInsight');
-    const insIcon = document.getElementById('insIcon');
-    const insText = document.getElementById('insText');
-
-    // Generate initial stars
-    generateStars(starsContainer, 150);
-
-    // Personal best tracking
-    const PB_KEY = 'sequence-builder:best';
-    const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
-    const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
-
-    function updatePersonalBest() {
-      const pb = getPB();
-      if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
-      if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
+    // ===== Notification queue =====
+    const NOTIFICATION_DURATION = 1800;
+    function showNotification(text, type = 'achievement') {
+      const n = el('div', `game-notification ${type}`, text);
+      notificationQueue.appendChild(n);
+      setTimeout(() => n.remove(), NOTIFICATION_DURATION + 700);
+    }
+    function showAchievement(key, text) {
+      if (sessionAchievements.includes(key)) return;
+      sessionAchievements.push(key);
+      showNotification(text, key === 'newPB' ? 'newpb' : 'achievement');
     }
 
-    // Game state
-    let isSessionActive = false;
-    let isPaused = false;
-    let sessionMs = 3 * 60 * 1000;
-    let timeRemaining = 0;
-    let timerInterval = null;
-    let memoryTimerInterval = null;
-    let score = 0;
-    let sequencesCompleted = 0;
-    let totalAttempts = 0;
-    let correctSequences = 0;
-    let currentSequenceIndex = 0;
-    let selectedPiece = null;
-    let sequences = [];
-    let currentSequence = [];
-    let availablePieces = [];
-    let userSteps = [];
-    let currentStepIndex = 0;
-    let modelVisible = true;
-    let streak = 0;
-    let bestStreak = 0;
+    // Clean-streak milestones — bigger celebration than a normal achievement
+    const STREAK_MILESTONES = [3, 5, 8, 12, 20];
     let firedStreakMilestones = new Set();
+    function checkStreakMilestone() {
+      if (!STREAK_MILESTONES.includes(streak)) return;
+      if (firedStreakMilestones.has(streak)) return;
+      firedStreakMilestones.add(streak);
+      celebrateStreak(streak);
+    }
+    function celebrateStreak(n) {
+      const flame = n >= 12 ? '🔥🔥🔥' : n >= 8 ? '🔥🔥' : '🔥';
+      showNotification(`${flame} ${n} in a row!`, 'streak-milestone');
+      burstParticles(n >= 12 ? 36 : n >= 8 ? 28 : 22);
+      playSfx('milestone');
+      haptic('milestone');
+    }
+    function burstParticles(count) {
+      if (!particlesContainer || motionReduced()) return;
+      const colors = ['#ffd700', '#ffb347', '#fde68a', '#8ff5b2', '#7dd3fc'];
+      const rect = particlesContainer.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height * 0.35;
+      for (let i = 0; i < count; i++) {
+        const p = el('div', 'streak-burst');
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.background = colors[i % colors.length];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 140;
+        p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
+        p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
+        const dur = 800 + Math.random() * 400;
+        p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
+        particlesContainer.appendChild(p);
+        setTimeout(() => p.remove(), dur + 60);
+      }
+    }
 
-    // ===== Medal + per-session insight =====
-    const SESSIONS_KEY = 'sequence-builder:sessions';
+    // ===== Medal tier =====
+    function computeMedalTier(currentScore, prevPb) {
+      if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+      if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+      const ratio = currentScore / prevPb;
+      if (ratio >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+      if (ratio >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+    }
+    function showMedal(currentScore, prevPb) {
+      const m = computeMedalTier(currentScore, prevPb);
+      medalDisc.className = 'medal-disc ' + m.tier;
+      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+      medalTier.className = 'medal-tier ' + m.tier;
+      medalTier.textContent = m.label;
+      medalCaption.textContent = m.caption;
+      medalEl.style.display = 'flex';
+    }
+
+    // ===== Per-session insight (legacy raw key + field names — keep) =====
     function loadPastSessions() {
       try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
     }
@@ -1004,24 +1746,6 @@
         if (arr.length > 10) arr.length = 10;
         localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
       } catch {}
-    }
-    function computeMedalTier(currentScore, prevPb) {
-      if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
-      if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
-      const r = currentScore / prevPb;
-      if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
-      if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
-      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
-    }
-    function showMedal(currentScore, prevPb) {
-      if (!medalEl) return;
-      const m = computeMedalTier(currentScore, prevPb);
-      medalDisc.className = 'medal-disc ' + m.tier;
-      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
-      medalTier.className = 'medal-tier ' + m.tier;
-      medalTier.textContent = m.label;
-      medalCaption.textContent = m.caption;
-      medalEl.style.display = 'flex';
     }
     function computeInsight(curr, past) {
       if (!past || past.length === 0) return null;
@@ -1035,9 +1759,9 @@
       }
       const bestSeqEver = Math.max(...past.map(p => p.sequences || 0));
       if (curr.sequences > bestSeqEver && curr.sequences >= 2) {
-        return { icon: '🚀', text: `<strong>Most sequences yet</strong> — completed ${curr.sequences} this session.` };
+        return { icon: '🚀', text: `<strong>Most sequences yet</strong> — built ${curr.sequences} this session.` };
       }
-      if (curr.sequences > prev.sequences && curr.sequences >= 2) {
+      if (curr.sequences > (prev.sequences || 0) && curr.sequences >= 2) {
         return { icon: '📈', text: `<strong>More sequences</strong> than last session — ${curr.sequences} vs ${prev.sequences}.` };
       }
       const bestAccEver = Math.max(...past.map(p => p.accuracy || 0));
@@ -1050,72 +1774,154 @@
       return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
     }
     function showInsight(curr, past) {
-      if (!insightEl) return;
-      const ins = computeInsight(curr, past);
-      if (!ins) { insightEl.style.display = 'none'; return; }
-      insIcon.textContent = ins.icon;
-      insText.innerHTML = ins.text;
+      const insight = computeInsight(curr, past);
+      if (!insight) { insightEl.style.display = 'none'; return; }
+      insIcon.textContent = insight.icon;
+      insText.innerHTML = insight.text;
       insightEl.style.display = 'flex';
     }
 
-    // ===== Streak milestone celebrations =====
-    const STREAK_MILESTONES = [3, 5, 10, 15, 25];
-    function checkStreakMilestone(s) {
-      if (!STREAK_MILESTONES.includes(s)) return;
-      if (firedStreakMilestones.has(s)) return;
-      firedStreakMilestones.add(s);
-      celebrateStreak(s);
-    }
-    function celebrateStreak(n) {
-      const flame = n >= 15 ? '🔥🔥🔥' : n >= 10 ? '🔥🔥' : '🔥';
-      const toast = document.createElement('div');
-      toast.className = 'streak-milestone-toast';
-      toast.textContent = `${flame} ${n} Sequences Clean!`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2500);
-      burstStreakParticles(n >= 15 ? 36 : n >= 10 ? 28 : 22);
-      // Native haptics in the Android app, web vibration fallback in browser.
-        FPRNative.haptic('milestone')
-    }
-    function burstStreakParticles(count) {
-      const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
-      const target = document.getElementById('game-container') || document.body;
-      const rect = target.getBoundingClientRect();
-      const container = document.createElement('div');
-      container.className = 'streak-burst-container';
-      document.body.appendChild(container);
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height * 0.4;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'streak-burst';
-        p.style.left = cx + 'px';
-        p.style.top = cy + 'px';
-        p.style.background = colors[i % colors.length];
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 80 + Math.random() * 140;
-        p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
-        p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
-        const dur = 800 + Math.random() * 400;
-        p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
-        container.appendChild(p);
+    // ===== Presets & session length =====
+    const PRESETS = {
+      gentle: { difficulty: 'easy',   model: 'always'    },
+      steady: { difficulty: 'medium', model: 'initially' },
+      swift:  { difficulty: 'hard',   model: 'initially' }
+    };
+    let suppressCustomNote = false;
+
+    function selectPreset(name, applyValues = true) {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', b.dataset.preset === name ? 'true' : 'false'));
+      customNote.classList.remove('show');
+      if (applyValues && PRESETS[name]) {
+        suppressCustomNote = true;
+        diffSel.value = PRESETS[name].difficulty;
+        modelSel.value = PRESETS[name].model;
+        suppressCustomNote = false;
       }
-      setTimeout(() => container.remove(), 1400);
+    }
+    function clearPresetSelection() {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', 'false'));
+      customNote.classList.add('show');
+    }
+    function currentPresetName() {
+      const checked = presetBtns.find(b => b.getAttribute('aria-checked') === 'true');
+      return checked ? checked.dataset.preset : null;
+    }
+    presetBtns.forEach(btn => btn.addEventListener('click', () => { selectPreset(btn.dataset.preset); saveSettings(); }));
+    function syncPresetToInputs() {
+      if (suppressCustomNote) return;
+      const match = Object.entries(PRESETS).find(([, p]) =>
+        p.difficulty === diffSel.value && p.model === modelSel.value);
+      if (match) selectPreset(match[0], false);
+      else clearPresetSelection();
+    }
+    [diffSel, modelSel].forEach(sel => sel.addEventListener('change', () => { syncPresetToInputs(); saveSettings(); }));
+    typeSel.addEventListener('change', saveSettings);
+
+    function selectLength(min) {
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === min ? 'true' : 'false'));
+      durIn.value = String(min);
+    }
+    segBtns.forEach(btn => btn.addEventListener('click', () => { selectLength(parseFloat(btn.dataset.min)); saveSettings(); }));
+    durIn.addEventListener('input', () => {
+      const v = parseFloat(durIn.value);
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+      saveSettings();
+    });
+
+    // ===== Persistent settings (with one-time legacy migration) =====
+    const SETTINGS_KEY = 'SETTINGS_' + EXERCISE_ID;
+    function migrateLegacySettings() {
+      // Old page stored these raw (JSON-stringified) under unprefixed keys.
+      const rawGet = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+      const out = {};
+      const t = rawGet('sequenceType');       if (t) out.type = t;
+      const d = rawGet('sequenceDifficulty'); if (d) out.difficulty = d;
+      const m = rawGet('showCompleted');      if (m) out.model = m;
+      const dur = rawGet('sequenceDuration'); if (dur) out.dur = String(dur);
+      return out;
+    }
+    function saveSettings() {
+      try {
+        storage.set(SETTINGS_KEY, {
+          preset: currentPresetName(),
+          dur: durIn.value,
+          type: typeSel.value,
+          difficulty: diffSel.value,
+          model: modelSel.value,
+          stages: getToggle('toggleStages'),
+          sound: getToggle('toggleSound'),
+          haptic: getToggle('toggleHaptic'),
+          highContrast: getToggle('toggleContrast'),
+          reducedMotion: getToggle('toggleMotion')
+        });
+      } catch {}
+    }
+    function loadSettings() {
+      let s = null;
+      try { s = storage.get(SETTINGS_KEY, null); } catch {}
+      if (!s || typeof s !== 'object') {
+        // First visit: pull anything the old settings-page saved, else default to Gentle.
+        const legacy = migrateLegacySettings();
+        if (legacy.type) typeSel.value = legacy.type;
+        if (legacy.dur) durIn.value = legacy.dur;
+        if (legacy.difficulty || legacy.model) {
+          diffSel.value = legacy.difficulty || 'medium';
+          modelSel.value = legacy.model || 'initially';
+          syncPresetToInputs();
+          const v = parseFloat(durIn.value);
+          segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+        } else {
+          selectPreset('gentle');
+          selectLength(3);
+        }
+        saveSettings();
+        return;
+      }
+      if (s.type) typeSel.value = s.type;
+      if (s.difficulty) diffSel.value = s.difficulty;
+      if (s.model) modelSel.value = s.model;
+      if (s.dur) {
+        durIn.value = s.dur;
+        const v = parseFloat(s.dur);
+        segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+      }
+      if (s.preset && PRESETS[s.preset]) selectPreset(s.preset, false);
+      else clearPresetSelection();
+      setToggle('toggleStages', s.stages !== false);
+      setToggle('toggleSound', s.sound !== false);
+      setToggle('toggleHaptic', s.haptic !== false);
+      setToggle('toggleContrast', !!s.highContrast);
+      if (s.reducedMotion) setToggle('toggleMotion', true);
     }
 
-    // Sequence libraries
+    // ===== Timer utilities =====
+    const activeTimeouts = new Set();
+    function trackTimeout(fn, ms){
+      const t = setTimeout(() => { activeTimeouts.delete(t); fn(); }, ms);
+      activeTimeouts.add(t);
+      return t;
+    }
+    function clearAllTimers(){ activeTimeouts.forEach(t => clearTimeout(t)); activeTimeouts.clear(); }
+
+    // ===== Sequence libraries (ported from the original game) =====
+    function getRandomSubset(array, size) {
+      const shuffled = [...array].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, size);
+    }
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
     const sequenceLibraries = {
       pattern: {
         pieces: ['🔹','🔸','🔺','🔻','⭐','💫','🌟','✨','⚡','❄️','🌀','🟡','🔄','➿','➰'],
         generators: [
-          (steps) => {
-            const p = getRandomSubset(sequenceLibraries.pattern.pieces, 2);
-            return Array.from({length: steps}, (_, i) => p[i % 2]);
-          },
-          (steps) => {
-            const p = getRandomSubset(sequenceLibraries.pattern.pieces, 3);
-            return Array.from({length: steps}, (_, i) => p[i % 3]);
-          },
+          (steps) => { const p = getRandomSubset(sequenceLibraries.pattern.pieces, 2); return Array.from({length: steps}, (_, i) => p[i % 2]); },
+          (steps) => { const p = getRandomSubset(sequenceLibraries.pattern.pieces, 3); return Array.from({length: steps}, (_, i) => p[i % 3]); },
           (steps) => {
             const p = getRandomSubset(sequenceLibraries.pattern.pieces, 3);
             const r = [];
@@ -1150,497 +1956,701 @@
         pieces: ['⬆️','⬇️','⬅️','➡️','↗️','↘️','↙️','↖️','↕️','↔️','🔄','🔀','🔂','🔃'],
         generators: [
           (s) => getRandomSubset(['⬆️','⬇️','⬅️','➡️','↗️','↘️','↙️','↖️'], s),
-          (s) => getRandomSubset(['🔄','🔀','🔂','🔃','🔀'], s),
+          (s) => getRandomSubset(['🔄','🔀','🔂','🔃'], s),
           (s) => Array.from({length: s}, (_, i) => ['⬆️','⬇️','⬅️','➡️'][i % 4])
         ]
       }
     };
 
-    // Utility functions
-    function showFeedback(message, type) {
-      if (!feedbackMessage) return;
-      feedbackMessage.textContent = message;
-      feedbackMessage.className = `feedback-message ${type}`;
-      feedbackMessage.classList.remove('hidden');
-      setTimeout(() => feedbackMessage.classList.add('hidden'), 1800);
+    function baseSteps(difficulty){
+      if (difficulty === 'easy') return 3 + Math.floor(Math.random() * 2); // 3-4
+      if (difficulty === 'hard') return 7 + Math.floor(Math.random() * 2); // 7-8
+      return 5 + Math.floor(Math.random() * 2);                            // 5-6
+    }
+    function stageStepBonus(){
+      if (!getToggle('toggleStages')) return 0;
+      return Math.min(3, Math.floor((stage - 1) / 2)); // +0..+3 as stages climb
+    }
+    function distractorCount(difficulty){
+      return difficulty === 'easy' ? 2 : difficulty === 'hard' ? 6 : 4;
+    }
+    function makeSequence(){
+      const type = typeSel.value || 'pattern';
+      const difficulty = diffSel.value || 'medium';
+      const steps = Math.min(11, baseSteps(difficulty) + stageStepBonus());
+      const lib = sequenceLibraries[type] || sequenceLibraries.pattern;
+      const gen = lib.generators[Math.floor(Math.random() * lib.generators.length)];
+      let seq = gen(steps).filter(Boolean);
+      if (seq.length === 0) seq = getRandomSubset(lib.pieces, Math.max(3, steps));
+      return seq;
     }
 
-    function saveSettings() {
-      if (sequenceTypeSelect) storage.set('sequenceType', sequenceTypeSelect.value);
-      if (difficultySelect) storage.set('sequenceDifficulty', difficultySelect.value);
-      if (showCompletedSelect) storage.set('showCompleted', showCompletedSelect.value);
-      if (sessionDurationInp) storage.set('sequenceDuration', sessionDurationInp.value);
-    }
+    // ===== Game state =====
+    let running = false, paused = false, isPracticeMode = false;
+    let inputLocked = false, feedbackActive = false;
+    let sessionToken = 0;
+    let score = 0, roundsBuilt = 0, totalAttempts = 0, correctSequences = 0;
+    let streak = 0, bestStreak = 0;
+    let stage = 1, topStage = 1;
+    let currentSequence = [], userSteps = [];
+    let roundWasMemory = false, memoryCompleted = false;
+    let yourTurnAt = 0;
+    let sessionAchievements = [];
+    let pbBrokenThisSession = false;
+    let sessionDurationMs = 3 * 60 * 1000, timeRemaining = sessionDurationMs;
+    let elapsedMs = 0;
+    let timerId = null, lastTick = 0;
 
-    function loadSettings() {
-      if (sequenceTypeSelect) sequenceTypeSelect.value = storage.get('sequenceType', 'pattern');
-      if (difficultySelect) difficultySelect.value = storage.get('sequenceDifficulty', 'medium');
-      if (showCompletedSelect) showCompletedSelect.value = storage.get('showCompleted', 'initially');
-      if (sessionDurationInp) sessionDurationInp.value = storage.get('sequenceDuration', 3);
-      updatePersonalBest();
-    }
-
-    function updateHUD() {
-      if (hudScore) hudScore.textContent = `${score}`;
-      if (hudPB) hudPB.textContent = `${getPB()}`;
-      if (hudCorrect) hudCorrect.textContent = `${correctSequences}`;
-
-      const mins = Math.max(0, Math.floor(timeRemaining / 60000));
-      const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
-      if (hudTime) hudTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        timeRemaining -= 100;
-        const progress = Math.max(0, timeRemaining / sessionMs);
-        if (timerBarEl) timerBarEl.style.transform = `scaleX(${progress})`;
-        updateHUD();
-        if (timeRemaining <= 0) {
-          endSession();
+    const SESSION_ACHIEVEMENTS = {
+      firstSeq:  { name: 'First Sequence!', icon: '🧩', condition: () => roundsBuilt === 1 },
+      seq5:      { name: '5 Sequences', icon: '🎯', condition: () => roundsBuilt === 5 },
+      seq10:     { name: '10 Sequences!', icon: '🌟', condition: () => roundsBuilt === 10 },
+      memory:    { name: 'Memory Master', icon: '🧠', condition: () => memoryCompleted },
+      streak5:   { name: '5 in a Row', icon: '🔥', condition: () => streak === 5 },
+      stage5:    { name: 'Stage 5', icon: '🚀', condition: () => stage >= 5 },
+      newPB:     { name: 'New Personal Best!', icon: '🏆', condition: () => false },
+    };
+    function checkSessionAchievements() {
+      for (const [key, a] of Object.entries(SESSION_ACHIEVEMENTS)) {
+        if (!sessionAchievements.includes(key) && a.condition()) {
+          showAchievement(key, `${a.icon} ${a.name}`);
         }
-      }, 100);
+      }
     }
 
-    function stopTimer() {
-      clearInterval(timerInterval);
-      timerInterval = null;
+    // ===== Personal best (legacy raw key — keep) =====
+    let best = 0;
+    function readPB(){
+      const v = Number(localStorage.getItem(PB_KEY) || '0');
+      best = Number.isFinite(v) ? v : 0;
+      pbEl.textContent = String(best);
+      pbSettingsEl.textContent = String(best);
+    }
+    function writePB(v){ try { localStorage.setItem(PB_KEY, String(v)); } catch {} readPB(); }
+
+    // ===== HUD =====
+    function msToClock(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const rem = s % 60;
+      return String(m).padStart(2,'0')+':'+String(rem).padStart(2,'0');
+    }
+    function updateHUD(){
+      timeEl.textContent = isPracticeMode ? '∞' : msToClock(timeRemaining);
+      scoreEl.textContent = String(score);
+      stageEl.textContent = String(stage);
+      streakEl.textContent = String(streak);
+      builtEl.textContent = String(roundsBuilt);
+      pbEl.textContent = String(best);
+
+      if (score > best && best > 0 && !pbBrokenThisSession) {
+        pbBrokenThisSession = true;
+        pbEl.classList.add('new-pb');
+        showAchievement('newPB', '🏆 NEW PERSONAL BEST!');
+        setTimeout(() => pbEl.classList.remove('new-pb'), 800);
+      }
+
+      if (timerBar && sessionDurationMs > 0 && !isPracticeMode) {
+        const pct = Math.max(0, Math.min(1, timeRemaining / sessionDurationMs));
+        timerBar.style.width = (pct * 100).toFixed(2) + '%';
+        timerBar.style.background = '';
+      } else if (isPracticeMode) {
+        timerBar.style.width = '100%';
+        timerBar.style.background = 'linear-gradient(90deg, var(--good), rgba(143,245,178,.35))';
+      }
     }
 
-    // Screen management
-    function setScreen(screenName) {
-      document.querySelectorAll('[data-screen]').forEach(el => {
-        el.classList.remove('active');
-      });
-      const screen = document.querySelector(`[data-screen="${screenName}"]`);
-      if (screen) screen.classList.add('active');
+    // ===== Status bar =====
+    function setStatus(type, text, progress = '') {
+      statusBar.className = 'status-bar ' + type;
+      statusText.textContent = text;
+      progressIndicator.textContent = progress;
+      const icons = { 'watching': '👀', 'your-turn': '🧩', 'success': '✨', 'oops': '🤏' };
+      statusIcon.textContent = icons[type] || '👀';
     }
 
-    // Sequence piece creation
-    function createSequencePiece(symbol, type = '') {
-      const piece = document.createElement('div');
-      piece.className = 'sequence-piece';
-      if (type) piece.classList.add(type);
-      piece.textContent = symbol;
-      piece.dataset.symbol = symbol;
-      if (!type) piece.addEventListener('click', () => selectPiece(piece));
-      piece.setAttribute('role', 'button');
-      piece.setAttribute('tabindex', '0');
-      return piece;
+    // ===== Piece + row builders =====
+    function makePiece(symbol, kind){
+      // kind: 'model' (target, non-interactive) | 'palette' (tappable) | 'filled' (placed)
+      const tag = kind === 'model' ? 'div' : 'button';
+      const p = document.createElement(tag);
+      p.className = 'seq-piece' + (kind === 'model' ? ' model' : '') + (kind === 'filled' ? ' filled' : '');
+      p.textContent = symbol;
+      p.dataset.symbol = symbol;
+      if (tag === 'button') { p.type = 'button'; }
+      if (kind === 'model') p.setAttribute('aria-hidden', 'true');
+      return p;
     }
 
-    function selectPiece(piece) {
-      if (!isSessionActive || isPaused || piece.classList.contains('placeholder')) return;
-      if (selectedPiece) selectedPiece.classList.remove('selected');
-      selectedPiece = piece;
-      selectedPiece.classList.add('selected');
-      selectedPiece.focus();
-      if (statusText) statusText.textContent = 'Now click an empty slot to place it';
+    function buildModelRow(){
+      modelDisplay.innerHTML = '';
+      modelDisplay.classList.remove('concealed');
+      currentSequence.forEach(sym => modelDisplay.appendChild(makePiece(sym, 'model')));
     }
+    function concealModel(){ modelDisplay.classList.add('concealed'); }
+    function revealModel(){ modelDisplay.classList.remove('concealed'); }
 
-    function createUserPlaceholders(count) {
-      if (!userSequence) return;
+    function buildUserRow(){
       userSequence.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const ph = document.createElement('div');
-        ph.className = 'sequence-piece placeholder';
-        ph.dataset.index = i;
-        ph.setAttribute('role', 'button');
-        ph.setAttribute('tabindex', '0');
-        ph.setAttribute('aria-label', `Empty slot ${i + 1} of ${count}`);
-        if (i === currentStepIndex) ph.classList.add('next');
-        ph.addEventListener('click', () => placePiece(ph));
+      userSteps = new Array(currentSequence.length).fill(null);
+      for (let i = 0; i < currentSequence.length; i++){
+        const ph = el('div', 'seq-piece placeholder');
+        ph.dataset.index = String(i);
+        ph.setAttribute('aria-label', `Slot ${i + 1} of ${currentSequence.length}, empty`);
+        ph.addEventListener('click', () => { if (ph.classList.contains('filled')) removeSlot(i); });
         userSequence.appendChild(ph);
       }
+      updateNextHighlight();
     }
 
-    function placePiece(placeholder) {
-      if (!selectedPiece || !isSessionActive || isPaused) return;
-      const index = parseInt(placeholder.dataset.index, 10);
-      const newPiece = selectedPiece.cloneNode(true);
-      newPiece.classList.remove('selected');
-      newPiece.setAttribute('aria-label', `Placed ${newPiece.dataset.symbol} in position ${index + 1}`);
-      newPiece.addEventListener('click', () => removePiece(newPiece, index));
-      userSequence.replaceChild(newPiece, placeholder);
-      userSteps[index] = newPiece.dataset.symbol;
-      currentStepIndex = userSteps.filter(Boolean).length;
-      if (currentStepElement) currentStepElement.textContent = Math.min(currentStepIndex + 1, currentSequence.length);
-      selectedPiece.classList.remove('selected');
-      selectedPiece = null;
-      if (statusText) statusText.textContent = currentStepIndex < currentSequence.length ? 'Select the next piece' : 'Sequence complete! Click Check';
-      updatePlaceholderHighlights();
-      if (checkBtn) checkBtn.disabled = currentStepIndex < currentSequence.length;
-    }
-
-    function removePiece(piece, index) {
-      if (!isSessionActive || isPaused) return;
-      const ph = document.createElement('div');
-      ph.className = 'sequence-piece placeholder';
-      ph.dataset.index = index;
-      ph.setAttribute('role', 'button');
-      ph.setAttribute('tabindex', '0');
-      ph.setAttribute('aria-label', `Empty slot ${index + 1}`);
-      ph.addEventListener('click', () => placePiece(ph));
-      userSequence.replaceChild(ph, piece);
-      userSteps[index] = null;
-      currentStepIndex = userSteps.filter(Boolean).length;
-      if (currentStepElement) currentStepElement.textContent = Math.min(currentStepIndex + 1, currentSequence.length);
-      if (statusText) statusText.textContent = 'Piece removed - select a piece to continue';
-      updatePlaceholderHighlights();
-      if (checkBtn) checkBtn.disabled = true;
-    }
-
-    function updatePlaceholderHighlights() {
-      const placeholders = userSequence.querySelectorAll('.placeholder');
-      placeholders.forEach((p, i) => {
-        p.classList.remove('next');
-        if (!userSteps[i] && !p.classList.contains('next')) {
-          let hasPrevEmpty = false;
-          for (let j = 0; j < i; j++) {
-            if (!userSteps[j]) {
-              hasPrevEmpty = true;
-              break;
-            }
-          }
-          if (!hasPrevEmpty) p.classList.add('next');
-        }
+    function buildPalette(){
+      piecesContainer.innerHTML = '';
+      const unique = [...new Set(currentSequence)];
+      const lib = sequenceLibraries[typeSel.value || 'pattern'];
+      const distractors = getRandomSubset(lib.pieces.filter(p => !unique.includes(p)), distractorCount(diffSel.value || 'medium'));
+      const all = shuffleArray([...unique, ...distractors]);
+      all.forEach(sym => {
+        const piece = makePiece(sym, 'palette');
+        piece.setAttribute('aria-label', `Place ${sym}`);
+        piece.addEventListener('pointerdown', (e) => { e.preventDefault(); onPalette(sym, piece, e.pointerType || 'mouse'); });
+        piece.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPalette(sym, piece, 'keyboard'); }
+        });
+        piecesContainer.appendChild(piece);
       });
     }
 
-    function checkSequence() {
-      if (!isSessionActive || isPaused || currentStepIndex < currentSequence.length) return;
-      totalAttempts++;
-      let isCorrect = true;
-      for (let i = 0; i < currentSequence.length; i++) {
-        const piece = userSequence.children[i];
-        if (userSteps[i] === currentSequence[i]) {
-          piece.classList.add('correct');
-        } else {
-          piece.classList.add('incorrect');
-          isCorrect = false;
-        }
+    function firstEmptySlot(){
+      for (let i = 0; i < currentSequence.length; i++) if (!userSteps[i]) return i;
+      return -1;
+    }
+    function updateNextHighlight(){
+      const slots = userSequence.querySelectorAll('.placeholder');
+      const next = firstEmptySlot();
+      slots.forEach(s => {
+        const idx = Number(s.dataset.index);
+        s.classList.toggle('next', idx === next && !s.classList.contains('filled'));
+      });
+    }
+    function refreshCheckEnabled(){
+      const full = firstEmptySlot() === -1 && currentSequence.length > 0;
+      checkBtn.disabled = !full || inputLocked || feedbackActive;
+      checkBtn.classList.toggle('ready', full && !checkBtn.disabled);
+    }
+
+    function onPalette(symbol, pieceEl, pointerType){
+      if (!running || paused || inputLocked || feedbackActive) return;
+      const idx = firstEmptySlot();
+      if (idx === -1) return; // already full
+      userSteps[idx] = symbol;
+      const slot = userSequence.querySelector(`.placeholder[data-index="${idx}"]`);
+      if (slot){
+        slot.textContent = symbol;
+        slot.classList.remove('placeholder', 'next');
+        slot.classList.add('filled');
+        slot.setAttribute('aria-label', `Slot ${idx + 1}: ${symbol} — tap to remove`);
       }
-      if (isCorrect) {
+      playSfx('place', idx);
+      haptic('tick');
+      if (pointerType !== 'keyboard') trackTimeout(() => pieceEl.blur(), 60);
+      updateNextHighlight();
+      refreshCheckEnabled();
+      if (firstEmptySlot() === -1) setStatus('your-turn', 'Ready — tap Check to score it', `${currentSequence.length}/${currentSequence.length}`);
+      else setStatus('your-turn', roundWasMemory ? 'Rebuild it from memory!' : 'Keep building…', `${currentSequence.length - countEmpty()}/${currentSequence.length}`);
+    }
+    function countEmpty(){ return userSteps.filter(v => !v).length; }
+
+    function removeSlot(idx){
+      if (!running || paused || inputLocked || feedbackActive) return;
+      if (!userSteps[idx]) return;
+      userSteps[idx] = null;
+      const slot = userSequence.querySelector(`.filled[data-index="${idx}"]`);
+      if (slot){
+        slot.textContent = '';
+        slot.classList.remove('filled');
+        slot.classList.add('placeholder');
+        slot.setAttribute('aria-label', `Slot ${idx + 1} of ${currentSequence.length}, empty`);
+      }
+      playSfx('remove');
+      updateNextHighlight();
+      refreshCheckEnabled();
+      setStatus('your-turn', roundWasMemory ? 'Rebuild it from memory!' : 'Keep building…', `${currentSequence.length - countEmpty()}/${currentSequence.length}`);
+    }
+
+    function clearUserRow(){
+      if (!running || paused || feedbackActive) return;
+      buildUserRow();
+      playSfx('remove');
+      refreshCheckEnabled();
+      setStatus('your-turn', roundWasMemory ? 'Rebuild it from memory!' : 'Tap the matching pieces', `0/${currentSequence.length}`);
+    }
+
+    // ===== Round flow =====
+    function startRound(){
+      const myToken = sessionToken;
+      currentSequence = makeSequence();
+      buildModelRow();
+      buildUserRow();
+      buildPalette();
+      feedbackActive = false;
+      memoryCompletedThisRound = false;
+      checkBtn.classList.remove('ready');
+      checkBtn.disabled = true;
+
+      const mode = modelSel.value || 'initially';
+      roundWasMemory = mode !== 'always';
+      paletteLabel.textContent = 'Tap a piece to place it';
+
+      if (mode === 'always'){
+        beginYourTurn(myToken, false);
+        return;
+      }
+
+      // Memory modes: lock input, let them study, then conceal.
+      inputLocked = true;
+      const secs = mode === 'never' ? 2 : 5;
+      const label = mode === 'never' ? 'Quick look' : 'Memorize the pattern';
+      setStatus('watching', label, `${secs}s`);
+      let count = secs;
+      const tick = () => {
+        if (!running || myToken !== sessionToken) return;
+        count--;
+        if (count > 0){
+          setStatus('watching', label, `${count}s`);
+          playSfx('tick');
+          trackTimeout(tick, 1000);
+        } else {
+          concealModel();
+          beginYourTurn(myToken, true);
+        }
+      };
+      trackTimeout(tick, 1000);
+    }
+
+    let memoryCompletedThisRound = false;
+    function beginYourTurn(myToken, fromMemory){
+      if (!running || myToken !== sessionToken) return;
+      inputLocked = false;
+      yourTurnAt = performance.now();
+      setStatus('your-turn', fromMemory ? 'Rebuild it from memory!' : 'Rebuild the pattern', `0/${currentSequence.length}`);
+      refreshCheckEnabled();
+    }
+
+    function checkSequence(){
+      if (!running || paused || inputLocked || feedbackActive) return;
+      if (firstEmptySlot() !== -1) return; // not full yet
+      feedbackActive = true;
+      checkBtn.disabled = true;
+      checkBtn.classList.remove('ready');
+      totalAttempts++;
+      revealModel(); // always reveal the target so the player can compare
+
+      let allCorrect = true;
+      const slots = userSequence.querySelectorAll('.seq-piece');
+      for (let i = 0; i < currentSequence.length; i++){
+        const slot = slots[i];
+        if (userSteps[i] === currentSequence[i]) slot.classList.add('correct');
+        else { slot.classList.add('incorrect'); allCorrect = false; }
+      }
+
+      if (allCorrect){
         correctSequences++;
-        sequencesCompleted++;
-        score += 100 + (50 * currentSequence.length);
-        showFeedback('Perfect sequence!', 'success');
-        if (userSequence) userSequence.classList.add('celebrate');
+        roundsBuilt++;
+        const len = currentSequence.length;
+        const quick = (performance.now() - yourTurnAt) < (len * 2500);
+        let gained = 100 + 50 * len;
+        if (streak >= 3) gained += 25;            // streak bonus
+        if (quick) { gained += 25; playSfx('quick'); }
+        score += gained;
         streak++;
         if (streak > bestStreak) bestStreak = streak;
-        checkStreakMilestone(streak);
+        if (roundWasMemory) { memoryCompleted = true; memoryCompletedThisRound = true; }
+
+        showSuccess(gained, quick);
+        playSfx('correct');
+        haptic('success');
+        checkStreakMilestone();
+        maybeAdvanceStage();
+        checkSessionAchievements();
+        updateHUD();
+
+        trackTimeout(() => {
+          if (!running) return;
+          startRound();
+        }, 1100);
       } else {
+        // A miss — gentle, never punishing. Target stays revealed for a guided retry.
         score = Math.max(0, score - 25);
-        showFeedback('Try again - check the pattern', 'error');
         streak = 0;
-      }
-      updateHUD();
-      if (checkBtn) checkBtn.disabled = true;
-      if (resetBtn) resetBtn.disabled = true;
+        playSfx('wrong');
+        haptic('error');
+        setStatus('oops', 'Not quite — compare with the pattern above', '');
+        updateHUD();
 
-      setTimeout(() => {
-        if (!isSessionActive) return;
-        if (userSequence) userSequence.classList.remove('celebrate');
-        if (isCorrect) {
-          currentSequenceIndex++;
-          if (currentSequenceIndex < sequences.length) {
-            startSequence(sequences[currentSequenceIndex]);
-          } else {
+        trackTimeout(() => {
+          if (!running) return;
+          feedbackActive = false;
+          buildUserRow();
+          // keep target visible now (revealed) so the retry is achievable
+          setStatus('your-turn', 'Try again — the pattern is shown above', `0/${currentSequence.length}`);
+          refreshCheckEnabled();
+        }, 1300);
+      }
+    }
+
+    function showSuccess(gained, quick){
+      const base = quick ? ['Quick build! ⚡','Sharp! ⚡','Lightning! ⚡'] : ['Perfect! 🎉','Nice! ⭐','Lovely! 🌟','Great! 💫'];
+      successMessage.textContent = `${base[Math.floor(Math.random()*base.length)]}  +${gained}`;
+      successMessage.classList.remove('show');
+      void successMessage.offsetHeight;
+      successMessage.classList.add('show');
+    }
+
+    function maybeAdvanceStage(){
+      if (!getToggle('toggleStages')) return;
+      const newStage = Math.min(8, Math.floor(roundsBuilt / 3) + 1);
+      if (newStage > stage){
+        stage = newStage;
+        if (stage > topStage) topStage = stage;
+        showNotification(`⬆️ Stage ${stage}!`, 'stage');
+        playSfx('stageUp');
+        haptic('milestone');
+        burstParticles(20);
+      } else if (stage > topStage) {
+        topStage = stage;
+      }
+    }
+
+    // ===== Session timer =====
+    function startTimer(){
+      stopTimer();
+      lastTick = performance.now();
+      timerId = setInterval(() => {
+        const now = performance.now();
+        const dt = now - lastTick;
+        lastTick = now;
+        if (!running || paused) return;
+        elapsedMs += dt;
+        if (!isPracticeMode){
+          timeRemaining -= dt;
+          if (timeRemaining <= 0){
+            timeRemaining = 0;
+            updateHUD();
             endSession();
+            return;
           }
+        }
+        updateHUD();
+      }, 200);
+    }
+    function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+
+    // ===== Countdown =====
+    function removeCountdownOverlays(){
+      document.querySelectorAll('.countdown-overlay').forEach(o => o.remove());
+    }
+    function showCountdown(callback) {
+      removeCountdownOverlays();
+      const overlay = el('div', 'countdown-overlay');
+      const numEl = el('div', 'countdown-number', '3');
+      overlay.appendChild(numEl);
+      document.body.appendChild(overlay);
+      playSfx('tick');
+
+      const myToken = sessionToken;
+      let count = 3;
+      const tick = () => {
+        if (!running || myToken !== sessionToken) { overlay.remove(); return; }
+        count--;
+        if (count > 0) {
+          numEl.textContent = String(count);
+          numEl.style.animation = 'none'; void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('tick');
+          trackTimeout(tick, 800);
         } else {
-          resetUserSequence();
-          if (checkBtn) checkBtn.disabled = false;
-          if (resetBtn) resetBtn.disabled = false;
-        }
-      }, 1200);
-    }
-
-    function resetUserSequence() {
-      if (!isSessionActive) return;
-      currentStepIndex = 0;
-      userSteps = [];
-      if (currentStepElement) currentStepElement.textContent = '1';
-      createUserPlaceholders(currentSequence.length);
-      if (statusText) statusText.textContent = 'Select a piece below to place';
-      if (checkBtn) checkBtn.disabled = true;
-      if (selectedPiece) {
-        selectedPiece.classList.remove('selected');
-        selectedPiece = null;
-      }
-    }
-
-    function startSession() {
-      if (isSessionActive) return;
-      
-      const difficulty = difficultySelect?.value || 'medium';
-      const minutes = Math.max(1, Math.min(10, Number(sessionDurationInp?.value) || 3));
-      sessionMs = minutes * 60 * 1000;
-      
-      // Reset game state
-      score = 0;
-      sequencesCompleted = 0;
-      totalAttempts = 0;
-      correctSequences = 0;
-      currentSequenceIndex = 0;
-      selectedPiece = null;
-      sequences = [];
-      currentSequence = [];
-      availablePieces = [];
-      userSteps = [];
-      currentStepIndex = 0;
-      modelVisible = true;
-      timeRemaining = sessionMs;
-      isPaused = false;
-      streak = 0;
-      bestStreak = 0;
-      firedStreakMilestones = new Set();
-      if (medalEl) medalEl.style.display = 'none';
-      if (insightEl) insightEl.style.display = 'none';
-
-      updateHUD();
-      setScreen('game');
-      saveSettings();
-
-      // Start session
-      isSessionActive = true;
-      startTimer();
-      updatePersonalBest();
-      
-      // Generate sequences and start
-      setTimeout(() => {
-        generateSequences(sequenceTypeSelect?.value || 'pattern', difficulty);
-        if (sequences.length > 0) {
-          startSequence(sequences[0]);
-        }
-      }, 100);
-    }
-
-    function generateSequences(type, difficulty) {
-      sequences = [];
-      let stepsPerSequence;
-      switch (difficulty) {
-        case 'easy': stepsPerSequence = Math.floor(Math.random() * 2) + 3; break;
-        case 'hard': stepsPerSequence = Math.floor(Math.random() * 2) + 7; break;
-        default: stepsPerSequence = Math.floor(Math.random() * 2) + 5; break;
-      }
-      
-      for (let i = 0; i < 10; i++) {
-        const library = sequenceLibraries[type];
-        if (library && library.generators.length > 0) {
-          const generator = library.generators[Math.floor(Math.random() * library.generators.length)];
-          sequences.push(generator(stepsPerSequence));
-        }
-      }
-    }
-
-    function startSequence(sequence) {
-      // Reset containers
-      if (modelDisplay) modelDisplay.innerHTML = '';
-      if (userSequence) userSequence.innerHTML = '';
-      if (piecesContainer) piecesContainer.innerHTML = '';
-      
-      currentSequence = sequence;
-      userSteps = [];
-      currentStepIndex = 0;
-      if (currentStepElement) currentStepElement.textContent = '1';
-      if (totalStepsElement) totalStepsElement.textContent = sequence.length;
-      if (statusText) statusText.textContent = 'Study the pattern above';
-      if (checkBtn) checkBtn.disabled = true;
-      if (resetBtn) resetBtn.disabled = false;
-
-      // Render model + pieces
-      sequence.forEach(item => {
-        if (modelDisplay) modelDisplay.appendChild(createSequencePiece(item, 'model'));
-      });
-      createAvailablePieces(sequence);
-      createUserPlaceholders(sequence.length);
-
-      // Handle model visibility
-      const showMode = showCompletedSelect?.value || 'initially';
-      if (memoryTimer) memoryTimer.style.display = 'none';
-      if (modelDisplay) modelDisplay.classList.remove('hidden');
-
-      const applyHideAfter = (seconds, label) => {
-        if (memoryTimer) {
-          memoryTimer.style.display = 'block';
-          let countdown = seconds;
-          memoryTimer.textContent = `${label}: ${countdown}s`;
-          clearInterval(memoryTimerInterval);
-          memoryTimerInterval = setInterval(() => {
-            countdown--;
-            if (memoryTimer) memoryTimer.textContent = `${label}: ${countdown}s`;
-            if (countdown <= 0) {
-              clearInterval(memoryTimerInterval);
-              if (modelDisplay) modelDisplay.classList.add('hidden');
-              if (memoryTimer) memoryTimer.style.display = 'none';
-              modelVisible = false;
-              if (statusText) statusText.textContent = 'Recreate the pattern from memory';
-            }
-          }, 1000);
+          numEl.textContent = 'GO!';
+          numEl.classList.add('countdown-go');
+          numEl.style.animation = 'none'; void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('go');
+          trackTimeout(() => {
+            overlay.remove();
+            if (!running || myToken !== sessionToken) return;
+            callback();
+          }, 600);
         }
       };
-
-      if (showMode === 'initially') {
-        applyHideAfter(5, 'Memorize');
-      } else if (showMode === 'never') {
-        applyHideAfter(2, 'Quick look');
-      } else {
-        if (statusText) statusText.textContent = 'Select a piece below to place';
-      }
+      trackTimeout(tick, 800);
     }
 
-    function createAvailablePieces(sequence) {
-      const uniquePieces = [...new Set(sequence)];
-      const library = sequenceLibraries[sequenceTypeSelect?.value || 'pattern'];
-      let allPieces = [...uniquePieces];
-      let numDistractors = 0;
-      const difficulty = difficultySelect?.value || 'medium';
-      switch (difficulty) {
-        case 'easy': numDistractors = 2; break;
-        case 'medium': numDistractors = 4; break;
-        case 'hard': numDistractors = 6; break;
-      }
-      const distractors = library.pieces.filter(p => !uniquePieces.includes(p));
-      const selectedDistractors = getRandomSubset(distractors, numDistractors);
-      allPieces = [...allPieces, ...selectedDistractors];
-      shuffleArray(allPieces);
-      allPieces.forEach(symbol => {
-        if (piecesContainer) piecesContainer.appendChild(createSequencePiece(symbol));
+    // ===== Session control =====
+    function resetSessionState(){
+      paused = false; inputLocked = false; feedbackActive = false; ++sessionToken;
+      stopTimer(); clearAllTimers(); removeCountdownOverlays();
+      score = 0; roundsBuilt = 0; totalAttempts = 0; correctSequences = 0;
+      streak = 0; bestStreak = 0; stage = 1; topStage = 1;
+      currentSequence = []; userSteps = [];
+      roundWasMemory = false; memoryCompleted = false;
+      elapsedMs = 0;
+      sessionAchievements = [];
+      firedStreakMilestones = new Set();
+      pbBrokenThisSession = false;
+      pauseBtn.textContent = 'Pause';
+      pauseOverlay.hidden = true;
+      modelDisplay.innerHTML = ''; userSequence.innerHTML = ''; piecesContainer.innerHTML = '';
+    }
+
+    function startSession(practice = false){
+      resetSessionState();
+      readPB();
+      isPracticeMode = practice;
+
+      const durMin = Math.max(1, Math.min(10, parseFloat(durIn.value || '3')));
+      sessionDurationMs = durMin * 60 * 1000;
+      timeRemaining = sessionDurationMs;
+
+      running = true;
+      updateHUD();
+      setStatus('watching', 'Get ready...', '');
+
+      saveSettings();
+      if (getToggle('toggleSound')) ac(); // warm up audio inside the gesture (iOS)
+      enterImmersive();
+
+      showCountdown(() => {
+        startTimer();
+        startRound();
       });
-      availablePieces = allPieces;
+
+      try { markExerciseTried(EXERCISE_ID); } catch {}
     }
 
-    function endSession() {
-      if (timerInterval) stopTimer();
-      clearInterval(memoryTimerInterval);
-      isSessionActive = false;
-      isPaused = false;
+    function pauseSession(){
+      if (!running) return;
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      pauseOverlay.hidden = !paused;
+    }
+
+    function teardown(){
+      running = false; paused = false; inputLocked = false; feedbackActive = false;
+      ++sessionToken;
+      stopTimer(); clearAllTimers(); removeCountdownOverlays();
+      pauseOverlay.hidden = true;
+      pauseBtn.textContent = 'Pause';
+    }
+
+    function exitToSettings(){
+      teardown();
+      exitImmersive();
+      doneModal.classList.remove('open');
+      refreshWelcomeStats();
+    }
+
+    function endSession(){
+      if (!running) return;
+      teardown();
+      exitImmersive();
 
       const accuracy = totalAttempts > 0 ? Math.round((correctSequences / totalAttempts) * 100) : 0;
+      const timeStr = msToClock(elapsedMs);
 
-      // Check for personal best (capture prior PB BEFORE writing the new one)
-      const previousPB = getPB();
-      let isNewPB = false;
-      if (score > previousPB) {
-        isNewPB = true;
-        setPB(score);
-        updatePersonalBest();
+      fScore.textContent = String(score);
+      fBuilt.textContent = String(roundsBuilt);
+      fAcc.textContent = accuracy + '%';
+      fStreak.textContent = String(bestStreak);
+      fStage.textContent = String(topStage);
+      fTime.textContent = timeStr;
+
+      const lastScore = storage.get('LAST_' + EXERCISE_ID, null);
+      const prevPb = best; // capture BEFORE writing the new PB
+
+      if (lastScore !== null) {
+        const diff = score - lastScore;
+        const pct = lastScore > 0 ? Math.round((diff / lastScore) * 100) : 0;
+        if (diff > 0) {
+          improvementBadge.innerHTML = `<span class="improvement positive">↑ ${pct}% improvement</span>`;
+          resultMessage.textContent = 'Great progress!';
+        } else if (diff < 0) {
+          improvementBadge.innerHTML = `<span class="improvement negative">↓ ${Math.abs(pct)}%</span>`;
+          resultMessage.textContent = 'Keep practicing!';
+        } else {
+          improvementBadge.innerHTML = `<span class="improvement neutral">Same as last time</span>`;
+          resultMessage.textContent = 'Consistent performance!';
+        }
+      } else {
+        improvementBadge.innerHTML = '';
+        resultMessage.textContent = 'Excellent work!';
       }
 
-      // Medal + per-session insight
-      const currStats = {
-        score,
-        sequences: sequencesCompleted,
-        accuracy,
-        bestStreak
-      };
+      storage.set('LAST_' + EXERCISE_ID, score);
+      if (score > prevPb) {
+        writePB(score);
+        resultMessage.textContent = '🏆 New Personal Best!';
+      }
+      lastScoreSettingsEl.textContent = String(score);
+
+      // ----- Medal tier + per-session insight -----
+      const currStats = { score, sequences: roundsBuilt, accuracy, bestStreak };
       const past = loadPastSessions();
-      showMedal(score, previousPB);
+      showMedal(score, prevPb);
       showInsight(currStats, past);
       savePastSession({ ...currStats, ts: Date.now() });
 
-      if (window.__fprRecordSession) window.__fprRecordSession('sequence', (typeof difficultySelect !== 'undefined' && difficultySelect && difficultySelect.value) || 'default', score);
-
-      // Show completion modal
-      if (finalSequencesEl) finalSequencesEl.textContent = `${sequencesCompleted}`;
-      if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
-      if (finalScoreEl) finalScoreEl.textContent = `${score}`;
-      if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
-      
-      if (completionModal) completionModal.classList.add('show');
-      setScreen('settings');
-    }
-
-    // Utility functions
-    function getRandomSubset(array, size) {
-      const shuffled = [...array].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, size);
-    }
-
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    // Event listeners
-    if (startBtn) startBtn.addEventListener('click', startSession);
-    if (difficultySelect) difficultySelect.addEventListener('change', saveSettings);
-    if (sequenceTypeSelect) sequenceTypeSelect.addEventListener('change', saveSettings);
-    if (showCompletedSelect) showCompletedSelect.addEventListener('change', saveSettings);
-    if (sessionDurationInp) sessionDurationInp.addEventListener('input', saveSettings);
-
-    if (pauseBtn) pauseBtn.addEventListener('click', () => {
-      if (!isSessionActive) return;
-      isPaused = !isPaused;
-      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-      if (isPaused) {
-        stopTimer();
+      if (sessionAchievements.length > 0) {
+        achievementsSummary.style.display = 'block';
+        achievementsList.innerHTML = sessionAchievements.map(key => {
+          const ach = SESSION_ACHIEVEMENTS[key];
+          if (!ach) return '';
+          return `<span style="background:rgba(255,215,0,.15); padding:4px 10px; border-radius:20px; font-size:13px;">${ach.icon} ${ach.name}</span>`;
+        }).join('');
       } else {
-        startTimer();
+        achievementsSummary.style.display = 'none';
       }
-    });
 
-    if (endBtn) endBtn.addEventListener('click', () => endSession());
+      // ----- Record + show site-wide points earned -----
+      let pointsBefore = null;
+      try { if (window.FPREngagement) pointsBefore = window.FPREngagement.getStats().points; } catch {}
 
-    if (restartBtn) restartBtn.addEventListener('click', () => {
-      if (timerInterval) stopTimer();
-      clearInterval(memoryTimerInterval);
-      isSessionActive = false;
-      isPaused = false;
-      setScreen('settings');
-    });
+      try { recordSession(EXERCISE_ID, diffSel.value || 'default', score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
 
-    if (restartModalBtn) restartModalBtn.addEventListener('click', () => {
-      if (completionModal) completionModal.classList.remove('show');
-      setScreen('settings');
-    });
-
-    if (completeClose) completeClose.addEventListener('click', () => {
-      if (completionModal) completionModal.classList.remove('show');
-      setScreen('settings');
-    });
-
-    if (checkBtn) checkBtn.addEventListener('click', checkSequence);
-    if (resetBtn) resetBtn.addEventListener('click', resetUserSequence);
-
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-      if (!isSessionActive || isPaused) return;
-      const el = document.activeElement;
-      if ((e.key === 'Enter' || e.key === ' ') && el?.classList?.contains('sequence-piece')) {
-        e.preventDefault();
-        if (el.classList.contains('placeholder')) {
-          placePiece(el);
-        } else if (!el.classList.contains('model')) {
-          selectPiece(el);
+      earnChip.style.display = 'none';
+      try {
+        if (window.FPREngagement && pointsBefore !== null) {
+          const after = window.FPREngagement.getStats();
+          const gained = after.points - pointsBefore;
+          if (gained > 0) {
+            let msg = `✨ +${gained} points — Level ${after.level.level}: ${after.level.title}`;
+            if (gained > 50 && after.challenge && after.challenge.bonusAwarded) {
+              msg = `⭐ Daily challenge complete! ` + msg;
+            }
+            earnChip.textContent = msg;
+            earnChip.style.display = 'flex';
+          }
         }
-      }
-    });
+      } catch {}
 
-    // Initialize
+      playSfx('fanfare');
+      doneModal.classList.add('open');
+      refreshWelcomeStats();
+    }
+
+    // ===== Welcome screen data =====
+    function refreshWelcomeStats() {
+      readPB();
+      const last = storage.get('LAST_' + EXERCISE_ID, null);
+      if (last !== null) lastScoreSettingsEl.textContent = String(last);
+
+      ctaHint.textContent = best > 0
+        ? `Beat your best of ${best.toLocaleString()} for a Platinum medal 🏆`
+        : 'Your first medal is one session away ✨';
+
+      try {
+        if (window.FPREngagement) {
+          const s = window.FPREngagement.getStats();
+          statStreakEl.textContent = '🔥 ' + s.streak;
+          statLevelEl.textContent = String(s.level.level);
+          const ch = s.challenge;
+          if (ch) {
+            challengeChip.style.display = 'flex';
+            challengeChip.classList.toggle('done', !!ch.done);
+            challengeChip.querySelector('.ch-icon').textContent = ch.done ? '✅' : '⭐';
+            challengeText.textContent = ch.done
+              ? `Daily challenge complete! +${ch.bonus} points earned — come back tomorrow for a new one.`
+              : `Daily challenge: ${ch.text} (${ch.progress}/${ch.target}) · +${ch.bonus} pts`;
+          }
+        }
+      } catch {}
+    }
+
+    let engagementTries = 0;
+    function waitForEngagement() {
+      if (window.FPREngagement || engagementTries >= 10) { refreshWelcomeStats(); return; }
+      engagementTries++;
+      setTimeout(waitForEngagement, 250);
+    }
+
+    // ===== Event listeners =====
+    startBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(false); });
+    practiceBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(true); });
+    pauseBtn.addEventListener('click', pauseSession);
+    resumeBtn.addEventListener('click', pauseSession);
+    pauseExitBtn.addEventListener('click', () => {
+      if (isPracticeMode) { paused = false; pauseOverlay.hidden = true; endSession(); }
+      else exitToSettings();
+    });
+    exitBtn.addEventListener('click', () => {
+      if (isPracticeMode) endSession();
+      else exitToSettings();
+    });
+    checkBtn.addEventListener('click', checkSequence);
+    clearBtn.addEventListener('click', clearUserRow);
+    // Persist toggle changes immediately (the inline toggleSwitch flips the
+    // class first, so saveSettings here captures the new state).
+    $$('.toggle').forEach(t => t.addEventListener('click', saveSettings));
+    newSessionBtn.addEventListener('click', () => { doneModal.classList.remove('open'); });
+    restartSameBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(isPracticeMode); });
+
+    doneModal.addEventListener('click', (e) => { if (e.target === doneModal) doneModal.classList.remove('open'); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') doneModal.classList.remove('open'); });
+
+    // ===== Stars backdrop (perf: fewer on phones, static when motion reduced) =====
+    function generateStars(container, count) {
+      if (!container) return;
+      container.innerHTML = '';
+      const reduced = motionReduced();
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.backgroundColor = i % 18 === 0 ? '#fbbf24' : 'white';
+        star.style.borderRadius = '50%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.7 + 0.3;
+        if (!reduced) {
+          star.style.animation = `twinkle ${Math.random() * 4 + 2}s ease-in-out infinite`;
+          star.style.animationDelay = `${Math.random() * 3}s`;
+        }
+        star.style.boxShadow = size > 2 ? '0 0 4px rgba(251,191,36,0.5)' : 'none';
+        container.appendChild(star);
+      }
+    }
+    generateStars(starsContainer, window.innerWidth < 700 ? 70 : 140);
+
+    // ===== Init =====
     loadSettings();
-    updateHUD();
-    setScreen('settings');
-  </script>
-  <script type="module">
-    // Engagement hook: feed completed sessions into the shared progress and
-    // achievements systems (streak, points, dashboard, badges). No-ops if
-    // the modules fail to load, so gameplay is never affected.
-    import('/js/progress.js')
-      .then((p) => {
-        window.__fprRecordSession = (id, difficulty, score) => {
-          try { p.recordSession(id, difficulty, Number(score) || 0); } catch (e) {}
-          import('/js/achievements.js').then((a) => {
-            try { a.markExerciseTried(id); } catch (e) {}
-            try { a.checkAndUnlockAchievements(); } catch (e) {}
-          }).catch(() => {});
-        };
-      })
-      .catch(() => {});
+    refreshWelcomeStats();
+    waitForEngagement();
+
+    // Session-recording hook used by the shared engagement shim
+    window.endSession = function(score, difficulty = 'default'){
+      try { recordSession(EXERCISE_ID, difficulty, score); } catch {}
+      try { checkAndUnlockAchievements(); } catch {}
+    };
+
+    // Tiny debug handle for preview verification (harmless in production)
+    window.__fprDebug = {
+      seq: () => currentSequence.slice(),
+      state: () => ({ running, paused, inputLocked, feedbackActive, score, roundsBuilt, streak, stage, timeRemaining, isPracticeMode }),
+      solve: () => {
+        // auto-fill the correct answer and check (verification helper)
+        if (!running || inputLocked || feedbackActive) return 'not ready';
+        userSteps = currentSequence.slice();
+        const slots = userSequence.querySelectorAll('.seq-piece');
+        currentSequence.forEach((sym, i) => {
+          const s = slots[i];
+          if (s){ s.textContent = sym; s.classList.remove('placeholder','next'); s.classList.add('filled'); }
+        });
+        refreshCheckEnabled();
+        checkSequence();
+        return 'solved';
+      }
+    };
   </script>
 </body>
 </html>
