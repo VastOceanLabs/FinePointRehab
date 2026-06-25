@@ -2,2472 +2,2312 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Visual Scanner – Visual-Cognitive Training</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Visual Scanner — Visual Search &amp; Field Awareness | FinePoint Rehab</title>
+  <meta name="description" content="Scan a busy field and find every target. An adjustable visual-search and field-awareness exercise for visual attention and scanning after injury or illness.">
+
+  <!-- Brand font (same as homepage) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Global tokens & resets -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
 
   <style>
-    :root {
-      --bg-primary: #0f1629;
-      --bg-secondary: #1a1f3a;
-      --bg-tertiary: #252b47;
-      --text-primary: #e8eef5;
-      --text-secondary: #b8c5d1;
-      --text-muted: #8a96a3;
-      --brand-aqua: #6fd3f5;
-      --success: #4caf50;
-      --error: #ff6b6b;
-      --error-bg: #2d1b1b;
-      --border: #374151;
+    /* =========================================================
+       Visual Scanner — v3 "warm cosmos" game shell
+       Follows the format set by bubble-exercise.html:
+       1) Welcome screen (hero + stats + presets + big Start)
+       2) Fine-tune panel (collapsible, persistent settings)
+       3) Immersive play screen (HUD + scan field + pause overlay)
+       4) Session-complete celebration (medal, insight, points)
+       Game accent: sky→royal blue (--ex-a/--ex-b from homepage card)
+       ========================================================= */
+    :root{
+      --vh: 1vh;
+      --ex-a: #60a5fa;             /* game accent (matches homepage card) */
+      --ex-b: #1d4ed8;
+      --ex-grad: linear-gradient(135deg, var(--ex-a), var(--ex-b));
+      --bg-1:#070b16; --bg-2:#0f1630; --bg-3:#0b1024;
+      --accent: #60a5fa;
+      --accent-2: #93c5fd;
+      --panel: rgba(13, 19, 48, .78);
+      --panel-border: rgba(255,255,255,.09);
+      --text: #eef4ff;
+      --text-secondary: #b9c6e2;
+      --text-muted: #8a96b3;
+      --good: #8ff5b2;
       --gold: #ffd700;
-      --streak-orange: #ff9500;
-      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
-      --radius: 8px;
-      --radius-lg: 12px;
-      --radius-xl: 16px;
-      --radius-full: 50%;
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-6: 24px;
-      --font-size-xs: 12px;
-      --font-size-base: 16px;
-      --font-size-lg: 20px;
-      --font-size-xl: 24px;
-      --font-size-2xl: 32px;
-      --font-size-3xl: 48px;
-      --font-weight-semibold: 600;
-      --font-weight-bold: 700;
-      --duration-fast: 150ms;
-      --easing: cubic-bezier(0.4, 0, 0.2, 1);
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-pill: 999px;
+      --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    *{ box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(180deg, #0a0e1a 0%, #1a1f3a 50%, #0f1524 100%);
-      color: var(--text-primary);
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(40,80,150,.30), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(30,60,140,.22), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
       min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: var(--font-sans);
+      font-size: 17px;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    body.playing { overflow: hidden; }
+    body.playing header.app { display: none; }
+    body.playing #welcome { display: none; }
+
+    button, select, input { font-family: var(--font-sans); }
+
+    /* base.css colors headings with --text-primary (dark ink for light pages);
+       this page is dark, so headings must inherit the page text color */
+    h1, h2, h3, h4 { color: inherit; }
+
+    :focus-visible{
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
-      text-decoration: none;
-      cursor: pointer;
-      transition: all var(--duration-fast) var(--easing);
+    /* ---------- High contrast mode ---------- */
+    body.high-contrast {
+      --bg-1: #000; --bg-2: #000; --bg-3: #000;
+      --panel: rgba(0,0,0,.95);
+      --panel-border: rgba(255,255,255,.5);
+      --text: #fff;
+      --text-secondary: #fff;
+      --text-muted: #ddd;
+      --accent: #00ff00;
+      --good: #00ff00;
+      background: #000;
+    }
+    body.high-contrast #game-container,
+    body.high-contrast #scan-area { background: #000 !important; }
+    body.high-contrast .hero-card,
+    body.high-contrast .stat-chip,
+    body.high-contrast .preset,
+    body.high-contrast .seg button,
+    body.high-contrast details.customize,
+    body.high-contrast .legend-card { border-color: rgba(255,255,255,.6); }
+    body.high-contrast .hero-title { -webkit-text-fill-color: #fff; color: #fff; }
+    /* High-contrast objects: solid white disc, bold green ring, black glyph */
+    body.high-contrast .scan-object{
+      background: #fff !important;
+      border: 3px solid #00ff00 !important;
+      color: #000 !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    body.high-contrast .scan-object.golden{
+      background: #ffd700 !important;
+      border-color: #fff !important;
     }
 
-    .btn:hover {
-      border-color: var(--brand-aqua);
-      background-color: var(--bg-tertiary);
+    /* ---------- Reduced motion ----------
+       Applied automatically from the OS setting and by the manual toggle.
+       JS also skips particles/ambient effects when this class is set. */
+    body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
     }
+    body.reduced-motion .ambient,
+    body.reduced-motion #stars span { display:none; }
 
-    .btn-primary {
-      background-color: var(--brand-aqua);
-      color: #000;
-      border-color: var(--brand-aqua);
-    }
-
-    .btn-primary:hover {
-      background-color: #5bc2e7;
-    }
-
-    .btn-secondary {
-      background-color: var(--bg-tertiary);
-    }
-
-    .input, select {
-      width: 100%;
-      padding: var(--space-2) var(--space-3);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: var(--font-size-base);
-    }
-
-    .panel {
-      background: rgba(15, 22, 41, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    /* ---------- Header ---------- */
+    header.app{
+      position: sticky; top:0; z-index: 50;
+      padding: 10px 16px;
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      display:flex; gap:12px; align-items:center;
+      background: linear-gradient(180deg, rgba(8,12,26,.92), rgba(8,12,26,.6));
+      border-bottom: 1px solid rgba(255,255,255,.06);
       backdrop-filter: blur(8px);
-      background: rgba(8, 15, 35, 0.8);
-      border-bottom: 1px solid var(--border);
     }
+    header .home {
+      text-decoration:none; color:var(--text); font-weight:800; font-size:.95rem;
+      border:1.5px solid rgba(255,255,255,.22); border-radius: var(--r-pill);
+      padding: 8px 16px; min-height: 44px; display:inline-flex; align-items:center;
+      transition: background .2s, border-color .2s;
+    }
+    header .home:hover { background: rgba(96,165,250,.12); border-color: var(--accent); }
+    header h1{
+      margin:0; font-size: clamp(18px, 3vw, 23px); font-weight: 900; letter-spacing:-.01em;
+      display:flex; align-items:center; gap:8px;
+    }
+    header .spacer{ flex:1; }
+    header .progress-link{
+      text-decoration:none; color:var(--text-secondary); font-weight:700; font-size:.9rem;
+      padding:8px 14px; border-radius: var(--r-pill); min-height:44px;
+      display:inline-flex; align-items:center; gap:6px;
+      transition: color .2s, background .2s;
+    }
+    header .progress-link:hover{ color: var(--accent-2); background: rgba(96,165,250,.1); }
 
-    .site-header .inner {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-4);
-      max-width: 1200px;
+    /* =========================================================
+       1) WELCOME SCREEN
+       ========================================================= */
+    #welcome{
+      max-width: 780px;
       margin: 0 auto;
-    }
-
-    .site-header h1 {
-      margin: 0;
-      font-size: var(--font-size-xl);
-      line-height: 1.2;
-    }
-
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-4);
-    }
-
-    [data-screen] {
-      display: none !important;
-    }
-
-    [data-screen].active {
-      display: block !important;
-    }
-
-    .settings-panel {
-      max-width: 520px;
-      margin: 0 auto;
-      padding-top: var(--space-6);
-    }
-
-    .settings-panel h2 {
-      margin: 0 0 var(--space-4);
-      font-size: var(--font-size-lg);
-      text-align: center;
-    }
-
-    .game-description {
-      background: var(--bg-tertiary);
-      border-radius: var(--radius);
-      padding: var(--space-4);
-      margin-bottom: var(--space-4);
-      border: 1px solid var(--border);
-    }
-
-    .stats-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: var(--space-4);
-    }
-
-    .metric-settings {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: var(--space-2) var(--space-3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(111, 211, 245, 0.08);
-      min-width: 110px;
-    }
-
-    .pb-value {
-      font-weight: var(--font-weight-bold);
-      font-size: var(--font-size-lg);
-      color: var(--brand-aqua);
-      text-shadow: 0 0 6px rgba(111, 211, 245, 0.5);
-      line-height: 1.1;
-    }
-
-    .pb-label {
-      font-size: var(--font-size-xs);
-      opacity: 0.9;
-      margin-top: var(--space-1);
-      color: var(--text-secondary);
-    }
-
-    /* Session History Chart */
-    .history-section {
-      margin-bottom: var(--space-4);
-      padding: var(--space-3);
-      background: var(--bg-tertiary);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-    }
-
-    .history-section h3 {
-      margin: 0 0 var(--space-2);
-      font-size: 14px;
-      color: var(--text-secondary);
-      text-align: center;
-    }
-
-    .sparkline-container {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 4px;
-      height: 50px;
-      padding: var(--space-2) 0;
-    }
-
-    .sparkline-bar {
-      width: 20px;
-      background: linear-gradient(to top, var(--brand-aqua), rgba(111, 211, 245, 0.4));
-      border-radius: 3px 3px 0 0;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .sparkline-bar:hover {
-      background: linear-gradient(to top, var(--gold), rgba(255, 215, 0, 0.6));
-    }
-
-    .sparkline-bar::after {
-      content: attr(data-score);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      color: var(--text-muted);
-      opacity: 0;
-      transition: opacity 0.2s;
-      white-space: nowrap;
-    }
-
-    .sparkline-bar:hover::after {
-      opacity: 1;
-    }
-
-    .no-history {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: var(--font-size-xs);
-      padding: var(--space-2);
-    }
-
-    .settings-group {
-      margin-bottom: var(--space-4);
-    }
-
-    .settings-label {
-      display: block;
-      margin-bottom: var(--space-2);
-      font-weight: var(--font-weight-semibold);
-    }
-
-    .setting-help {
-      display: block;
-      color: var(--text-muted);
-      font-size: var(--font-size-xs);
-      margin-top: var(--space-1);
-      font-style: italic;
-    }
-
-    /* Toggle Switch */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-2) 0;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 48px;
-      height: 26px;
-      background: var(--bg-tertiary);
-      border: 2px solid var(--border);
-      border-radius: 13px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      background: var(--text-secondary);
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch.active {
-      background: var(--brand-aqua);
-      border-color: var(--brand-aqua);
-    }
-
-    .toggle-switch.active::after {
-      left: 24px;
-      background: white;
-    }
-
-    .right-col {
+      padding: 24px 16px 64px;
       display: grid;
-      grid-template-rows: auto 1fr;
-      gap: var(--space-3);
+      gap: 18px;
     }
 
-    .hud {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 1fr;
-      gap: var(--space-2);
-      align-items: center;
+    /* --- Hero card --- */
+    .hero-card{
       position: relative;
-      padding-top: calc(var(--space-3) + 8px);
-    }
-
-    @media (max-width: 768px) {
-      .hud {
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-auto-flow: row;
-        gap: var(--space-1);
-        padding: var(--space-2);
-        padding-top: calc(var(--space-2) + 6px);
-      }
-      
-      .hud-value {
-        font-size: var(--font-size-base);
-      }
-      
-      .hud-label {
-        font-size: 11px;
-      }
-      
-      .controls {
-        grid-column: 1 / -1;
-        display: flex;
-        gap: var(--space-2);
-        justify-content: center;
-        margin-top: var(--space-1);
-      }
-      
-      .controls .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-      }
-    }
-
-    .hud-group {
-      display: grid;
-      gap: var(--space-1);
-      text-align: center;
-    }
-
-    .hud-value {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-bold);
-      color: var(--brand-aqua);
-    }
-
-    .hud-label {
-      font-size: var(--font-size-xs);
-      color: var(--text-secondary);
-    }
-
-    /* Streak Display */
-    .streak-display {
-      position: absolute;
-      top: 50%;
-      right: var(--space-4);
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      gap: var(--space-1);
-      padding: var(--space-1) var(--space-2);
-      background: linear-gradient(135deg, rgba(255, 149, 0, 0.2), rgba(255, 215, 0, 0.1));
-      border: 1px solid var(--streak-orange);
-      border-radius: var(--radius);
-      font-weight: var(--font-weight-bold);
-      color: var(--streak-orange);
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-
-    .streak-display.visible {
-      opacity: 1;
-    }
-
-    .streak-display.multiplier-2x {
-      color: var(--streak-orange);
-      border-color: var(--streak-orange);
-      box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
-    }
-
-    .streak-display.multiplier-3x {
-      color: var(--gold);
-      border-color: var(--gold);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-      animation: streakPulse 1s ease-in-out infinite;
-    }
-
-    @keyframes streakPulse {
-      0%, 100% { transform: translateY(-50%) scale(1); }
-      50% { transform: translateY(-50%) scale(1.05); }
-    }
-
-    .streak-icon {
-      font-size: 16px;
-    }
-
-    .streak-count {
-      font-size: 14px;
-    }
-
-    .multiplier-badge {
-      font-size: 11px;
-      padding: 2px 4px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      margin-left: 2px;
-    }
-
-    @media (max-width: 768px) {
-      .streak-display {
-        position: static;
-        transform: none;
-        margin: 0 auto;
-        grid-column: 1 / -1;
-        justify-self: center;
-      }
-    }
-
-    .timer-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--brand-aqua), rgba(111,211,245,.35));
-      transform-origin: left center;
-      transition: width .1s linear;
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
-    }
-
-    .controls {
-      display: flex;
-      gap: var(--space-2);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .instructions {
-      text-align: center;
-      color: var(--text-secondary);
-      margin: 0;
-      font-size: 14px;
-      padding: var(--space-2);
-      background-color: rgba(8, 15, 35, 0.7);
-      border-radius: var(--radius);
-      position: absolute;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
-      max-width: 90%;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
-
-    .instructions.fade-out {
-      opacity: 0;
-    }
-
-    #game-container {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: var(--space-3);
-      background: rgba(0,0,0,0.15);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
       overflow: hidden;
-      height: 75vh;
-      min-height: 400px;
+      text-align: center;
+      padding: 34px 22px 30px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.4);
+    }
+    /* Ambient drifting orbs through the hero */
+    .ambient{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .ambient span{
+      position:absolute;
+      bottom:-15%;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(96,165,250,.32) 45%, rgba(29,78,216,.18) 75%, transparent 100%);
+      opacity:.28;
+      animation: ambientRise linear infinite;
+    }
+    .ambient span:nth-child(1){ left:8%;  width:42px; height:42px; animation-duration: 11s; }
+    .ambient span:nth-child(2){ left:24%; width:20px; height:20px; animation-duration: 14s; animation-delay: 2s; }
+    .ambient span:nth-child(3){ left:46%; width:32px; height:32px; animation-duration: 12s; animation-delay: 5s; }
+    .ambient span:nth-child(4){ left:64%; width:16px; height:16px; animation-duration: 16s; animation-delay: 1s; }
+    .ambient span:nth-child(5){ left:78%; width:38px; height:38px; animation-duration: 13s; animation-delay: 7s; }
+    .ambient span:nth-child(6){ left:90%; width:24px; height:24px; animation-duration: 15s; animation-delay: 4s; }
+    @keyframes ambientRise{
+      0%   { transform: translateY(0) translateX(0); opacity:0; }
+      8%   { opacity:.3; }
+      92%  { opacity:.25; }
+      100% { transform: translateY(-90vh) translateX(18px); opacity:0; }
     }
 
-    #stars-container {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
+    .hero-icon{
+      font-size: 58px;
+      line-height: 1;
+      margin-bottom: 6px;
+      display:inline-block;
+      animation: heroFloat 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 8px 22px rgba(96,165,250,.45));
     }
-
-    #scan-area {
-      flex: 1;
-      width: 100%;
-      border: 2px dashed rgba(111, 211, 245, 0.4);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-lg);
+    @keyframes heroFloat{
+      0%,100%{ transform: translateY(0) rotate(-4deg); }
+      50%    { transform: translateY(-9px) rotate(4deg); }
+    }
+    .hero-title{
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 6vw, 2.7rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #93c5fd, var(--ex-a) 45%, #3b82f6 85%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--ex-a); /* fallback */
+    }
+    .hero-tagline{
+      margin: 0 auto 16px;
+      max-width: 470px;
       color: var(--text-secondary);
-      position: relative;
-      background: rgba(8, 15, 35, 0.2);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .skill-chips{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .skill-chips span{
+      font-size: .8rem; font-weight: 800;
+      padding: 5px 13px;
+      border-radius: var(--r-pill);
+      background: rgba(96,165,250,.12);
+      border: 1px solid rgba(96,165,250,.3);
+      color: var(--accent-2);
     }
 
-    #scan-area.active {
-      border-color: var(--brand-aqua);
-      background: rgba(111, 211, 245, 0.05);
+    /* --- Stats strip --- */
+    .stats-strip{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .stat-chip{
+      text-align:center;
+      padding: 14px 8px 11px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+    }
+    .stat-chip .num{
+      font-size: 1.45rem; font-weight: 900; line-height: 1.15;
+      color: #bcdcff;
+      text-shadow: 0 0 10px rgba(96,165,250,.4);
+    }
+    .stat-chip .lbl{
+      font-size: .74rem; font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-top: 2px;
     }
 
-    /* Countdown Overlay */
-    .countdown-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(10, 14, 26, 0.9);
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+    /* --- Daily challenge chip --- */
+    .challenge-chip{
+      display:none; /* shown by JS when engagement layer is available */
+      align-items:center; gap:10px;
+      padding: 12px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(251,191,36,.14), rgba(245,158,11,.08));
+      border: 1px solid rgba(251,191,36,.35);
+      font-weight: 700; font-size: .95rem;
+      color: #ffe9b3;
+    }
+    .challenge-chip.done{
+      background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(16,185,129,.08));
+      border-color: rgba(16,185,129,.4);
+      color: #b9f5dd;
+    }
+    .challenge-chip .ch-icon{ font-size: 1.3rem; flex-shrink:0; }
+
+    /* --- Section labels --- */
+    .pick-label{
+      font-size: .85rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted);
+      margin: 4px 2px -8px;
     }
 
-    .countdown-overlay.visible {
-      opacity: 1;
-      pointer-events: auto;
+    /* --- Difficulty presets --- */
+    .presets{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-
-    .countdown-number {
-      font-size: 120px;
-      font-weight: var(--font-weight-bold);
-      color: var(--brand-aqua);
-      text-shadow: 0 0 40px rgba(111, 211, 245, 0.6);
-      animation: countdownPop 0.5s ease-out;
-    }
-
-    .countdown-text {
-      font-size: var(--font-size-lg);
-      color: var(--text-secondary);
-      margin-top: var(--space-2);
-    }
-
-    @keyframes countdownPop {
-      0% { transform: scale(0.5); opacity: 0; }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .visual-object {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-full);
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--brand-aqua));
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      font-size: 20px;
+    .preset{
+      position:relative;
+      text-align:center;
+      padding: 16px 10px 14px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
       cursor: pointer;
-      transition: all var(--duration-fast) var(--easing);
-      box-shadow: 0 0 15px rgba(111, 211, 245, 0.4);
-      z-index: 10;
-      opacity: 0;
-      animation: targetFadeIn 0.25s ease-out forwards;
+      transition: border-color .15s, transform .15s, background .15s;
+      min-height: 108px;
+    }
+    .preset:hover{ transform: translateY(-2px); border-color: rgba(96,165,250,.45); }
+    .preset[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(96,165,250,.14), rgba(29,78,216,.08));
+      box-shadow: 0 6px 22px rgba(96,165,250,.22);
+    }
+    .preset[aria-checked="true"]::after{
+      content:'✓';
+      position:absolute; top:8px; right:10px;
+      width:22px; height:22px; border-radius:50%;
+      background: var(--ex-grad); color:#fff;
+      font-size:.8rem; font-weight:900;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .preset .p-icon{ font-size: 1.6rem; line-height:1.2; }
+    .preset .p-name{ font-weight: 900; font-size: 1.05rem; margin-top:2px; }
+    .preset .p-desc{ font-size: .8rem; color: var(--text-secondary); font-weight:600; margin-top:2px; line-height:1.35; }
+    .custom-note{
+      display:none;
+      font-size:.85rem; font-weight:700; color: var(--gold);
+      margin: -8px 2px 0;
+    }
+    .custom-note.show{ display:block; }
+
+    /* --- Session length segmented control --- */
+    .seg{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .seg button{
+      padding: 13px 8px;
+      min-height: 52px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      color: var(--text);
+      font-weight: 800; font-size: 1rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .seg button:hover{ border-color: rgba(96,165,250,.45); }
+    .seg button[aria-checked="true"]{
+      border-color: var(--ex-a);
+      background: linear-gradient(180deg, rgba(96,165,250,.16), rgba(29,78,216,.1));
     }
 
-    @keyframes targetFadeIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
+    /* --- CTA block --- */
+    .cta-block{ display:grid; gap:10px; margin-top: 4px; }
+    .btn-start{
+      width:100%;
+      min-height: 64px;
+      border:none;
+      border-radius: var(--r-pill);
+      background: var(--ex-grad);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: .01em;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(96,165,250,.35);
+      transition: transform .18s, box-shadow .18s, filter .18s;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .btn-start:hover{ transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 14px 38px rgba(96,165,250,.45); }
+    .btn-start:active{ transform: scale(.985); }
+    .cta-hint{
+      text-align:center;
+      font-size: .92rem; font-weight: 700;
+      color: var(--text-secondary);
+      min-height: 1.3em;
+    }
+    .btn-practice{
+      justify-self: center;
+      background: none; border: none;
+      color: var(--good);
+      font-size: .95rem; font-weight: 800;
+      cursor: pointer;
+      padding: 10px 18px; min-height: 44px;
+      border-radius: var(--r-pill);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .btn-practice:hover{ background: rgba(143,245,178,.1); }
+
+    /* --- How-to legend --- */
+    .legend{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .legend-card{
+      display:flex; align-items:center; gap:10px;
+      padding: 11px 12px;
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      font-size: .82rem; font-weight: 700;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+    .legend-card strong{ color: var(--text); display:block; font-size:.88rem; }
+    .mini-orb{
+      width: 34px; height: 34px; border-radius: 50%;
+      flex-shrink: 0;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 16px; color:#fff;
+      text-shadow: 0 0 6px rgba(0,0,0,.5);
+    }
+    .mini-orb.target{
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(96,165,250,.85) 55%, rgba(29,78,216,.5) 100%);
+      box-shadow: 0 0 12px rgba(96,165,250,.55);
+    }
+    .mini-orb.gold{
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(255,215,0,.8) 55%, rgba(218,146,22,.5) 100%);
+      box-shadow: 0 0 12px rgba(255,215,0,.55);
+    }
+    .mini-orb.focus{
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(143,245,178,.7) 55%, rgba(16,120,80,.5) 100%);
+      box-shadow: 0 0 12px rgba(143,245,178,.5);
     }
 
-    .visual-object:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 25px rgba(111, 211, 245, 0.6);
+    /* --- Fine-tune (collapsible) --- */
+    details.customize{
+      border-radius: var(--r-md);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      padding: 0;
+      overflow: hidden;
     }
-
-    .visual-object:active {
-      transform: scale(0.95);
+    details.customize summary{
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 800;
+      font-size: 1rem;
+      display:flex; align-items:center; gap:10px;
+      min-height: 52px;
     }
-
-    .visual-object.correct {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--success));
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
-      animation: correctPulse 0.6s ease-out;
-    }
-
-    .visual-object.incorrect {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--error));
-      box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
-      animation: incorrectShake 0.4s ease;
-    }
-
-    /* Golden bonus target */
-    .visual-object.golden {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--gold));
-      border-color: var(--gold);
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-      animation: targetFadeIn 0.25s ease-out forwards, goldenGlow 1.5s ease-in-out infinite;
-    }
-
-    @keyframes goldenGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
-      50% { box-shadow: 0 0 35px rgba(255, 215, 0, 0.9); }
-    }
-
-    @keyframes correctPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes incorrectShake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      50% { transform: translateX(4px); }
-      75% { transform: translateX(-4px); }
-    }
-
-    .target-display {
-      position: absolute;
-      top: var(--space-3);
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 22, 41, 0.95);
-      border: 2px solid var(--brand-aqua);
-      border-radius: var(--radius-lg);
-      padding: var(--space-2) var(--space-3);
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-weight: var(--font-weight-semibold);
-      font-size: 14px;
-      z-index: 20;
-    }
-
-    .target-icon {
-      font-size: 20px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(111, 211, 245, 0.2);
-      border-radius: var(--radius-full);
-      border: 1px solid var(--brand-aqua);
-    }
-
-    /* Reaction Time Flash */
-    .reaction-flash {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: var(--font-size-2xl);
-      font-weight: var(--font-weight-bold);
-      color: var(--success);
-      text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 30;
-    }
-
-    .reaction-flash.show {
-      animation: reactionPop 1s ease-out forwards;
-    }
-
-    .reaction-flash.fast {
-      color: var(--gold);
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-    }
-
-    @keyframes reactionPop {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-      80% { opacity: 1; transform: translate(-50%, -60%) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
-    }
-
-    .stats-display {
-      position: absolute;
-      bottom: var(--space-3);
-      right: var(--space-3);
-      background: rgba(15, 22, 41, 0.95);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: var(--space-1) var(--space-2);
-      backdrop-filter: blur(8px);
-      display: flex;
-      gap: var(--space-2);
-      align-items: center;
-      font-size: 11px;
-      z-index: 20;
-    }
-
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-1);
-    }
-
-    .stat-value {
-      font-weight: var(--font-weight-bold);
-      color: var(--brand-aqua);
-    }
-
-    .stat-label {
+    details.customize summary::-webkit-details-marker{ display:none; }
+    details.customize summary::after{
+      content:'▾';
+      margin-left:auto;
+      transition: transform .2s;
       color: var(--text-muted);
     }
-
-    .focus-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    .focus-overlay.left::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      background: rgba(0, 0, 0, 0.3);
-      border-left: 2px solid var(--brand-aqua);
-    }
-
-    .focus-overlay.right::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      background: rgba(0, 0, 0, 0.3);
-      border-right: 2px solid var(--brand-aqua);
-    }
-
-    .focus-overlay.top::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      height: 50%;
-      background: rgba(0, 0, 0, 0.3);
-      border-top: 2px solid var(--brand-aqua);
-    }
-
-    .focus-overlay.bottom::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      right: 0;
-      height: 50%;
-      background: rgba(0, 0, 0, 0.3);
-      border-bottom: 2px solid var(--brand-aqua);
-    }
-
-    .feedback-message {
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 22, 41, 0.95);
-      border: 2px solid var(--brand-aqua);
-      border-radius: var(--radius-lg);
-      padding: var(--space-3) var(--space-4);
-      color: var(--text-primary);
-      font-weight: var(--font-weight-semibold);
-      text-align: center;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow-lg);
-      opacity: 0;
-      transition: opacity var(--duration-fast) var(--easing);
-      pointer-events: none;
-      font-size: var(--font-size-lg);
-    }
-
-    .feedback-message:not(.hidden) {
-      opacity: 1;
-    }
-
-    .feedback-message.success {
-      border-color: var(--success);
-      color: var(--success);
-    }
-
-    .feedback-message.error {
-      border-color: var(--error);
-      color: var(--error);
-    }
-
-    .completion {
-      position: fixed;
-      inset: 50% auto auto 50%;
-      transform: translate(-50%, -50%) scale(1);
-      max-width: 90%;
-      width: 560px;
-      z-index: 1100;
-      text-align: center;
-      display: none;
-    }
-
-    .completion.show {
-      display: block;
-      animation: pop 0.25s ease;
-    }
-
-    @keyframes pop {
-      from {
-        transform: translate(-50%, -50%) scale(0.95);
-        opacity: 0.6;
-      }
-      to {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-    }
-
-    .score-highlight {
-      color: var(--brand-aqua);
-      font-weight: var(--font-weight-bold);
-    }
-
-    .new-pb-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--gold), #ffaa00);
-      color: #000;
-      padding: 2px 8px;
-      border-radius: var(--radius);
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-bold);
-      margin-left: var(--space-2);
-      animation: pbBounce 0.5s ease;
-    }
-
-    @keyframes pbBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-
-    .comparison-stat {
-      display: inline-flex;
-      align-items: center;
+    details.customize[open] summary::after{ transform: rotate(180deg); }
+    details.customize .cz-body{
+      padding: 4px 18px 20px;
+      border-top: 1px solid var(--panel-border);
+      display:grid;
       gap: 4px;
-      font-size: var(--font-size-xs);
-      margin-left: var(--space-2);
     }
-
-    .comparison-stat.improved {
-      color: var(--success);
+    .cz-body h4{
+      margin: 16px 0 6px;
+      font-size: .82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing:.07em;
+      color: var(--text-muted);
     }
-
-    .comparison-stat.declined {
-      color: var(--error);
+    .group{ margin-bottom: 12px; }
+    .label{ display:block; margin-bottom: 7px; font-weight: 800; font-size: .95rem; }
+    select, input[type="number"]{
+      width:100%;
+      padding: 12px;
+      min-height: 48px;
+      border-radius: 10px;
+      border:1.5px solid rgba(255,255,255,.2);
+      background: rgba(5,10,26,.8);
+      color:var(--text);
+      font-size:16px;
+      font-weight: 600;
     }
+    select:focus, input[type="number"]:focus{
+      outline:none;
+      border-color: rgba(96,165,250,.9);
+      box-shadow: 0 0 0 2px rgba(96,165,250,.25);
+    }
+    .setting-help{
+      display:block;
+      color: var(--text-muted);
+      font-size: .82rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .toggle-row{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      gap: 12px;
+    }
+    .toggle-row:last-child{ border-bottom:none; }
+    .toggle-label{ font-size: .95rem; font-weight: 700; }
+    .toggle{
+      position:relative;
+      width: 52px; height: 30px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,.16);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+    }
+    .toggle.active{ background: var(--ex-a); }
+    .toggle::after{
+      content:'';
+      position:absolute; top:3px; left:3px;
+      width:24px; height:24px;
+      background:#fff; border-radius:50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+    .toggle.active::after{ transform: translateX(22px); }
 
-    .achievement-toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 149, 0, 0.1));
-      border: 2px solid var(--gold);
-      border-radius: var(--radius-lg);
-      padding: var(--space-3) var(--space-4);
+    /* =========================================================
+       2) PLAY SCREEN
+       ========================================================= */
+    #gameCol{ display:none; }
+    body.playing #gameCol{
       display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
+      z-index: 100;
+      background:
+        radial-gradient(1200px 800px at 20% 25%, rgba(40,80,150,.30), transparent 60%),
+        radial-gradient(900px 700px at 75% 65%, rgba(30,60,140,.22), transparent 55%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    }
+
+    /* --- HUD --- */
+    .hud{
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
       align-items: center;
-      gap: var(--space-3);
-      z-index: 1200;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all 0.4s ease;
+      position: relative;
+      padding: 14px 16px 10px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      background: rgba(10, 16, 36, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      flex-shrink: 0;
     }
-
-    .achievement-toast.show {
-      opacity: 1;
-      transform: translateX(0);
+    .timer-bar{
+      position:absolute;
+      top:0; left:0;
+      height: 6px;
+      width:100%;
+      background: var(--ex-grad);
+      border-radius: 0 3px 3px 0;
+      transition: width .1s linear;
     }
-
-    .achievement-icon {
-      font-size: 32px;
+    .hud-group{ display:grid; gap:1px; text-align:center; }
+    .hud-value{
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 8px rgba(96,165,250,.6);
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
     }
-
-    .achievement-text h4 {
-      margin: 0;
+    .hud-label{
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+    }
+    .hud-value.stage{ color: var(--good); text-shadow: 0 0 8px rgba(143,245,178,.6); }
+    .hud-value.combo-hot{
       color: var(--gold);
-      font-size: 14px;
+      text-shadow: 0 0 12px rgba(255,215,0,.8);
+      animation: pulse .5s ease-in-out;
+    }
+    .hud-value.new-pb{ animation: pbFlash .8s ease-in-out; }
+    @keyframes pbFlash{
+      0%,100%{ color: var(--accent); }
+      50%{ color: var(--gold); transform: scale(1.2); }
+    }
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); }
+      50%{ transform: scale(1.1); }
+    }
+    .controls{
+      display:flex; gap:10px; justify-content:center;
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+    .btn-ghost{
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,.18);
+      color: var(--text);
+      border-radius: var(--r-pill);
+      padding: 8px 22px;
+      min-height: 44px;
+      font-weight: 800;
+      font-size: .92rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-ghost:hover{ background: rgba(96,165,250,.1); border-color: rgba(96,165,250,.5); }
+
+    /* --- Stage (scan field) --- */
+    #game-container{
+      position:relative;
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      background: rgba(0,0,0,.2);
+    }
+    /* Starfield backdrop */
+    #stars{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+    #stars span{
+      position:absolute; border-radius:50%; background:#fff;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+    @keyframes twinkle{ 0%,100%{ opacity:.25; } 50%{ opacity:.9; } }
+
+    /* Target prompt banner */
+    .target-prompt{
+      position:absolute; top:14px; left:50%; transform:translateX(-50%);
+      z-index:20;
+      display:flex; align-items:center; gap:10px;
+      padding: 8px 16px;
+      border-radius: var(--r-pill);
+      background: rgba(10,16,36,.92);
+      border: 2px solid var(--ex-a);
+      box-shadow: 0 6px 22px rgba(0,0,0,.4), 0 0 18px rgba(96,165,250,.25);
+      backdrop-filter: blur(8px);
+      font-weight: 800; font-size: .98rem;
+      white-space: nowrap;
+      max-width: 92%;
+    }
+    .target-prompt .tp-glyph{
+      width: 38px; height: 38px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 22px; line-height:1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.12), rgba(96,165,250,.32));
+      border: 1.5px solid rgba(96,165,250,.5);
+      color:#fff;
+    }
+    .target-prompt .tp-count{
+      color: var(--accent-2);
+      font-variant-numeric: tabular-nums;
     }
 
-    .achievement-text p {
-      margin: 2px 0 0;
+    .scan-instructions{
+      position:absolute; top:66px; left:50%; transform:translateX(-50%);
+      z-index:19;
+      font-size: .82rem; font-weight:700;
       color: var(--text-secondary);
-      font-size: 12px;
+      background: rgba(8,12,28,.7);
+      padding: 5px 12px; border-radius: var(--r-pill);
+      pointer-events:none;
+      transition: opacity .5s ease;
+      max-width: 90%; text-align:center;
+    }
+    .scan-instructions.fade-out{ opacity:0; }
+
+    /* The scan field where objects are placed */
+    #scan-area{
+      position:absolute; inset:0; z-index:10;
     }
 
-    .celebrate {
-      animation: celebrate 900ms ease-out 1;
+    /* Visual objects (targets + distractors) */
+    .scan-object{
+      position:absolute;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:50%;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(30,58,138,.42));
+      border: 2px solid rgba(147,197,253,.35);
+      box-shadow: 0 2px 12px rgba(0,0,0,.35);
+      color:#fff;
+      cursor:pointer;
+      z-index:10;
+      opacity:0;
+      transform: scale(.7);
+      animation: objIn .26s ease-out forwards;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @keyframes objIn{ to{ opacity:1; transform: scale(1); } }
+    .scan-object:hover{ filter: brightness(1.12); }
+    .scan-object:active{ transform: scale(.94); }
+    .scan-object.golden{
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(255,215,0,.85) 65%, rgba(218,146,22,.55) 100%);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255,215,0,.6);
+      animation: objIn .26s ease-out forwards, goldenGlow 1.6s ease-in-out infinite;
+      color:#3a2c00;
+    }
+    @keyframes goldenGlow{
+      0%,100%{ box-shadow: 0 0 18px rgba(255,215,0,.55); }
+      50%{ box-shadow: 0 0 34px rgba(255,215,0,.9); }
+    }
+    .scan-object.found{
+      animation: foundPop .4s ease-out forwards;
+      pointer-events:none;
+    }
+    @keyframes foundPop{
+      0%{ transform: scale(1); }
+      45%{ transform: scale(1.28); background: radial-gradient(circle at 35% 30%, #fff, var(--good) 70%); box-shadow:0 0 26px rgba(143,245,178,.9); }
+      100%{ transform: scale(.2); opacity:0; }
+    }
+    .scan-object.wrong{
+      animation: wrongShake .4s ease;
+    }
+    @keyframes wrongShake{
+      0%,100%{ transform: translateX(0); }
+      20%{ transform: translateX(-5px); }
+      40%{ transform: translateX(5px); }
+      60%{ transform: translateX(-4px); }
+      80%{ transform: translateX(4px); }
     }
 
-    @keyframes celebrate {
-      0% { box-shadow: 0 0 0 rgba(111,211,245,0); }
-      40% { box-shadow: 0 0 40px rgba(111,211,245,.8); }
-      100% { box-shadow: 0 0 20px rgba(111,211,245,.2); }
+    /* Focus-area dimming overlay (clinical hemifield training) */
+    .focus-overlay{ position:absolute; inset:0; pointer-events:none; z-index:8; }
+    .focus-overlay.left::after,
+    .focus-overlay.right::after,
+    .focus-overlay.top::after,
+    .focus-overlay.bottom::after{
+      content:''; position:absolute; background: rgba(0,0,0,.34);
+    }
+    .focus-overlay.left::after{ right:0; top:0; bottom:0; width:50%; border-left:2px solid rgba(96,165,250,.5); }
+    .focus-overlay.right::after{ left:0; top:0; bottom:0; width:50%; border-right:2px solid rgba(96,165,250,.5); }
+    .focus-overlay.top::after{ left:0; right:0; bottom:0; height:50%; border-top:2px solid rgba(96,165,250,.5); }
+    .focus-overlay.bottom::after{ left:0; right:0; top:0; height:50%; border-bottom:2px solid rgba(96,165,250,.5); }
+
+    /* Floating score popups */
+    .float-pop{
+      position:absolute; z-index:30; pointer-events:none;
+      font-weight:900; font-size:18px; color:#fff;
+      text-shadow:0 0 8px rgba(0,0,0,.6);
+      transform: translate(-50%,-50%);
+      animation: floatUp .9s ease-out forwards;
+      white-space:nowrap;
+    }
+    .float-pop.gold{ color: var(--gold); text-shadow:0 0 10px rgba(255,215,0,.8); }
+    @keyframes floatUp{
+      0%{ opacity:0; transform: translate(-50%,-50%) scale(.6); }
+      20%{ opacity:1; transform: translate(-50%,-60%) scale(1.05); }
+      100%{ opacity:0; transform: translate(-50%,-120%) scale(1); }
     }
 
-    .hidden {
-      display: none !important;
+    .hidden{ display:none !important; }
+
+    /* --- Countdown --- */
+    .countdown-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      z-index:300;
+    }
+    .countdown-number{
+      font-size:180px; font-weight:900;
+      color: var(--accent);
+      text-shadow: 0 0 60px rgba(96,165,250,.8);
+      animation: countdownPop .8s ease-out;
+    }
+    .countdown-go{
+      font-size:100px;
+      color: var(--good);
+      text-shadow: 0 0 60px rgba(143,245,178,.8);
+    }
+    @keyframes countdownPop{
+      0%{ transform: scale(2); opacity:0; }
+      30%{ transform: scale(1); opacity:1; }
+      100%{ transform: scale(.8); opacity:0; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .visual-object.correct,
-      .visual-object.incorrect,
-      .celebrate,
-      .visual-object,
-      .countdown-number { 
-        animation: none; 
-      }
-      
-      .visual-object {
-        opacity: 1;
-      }
+    /* --- Pause overlay --- */
+    .pause-overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(5,8,20,.78);
+      backdrop-filter: blur(10px);
+      z-index:250;
     }
-
-    @media (max-width: 768px) {
-      .visual-object {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
-      }
-      
-      .settings-panel {
-        padding: var(--space-3);
-        margin: var(--space-2);
-      }
-      
-      .page {
-        padding: var(--space-2);
-      }
-
-      #game-container {
-        height: 80vh;
-        min-height: 300px;
-      }
-
-      .target-display {
-        top: var(--space-2);
-        padding: var(--space-1) var(--space-2);
-        font-size: 12px;
-      }
-
-      .target-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 18px;
-      }
-
-      .stats-display {
-        bottom: var(--space-2);
-        right: var(--space-2);
-        font-size: 10px;
-        gap: var(--space-1);
-        padding: var(--space-1);
-      }
-
-      .instructions {
-        font-size: 12px;
-        padding: var(--space-1) var(--space-2);
-        top: 55px;
-        max-width: 85%;
-      }
-
-      .countdown-number {
-        font-size: 80px;
-      }
-
-      .reaction-flash {
-        font-size: var(--font-size-xl);
-      }
-
-      .achievement-toast {
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-        transform: translateY(100%);
-      }
-
-      .achievement-toast.show {
-        transform: translateY(0);
-      }
+    .pause-overlay[hidden]{ display:none; }
+    .pause-card{
+      text-align:center;
+      padding: 34px 40px;
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 18px 50px rgba(0,0,0,.5);
     }
+    .pause-card h2{ margin:0 0 6px; font-size:1.8rem; font-weight:900; }
+    .pause-card p{ margin:0 0 18px; color: var(--text-secondary); font-weight:600; }
+    .pause-card .btn-start{ min-height: 54px; font-size: 1.1rem; padding: 0 34px; width:auto; margin: 0 auto 10px; }
+    .pause-card .btn-ghost{ display:block; margin: 0 auto; }
 
-    /* ===== Session-complete medal (matches other games) ===== */
-    .medal {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; margin: 4px 0 14px;
-      padding: 14px 18px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.08);
-      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
-    }
-    .medal-disc {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; flex-shrink: 0;
-      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
-    }
-    .medal-disc.bronze   { background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
-    .medal-disc.silver   { background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
-    .medal-disc.gold     { background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
-    .medal-disc.platinum { background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
-    .medal-text { text-align: left; line-height: 1.25; }
-    .medal-tier { font-size: 18px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
-    .medal-tier.bronze   { color: #f3a872; }
-    .medal-tier.silver   { color: #e8eef6; }
-    .medal-tier.gold     { color: #ffd700; }
-    .medal-tier.platinum { color: #b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
-    .medal-caption { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-    @keyframes medalReveal {
-      0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
-      60% { opacity: 1; transform: scale(1.05) rotate(2deg); }
-      100% { opacity: 1; transform: scale(1) rotate(0); }
-    }
-
-    /* ===== Per-session insight callout ===== */
-    .session-insight {
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 0 14px; padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(111,211,245,.10);
-      border-left: 4px solid rgba(111,211,245,.65);
-      color: #e7f6ff;
-      font-size: 14px; line-height: 1.4;
-      text-align: left;
-    }
-    .session-insight .ins-icon { font-size: 20px; flex-shrink: 0; }
-    .session-insight .ins-text strong { color: #bfe6ff; }
-
-    /* ===== Streak milestone toast + particles ===== */
-    .streak-milestone-toast {
-      position: fixed; top: 18%; left: 50%;
+    /* --- Streak milestone toast + particles --- */
+    .streak-toast{
+      position: fixed; top: 20%; left: 50%;
       transform: translate(-50%, -20px) scale(.6);
       padding: 14px 32px; border-radius: 14px;
-      font-size: 32px; font-weight: 900;
+      font-size: 30px; font-weight: 900;
       color: #ffd700;
       text-shadow: 0 0 24px rgba(255,215,0,1), 0 0 8px rgba(255,140,0,.7);
-      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(255,90,0,.18));
+      background: linear-gradient(135deg, rgba(255,215,0,.28), rgba(96,165,250,.18));
       border: 3px solid #ffd700;
       box-shadow: 0 0 40px rgba(255,215,0,.45);
-      z-index: 1300;
-      pointer-events: none;
-      white-space: nowrap;
-      animation: streakSlide 2.4s ease-out forwards;
+      z-index: 1300; pointer-events: none; white-space: nowrap;
+      animation: streakSlide 2.2s ease-out forwards;
     }
-    @keyframes streakSlide {
-      0% { opacity: 0; transform: translate(-50%, -30px) scale(.6); }
-      15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
-      30% { transform: translate(-50%, 0) scale(1); }
-      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -12px) scale(.95); }
+    @keyframes streakSlide{
+      0%{ opacity:0; transform: translate(-50%,-30px) scale(.6); }
+      15%{ opacity:1; transform: translate(-50%,0) scale(1.12); }
+      30%{ transform: translate(-50%,0) scale(1); }
+      80%{ opacity:1; transform: translate(-50%,0) scale(1); }
+      100%{ opacity:0; transform: translate(-50%,-12px) scale(.95); }
     }
-    .streak-burst-container { position: fixed; inset: 0; pointer-events: none; z-index: 1299; }
-    .streak-burst {
-      position: absolute; width: 8px; height: 8px;
-      border-radius: 50%; pointer-events: none;
-      will-change: transform, opacity;
+    .burst-container{ position: fixed; inset:0; pointer-events:none; z-index:1299; }
+    .burst{ position:absolute; width:8px; height:8px; border-radius:50%; will-change:transform,opacity; }
+    @keyframes burstFly{ 0%{ opacity:1; transform: translate(0,0) scale(1); } 100%{ opacity:0; transform: translate(var(--bx),var(--by)) scale(.3); } }
+
+    /* =========================================================
+       3) SESSION COMPLETE
+       ========================================================= */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      z-index:200;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
     }
-    @keyframes streakBurst {
-      0% { opacity: 1; transform: translate(0,0) scale(1); }
-      100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(.3); }
+    .modal.open{ display:flex; }
+    .modal .card{
+      width:min(580px, 94vw);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--r-lg);
+      background: var(--panel);
+      padding:26px;
+      animation: modalSlideIn .3s ease-out;
+      max-height: 92vh;
+      overflow-y:auto;
+    }
+    .modal h2{ font-weight: 900; letter-spacing:-.01em; }
+    @keyframes modalSlideIn{
+      from{ opacity:0; transform: translateY(-20px) scale(.95); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+    .medal{
+      display:flex; align-items:center; justify-content:center;
+      gap:14px;
+      margin:4px 0 14px;
+      padding:14px 18px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      animation: medalReveal .65s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .medal-disc{
+      width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; flex-shrink:0;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.25);
+    }
+    .medal-disc.bronze{ background: radial-gradient(circle at 35% 30%, #f3a872, #a06030 70%); }
+    .medal-disc.silver{ background: radial-gradient(circle at 35% 30%, #e8eef6, #8a98ad 70%); }
+    .medal-disc.gold{ background: radial-gradient(circle at 35% 30%, #fff3a0, #d49216 70%); }
+    .medal-disc.platinum{ background: radial-gradient(circle at 35% 30%, #d4f0ff, #62a3ce 70%); box-shadow: 0 4px 18px rgba(98,163,206,.6), inset 0 -3px 6px rgba(0,0,0,.25), inset 0 3px 4px rgba(255,255,255,.4); }
+    .medal-text{ text-align:left; line-height:1.25; }
+    .medal-tier{ font-size:18px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; }
+    .medal-tier.bronze{ color:#f3a872; }
+    .medal-tier.silver{ color:#e8eef6; }
+    .medal-tier.gold{ color:#ffd700; }
+    .medal-tier.platinum{ color:#b7e3ff; text-shadow: 0 0 18px rgba(183,227,255,.55); }
+    .medal-caption{ font-size:13px; color: var(--text-secondary); margin-top:2px; }
+    @keyframes medalReveal{
+      0%{ opacity:0; transform: scale(.6) rotate(-8deg); }
+      60%{ opacity:1; transform: scale(1.05) rotate(2deg); }
+      100%{ opacity:1; transform: scale(1) rotate(0); }
+    }
+    .earn-chip{
+      display:none;
+      align-items:center; justify-content:center;
+      gap:8px;
+      margin: 0 0 14px;
+      padding: 11px 16px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(96,165,250,.16), rgba(29,78,216,.1));
+      border: 1px solid rgba(96,165,250,.4);
+      font-weight: 800;
+      font-size: .95rem;
+      color: #cfe2ff;
+      text-align:center;
+    }
+    .session-insight{
+      display:flex; align-items:center; gap:10px;
+      margin:0 0 14px;
+      padding:12px 14px;
+      border-radius: var(--r-md);
+      background: rgba(96,165,250,.10);
+      border-left: 4px solid rgba(96,165,250,.65);
+      color:#e7f1ff;
+      font-size:14px;
+      line-height:1.4;
+    }
+    .session-insight .ins-icon{ font-size:20px; flex-shrink:0; }
+    .session-insight .ins-text strong{ color:#bcdcff; }
+    .final-metrics{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .metric{
+      flex:1 1 auto;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r-md);
+      background: rgba(96,165,250,.08);
+      min-width:96px;
+    }
+    .metric .v{
+      font-weight:900; font-size:22px;
+      color:#cfe2ff;
+      text-shadow: 0 0 6px rgba(150,190,255,.5);
+      line-height:1.1;
+    }
+    .metric .t{
+      font-size:11px;
+      font-weight:700;
+      text-transform: uppercase;
+      letter-spacing:.05em;
+      margin-top:4px;
+      color: var(--text-secondary);
+    }
+    .improvement{
+      display:inline-flex; align-items:center; gap:4px;
+      padding:4px 10px;
+      border-radius: var(--r-pill);
+      font-size:13px; font-weight:700;
+      margin-left:8px;
+    }
+    .improvement.positive{ background: rgba(143,245,178,.15); color: var(--good); }
+    .improvement.negative{ background: rgba(255,107,107,.15); color:#ff6b6b; }
+    .improvement.neutral{ background: rgba(255,255,255,.1); color: var(--text-secondary); }
+    .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .modal-actions .btn-start{ min-height: 52px; font-size:1.05rem; flex:1; }
+    .modal-actions .btn-ghost{ flex:1; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+
+    /* =========================================================
+       Responsive
+       ========================================================= */
+    @media (max-width: 700px){
+      #welcome{ padding: 16px 12px 56px; }
+      .hero-card{ padding: 26px 16px 24px; }
+      .stats-strip{ grid-template-columns: repeat(2, 1fr); }
+      .presets{ grid-template-columns: 1fr; }
+      .preset{ min-height:0; display:flex; align-items:center; gap:12px; text-align:left; padding:13px 16px; }
+      .preset .p-icon{ font-size:1.5rem; }
+      .preset .p-name{ margin-top:0; }
+      .preset > div{ flex:1; }
+      .legend{ grid-template-columns: 1fr; }
+      .hud{
+        grid-template-columns: repeat(3, 1fr);
+        gap:8px;
+        padding:12px 12px 8px;
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      }
+      .hud-value{ font-size:20px; }
+      .hud-label{ font-size:10px; }
+      .controls .btn-ghost{ padding:8px 16px; font-size:14px; min-height:40px; }
+      .countdown-number{ font-size:120px; }
+      .countdown-go{ font-size:70px; }
+      .target-prompt{ font-size:.9rem; padding:7px 13px; }
+      .target-prompt .tp-glyph{ width:32px; height:32px; font-size:19px; }
+      header .progress-link .pl-text{ display:none; }
     }
   </style>
-  <!-- Unified game chrome -->
-  <link rel="stylesheet" href="/css/game-shell.css">
+
   <script src="/js/fpr-native.js" defer></script>
   <script src="/js/fpr-reminders.js" defer></script>
+  <!-- Engagement layer (points / level / daily challenge). Relative path works
+       in test-redesign AND after promote (exercises/../js/ -> /js/). -->
+  <script src="../js/fpr-engagement.js" defer></script>
 </head>
-
 <body class="game-page">
-  <header class="site-header">
-    <div class="inner">
-      <a class="btn btn-secondary" href="../" aria-label="Go to Home">← Home</a>
-      <h1>Visual Scanner</h1>
-    </div>
+  <header class="app" role="banner" aria-label="Exercise header">
+    <a class="home" href="../" aria-label="Back to home">← Home</a>
+    <h1><span aria-hidden="true">🔍</span> Visual Scanner</h1>
+    <span class="spacer"></span>
+    <a class="progress-link" href="../dashboard.html"><span aria-hidden="true">📊</span> <span class="pl-text">My Progress</span></a>
   </header>
 
-  <main class="page">
-    <aside class="settings-panel panel active" data-screen="settings">
-      <h2>Settings</h2>
+  <!-- =================== 1) WELCOME SCREEN =================== -->
+  <main id="welcome" aria-label="Get ready to play">
 
-      <div class="game-description">
-        <p>
-          Scan the visual field to find and click target objects. Improves visual attention, 
-          scanning speed, and visual processing skills. Train focused attention and visual search efficiency.
-        </p>
+    <section class="hero-card">
+      <div class="ambient" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
+      <div class="hero-icon" aria-hidden="true">🔍</div>
+      <h2 class="hero-title">Ready to find them all?</h2>
+      <p class="hero-tagline">Scan a field full of objects and pick out every target as fast as you can — a visual-search workout for attention, scanning speed and field awareness.</p>
+      <div class="skill-chips" aria-label="Skills trained">
+        <span>Visual scanning</span><span>Field awareness</span><span>Focused attention</span>
+      </div>
+    </section>
 
-      <div class="stats-row">
-        <div class="metric-settings">
-          <div id="pb-settings" class="pb-value">0</div>
-          <div class="pb-label">Personal Best</div>
+    <section class="stats-strip" aria-label="Your stats">
+      <div class="stat-chip">
+        <div id="pbSettings" class="num">0</div>
+        <div class="lbl">Personal best</div>
+      </div>
+      <div class="stat-chip">
+        <div id="lastScoreSettings" class="num">–</div>
+        <div class="lbl">Last score</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statStreak" class="num">🔥 0</div>
+        <div class="lbl">Day streak</div>
+      </div>
+      <div class="stat-chip">
+        <div id="statLevel" class="num">1</div>
+        <div class="lbl">Your level</div>
+      </div>
+    </section>
+
+    <div id="challengeChip" class="challenge-chip" role="status">
+      <span class="ch-icon" aria-hidden="true">⭐</span>
+      <span id="challengeText"></span>
+    </div>
+
+    <p class="pick-label" id="presetLabel">Choose your pace</p>
+    <div class="presets" role="radiogroup" aria-labelledby="presetLabel">
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="gentle">
+        <span class="p-icon" aria-hidden="true">🌊</span>
+        <div>
+          <div class="p-name">Gentle</div>
+          <div class="p-desc">Big targets, calm field</div>
         </div>
-        <div class="metric-settings">
-          <div id="sessions-count" class="pb-value">0</div>
-          <div class="pb-label">Sessions</div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="steady">
+        <span class="p-icon" aria-hidden="true">✨</span>
+        <div>
+          <div class="p-name">Steady</div>
+          <div class="p-desc">A busier field</div>
         </div>
-      </div>
+      </button>
+      <button type="button" class="preset" role="radio" aria-checked="false" data-preset="swift">
+        <span class="p-icon" aria-hidden="true">⚡</span>
+        <div>
+          <div class="p-name">Swift</div>
+          <div class="p-desc">Small targets, packed field</div>
+        </div>
+      </button>
+    </div>
+    <p id="customNote" class="custom-note">Custom settings active — chosen in Fine-tune below.</p>
 
-      <!-- Session History Sparkline -->
-      <div class="history-section" id="history-section">
-        <h3>Recent Performance</h3>
-        <div class="sparkline-container" id="sparkline"></div>
-      </div>
+    <p class="pick-label" id="lengthLabel">Session length</p>
+    <div class="seg" role="radiogroup" aria-labelledby="lengthLabel">
+      <button type="button" role="radio" aria-checked="false" data-min="1">1 min</button>
+      <button type="button" role="radio" aria-checked="true" data-min="2">2 min</button>
+      <button type="button" role="radio" aria-checked="false" data-min="5">5 min</button>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="difficulty">Difficulty</label>
-        <select class="input" id="difficulty">
-          <option value="easy">Easy – fewer distractors, larger targets</option>
-          <option value="medium" selected>Medium – moderate challenge</option>
-          <option value="hard">Hard – many distractors, smaller targets</option>
-        </select>
-        <small class="setting-help">Higher difficulty increases visual complexity and challenge.</small>
-      </div>
+    <div class="cta-block">
+      <button id="startBtn" class="btn-start" type="button">
+        <span aria-hidden="true">▶</span> Start session
+      </button>
+      <div id="ctaHint" class="cta-hint"></div>
+      <button id="practiceBtn" class="btn-practice" type="button">
+        Or warm up in Practice mode — no timer, no pressure
+      </button>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label" for="focus-area">Focus Area</label>
-        <select class="input" id="focus-area">
-          <option value="none">Full Field – scan entire area</option>
-          <option value="left">Left Side – focus on left hemisphere</option>
-          <option value="right">Right Side – focus on right hemisphere</option>
-          <option value="top">Upper Field – focus on upper quadrants</option>
-          <option value="bottom">Lower Field – focus on lower quadrants</option>
-        </select>
-        <small class="setting-help">Target specific visual field areas for focused training.</small>
+    <p class="pick-label">How it works</p>
+    <div class="legend" aria-label="How to play">
+      <div class="legend-card">
+        <div class="mini-orb target" aria-hidden="true">🔵</div>
+        <div><strong>Find the match</strong> Tap every object that matches the one shown up top.</div>
       </div>
-
-      <div class="settings-group">
-        <label class="settings-label" for="object-type">Object Type</label>
-        <select class="input" id="object-type">
-          <option value="shapes" selected>Shapes – geometric forms and symbols</option>
-          <option value="letters">Letters – alphabet characters</option>
-          <option value="numbers">Numbers – numeric digits</option>
-          <option value="emoji">Emoji – colorful icons and faces</option>
-          <option value="highcontrast">High Contrast – distinct shapes (colorblind friendly)</option>
-        </select>
-        <small class="setting-help">Different object types challenge various visual processing skills.</small>
+      <div class="legend-card">
+        <div class="mini-orb gold" aria-hidden="true">★</div>
+        <div><strong>Golden target</strong> Worth 3× — grab it when one glows gold.</div>
       </div>
-
-      <div class="settings-group">
-        <label class="settings-label" for="session-duration">Session Duration (minutes)</label>
-        <input class="input" type="number" id="session-duration" min="1" max="10" value="3">
-        <small class="setting-help">1–10 minutes recommended.</small>
+      <div class="legend-card">
+        <div class="mini-orb focus" aria-hidden="true">◑</div>
+        <div><strong>Focus area</strong> Train one side of your field in Fine-tune.</div>
       </div>
+    </div>
 
-      <div class="settings-group">
-        <label class="settings-label">Options</label>
+    <details class="customize" id="customize">
+      <summary><span aria-hidden="true">⚙️</span> Fine-tune <span style="font-weight:600; color:var(--text-muted); font-size:.85rem;">— difficulty, what to find, field side, accessibility</span></summary>
+      <div class="cz-body">
+
+        <h4>Session</h4>
+        <div class="group">
+          <label class="label" for="dur">Custom duration (minutes)</label>
+          <input id="dur" type="number" min="0.5" step="0.5" max="10" value="2" inputmode="decimal" />
+          <small class="setting-help">0.5–10 minutes. The quick picks above set this for you.</small>
+        </div>
+
+        <h4>Difficulty</h4>
+        <div class="group">
+          <label class="label" for="difficulty">How busy is the field</label>
+          <select id="difficulty">
+            <option value="easy">Calm — big targets, few distractions</option>
+            <option value="medium" selected>Balanced — a busier field</option>
+            <option value="hard">Packed — small targets, lots of distractions</option>
+          </select>
+          <small class="setting-help">The quick picks above set this. More objects = harder visual search.</small>
+        </div>
+
+        <h4>What to find</h4>
+        <div class="group">
+          <label class="label" for="objectType">Objects in the field</label>
+          <select id="objectType">
+            <option value="shapes" selected>Shapes — coloured dots &amp; symbols</option>
+            <option value="letters">Letters — A to Z</option>
+            <option value="numbers">Numbers — 0 to 9</option>
+            <option value="emoji">Emoji — colourful icons</option>
+            <option value="highcontrast">High contrast — bold outline shapes</option>
+          </select>
+          <small class="setting-help">Letters &amp; numbers add a cognitive layer; shapes are the most visual.</small>
+        </div>
+
+        <h4>Field of view</h4>
+        <div class="group">
+          <label class="label" for="focusArea">Where targets appear</label>
+          <select id="focusArea">
+            <option value="none" selected>Whole field</option>
+            <option value="left">Left side only</option>
+            <option value="right">Right side only</option>
+            <option value="top">Upper field only</option>
+            <option value="bottom">Lower field only</option>
+          </select>
+          <small class="setting-help">Focus one hemifield to train a neglected or weaker side.</small>
+        </div>
+
+        <h4>Game options</h4>
         <div class="toggle-row">
-          <span>Sound Effects</span>
-          <div class="toggle-switch" id="sound-toggle" role="switch" aria-checked="true" tabindex="0"></div>
+          <span class="toggle-label" id="lblProgressive">Progressive field</span>
+          <button type="button" id="toggleProgressive" class="toggle active" onclick="toggleSwitch(this)" data-setting="progressive" role="switch" aria-checked="true" aria-labelledby="lblProgressive"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Each field you clear adds a few more objects, up to Stage 8.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblSpecials">Golden bonus targets</span>
+          <button type="button" id="toggleSpecials" class="toggle active" onclick="toggleSwitch(this)" data-setting="specials" role="switch" aria-checked="true" aria-labelledby="lblSpecials"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">An occasional target glows gold and scores 3× points.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblSound">Sound effects</span>
+          <button type="button" id="toggleSound" class="toggle active" onclick="toggleSwitch(this)" data-setting="sound" role="switch" aria-checked="true" aria-labelledby="lblSound"></button>
         </div>
         <div class="toggle-row">
-          <span>Bonus Targets (3x points)</span>
-          <div class="toggle-switch active" id="bonus-toggle" role="switch" aria-checked="true" tabindex="0"></div>
+          <span class="toggle-label" id="lblHaptic">Haptic feedback</span>
+          <button type="button" id="toggleHaptic" class="toggle active" onclick="toggleSwitch(this)" data-setting="haptic" role="switch" aria-checked="true" aria-labelledby="lblHaptic"></button>
         </div>
+
+        <h4>Accessibility</h4>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblContrast">High contrast mode</span>
+          <button type="button" id="toggleContrast" class="toggle" onclick="toggleSwitch(this)" data-setting="highContrast" role="switch" aria-checked="false" aria-labelledby="lblContrast"></button>
+        </div>
+        <small class="setting-help" style="margin-bottom:8px; display:block;">Black background with bold, high-visibility objects.</small>
+        <div class="toggle-row">
+          <span class="toggle-label" id="lblReduceMotion">Reduce motion</span>
+          <button type="button" id="toggleMotion" class="toggle" onclick="toggleSwitch(this)" data-setting="reducedMotion" role="switch" aria-checked="false" aria-labelledby="lblReduceMotion"></button>
+        </div>
+        <small class="setting-help">Calms particles and twinkling. Follows your device setting automatically.</small>
+
+      </div>
+    </details>
+  </main>
+
+  <!-- =================== 2) PLAY SCREEN =================== -->
+  <section id="gameCol" aria-label="Game">
+    <div class="hud" role="region" aria-label="In-game scoreboard">
+      <div class="timer-bar" id="timer-bar"></div>
+
+      <div class="hud-group">
+        <div id="score" class="hud-value">0</div>
+        <div class="hud-label">Score</div>
+      </div>
+      <div class="hud-group">
+        <div id="stageNum" class="hud-value stage">1</div>
+        <div class="hud-label">Stage</div>
+      </div>
+      <div class="hud-group">
+        <div id="foundNum" class="hud-value">0</div>
+        <div class="hud-label">Found</div>
+      </div>
+      <div class="hud-group">
+        <div id="combo" class="hud-value">0</div>
+        <div class="hud-label">Streak</div>
+      </div>
+      <div class="hud-group">
+        <div id="pb" class="hud-value">0</div>
+        <div class="hud-label">Best</div>
+      </div>
+      <div class="hud-group">
+        <div id="time" class="hud-value">00:00</div>
+        <div class="hud-label">Time left</div>
       </div>
 
       <div class="controls">
-        <button id="start-session" class="btn btn-primary">Start</button>
-        <button id="restart-session" class="btn">Restart</button>
-      </div>
-    </aside>
-
-    <section class="right-col" data-screen="game">
-      <div class="hud panel">
-        <div class="timer-bar" id="timer-bar"></div>
-
-        <div class="hud-group">
-          <div id="hud-score" class="hud-value">0</div>
-          <div class="hud-label">Score</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-pb" class="hud-value">0</div>
-          <div class="hud-label">Personal Best</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-hits" class="hud-value">0</div>
-          <div class="hud-label">Found</div>
-        </div>
-
-        <div class="hud-group">
-          <div id="hud-time" class="hud-value">3:00</div>
-          <div class="hud-label">Time Left</div>
-        </div>
-
-        <div class="streak-display" id="streak-display">
-          <span class="streak-icon">🔥</span>
-          <span class="streak-count" id="streak-count">0</span>
-          <span class="multiplier-badge" id="multiplier-badge">1x</span>
-        </div>
-
-        <div class="controls">
-          <button id="pause-session" class="btn btn-secondary">Pause</button>
-          <button id="end-session" class="btn">End</button>
-        </div>
-      </div>
-
-      <div class="panel" id="game-container">
-        <div id="stars-container"></div>
-
-        <!-- Countdown Overlay -->
-        <div class="countdown-overlay" id="countdown-overlay">
-          <div style="text-align: center;">
-            <div class="countdown-number" id="countdown-number">3</div>
-            <div class="countdown-text">Get ready...</div>
-          </div>
-        </div>
-
-        <div class="target-display" id="target-display">
-          <span>Find:</span>
-          <div class="target-icon" id="target-icon">🔴</div>
-        </div>
-
-        <p class="instructions" id="instructions">
-          Scan the area below and click on the target object when you find it.
-        </p>
-
-        <div id="scan-area">
-          <span>Click "Start" to begin your visual scanning session</span>
-        </div>
-
-        <div class="focus-overlay" id="focus-overlay"></div>
-
-        <!-- Reaction Time Flash -->
-        <div class="reaction-flash" id="reaction-flash"></div>
-
-        <div class="stats-display" id="stats-display">
-          <div class="stat-item">
-            <div class="stat-value" id="accuracy-display">100%</div>
-            <div class="stat-label">Accuracy</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="reaction-display">0ms</div>
-            <div class="stat-label">Avg Time</div>
-          </div>
-        </div>
-
-        <div class="feedback-message hidden" id="feedback-message" role="status" aria-live="polite"></div>
-      </div>
-    </section>
-  </main>
-
-  <div id="completion-message" class="completion panel">
-    <h2>Therapy Session Complete!</h2>
-    <div id="medal" class="medal" style="display:none;" aria-live="polite">
-      <div id="medalDisc" class="medal-disc"></div>
-      <div class="medal-text">
-        <div id="medalTier" class="medal-tier"></div>
-        <div id="medalCaption" class="medal-caption"></div>
+        <button id="pauseBtn" class="btn-ghost" type="button" aria-label="Pause session">Pause</button>
+        <button id="exitBtn" class="btn-ghost" type="button" aria-label="Exit session">Exit</button>
       </div>
     </div>
-    <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
-      <span class="ins-icon" id="insIcon">✨</span>
-      <span class="ins-text" id="insText"></span>
+
+    <div id="game-container">
+      <div id="stars" aria-hidden="true"></div>
+      <div class="target-prompt" id="targetPrompt">
+        <span style="font-weight:700; color:var(--text-secondary);">Find</span>
+        <span class="tp-glyph" id="tpGlyph">🔵</span>
+        <span class="tp-count" id="tpCount">0 / 0</span>
+      </div>
+      <p class="scan-instructions" id="scanInstructions">Tap every matching object you can spot.</p>
+      <div class="focus-overlay" id="focusOverlay"></div>
+      <div id="scan-area" aria-label="Scan field — tap the targets"></div>
     </div>
-    <div id="completion-scores">
-      <p>Targets Found: <span id="final-hits" class="score-highlight">0</span></p>
-      <p>Success Rate: <span id="final-accuracy" class="score-highlight">0%</span></p>
-      <p>Average Reaction Time: <span id="final-reaction" class="score-highlight">0ms</span><span id="reaction-comparison" class="comparison-stat"></span></p>
-      <p>Best Streak: <span id="final-streak" class="score-highlight">0</span> 🔥</p>
-      <p>Visual Performance Score: <span id="final-score" class="score-highlight">0</span><span id="pb-badge"></span></p>
-      <p>XP Earned: <span id="final-xp" class="score-highlight">0</span></p>
-    </div>
-    <div class="controls">
-      <button id="restart-button" class="btn btn-primary">Start New Therapy Session</button>
-      <button class="btn" id="close-complete">Close</button>
+  </section>
+
+  <!-- Pause overlay -->
+  <div id="pauseOverlay" class="pause-overlay" hidden role="dialog" aria-modal="true" aria-label="Paused">
+    <div class="pause-card">
+      <h2>Paused</h2>
+      <p>Take your time — the field will wait.</p>
+      <button id="resumeBtn" class="btn-start" type="button"><span aria-hidden="true">▶</span> Resume</button>
+      <button id="pauseExitBtn" class="btn-ghost" type="button">Exit session</button>
     </div>
   </div>
 
-  <!-- Achievement Toast -->
-  <div class="achievement-toast" id="achievement-toast">
-    <div class="achievement-icon" id="achievement-icon">🏆</div>
-    <div class="achievement-text">
-      <h4 id="achievement-title">Achievement Unlocked!</h4>
-      <p id="achievement-desc">Description here</p>
+  <!-- =================== 3) SESSION COMPLETE =================== -->
+  <div id="done" class="modal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneDesc">
+    <div class="card">
+      <h2 id="doneTitle" style="margin:0 0 8px 0;">Session complete! 🎉</h2>
+      <p id="doneDesc" style="margin:0 0 12px 0;">
+        <span id="resultMessage">Excellent work!</span>
+        <span id="improvementBadge"></span>
+      </p>
+      <div id="medal" class="medal" style="display:none;" aria-live="polite">
+        <div id="medalDisc" class="medal-disc"></div>
+        <div class="medal-text">
+          <div id="medalTier" class="medal-tier"></div>
+          <div id="medalCaption" class="medal-caption"></div>
+        </div>
+      </div>
+      <div id="earnChip" class="earn-chip" aria-live="polite"></div>
+      <div id="sessionInsight" class="session-insight" style="display:none;" aria-live="polite">
+        <span class="ins-icon" id="insIcon">✨</span>
+        <span class="ins-text" id="insText"></span>
+      </div>
+      <div class="final-metrics">
+        <div class="metric"><div id="fScore" class="v">0</div><div class="t">Score</div></div>
+        <div class="metric"><div id="fFound" class="v">0</div><div class="t">Targets found</div></div>
+        <div class="metric"><div id="fAcc" class="v">0%</div><div class="t">Accuracy</div></div>
+        <div class="metric"><div id="fAvg" class="v">0.00s</div><div class="t">Avg find</div></div>
+        <div class="metric"><div id="fStreak" class="v">0</div><div class="t">Best streak</div></div>
+        <div class="metric"><div id="fWaves" class="v">0</div><div class="t">Fields cleared</div></div>
+      </div>
+      <div id="achievementsSummary" style="margin-bottom:12px; display:none;">
+        <h3 style="margin:0 0 8px 0; font-size:14px; color:var(--gold);">🏆 Achievements unlocked</h3>
+        <div id="achievementsList" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="restartSame" class="btn-ghost" type="button">↻ Play again</button>
+        <button id="newSession" class="btn-start" type="button">Adjust &amp; play</button>
+        <a class="btn-ghost" href="../" aria-label="Back to home" style="flex:0 0 auto;">Home</a>
+      </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // ============================================
-      // STORAGE UTILITIES
-      // ============================================
-      const storage = {
-        get: (key, defaultValue) => {
-          try {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : defaultValue;
-          } catch {
-            return defaultValue;
-          }
-        },
-        set: (key, value) => {
-          try {
-            localStorage.setItem(key, JSON.stringify(value));
-          } catch (e) {
-            console.error('Storage error:', e);
-          }
-        }
-      };
-
-      // ============================================
-      // AUDIO SYSTEM
-      // ============================================
-      const AudioSystem = {
-        enabled: true,
-        context: null,
-        
-        init() {
-          try {
-            this.context = new (window.AudioContext || window.webkitAudioContext)();
-          } catch (e) {
-            console.warn('Web Audio not supported');
-          }
-        },
-
-        play(type) {
-          if (!this.enabled || !this.context) return;
-          
-          // Resume context if suspended (autoplay policy)
-          if (this.context.state === 'suspended') {
-            this.context.resume();
-          }
-
-          const osc = this.context.createOscillator();
-          const gain = this.context.createGain();
-          osc.connect(gain);
-          gain.connect(this.context.destination);
-
-          const now = this.context.currentTime;
-
-          switch (type) {
-            case 'correct':
-              osc.frequency.setValueAtTime(523.25, now); // C5
-              osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-              gain.gain.setValueAtTime(0.3, now);
-              gain.gain.exponentialDecayTo ? gain.gain.exponentialDecayTo(0.01, now + 0.3) : gain.gain.setValueAtTime(0.01, now + 0.3);
-              osc.start(now);
-              osc.stop(now + 0.3);
-              break;
-              
-            case 'incorrect':
-              osc.frequency.setValueAtTime(200, now);
-              osc.type = 'sawtooth';
-              gain.gain.setValueAtTime(0.2, now);
-              gain.gain.setValueAtTime(0.01, now + 0.15);
-              osc.start(now);
-              osc.stop(now + 0.15);
-              break;
-              
-            case 'bonus':
-              osc.frequency.setValueAtTime(523.25, now);
-              osc.frequency.setValueAtTime(659.25, now + 0.08);
-              osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-              gain.gain.setValueAtTime(0.3, now);
-              gain.gain.setValueAtTime(0.01, now + 0.4);
-              osc.start(now);
-              osc.stop(now + 0.4);
-              break;
-
-            case 'countdown':
-              osc.frequency.setValueAtTime(440, now);
-              gain.gain.setValueAtTime(0.2, now);
-              gain.gain.setValueAtTime(0.01, now + 0.1);
-              osc.start(now);
-              osc.stop(now + 0.1);
-              break;
-
-            case 'start':
-              osc.frequency.setValueAtTime(523.25, now);
-              osc.frequency.setValueAtTime(783.99, now + 0.1);
-              gain.gain.setValueAtTime(0.3, now);
-              gain.gain.setValueAtTime(0.01, now + 0.3);
-              osc.start(now);
-              osc.stop(now + 0.3);
-              break;
-
-            case 'achievement':
-              // Fanfare-like sound
-              const osc2 = this.context.createOscillator();
-              const gain2 = this.context.createGain();
-              osc2.connect(gain2);
-              gain2.connect(this.context.destination);
-              
-              osc.frequency.setValueAtTime(523.25, now);
-              osc2.frequency.setValueAtTime(659.25, now);
-              osc.frequency.setValueAtTime(783.99, now + 0.15);
-              osc2.frequency.setValueAtTime(987.77, now + 0.15);
-              
-              gain.gain.setValueAtTime(0.25, now);
-              gain2.gain.setValueAtTime(0.25, now);
-              gain.gain.setValueAtTime(0.01, now + 0.5);
-              gain2.gain.setValueAtTime(0.01, now + 0.5);
-              
-              osc.start(now);
-              osc2.start(now);
-              osc.stop(now + 0.5);
-              osc2.stop(now + 0.5);
-              break;
-          }
-        }
-      };
-
-      // ============================================
-      // STAR BACKGROUND
-      // ============================================
-      function generateStars(container, count = 150) {
-        if (!container) return;
-        container.innerHTML = '';
-        for (let i = 0; i < count; i++) {
-          const star = document.createElement('div');
-          star.style.position = 'absolute';
-          star.style.width = Math.random() * 3 + 'px';
-          star.style.height = star.style.width;
-          star.style.backgroundColor = 'white';
-          star.style.borderRadius = '50%';
-          star.style.left = Math.random() * 100 + '%';
-          star.style.top = Math.random() * 100 + '%';
-          star.style.opacity = Math.random() * 0.8 + 0.2;
-          container.appendChild(star);
-        }
+    // Global toggle helper (HTML uses onclick)
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      const active = el.classList.contains('active');
+      el.setAttribute('aria-checked', active ? 'true' : 'false');
+      const setting = el.dataset.setting;
+      if (setting === 'highContrast') {
+        document.body.classList.toggle('high-contrast', active);
       }
-
-      // ============================================
-      // DOM ELEMENTS
-      // ============================================
-      const starsContainer = document.getElementById('stars-container');
-      const timerBarEl = document.getElementById('timer-bar');
-      const hudScore = document.getElementById('hud-score');
-      const hudPB = document.getElementById('hud-pb');
-      const pbSettingsEl = document.getElementById('pb-settings');
-      const sessionsCountEl = document.getElementById('sessions-count');
-      const hudHits = document.getElementById('hud-hits');
-      const hudTime = document.getElementById('hud-time');
-      const instructions = document.getElementById('instructions');
-      const scanArea = document.getElementById('scan-area');
-      const targetDisplay = document.getElementById('target-display');
-      const targetIcon = document.getElementById('target-icon');
-      const focusOverlay = document.getElementById('focus-overlay');
-      const statsDisplay = document.getElementById('stats-display');
-      const accuracyDisplay = document.getElementById('accuracy-display');
-      const reactionDisplay = document.getElementById('reaction-display');
-      const feedbackMessage = document.getElementById('feedback-message');
-      const reactionFlash = document.getElementById('reaction-flash');
-      const countdownOverlay = document.getElementById('countdown-overlay');
-      const countdownNumber = document.getElementById('countdown-number');
-      const streakDisplay = document.getElementById('streak-display');
-      const streakCountEl = document.getElementById('streak-count');
-      const multiplierBadge = document.getElementById('multiplier-badge');
-      const startBtn = document.getElementById('start-session');
-      const pauseBtn = document.getElementById('pause-session');
-      const restartBtn = document.getElementById('restart-session');
-      const endBtn = document.getElementById('end-session');
-      const completionModal = document.getElementById('completion-message');
-      const finalHitsEl = document.getElementById('final-hits');
-      const finalAccuracyEl = document.getElementById('final-accuracy');
-      const finalReactionEl = document.getElementById('final-reaction');
-      const finalStreakEl = document.getElementById('final-streak');
-      const finalScoreEl = document.getElementById('final-score');
-      const finalXPEl = document.getElementById('final-xp');
-      const pbBadgeEl = document.getElementById('pb-badge');
-      const reactionComparisonEl = document.getElementById('reaction-comparison');
-      const completeClose = document.getElementById('close-complete');
-      const restartModalBtn = document.getElementById('restart-button');
-      const difficultySelect = document.getElementById('difficulty');
-      const focusAreaSelect = document.getElementById('focus-area');
-      const objectTypeSelect = document.getElementById('object-type');
-      const sessionDurationInp = document.getElementById('session-duration');
-      const soundToggle = document.getElementById('sound-toggle');
-      const bonusToggle = document.getElementById('bonus-toggle');
-      const sparklineContainer = document.getElementById('sparkline');
-      const achievementToast = document.getElementById('achievement-toast');
-      const achievementIcon = document.getElementById('achievement-icon');
-      const achievementTitle = document.getElementById('achievement-title');
-      const achievementDesc = document.getElementById('achievement-desc');
-      const medalEl = document.getElementById('medal');
-      const medalDisc = document.getElementById('medalDisc');
-      const medalTier = document.getElementById('medalTier');
-      const medalCaption = document.getElementById('medalCaption');
-      const insightEl = document.getElementById('sessionInsight');
-      const insIcon = document.getElementById('insIcon');
-      const insText = document.getElementById('insText');
-
-      generateStars(starsContainer, 150);
-      AudioSystem.init();
-
-      // ============================================
-      // PERSONAL BEST & SESSION HISTORY
-      // ============================================
-      const PB_KEY = 'visual-scanner:best';
-      const HISTORY_KEY = 'visual-scanner:history';
-      const ACHIEVEMENTS_KEY = 'visual-scanner:achievements';
-
-      const getPB = () => parseInt(localStorage.getItem(PB_KEY) || '0', 10);
-      const setPB = (score) => localStorage.setItem(PB_KEY, String(score));
-
-      function getSessionHistory() {
-        return storage.get(HISTORY_KEY, []);
+      if (setting === 'reducedMotion') {
+        document.body.classList.toggle('reduced-motion', active);
       }
+      if (window.__scannerSaveSettings) window.__scannerSaveSettings();
+    }
+  </script>
 
-      function addSessionToHistory(sessionData) {
-        const history = getSessionHistory();
-        history.push({
-          ...sessionData,
-          timestamp: Date.now()
-        });
-        // Keep last 10 sessions
-        if (history.length > 10) history.shift();
-        storage.set(HISTORY_KEY, history);
+  <script type="module">
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const rnd = (a,b)=>Math.random()*(b-a)+a;
+    const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+    const now = ()=>performance.now();
+
+    // DOM
+    const gameContainer = $('#game-container');
+    const scanArea = $('#scan-area');
+    const starsEl = $('#stars');
+    const focusOverlay = $('#focusOverlay');
+    const targetPrompt = $('#targetPrompt');
+    const tpGlyph = $('#tpGlyph');
+    const tpCount = $('#tpCount');
+    const scanInstructions = $('#scanInstructions');
+    const startBtn = $('#startBtn');
+    const practiceBtn = $('#practiceBtn');
+    const pauseBtn = $('#pauseBtn');
+    const exitBtn = $('#exitBtn');
+    const pauseOverlay = $('#pauseOverlay');
+    const resumeBtn = $('#resumeBtn');
+    const pauseExitBtn = $('#pauseExitBtn');
+    const timeEl = $('#time');
+    const scoreEl = $('#score');
+    const stageEl = $('#stageNum');
+    const foundEl = $('#foundNum');
+    const comboEl = $('#combo');
+    const pbEl = $('#pb');
+    const pbSettingsEl = $('#pbSettings');
+    const lastScoreSettingsEl = $('#lastScoreSettings');
+    const statStreakEl = $('#statStreak');
+    const statLevelEl = $('#statLevel');
+    const challengeChip = $('#challengeChip');
+    const challengeText = $('#challengeText');
+    const ctaHint = $('#ctaHint');
+    const customNote = $('#customNote');
+    const timerBar = $('#timer-bar');
+    const doneModal = $('#done');
+    const fScore = $('#fScore'), fFound = $('#fFound'), fAcc = $('#fAcc'), fAvg = $('#fAvg');
+    const fStreak = $('#fStreak'), fWaves = $('#fWaves');
+    const newSessionBtn = $('#newSession');
+    const restartSameBtn = $('#restartSame');
+    const medalEl = $('#medal'), medalDisc = $('#medalDisc'), medalTier = $('#medalTier'), medalCaption = $('#medalCaption');
+    const insightEl = $('#sessionInsight'), insIcon = $('#insIcon'), insText = $('#insText');
+    const earnChip = $('#earnChip');
+    const resultMessage = $('#resultMessage');
+    const improvementBadge = $('#improvementBadge');
+    const achievementsSummary = $('#achievementsSummary');
+    const achievementsList = $('#achievementsList');
+
+    // Settings inputs
+    const durIn = $('#dur'), difficultySel = $('#difficulty'), objectTypeSel = $('#objectType'), focusAreaSel = $('#focusArea');
+    const presetBtns = $$('.preset');
+    const segBtns = $$('.seg button');
+
+    // ===== Storage & modules (graceful fallbacks) =====
+    // EXERCISE_ID 'scanner' matches what this game has always recorded
+    // (the homepage card reads data-ex-ids="scanner,visual-scanner").
+    // Score history keeps its original raw localStorage keys.
+    const EXERCISE_ID = 'scanner';
+    const PB_KEY = 'visual-scanner:best';
+    const SESSIONS_KEY = 'visual-scanner:sessions';
+    const LAST_KEY = 'visual-scanner:last';
+    const getPB = () => parseInt(localStorage.getItem(PB_KEY)||'0',10);
+    const setPB = (v) => { try { localStorage.setItem(PB_KEY, String(v)); } catch {} };
+    const getLast = () => { const v = localStorage.getItem(LAST_KEY); return v === null ? null : parseInt(v,10); };
+    const setLast = (v) => { try { localStorage.setItem(LAST_KEY, String(v)); } catch {} };
+
+    const storageFallback = {
+      get:(k, def)=>{ try { const v = JSON.parse(localStorage.getItem(k)); return v ?? def; } catch { return def; } },
+      set:(k,v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    let storage = storageFallback;
+    try {
+      const u = await import('/js/utils.js');
+      storage = u.storage ?? storage;
+      try { u.initUtils?.(); } catch {}
+    } catch {}
+
+    // ===== Reduced motion =====
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('reduced-motion');
+        const t = document.getElementById('toggleMotion');
+        t?.classList.add('active');
+        t?.setAttribute('aria-checked', 'true');
       }
+    } catch {}
+    const motionReduced = () => document.body.classList.contains('reduced-motion');
+    const hiContrast = () => document.body.classList.contains('high-contrast');
 
-      function getUnlockedAchievements() {
-        return storage.get(ACHIEVEMENTS_KEY, []);
+    // ===== Sound engine (WebAudio — no audio files needed) =====
+    let actx = null;
+    function ac(){
+      if(!actx){
+        try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
       }
+      if(actx && actx.state === 'suspended') actx.resume().catch(()=>{});
+      return actx;
+    }
+    function tone(freq, dur = 0.12, type = 'sine', gain = 0.15, when = 0, slideTo = null){
+      const c = ac(); if(!c) return;
+      const t = c.currentTime + when;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(c.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    const sfx = {
+      pop(combo = 1){ const f = 320 + Math.min(combo, 12) * 28; tone(f, .09, 'sine', .16, 0, f * 1.5); },
+      golden(){ tone(660, .12, 'triangle', .16); tone(990, .16, 'triangle', .16, .09); },
+      clear(){ tone(523, .11, 'triangle', .15); tone(659, .11, 'triangle', .15, .1); tone(784, .16, 'triangle', .16, .2); },
+      miss(){ tone(180, .14, 'sine', .08, 0, 110); },
+      milestone(){ tone(587, .1, 'triangle', .15); tone(880, .18, 'triangle', .16, .1); },
+      stage(){ tone(523, .12, 'triangle', .15); tone(659, .12, 'triangle', .15, .1); tone(880, .18, 'triangle', .16, .2); },
+      tick(){ tone(700, .06, 'sine', .12); },
+      go(){ tone(880, .18, 'triangle', .18); },
+      fanfare(){ tone(523, .12, 'triangle', .16); tone(659, .12, 'triangle', .16, .12); tone(784, .12, 'triangle', .16, .24); tone(1047, .26, 'triangle', .18, .36); }
+    };
+    function playSfx(name, arg){
+      if(!getToggle('toggleSound')) return;
+      try { sfx[name]?.(arg); } catch {}
+    }
+    function triggerHaptic(kind){
+      if (!getToggle('toggleHaptic')) return;
+      try { window.FPRNative?.haptic(kind); } catch {}
+    }
 
-      function unlockAchievement(id) {
-        const unlocked = getUnlockedAchievements();
-        if (!unlocked.includes(id)) {
-          unlocked.push(id);
-          storage.set(ACHIEVEMENTS_KEY, unlocked);
-          return true;
-        }
-        return false;
-      }
+    // ===== Viewport / immersive =====
+    function setVH(){
+      document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px');
+    }
+    setVH();
+    addEventListener('resize', setVH, { passive:true });
+    addEventListener('orientationchange', ()=>setTimeout(setVH, 200));
 
-      function updatePersonalBest() {
-        const pb = getPB();
-        if (hudPB) hudPB.textContent = pb ? String(pb) : '0';
-        if (pbSettingsEl) pbSettingsEl.textContent = pb ? String(pb) : '0';
-        
-        const history = getSessionHistory();
-        if (sessionsCountEl) sessionsCountEl.textContent = String(history.length);
-      }
+    // Detect iOS to skip fullscreen (iOS shows scary warnings)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-      function renderSparkline() {
-        if (!sparklineContainer) return;
-        
-        const history = getSessionHistory();
-        sparklineContainer.innerHTML = '';
-        
-        if (history.length === 0) {
-          sparklineContainer.innerHTML = '<div class="no-history">No sessions yet. Start playing to track progress!</div>';
-          return;
-        }
-
-        const maxScore = Math.max(...history.map(h => h.score), 100);
-        
-        history.forEach((session, index) => {
-          const bar = document.createElement('div');
-          bar.className = 'sparkline-bar';
-          const height = Math.max(5, (session.score / maxScore) * 45);
-          bar.style.height = height + 'px';
-          bar.dataset.score = session.score;
-          bar.title = `Session ${index + 1}: ${session.score} pts`;
-          sparklineContainer.appendChild(bar);
-        });
-      }
-
-      // ============================================
-      // GAME STATE
-      // ============================================
-      let isSessionActive = false;
-      let isPaused = false;
-      let sessionMs = 3 * 60 * 1000;
-      let timeRemaining = 0;
-      let timerInterval = null;
-      let score = 0;
-      let hits = 0;
-      let attempts = 0;
-      let reactionTimes = [];
-      let currentTarget = null;
-      let targetStartTime = 0;
-      let targetElement = null;
-      let distractorElements = [];
-      let placedPositions = [];
-      let streak = 0;
-      let bestStreak = 0;
-      let multiplier = 1;
-      let isGoldenTarget = false;
-      let instructionsFaded = false;
-      let tabHidden = false;
-      let firedStreakMilestones = new Set();
-
-      // ===== Medal + per-session insight =====
-      const SESSIONS_KEY = 'visual-scanner:sessions';
-      function loadPastSessions() {
-        try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
-      }
-      function savePastSession(stats) {
+    async function enterImmersive(){
+      document.body.classList.add('playing');
+      if (!isIOS) {
         try {
-          const arr = loadPastSessions();
-          arr.unshift(stats);
-          if (arr.length > 10) arr.length = 10;
-          localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          }
         } catch {}
       }
-      function computeMedalTier(currentScore, prevPb) {
-        if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
-        if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
-        const r = currentScore / prevPb;
-        if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
-        if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
-        return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
-      }
-      function showMedal(currentScore, prevPb) {
-        if (!medalEl) return;
-        const m = computeMedalTier(currentScore, prevPb);
-        medalDisc.className = 'medal-disc ' + m.tier;
-        medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
-        medalTier.className = 'medal-tier ' + m.tier;
-        medalTier.textContent = m.label;
-        medalCaption.textContent = m.caption;
-        medalEl.style.display = 'flex';
-      }
-      function computeInsight(curr, past) {
-        if (!past || past.length === 0) return null;
-        const prev = past[0];
-        if (curr.accuracy >= 95 && curr.hits >= 5) {
-          return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.accuracy}% this session.` };
-        }
-        if (prev.avgReaction > 0 && curr.avgReaction > 0 && (prev.avgReaction - curr.avgReaction) >= 50 && curr.hits >= 5) {
-          const diff = prev.avgReaction - curr.avgReaction;
-          return { icon: '⚡', text: `<strong>${diff}ms faster reaction</strong> than your last session.` };
-        }
-        const bestStreakEver = Math.max(...past.map(p => p.bestStreak || 0));
-        if (curr.bestStreak > bestStreakEver && curr.bestStreak >= 3) {
-          return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.bestStreak} clean finds in a row.` };
-        }
-        const bestHitsEver = Math.max(...past.map(p => p.hits || 0));
-        if (curr.hits > bestHitsEver && curr.hits >= 3) {
-          return { icon: '🚀', text: `<strong>Most targets found</strong> — ${curr.hits} this session.` };
-        }
-        const bestAccEver = Math.max(...past.map(p => p.accuracy || 0));
-        if (curr.accuracy > bestAccEver && curr.hits >= 3) {
-          return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.accuracy}%.` };
-        }
-        if (curr.hits >= 1 && curr.hits === prev.hits) {
-          return { icon: '📈', text: `<strong>Consistent output</strong> — ${curr.hits} finds two sessions in a row.` };
-        }
-        return { icon: '💪', text: `<strong>Practice logged</strong> — every session builds the pattern.` };
-      }
-      function showInsight(curr, past) {
-        if (!insightEl) return;
-        const ins = computeInsight(curr, past);
-        if (!ins) { insightEl.style.display = 'none'; return; }
-        insIcon.textContent = ins.icon;
-        insText.innerHTML = ins.text;
-        insightEl.style.display = 'flex';
-      }
-
-      // ===== Streak milestone celebrations =====
-      const STREAK_MILESTONES = [5, 10, 15, 25, 50];
-      function checkStreakMilestone(s) {
-        if (!STREAK_MILESTONES.includes(s)) return;
-        if (firedStreakMilestones.has(s)) return;
-        firedStreakMilestones.add(s);
-        celebrateStreak(s);
-      }
-      function celebrateStreak(n) {
-        const flame = n >= 25 ? '🔥🔥🔥' : n >= 10 ? '🔥🔥' : '🔥';
-        const toast = document.createElement('div');
-        toast.className = 'streak-milestone-toast';
-        toast.textContent = `${flame} ${n} Finds in a Row!`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
-        burstStreakParticles(n >= 25 ? 36 : n >= 10 ? 28 : 22);
-        try { AudioSystem.play('bonus'); } catch {}
-        // Native haptics in the Android app, web vibration fallback in browser.
-        FPRNative.haptic('milestone')
-      }
-      function burstStreakParticles(count) {
-        const colors = ['#ffd700', '#ffb347', '#bfe6ff', '#8ff5b2', '#ff6ec7'];
-        const target = scanArea || document.body;
-        const rect = target.getBoundingClientRect();
-        const container = document.createElement('div');
-        container.className = 'streak-burst-container';
-        document.body.appendChild(container);
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height * 0.4;
-        for (let i = 0; i < count; i++) {
-          const p = document.createElement('div');
-          p.className = 'streak-burst';
-          p.style.left = cx + 'px';
-          p.style.top = cy + 'px';
-          p.style.background = colors[i % colors.length];
-          const angle = Math.random() * Math.PI * 2;
-          const distance = 80 + Math.random() * 140;
-          p.style.setProperty('--bx', `${Math.cos(angle) * distance}px`);
-          p.style.setProperty('--by', `${Math.sin(angle) * distance - 40}px`);
-          const dur = 800 + Math.random() * 400;
-          p.style.animation = `streakBurst ${dur}ms ease-out forwards`;
-          container.appendChild(p);
-        }
-        setTimeout(() => container.remove(), 1400);
-      }
-
-      const TARGET_SETS = {
-        shapes: ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠', '⭐', '💎', '🔺', '🔸', '🔹', '⬛'],
-        letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-        numbers: '0123456789'.split(''),
-        emoji: ['😀', '😎', '🎯', '🎨', '🎵', '🎭', '🎊', '🎈', '🌟', '🌈', '🔥', '⚡'],
-        highcontrast: ['★', '●', '▲', '■', '◆', '✦', '✚', '◯', '△', '□', '◇', '✖']
-      };
-
-      // ============================================
-      // ACHIEVEMENTS DEFINITIONS
-      // ============================================
-      const ACHIEVEMENTS = {
-        sharp_eye: {
-          id: 'sharp_eye',
-          icon: '👁️',
-          title: 'Sharp Eye',
-          desc: '10 consecutive correct finds',
-          check: () => streak >= 10
-        },
-        speed_demon: {
-          id: 'speed_demon',
-          icon: '⚡',
-          title: 'Speed Demon',
-          desc: 'Average reaction under 800ms',
-          check: () => {
-            if (reactionTimes.length < 5) return false;
-            const avg = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
-            return avg < 800;
+    }
+    async function exitImmersive(){
+      document.body.classList.remove('playing');
+      if (!isIOS) {
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen();
           }
-        },
-        perfect_ten: {
-          id: 'perfect_ten',
-          icon: '💯',
-          title: 'Perfect Ten',
-          desc: '100% accuracy with 10+ finds',
-          check: () => hits >= 10 && attempts > 0 && (hits / attempts) === 1
-        },
-        golden_hunter: {
-          id: 'golden_hunter',
-          icon: '🏆',
-          title: 'Golden Hunter',
-          desc: 'Find 5 golden bonus targets',
-          check: () => false // Tracked separately
-        },
-        marathon: {
-          id: 'marathon',
-          icon: '🏃',
-          title: 'Marathon Runner',
-          desc: 'Complete 10 sessions',
-          check: () => getSessionHistory().length >= 10
-        }
-      };
-
-      let goldenTargetsFound = 0;
-
-      function showAchievement(achievement) {
-        if (!achievementToast) return;
-        
-        achievementIcon.textContent = achievement.icon;
-        achievementTitle.textContent = achievement.title;
-        achievementDesc.textContent = achievement.desc;
-        
-        achievementToast.classList.add('show');
-        AudioSystem.play('achievement');
-        
-        setTimeout(() => {
-          achievementToast.classList.remove('show');
-        }, 4000);
+        } catch {}
       }
+    }
 
-      function checkAchievements() {
-        Object.values(ACHIEVEMENTS).forEach(achievement => {
-          if (achievement.check && achievement.check()) {
-            if (unlockAchievement(achievement.id)) {
-              setTimeout(() => showAchievement(achievement), 500);
-            }
-          }
-        });
+    // ===== Starfield backdrop (static dots; twinkle disabled when motion reduced) =====
+    function buildStars(count = 110){
+      if (!starsEl) return;
+      starsEl.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      for (let i=0;i<count;i++){
+        const s = document.createElement('span');
+        const size = Math.random()*2.4 + 0.6;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = (Math.random()*100) + '%';
+        s.style.top = (Math.random()*100) + '%';
+        s.style.animationDelay = (Math.random()*3) + 's';
+        frag.appendChild(s);
       }
+      starsEl.appendChild(frag);
+    }
 
-      // ============================================
-      // UI HELPERS
-      // ============================================
-      function showFeedback(message, type) {
-        if (!feedbackMessage) return;
-        feedbackMessage.textContent = message;
-        feedbackMessage.className = `feedback-message ${type}`;
-        feedbackMessage.classList.remove('hidden');
-        setTimeout(() => feedbackMessage.classList.add('hidden'), 1000);
+    // ===== Object sets =====
+    const OBJECT_SETS = {
+      shapes: ['🔴','🔵','🟡','🟢','🟣','🟠','⭐','💎','🔺','🔸','🔹','⬛'],
+      letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+      numbers: '0123456789'.split(''),
+      emoji: ['😀','😎','🎯','🎨','🎵','🎭','🎊','🎈','🌟','🌈','🔥','⚡'],
+      highcontrast: ['★','●','▲','■','◆','✦','✚','◯','△','□','◇','✖']
+    };
+
+    // ===== Presets & session length =====
+    // Presets map difficulty only. Object type and focus area are separate
+    // content choices in Fine-tune (like Sort's category type) and don't
+    // affect which preset is lit.
+    const PRESETS = {
+      gentle: { difficulty: 'easy' },
+      steady: { difficulty: 'medium' },
+      swift:  { difficulty: 'hard' }
+    };
+    let suppressCustomNote = false;
+
+    function selectPreset(name, applyValues = true) {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', b.dataset.preset === name ? 'true' : 'false'));
+      customNote.classList.remove('show');
+      if (applyValues && PRESETS[name]) {
+        suppressCustomNote = true;
+        difficultySel.value = PRESETS[name].difficulty;
+        suppressCustomNote = false;
       }
-
-      function showReactionTime(ms) {
-        if (!reactionFlash) return;
-        
-        const isFast = ms < 800;
-        reactionFlash.textContent = `${ms}ms`;
-        reactionFlash.className = 'reaction-flash show' + (isFast ? ' fast' : '');
-        
-        setTimeout(() => {
-          reactionFlash.classList.remove('show');
-        }, 1000);
-      }
-
-      function updateStreakDisplay() {
-        if (!streakDisplay) return;
-        
-        if (streak >= 3) {
-          streakDisplay.classList.add('visible');
-          streakCountEl.textContent = streak;
-          
-          if (streak >= 6) {
-            multiplier = 3;
-            streakDisplay.className = 'streak-display visible multiplier-3x';
-            multiplierBadge.textContent = '3x';
-          } else {
-            multiplier = 2;
-            streakDisplay.className = 'streak-display visible multiplier-2x';
-            multiplierBadge.textContent = '2x';
-          }
-        } else {
-          multiplier = 1;
-          streakDisplay.classList.remove('visible');
-          streakDisplay.className = 'streak-display';
-          multiplierBadge.textContent = '1x';
-        }
-      }
-
-      function saveSettings() {
-        if (difficultySelect) storage.set('scannerDifficulty', difficultySelect.value);
-        if (focusAreaSelect) storage.set('scannerFocusArea', focusAreaSelect.value);
-        if (objectTypeSelect) storage.set('scannerObjectType', objectTypeSelect.value);
-        if (sessionDurationInp) storage.set('scannerSessionDuration', sessionDurationInp.value);
-        storage.set('scannerSoundEnabled', AudioSystem.enabled);
-        storage.set('scannerBonusEnabled', bonusToggle?.classList.contains('active'));
-      }
-
-      function loadSettings() {
-        if (difficultySelect) difficultySelect.value = storage.get('scannerDifficulty', 'medium');
-        if (focusAreaSelect) focusAreaSelect.value = storage.get('scannerFocusArea', 'none');
-        if (objectTypeSelect) objectTypeSelect.value = storage.get('scannerObjectType', 'shapes');
-        if (sessionDurationInp) sessionDurationInp.value = storage.get('scannerSessionDuration', 3);
-        
-        AudioSystem.enabled = storage.get('scannerSoundEnabled', true);
-        if (soundToggle) {
-          soundToggle.classList.toggle('active', AudioSystem.enabled);
-        }
-        
-        const bonusEnabled = storage.get('scannerBonusEnabled', true);
-        if (bonusToggle) {
-          bonusToggle.classList.toggle('active', bonusEnabled);
-        }
-        
-        updatePersonalBest();
-        renderSparkline();
-      }
-
-      function updateHUD() {
-        if (hudScore) hudScore.textContent = `${score}`;
-        if (hudPB) hudPB.textContent = `${getPB()}`;
-        if (hudHits) hudHits.textContent = `${hits}`;
-
-        const mins = Math.max(0, Math.floor(timeRemaining / 60000));
-        const secs = Math.max(0, Math.floor((timeRemaining % 60000) / 1000));
-        if (hudTime) hudTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-
-        const accuracy = attempts > 0 ? Math.round((hits / attempts) * 100) : 100;
-        const avgReaction = reactionTimes.length > 0 ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length) : 0;
-        
-        if (accuracyDisplay) accuracyDisplay.textContent = `${accuracy}%`;
-        if (reactionDisplay) reactionDisplay.textContent = `${avgReaction}ms`;
-      }
-
-      function startTimer() {
-        timerInterval = setInterval(() => {
-          if (tabHidden) return; // Don't tick when tab is hidden
-          
-          timeRemaining -= 100;
-          const progress = Math.max(0, timeRemaining / sessionMs);
-          if (timerBarEl) timerBarEl.style.width = `${progress * 100}%`;
-          updateHUD();
-          if (timeRemaining <= 0) {
-            endSession();
-          }
-        }, 100);
-      }
-
-      function stopTimer() {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-
-      function setScreen(screenName) {
-        document.querySelectorAll('[data-screen]').forEach(el => {
-          el.classList.remove('active');
-        });
-        const screen = document.querySelector(`[data-screen="${screenName}"]`);
-        if (screen) screen.classList.add('active');
-      }
-
-      function updateFocusArea() {
-        const area = focusAreaSelect?.value || 'none';
-        if (focusOverlay) {
-          focusOverlay.className = 'focus-overlay';
-          if (area !== 'none') {
-            focusOverlay.classList.add(area);
-          }
-        }
-      }
-
-      // ============================================
-      // TARGET MANAGEMENT
-      // ============================================
-      function pickTarget() {
-        const type = objectTypeSelect?.value || 'shapes';
-        const targets = TARGET_SETS[type] || TARGET_SETS.shapes;
-        return targets[Math.floor(Math.random() * targets.length)];
-      }
-
-      function pickDistractors(target, count) {
-        const type = objectTypeSelect?.value || 'shapes';
-        const targets = TARGET_SETS[type] || TARGET_SETS.shapes;
-        const distractors = targets.filter(t => t !== target);
-        
-        const selected = [];
-        for (let i = 0; i < count && distractors.length > 0; i++) {
-          const index = Math.floor(Math.random() * distractors.length);
-          selected.push(distractors.splice(index, 1)[0]);
-        }
-        return selected;
-      }
-
-      function checkCollision(x, y, objectSize, existingPositions, minDistance = 70) {
-        for (const pos of existingPositions) {
-          const dx = x - pos.x;
-          const dy = y - pos.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < minDistance) {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      function getRandomPosition(existingPositions = []) {
-        if (!scanArea) return { x: 100, y: 100 };
-        
-        const rect = scanArea.getBoundingClientRect();
-        const objectSize = 50;
-        const padding = objectSize;
-        
-        let bounds = {
-          left: padding,
-          top: padding,
-          right: rect.width - padding,
-          bottom: rect.height - padding
-        };
-
-        const focusArea = focusAreaSelect?.value || 'none';
-        if (focusArea !== 'none') {
-          const mid = { x: rect.width / 2, y: rect.height / 2 };
-          switch (focusArea) {
-            case 'left':
-              bounds.right = mid.x - padding;
-              break;
-            case 'right':
-              bounds.left = mid.x + padding;
-              break;
-            case 'top':
-              bounds.bottom = mid.y - padding;
-              break;
-            case 'bottom':
-              bounds.top = mid.y + padding;
-              break;
-          }
-        }
-
-        if (bounds.right <= bounds.left || bounds.bottom <= bounds.top) {
-          bounds = {
-            left: padding,
-            top: padding,
-            right: rect.width - padding,
-            bottom: rect.height - padding
-          };
-        }
-
-        let attempts = 0;
-        let position;
-        do {
-          position = {
-            x: Math.random() * (bounds.right - bounds.left) + bounds.left,
-            y: Math.random() * (bounds.bottom - bounds.top) + bounds.top
-          };
-          attempts++;
-        } while (checkCollision(position.x, position.y, objectSize, existingPositions) && attempts < 50);
-
-        return position;
-      }
-
-      function clearTargets() {
-        if (targetElement) {
-          targetElement.remove();
-          targetElement = null;
-        }
-        distractorElements.forEach(el => el.remove());
-        distractorElements = [];
-        placedPositions = [];
-      }
-
-      function spawnTarget() {
-        if (!scanArea) return;
-        
-        clearTargets();
-        
-        currentTarget = pickTarget();
-        targetStartTime = Date.now();
-        
-        // Check for golden bonus target
-        const bonusEnabled = bonusToggle?.classList.contains('active');
-        isGoldenTarget = bonusEnabled && Math.random() < 0.1; // 10% chance
-        
-        if (targetIcon) targetIcon.textContent = currentTarget;
-
-        // Create target element
-        targetElement = document.createElement('div');
-        targetElement.className = 'visual-object' + (isGoldenTarget ? ' golden' : '');
-        targetElement.textContent = currentTarget;
-        targetElement.dataset.isTarget = 'true';
-
-        const targetPos = getRandomPosition(placedPositions);
-        placedPositions.push(targetPos);
-        
-        targetElement.style.left = targetPos.x + 'px';
-        targetElement.style.top = targetPos.y + 'px';
-
-        targetElement.addEventListener('click', handleTargetClick);
-        scanArea.appendChild(targetElement);
-
-        // Add distractors based on difficulty
-        const difficulty = difficultySelect?.value || 'medium';
-        let distractorCount = 0;
-        switch (difficulty) {
-          case 'easy': distractorCount = 3; break;
-          case 'medium': distractorCount = 6; break;
-          case 'hard': distractorCount = 10; break;
-        }
-
-        const distractors = pickDistractors(currentTarget, distractorCount);
-        distractors.forEach(distractor => {
-          const el = document.createElement('div');
-          el.className = 'visual-object';
-          el.textContent = distractor;
-          el.dataset.isTarget = 'false';
-
-          const pos = getRandomPosition(placedPositions);
-          placedPositions.push(pos);
-          
-          el.style.left = pos.x + 'px';
-          el.style.top = pos.y + 'px';
-
-          el.addEventListener('click', handleDistractorClick);
-          scanArea.appendChild(el);
-          distractorElements.push(el);
-        });
-
-        if (scanArea) scanArea.classList.add('active');
-      }
-
-      function handleTargetClick(e) {
-        if (!isSessionActive || isPaused) return;
-        e.preventDefault();
-        
-        const reactionTime = Date.now() - targetStartTime;
-        reactionTimes.push(reactionTime);
-        
-        hits++;
-        attempts++;
-        streak++;
-        if (streak > bestStreak) bestStreak = streak;
-        checkStreakMilestone(streak);
-
-        updateStreakDisplay();
-        
-        // Calculate points with multiplier and bonus
-        let points = 100 * multiplier;
-        if (isGoldenTarget) {
-          points *= 3;
-          goldenTargetsFound++;
-          AudioSystem.play('bonus');
-          showFeedback('GOLDEN! +' + points, 'success');
-          
-          // Check golden hunter achievement
-          if (goldenTargetsFound >= 5) {
-            if (unlockAchievement('golden_hunter')) {
-              setTimeout(() => showAchievement(ACHIEVEMENTS.golden_hunter), 500);
-            }
-          }
-        } else {
-          AudioSystem.play('correct');
-          if (multiplier > 1) {
-            showFeedback(`Found it! x${multiplier}`, 'success');
-          } else {
-            showFeedback('Found it!', 'success');
-          }
-        }
-        
-        // Quick find bonus
-        if (reactionTime < 1000) {
-          points += 25;
-        }
-        
-        score += points;
-        
-        e.target.classList.add('correct');
-        showReactionTime(reactionTime);
-        
-        // Fade out instructions after first success
-        if (!instructionsFaded && instructions) {
-          instructions.classList.add('fade-out');
-          instructionsFaded = true;
-        }
-        
-        if (scanArea) scanArea.classList.add('celebrate');
-        setTimeout(() => {
-          if (scanArea) scanArea.classList.remove('celebrate');
-        }, 900);
-
-        updateHUD();
-        checkAchievements();
-        
-        setTimeout(() => {
-          if (isSessionActive) {
-            spawnTarget();
-          }
-        }, 800);
-      }
-
-      function handleDistractorClick(e) {
-        if (!isSessionActive || isPaused) return;
-        e.preventDefault();
-        
-        attempts++;
-        streak = 0;
-        updateStreakDisplay();
-        
-        score = Math.max(0, score - 10);
-        
-        e.target.classList.add('incorrect');
-        AudioSystem.play('incorrect');
-        showFeedback('Wrong target!', 'error');
-        
-        updateHUD();
-        
-        setTimeout(() => {
-          e.target.classList.remove('incorrect');
-        }, 400);
-      }
-
-      // ============================================
-      // SESSION MANAGEMENT
-      // ============================================
-      function runCountdown(callback) {
-        if (!countdownOverlay || !countdownNumber) {
-          callback();
-          return;
-        }
-
-        countdownOverlay.classList.add('visible');
-        let count = 3;
-        
-        function tick() {
-          countdownNumber.textContent = count;
-          countdownNumber.style.animation = 'none';
-          countdownNumber.offsetHeight; // Trigger reflow
-          countdownNumber.style.animation = 'countdownPop 0.5s ease-out';
-          
-          AudioSystem.play('countdown');
-          
-          if (count > 1) {
-            count--;
-            setTimeout(tick, 1000);
-          } else {
-            setTimeout(() => {
-              countdownOverlay.classList.remove('visible');
-              AudioSystem.play('start');
-              callback();
-            }, 800);
-          }
-        }
-        
-        tick();
-      }
-
-      function startSession() {
-        if (isSessionActive) return;
-
-        const minutes = Math.max(1, Math.min(10, Number(sessionDurationInp?.value) || 3));
-        sessionMs = minutes * 60 * 1000;
-
-        score = 0;
-        hits = 0;
-        attempts = 0;
-        reactionTimes = [];
-        currentTarget = null;
-        timeRemaining = sessionMs;
-        isPaused = false;
-        streak = 0;
-        bestStreak = 0;
-        multiplier = 1;
-        goldenTargetsFound = 0;
-        instructionsFaded = false;
-        firedStreakMilestones = new Set();
-        if (medalEl) medalEl.style.display = 'none';
-        if (insightEl) insightEl.style.display = 'none';
-
-        if (scanArea) {
-          scanArea.innerHTML = '';
-          scanArea.classList.remove('active');
-        }
-
-        if (instructions) {
-          instructions.classList.remove('fade-out');
-        }
-
-        updateHUD();
-        updateStreakDisplay();
-        setScreen('game');
-        saveSettings();
-        updateFocusArea();
-
-        // Run countdown then start
-        runCountdown(() => {
-          isSessionActive = true;
-          startTimer();
-          updatePersonalBest();
-          spawnTarget();
-        });
-      }
-
-      function endSession() {
-        if (timerInterval) stopTimer();
-        isSessionActive = false;
-        isPaused = false;
-
-        clearTargets();
-        if (scanArea) scanArea.classList.remove('active');
-
-        const accuracy = attempts > 0 ? Math.round((hits / attempts) * 100) : 0;
-        const avgReaction = reactionTimes.length > 0 ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length) : 0;
-
-        // Save session to history
-        const previousHistory = getSessionHistory();
-        const previousAvgReaction = previousHistory.length > 0 
-          ? previousHistory[previousHistory.length - 1].avgReaction 
-          : null;
-
-        addSessionToHistory({
-          score,
-          hits,
-          accuracy,
-          avgReaction,
-          bestStreak,
-          difficulty: difficultySelect?.value || 'medium'
-        });
-
-        // Check for new PB (capture prior PB BEFORE writing the new one — used by medal tier)
-        const previousPB = getPB();
-        let isNewPB = false;
-        if (score > previousPB) {
-          isNewPB = true;
-          setPB(score);
-          updatePersonalBest();
-        }
-
-        // Medal + per-session insight
-        const currStats = {
-          score,
-          hits,
-          accuracy,
-          avgReaction,
-          bestStreak
-        };
-        const past = loadPastSessions();
-        showMedal(score, previousPB);
-        showInsight(currStats, past);
-        savePastSession({ ...currStats, ts: Date.now() });
-
-        if (window.__fprRecordSession) window.__fprRecordSession('scanner', (typeof difficultySelect !== 'undefined' && difficultySelect && difficultySelect.value) || 'default', score);
-
-        // Update completion modal
-        if (finalHitsEl) finalHitsEl.textContent = `${hits}`;
-        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
-        if (finalReactionEl) finalReactionEl.textContent = `${avgReaction}ms`;
-        if (finalStreakEl) finalStreakEl.textContent = `${bestStreak}`;
-        if (finalScoreEl) finalScoreEl.textContent = `${score}`;
-        if (finalXPEl) finalXPEl.textContent = `${Math.max(10, Math.round(score * 0.5))}`;
-
-        // Show PB badge if new record
-        if (pbBadgeEl) {
-          pbBadgeEl.innerHTML = isNewPB ? '<span class="new-pb-badge">NEW PB!</span>' : '';
-        }
-
-        // Show reaction time comparison
-        if (reactionComparisonEl && previousAvgReaction !== null && avgReaction > 0) {
-          const diff = previousAvgReaction - avgReaction;
-          if (Math.abs(diff) > 10) {
-            if (diff > 0) {
-              reactionComparisonEl.className = 'comparison-stat improved';
-              reactionComparisonEl.innerHTML = `↓${diff}ms faster`;
-            } else {
-              reactionComparisonEl.className = 'comparison-stat declined';
-              reactionComparisonEl.innerHTML = `↑${Math.abs(diff)}ms slower`;
-            }
-          } else {
-            reactionComparisonEl.innerHTML = '';
-          }
-        } else if (reactionComparisonEl) {
-          reactionComparisonEl.innerHTML = '';
-        }
-
-        // Check achievements at end of session
-        checkAchievements();
-
-        if (completionModal) completionModal.classList.add('show');
-        renderSparkline();
-        setScreen('settings');
-      }
-
-      // ============================================
-      // EVENT LISTENERS
-      // ============================================
-      if (startBtn) startBtn.addEventListener('click', startSession);
-      if (difficultySelect) difficultySelect.addEventListener('change', saveSettings);
-      if (focusAreaSelect) focusAreaSelect.addEventListener('change', () => {
-        saveSettings();
-        updateFocusArea();
-      });
-      if (objectTypeSelect) objectTypeSelect.addEventListener('change', saveSettings);
-      if (sessionDurationInp) sessionDurationInp.addEventListener('input', saveSettings);
-
-      // Toggle switches
-      if (soundToggle) {
-        soundToggle.addEventListener('click', () => {
-          soundToggle.classList.toggle('active');
-          AudioSystem.enabled = soundToggle.classList.contains('active');
-          saveSettings();
-          if (AudioSystem.enabled) {
-            AudioSystem.play('correct'); // Play a sound to confirm it's on
-          }
-        });
-        
-        soundToggle.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            soundToggle.click();
-          }
-        });
-      }
-
-      if (bonusToggle) {
-        bonusToggle.addEventListener('click', () => {
-          bonusToggle.classList.toggle('active');
-          saveSettings();
-        });
-        
-        bonusToggle.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            bonusToggle.click();
-          }
-        });
-      }
-
-      if (pauseBtn) pauseBtn.addEventListener('click', () => {
-        if (!isSessionActive) return;
-        isPaused = !isPaused;
-        pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-        if (isPaused) {
-          stopTimer();
-          if (scanArea) scanArea.style.filter = 'grayscale(0.5) brightness(0.7)';
-        } else {
-          startTimer();
-          if (scanArea) scanArea.style.filter = '';
-        }
-      });
-
-      if (endBtn) endBtn.addEventListener('click', () => endSession());
-
-      if (restartBtn) restartBtn.addEventListener('click', () => {
-        if (timerInterval) stopTimer();
-        isSessionActive = false;
-        isPaused = false;
-        clearTargets();
-        setScreen('settings');
-      });
-
-      if (restartModalBtn) restartModalBtn.addEventListener('click', () => {
-        if (completionModal) completionModal.classList.remove('show');
-        setScreen('settings');
-      });
-
-      if (completeClose) completeClose.addEventListener('click', () => {
-        if (completionModal) completionModal.classList.remove('show');
-        setScreen('settings');
-      });
-
-      // Tab visibility handling - pause timer when tab is hidden
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden && isSessionActive && !isPaused) {
-          tabHidden = true;
-          // Auto-pause when tab hidden
-          isPaused = true;
-          stopTimer();
-          if (scanArea) scanArea.style.filter = 'grayscale(0.5) brightness(0.7)';
-          if (pauseBtn) pauseBtn.textContent = 'Resume';
-        } else if (!document.hidden && tabHidden) {
-          tabHidden = false;
-          // Don't auto-resume, user must click resume
-        }
-      });
-
-      // ============================================
-      // INITIALIZATION
-      // ============================================
-      loadSettings();
-      updateHUD();
-      updateFocusArea();
-      setScreen('settings');
+    }
+    function clearPresetSelection() {
+      presetBtns.forEach(b => b.setAttribute('aria-checked', 'false'));
+      customNote.classList.add('show');
+    }
+    function currentPresetName() {
+      const checked = presetBtns.find(b => b.getAttribute('aria-checked') === 'true');
+      return checked ? checked.dataset.preset : null;
+    }
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => { selectPreset(btn.dataset.preset); saveSettings(); });
     });
+    difficultySel.addEventListener('change', () => {
+      if (!suppressCustomNote) {
+        const match = Object.entries(PRESETS).find(([, p]) => p.difficulty === difficultySel.value);
+        if (match) selectPreset(match[0], false);
+        else clearPresetSelection();
+      }
+      saveSettings();
+    });
+    [objectTypeSel, focusAreaSel].forEach(sel => sel.addEventListener('change', saveSettings));
+
+    function selectLength(min) {
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === min ? 'true' : 'false'));
+      durIn.value = String(min);
+    }
+    segBtns.forEach(btn => {
+      btn.addEventListener('click', () => { selectLength(parseFloat(btn.dataset.min)); saveSettings(); });
+    });
+    durIn.addEventListener('input', () => {
+      const v = parseFloat(durIn.value);
+      segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+      saveSettings();
+    });
+
+    // ===== Settings helpers =====
+    function getToggle(id) {
+      return document.getElementById(id)?.classList.contains('active') ?? false;
+    }
+    function setToggle(id, on) {
+      const t = document.getElementById(id);
+      if (!t) return;
+      t.classList.toggle('active', !!on);
+      t.setAttribute('aria-checked', on ? 'true' : 'false');
+      const setting = t.dataset.setting;
+      if (setting === 'highContrast') document.body.classList.toggle('high-contrast', !!on);
+      if (setting === 'reducedMotion') document.body.classList.toggle('reduced-motion', !!on);
+    }
+
+    // ===== Persistent settings =====
+    const SETTINGS_KEY = 'SETTINGS_' + EXERCISE_ID;
+    function saveSettings() {
+      try {
+        storage.set(SETTINGS_KEY, {
+          preset: currentPresetName(),
+          dur: durIn.value,
+          difficulty: difficultySel.value,
+          objectType: objectTypeSel.value,
+          focusArea: focusAreaSel.value,
+          progressive: getToggle('toggleProgressive'),
+          specials: getToggle('toggleSpecials'),
+          sound: getToggle('toggleSound'),
+          haptic: getToggle('toggleHaptic'),
+          highContrast: getToggle('toggleContrast'),
+          reducedMotion: getToggle('toggleMotion')
+        });
+      } catch {}
+    }
+    window.__scannerSaveSettings = saveSettings;
+
+    // Migrate the old settings-first page's raw keys on first visit.
+    function migrateLegacySettings() {
+      try {
+        const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+        const diff = get('scannerDifficulty');
+        const focus = get('scannerFocusArea');
+        const obj = get('scannerObjectType');
+        const dur = get('scannerSessionDuration');
+        const snd = get('scannerSoundEnabled');
+        const bonus = get('scannerBonusEnabled');
+        if (diff == null && focus == null && obj == null && dur == null) return false;
+        if (typeof diff === 'string') difficultySel.value = diff;
+        if (typeof focus === 'string') focusAreaSel.value = focus;
+        if (typeof obj === 'string') objectTypeSel.value = obj;
+        if (dur != null && !isNaN(parseFloat(dur))) durIn.value = String(parseFloat(dur));
+        setToggle('toggleSound', snd !== false);
+        setToggle('toggleSpecials', bonus !== false);
+        const match = Object.entries(PRESETS).find(([, p]) => p.difficulty === difficultySel.value);
+        if (match) selectPreset(match[0], false); else clearPresetSelection();
+        const v = parseFloat(durIn.value);
+        segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+        saveSettings();
+        return true;
+      } catch { return false; }
+    }
+
+    function loadSettings() {
+      let s = null;
+      try { s = storage.get(SETTINGS_KEY, null); } catch {}
+      if (!s || typeof s !== 'object') {
+        // No new-format settings yet: try migrating the old page's keys,
+        // otherwise default to Gentle so the first session feels like a win.
+        if (!migrateLegacySettings()) {
+          selectPreset('gentle');
+          selectLength(2);
+        }
+        return;
+      }
+      if (s.difficulty) difficultySel.value = s.difficulty;
+      if (s.objectType) objectTypeSel.value = s.objectType;
+      if (s.focusArea) focusAreaSel.value = s.focusArea;
+      if (s.dur) {
+        durIn.value = s.dur;
+        const v = parseFloat(s.dur);
+        segBtns.forEach(b => b.setAttribute('aria-checked', parseFloat(b.dataset.min) === v ? 'true' : 'false'));
+      }
+      if (s.preset && PRESETS[s.preset]) selectPreset(s.preset, false);
+      else clearPresetSelection();
+      setToggle('toggleProgressive', s.progressive !== false);
+      setToggle('toggleSpecials', s.specials !== false);
+      setToggle('toggleSound', s.sound !== false);
+      setToggle('toggleHaptic', s.haptic !== false);
+      setToggle('toggleContrast', !!s.highContrast);
+      if (s.reducedMotion) setToggle('toggleMotion', true);
+    }
+
+    // ===== Difficulty config =====
+    // Each field (wave) is built from the difficulty base + the current stage.
+    const DIFF = {
+      easy:   { targets: 2, distractors: 4,  size: 60, golden: 0.10 },
+      medium: { targets: 3, distractors: 8,  size: 52, golden: 0.12 },
+      hard:   { targets: 4, distractors: 14, size: 44, golden: 0.14 }
+    };
+    const WAVES_PER_STAGE = 2;
+    const MAX_STAGE = 8;
+    const MAX_TARGETS = 6;
+    const MAX_TOTAL = 30; // keep the field tappable
+
+    // ===== Game state =====
+    let running=false, paused=false, isPracticeMode=false;
+    let durationMs=120000, sessionEndAt=0, timeLeft=0;
+    let timerId = 0;
+    let score=0, found=0, attempts=0, distractorHits=0;
+    let combo=0, bestStreak=0;
+    let stage=1, wavesCleared=0;
+    let goldenFound=0;
+    let findTimes=[];        // inter-find intervals (ms) — proxy for scanning speed
+    let lastFindAt=0;
+    let currentGlyph='';
+    let targetsLeftInWave=0;
+    let waveActive=false;
+    let sessionAchievements = [];
+    let pbBrokenThisSession = false;
+    let prevPbAtStart = 0;
+    let instructionsFaded = false;
+    let firedMilestones = new Set();
+    let startToken = 0;       // invalidates a pending countdown/wave if the user exits
+    let nextWaveTimer = 0;
+
+    // ===== Session achievements (shown in the completion modal) =====
+    const SESSION_ACHIEVEMENTS = {
+      firstFind:  { name: 'First Find!',   icon: '🎯', condition: () => found === 1 },
+      streak5:    { name: '5 Streak',      icon: '🔥', condition: () => bestStreak >= 5 },
+      streak10:   { name: '10 Streak',     icon: '⚡', condition: () => bestStreak >= 10 },
+      streak25:   { name: '25 Streak',     icon: '🌟', condition: () => bestStreak >= 25 },
+      golden3:    { name: 'Golden Hunter', icon: '✨', condition: () => goldenFound >= 3 },
+      stage5:     { name: 'Stage 5',       icon: '⭐', condition: () => stage >= 5 },
+      fields5:    { name: '5 Fields Cleared', icon: '🧹', condition: () => wavesCleared >= 5 },
+      newPB:      { name: 'New Personal Best!', icon: '🏆', condition: () => false },
+    };
+    function checkAchievementsLocal() {
+      for (const [key, a] of Object.entries(SESSION_ACHIEVEMENTS)) {
+        if (!sessionAchievements.includes(key) && a.condition()) {
+          sessionAchievements.push(key);
+        }
+      }
+    }
+
+    // ===== Medal + per-session insight =====
+    function loadPastSessions(){
+      try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch { return []; }
+    }
+    function savePastSession(stats){
+      try {
+        const arr = loadPastSessions();
+        arr.unshift(stats);
+        if (arr.length > 10) arr.length = 10;
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr));
+      } catch {}
+    }
+    function computeMedalTier(currentScore, prevPb){
+      if (prevPb <= 0) return { tier: 'silver', label: 'Silver', caption: 'First completed session — keep going!' };
+      if (currentScore > prevPb) return { tier: 'platinum', label: 'Platinum', caption: 'New personal best!' };
+      const r = currentScore / prevPb;
+      if (r >= 0.90) return { tier: 'gold',   label: 'Gold',   caption: 'Within 10% of your best — strong session.' };
+      if (r >= 0.70) return { tier: 'silver', label: 'Silver', caption: 'Solid session — keep building momentum.' };
+      return { tier: 'bronze', label: 'Bronze', caption: 'Every session counts. Try again to climb the tiers.' };
+    }
+    function showMedal(currentScore, prevPb){
+      const m = computeMedalTier(currentScore, prevPb);
+      medalDisc.className = 'medal-disc ' + m.tier;
+      medalDisc.textContent = m.tier === 'platinum' ? '🏆' : m.tier === 'gold' ? '🥇' : m.tier === 'silver' ? '🥈' : '🥉';
+      medalTier.className = 'medal-tier ' + m.tier;
+      medalTier.textContent = m.label;
+      medalCaption.textContent = m.caption;
+      medalEl.style.display = 'flex';
+    }
+    function computeInsight(curr, past){
+      if (!past || past.length === 0) return null;
+      const prev = past[0];
+      if (curr.accuracy >= 95 && curr.hits >= 8) {
+        return { icon: '🎯', text: `<strong>Outstanding accuracy</strong> — ${curr.accuracy}% this session.` };
+      }
+      if (prev.avgReaction > 0 && curr.avgReaction > 0 && (prev.avgReaction - curr.avgReaction) >= 50 && curr.hits >= 8) {
+        const diff = prev.avgReaction - curr.avgReaction;
+        return { icon: '⚡', text: `<strong>${diff}ms faster scanning</strong> than your last session.` };
+      }
+      const bestStreakEver = Math.max(...past.map(p => p.bestStreak || 0));
+      if (curr.bestStreak > bestStreakEver && curr.bestStreak >= 5) {
+        return { icon: '🔥', text: `<strong>Longest streak yet</strong> — ${curr.bestStreak} clean finds in a row.` };
+      }
+      const bestHitsEver = Math.max(...past.map(p => p.hits || 0));
+      if (curr.hits > bestHitsEver && curr.hits >= 5) {
+        return { icon: '🚀', text: `<strong>Most targets found</strong> — ${curr.hits} this session.` };
+      }
+      const bestAccEver = Math.max(...past.map(p => p.accuracy || 0));
+      if (curr.accuracy > bestAccEver && curr.hits >= 5) {
+        return { icon: '🎯', text: `<strong>Most accurate session yet</strong> — ${curr.accuracy}%.` };
+      }
+      return { icon: '💪', text: `<strong>Practice logged</strong> — every session sharpens the scan.` };
+    }
+    function showInsight(curr, past){
+      const ins = computeInsight(curr, past);
+      if (!ins) { insightEl.style.display = 'none'; return; }
+      insIcon.textContent = ins.icon;
+      insText.innerHTML = ins.text;
+      insightEl.style.display = 'flex';
+    }
+
+    // ===== Streak milestones =====
+    const STREAK_MILESTONES = [5, 10, 15, 25, 50];
+    function checkStreakMilestone(s){
+      if (!STREAK_MILESTONES.includes(s)) return;
+      if (firedMilestones.has(s)) return;
+      firedMilestones.add(s);
+      const flame = s >= 25 ? '🔥🔥🔥' : s >= 10 ? '🔥🔥' : '🔥';
+      const toast = document.createElement('div');
+      toast.className = 'streak-toast';
+      toast.textContent = `${flame} ${s} in a row!`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2200);
+      burstParticles(s >= 25 ? 34 : s >= 10 ? 26 : 20);
+      playSfx('milestone');
+      triggerHaptic('milestone');
+    }
+    function burstParticles(count){
+      if (motionReduced()) return;
+      const colors = ['#ffd700','#93c5fd','#8ff5b2','#60a5fa','#ff9bd1'];
+      const rect = (scanArea || document.body).getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height*0.4;
+      const container = document.createElement('div');
+      container.className = 'burst-container';
+      document.body.appendChild(container);
+      for (let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'burst';
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.background = colors[i % colors.length];
+        const angle = Math.random()*Math.PI*2;
+        const dist = 80 + Math.random()*140;
+        p.style.setProperty('--bx', `${Math.cos(angle)*dist}px`);
+        p.style.setProperty('--by', `${Math.sin(angle)*dist - 40}px`);
+        p.style.animation = `burstFly ${800+Math.random()*400}ms ease-out forwards`;
+        container.appendChild(p);
+      }
+      setTimeout(() => container.remove(), 1400);
+    }
+
+    // ===== Floating popup =====
+    function floatPopup(x, y, text, gold){
+      const p = document.createElement('div');
+      p.className = 'float-pop' + (gold ? ' gold' : '');
+      p.textContent = text;
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      scanArea.appendChild(p);
+      setTimeout(() => p.remove(), 900);
+    }
+
+    // ===== Focus overlay =====
+    function applyFocusOverlay(){
+      const area = focusAreaSel.value || 'none';
+      focusOverlay.className = 'focus-overlay' + (area !== 'none' ? ' ' + area : '');
+    }
+
+    // ===== Field placement =====
+    function placementBounds(size){
+      const rect = scanArea.getBoundingClientRect();
+      const pad = size * 0.6 + 6;
+      let b = { left: pad, top: pad, right: rect.width - pad - size, bottom: rect.height - pad - size };
+      const area = focusAreaSel.value || 'none';
+      if (area !== 'none'){
+        const midX = rect.width/2, midY = rect.height/2;
+        if (area === 'left')   b.right = midX - size;
+        if (area === 'right')  b.left = midX + pad;
+        if (area === 'top')    b.bottom = midY - size;
+        if (area === 'bottom') b.top = midY + pad;
+      }
+      // Guard against collapsed bounds (very small fields)
+      if (b.right <= b.left) { b.left = pad; b.right = Math.max(pad+size, rect.width - pad - size); }
+      if (b.bottom <= b.top) { b.top = pad; b.bottom = Math.max(pad+size, rect.height - pad - size); }
+      return b;
+    }
+    function collides(x, y, size, placed, minGap){
+      for (const p of placed){
+        const dx = (x + size/2) - (p.x + p.size/2);
+        const dy = (y + size/2) - (p.y + p.size/2);
+        if (Math.hypot(dx, dy) < minGap) return true;
+      }
+      return false;
+    }
+    function findSpot(size, placed){
+      const b = placementBounds(size);
+      const minGap = size + 12;
+      let x, y, tries = 0;
+      do {
+        x = rnd(b.left, b.right);
+        y = rnd(b.top, b.bottom);
+        tries++;
+      } while (collides(x, y, size, placed, minGap) && tries < 60);
+      return { x, y };
+    }
+
+    // ===== Wave (field) building =====
+    function clearObjects(){
+      scanArea.querySelectorAll('.scan-object').forEach(el => el.remove());
+    }
+    function waveCounts(){
+      const d = DIFF[difficultySel.value] || DIFF.medium;
+      const progressive = getToggle('toggleProgressive');
+      const st = progressive ? stage : 1;
+      let targets = d.targets + Math.floor((st - 1) / 2);
+      targets = Math.min(MAX_TARGETS, targets);
+      let distractors = d.distractors + (st - 1) * 2;
+      // keep the total tappable
+      if (targets + distractors > MAX_TOTAL) distractors = Math.max(2, MAX_TOTAL - targets);
+      return { targets, distractors, size: d.size, goldenChance: d.golden };
+    }
+    function buildWave(){
+      clearObjects();
+      const { targets, distractors, size, goldenChance } = waveCounts();
+      const set = OBJECT_SETS[objectTypeSel.value] || OBJECT_SETS.shapes;
+
+      // pick a target glyph + a pool of distractor glyphs (all different from target)
+      currentGlyph = set[Math.floor(Math.random()*set.length)];
+      const distractorPool = set.filter(g => g !== currentGlyph);
+
+      const placed = [];
+      const fontSize = Math.round(size * 0.56);
+
+      // golden target index (at most one per wave, when specials on)
+      const goldenEnabled = getToggle('toggleSpecials');
+      const goldenIdx = (goldenEnabled && Math.random() < goldenChance) ? Math.floor(Math.random()*targets) : -1;
+
+      const makeObject = (glyph, isTarget, golden) => {
+        const el = document.createElement('div');
+        el.className = 'scan-object' + (golden ? ' golden' : '');
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.fontSize = fontSize + 'px';
+        el.textContent = glyph;
+        el.dataset.target = isTarget ? '1' : '0';
+        if (golden) el.dataset.golden = '1';
+        const spot = findSpot(size, placed);
+        placed.push({ x: spot.x, y: spot.y, size });
+        el.style.left = spot.x + 'px';
+        el.style.top = spot.y + 'px';
+        el.addEventListener('pointerdown', onObjectTap);
+        scanArea.appendChild(el);
+      };
+
+      for (let i=0;i<targets;i++) makeObject(currentGlyph, true, i === goldenIdx);
+      for (let i=0;i<distractors;i++){
+        const g = distractorPool[Math.floor(Math.random()*distractorPool.length)] || currentGlyph;
+        makeObject(g, false, false);
+      }
+
+      targetsLeftInWave = targets;
+      waveActive = true;
+      lastFindAt = now();
+      // Update prompt
+      tpGlyph.textContent = currentGlyph;
+      tpCount.textContent = `0 / ${targets}`;
+    }
+
+    function updatePrompt(){
+      const counts = waveCounts();
+      const total = Math.min(MAX_TARGETS, counts.targets);
+      tpCount.textContent = `${total - targetsLeftInWave} / ${total}`;
+    }
+
+    // ===== Tap handling =====
+    function onObjectTap(e){
+      if (!running || paused || !waveActive) return;
+      const el = e.currentTarget;
+      if (el.classList.contains('found')) return;
+      e.preventDefault();
+
+      const rect = scanArea.getBoundingClientRect();
+      const px = (parseFloat(el.style.left) || 0) + (parseFloat(el.style.width) || 0)/2;
+      const py = (parseFloat(el.style.top) || 0);
+
+      if (el.dataset.target === '1'){
+        // ---- correct find ----
+        const isGolden = el.dataset.golden === '1';
+        const interval = now() - lastFindAt;
+        lastFindAt = now();
+        findTimes.push(interval);
+
+        found++;
+        attempts++;
+        combo++;
+        if (combo > bestStreak) bestStreak = combo;
+        targetsLeftInWave--;
+
+        const mult = combo >= 6 ? 3 : combo >= 3 ? 2 : 1;
+        let pts = 100 * mult;
+        if (isGolden){ pts *= 3; goldenFound++; }
+        if (interval < 1200) pts += 25; // quick-find bonus
+        score += pts;
+
+        el.classList.add('found');
+        floatPopup(px, py, (isGolden ? '★ +' : '+') + pts, isGolden);
+        setTimeout(() => el.remove(), 400);
+
+        if (isGolden){ playSfx('golden'); triggerHaptic('success'); }
+        else { playSfx('pop', combo); triggerHaptic('tick'); }
+
+        checkStreakMilestone(combo);
+
+        if (!instructionsFaded){ scanInstructions.classList.add('fade-out'); instructionsFaded = true; }
+
+        // mid-game new-best celebration (once per session)
+        if (!pbBrokenThisSession && prevPbAtStart > 0 && score > prevPbAtStart){
+          pbBrokenThisSession = true;
+          if (!sessionAchievements.includes('newPB')) sessionAchievements.push('newPB');
+          pbEl.classList.add('new-pb');
+          setTimeout(() => pbEl.classList.remove('new-pb'), 800);
+        }
+
+        updatePrompt();
+        checkAchievementsLocal();
+        updateHUD();
+
+        if (targetsLeftInWave <= 0) completeWave();
+      } else {
+        // ---- distractor: gentle, non-punishing ----
+        attempts++;
+        distractorHits++;
+        combo = 0;
+        score = Math.max(0, score - 5);
+        el.classList.add('wrong');
+        setTimeout(() => el.classList.remove('wrong'), 400);
+        playSfx('miss');
+        floatPopup(px, py, 'Keep scanning', false);
+        updateHUD();
+      }
+    }
+
+    function completeWave(){
+      waveActive = false;
+      wavesCleared++;
+      const bonus = 50 + stage * 25;
+      score += bonus;
+
+      const rect = scanArea.getBoundingClientRect();
+      floatPopup(rect.width/2, rect.height*0.42, `Field cleared! +${bonus}`, true);
+      playSfx('clear');
+      triggerHaptic('success');
+
+      // progressive stage-up
+      if (getToggle('toggleProgressive')){
+        const ns = Math.min(MAX_STAGE, Math.floor(wavesCleared / WAVES_PER_STAGE) + 1);
+        if (ns > stage){
+          stage = ns;
+          setTimeout(() => {
+            if (!running) return;
+            floatPopup(rect.width/2, rect.height*0.32, `🚀 Stage ${stage}!`, false);
+            playSfx('stage');
+          }, 350);
+        }
+      }
+      checkAchievementsLocal();
+      updateHUD();
+
+      clearTimeout(nextWaveTimer);
+      const token = startToken;
+      nextWaveTimer = setTimeout(() => {
+        if (!running || token !== startToken) return;
+        buildWave();
+      }, 700);
+    }
+
+    // ===== Timer / HUD =====
+    function fmtTime(ms){
+      const s = Math.max(0, Math.ceil(ms/1000));
+      const m = Math.floor(s/60);
+      const ss = String(s%60).padStart(2,'0');
+      return `${String(m).padStart(2,'0')}:${ss}`;
+    }
+    function updateHUD(){
+      timeEl.textContent = isPracticeMode ? '∞' : fmtTime(timeLeft);
+      scoreEl.textContent = String(score);
+      stageEl.textContent = String(stage);
+      foundEl.textContent = String(found);
+      comboEl.textContent = String(combo);
+      comboEl.classList.toggle('combo-hot', combo >= 3);
+      pbEl.textContent = String(getPB());
+
+      if (timerBar && durationMs > 0 && !isPracticeMode){
+        const pct = Math.max(0, Math.min(1, timeLeft / durationMs));
+        timerBar.style.width = (pct*100).toFixed(2) + '%';
+        timerBar.style.background = '';
+      } else if (isPracticeMode){
+        timerBar.style.width = '100%';
+        timerBar.style.background = 'linear-gradient(90deg, var(--good), rgba(143,245,178,.35))';
+      }
+    }
+
+    // Session timer is a performance.now()-delta interval (not rAF) so it stays
+    // accurate and still ticks if the tab is briefly backgrounded.
+    function startTimer(){
+      clearInterval(timerId);
+      sessionEndAt = now() + timeLeft;
+      timerId = setInterval(() => {
+        if (paused || !running) return;
+        if (!isPracticeMode){
+          timeLeft = sessionEndAt - now();
+          if (timeLeft <= 0){ timeLeft = 0; updateHUD(); endSession(); return; }
+        }
+        updateHUD();
+      }, 100);
+    }
+    function stopTimer(){ clearInterval(timerId); timerId = 0; }
+
+    // ===== Countdown =====
+    function showCountdown(callback){
+      const overlay = document.createElement('div');
+      overlay.className = 'countdown-overlay';
+      const numEl = document.createElement('div');
+      numEl.className = 'countdown-number';
+      numEl.textContent = '3';
+      overlay.appendChild(numEl);
+      document.body.appendChild(overlay);
+      playSfx('tick');
+
+      let count = 3;
+      const tick = () => {
+        count--;
+        if (count > 0){
+          numEl.textContent = String(count);
+          numEl.style.animation = 'none'; void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('tick');
+          setTimeout(tick, 800);
+        } else {
+          numEl.textContent = 'GO!';
+          numEl.classList.add('countdown-go');
+          numEl.style.animation = 'none'; void numEl.offsetWidth;
+          numEl.style.animation = 'countdownPop 0.8s ease-out';
+          playSfx('go');
+          setTimeout(() => { overlay.remove(); callback(); }, 600);
+        }
+      };
+      setTimeout(tick, 800);
+    }
+    function removeCountdownOverlays(){
+      document.querySelectorAll('.countdown-overlay').forEach(o => o.remove());
+    }
+
+    // ===== Lifecycle =====
+    function startSession(practice = false){
+      isPracticeMode = practice;
+
+      const mins = parseFloat(durIn.value);
+      durationMs = Number.isFinite(mins) && mins>0 ? mins*60*1000 : 120000;
+      timeLeft = durationMs;
+
+      running=false; paused=false;
+      score=0; found=0; attempts=0; distractorHits=0;
+      combo=0; bestStreak=0;
+      stage=1; wavesCleared=0; goldenFound=0;
+      findTimes=[]; lastFindAt=0;
+      targetsLeftInWave=0; waveActive=false;
+      sessionAchievements=[]; pbBrokenThisSession=false; prevPbAtStart=getPB();
+      instructionsFaded=false; firedMilestones=new Set();
+      pauseBtn.textContent='Pause'; pauseOverlay.hidden=true;
+      scanInstructions.classList.remove('fade-out');
+      clearObjects();
+
+      saveSettings();
+      applyFocusOverlay();
+      // Warm up the audio context inside the user gesture (required on iOS)
+      if (getToggle('toggleSound')) ac();
+
+      enterImmersive();
+
+      const token = ++startToken;
+      // Build the starfield + prompt once the play screen is laid out.
+      // Use a timer (not rAF) so the session still launches if the tab is
+      // backgrounded — rAF is paused in hidden tabs.
+      setTimeout(() => {
+        if (token !== startToken) return;
+        buildStars();
+        updateHUD();
+        showCountdown(() => {
+          if (token !== startToken) return; // user exited during the countdown
+          running=true; paused=false;
+          buildWave();
+          startTimer();
+        });
+      }, 0);
+    }
+
+    function pauseSession(){
+      if (!running) return;
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      pauseOverlay.hidden = !paused;
+      if (!paused){
+        // resume: re-anchor the timer end so paused time isn't counted
+        sessionEndAt = now() + timeLeft;
+        lastFindAt = now();
+      }
+    }
+
+    function teardown(){
+      running=false; paused=false;
+      startToken++; // cancel any pending countdown / next-wave
+      stopTimer();
+      clearTimeout(nextWaveTimer);
+      removeCountdownOverlays();
+      pauseOverlay.hidden = true;
+      pauseBtn.textContent = 'Pause';
+      clearObjects();
+    }
+
+    function exitToWelcome(){
+      teardown();
+      doneModal.classList.remove('open');
+      exitImmersive();
+      refreshWelcomeStats();
+    }
+
+    function endSession(){
+      teardown();
+      exitImmersive();
+
+      const accuracy = attempts > 0 ? Math.round((found / attempts) * 100) : 0;
+      const avgReaction = findTimes.length > 0 ? Math.round(findTimes.reduce((a,b)=>a+b,0) / findTimes.length) : 0;
+
+      const prevPb = getPB();
+      const isNewBest = score > prevPb;
+      if (isNewBest) setPB(score);
+
+      // Completion modal metrics
+      fScore.textContent = String(score);
+      fFound.textContent = String(found);
+      fAcc.textContent = accuracy + '%';
+      fAvg.textContent = (avgReaction/1000).toFixed(2) + 's';
+      fStreak.textContent = String(bestStreak);
+      fWaves.textContent = String(wavesCleared);
+
+      // Improvement vs last session
+      const lastScore = getLast();
+      if (lastScore !== null){
+        const diff = score - lastScore;
+        const pct = lastScore > 0 ? Math.round((diff/lastScore)*100) : 0;
+        if (diff > 0){ improvementBadge.innerHTML = `<span class="improvement positive">↑ ${pct}% improvement</span>`; resultMessage.textContent = 'Great progress!'; }
+        else if (diff < 0){ improvementBadge.innerHTML = `<span class="improvement negative">↓ ${Math.abs(pct)}%</span>`; resultMessage.textContent = 'Keep practising!'; }
+        else { improvementBadge.innerHTML = `<span class="improvement neutral">Same as last time</span>`; resultMessage.textContent = 'Consistent performance!'; }
+      } else { improvementBadge.innerHTML = ''; resultMessage.textContent = 'Excellent work!'; }
+      if (isNewBest) resultMessage.textContent = '🏆 New Personal Best!';
+      setLast(score);
+
+      // Medal + per-session insight (field names kept compatible with the old page)
+      const currStats = { score, hits: found, accuracy, avgReaction, bestStreak };
+      const past = loadPastSessions();
+      showMedal(score, prevPb);
+      showInsight(currStats, past);
+      savePastSession({ ...currStats, ts: Date.now() });
+
+      // Session achievements list
+      checkAchievementsLocal();
+      if (sessionAchievements.length > 0){
+        achievementsSummary.style.display = 'block';
+        achievementsList.innerHTML = sessionAchievements.map(key => {
+          const a = SESSION_ACHIEVEMENTS[key];
+          if (!a) return '';
+          return `<span style="background:rgba(255,215,0,.15); padding:4px 10px; border-radius:20px; font-size:13px;">${a.icon} ${a.name}</span>`;
+        }).join('');
+      } else { achievementsSummary.style.display = 'none'; }
+
+      // ----- Record + show site-wide points earned -----
+      let pointsBefore = null;
+      try { if (window.FPREngagement) pointsBefore = window.FPREngagement.getStats().points; } catch {}
+      try { if (window.__fprRecordSession) window.__fprRecordSession(EXERCISE_ID, difficultySel.value || 'default', score); } catch {}
+
+      earnChip.style.display = 'none';
+      try {
+        if (window.FPREngagement && pointsBefore !== null){
+          const after = window.FPREngagement.getStats();
+          const gained = after.points - pointsBefore;
+          if (gained > 0){
+            let msg = `✨ +${gained} points — Level ${after.level.level}: ${after.level.title}`;
+            if (gained > 50 && after.challenge && after.challenge.bonusAwarded){
+              msg = `⭐ Daily challenge complete! ` + msg;
+            }
+            earnChip.textContent = msg;
+            earnChip.style.display = 'flex';
+          }
+        }
+      } catch {}
+
+      playSfx('fanfare');
+      doneModal.classList.add('open');
+      refreshWelcomeStats();
+    }
+
+    // ===== Welcome screen data =====
+    function refreshWelcomeStats(){
+      const pb = getPB();
+      pbSettingsEl.textContent = String(pb);
+      const last = getLast();
+      if (last !== null) lastScoreSettingsEl.textContent = String(last);
+
+      ctaHint.textContent = pb > 0
+        ? `Beat your best of ${pb.toLocaleString()} for a Platinum medal 🏆`
+        : 'Your first medal is one session away ✨';
+
+      try {
+        if (window.FPREngagement){
+          const s = window.FPREngagement.getStats();
+          statStreakEl.textContent = '🔥 ' + s.streak;
+          statLevelEl.textContent = String(s.level.level);
+          const ch = s.challenge;
+          if (ch){
+            challengeChip.style.display = 'flex';
+            challengeChip.classList.toggle('done', !!ch.done);
+            challengeChip.querySelector('.ch-icon').textContent = ch.done ? '✅' : '⭐';
+            challengeText.textContent = ch.done
+              ? `Daily challenge complete! +${ch.bonus} points earned — come back tomorrow for a new one.`
+              : `Daily challenge: ${ch.text} (${ch.progress}/${ch.target}) · +${ch.bonus} pts`;
+          }
+        }
+      } catch {}
+    }
+
+    let engagementTries = 0;
+    function waitForEngagement(){
+      if (window.FPREngagement || engagementTries >= 10){ refreshWelcomeStats(); return; }
+      engagementTries++;
+      setTimeout(waitForEngagement, 250);
+    }
+
+    // ===== Event listeners =====
+    startBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(false); });
+    practiceBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(true); });
+    pauseBtn.addEventListener('click', pauseSession);
+    resumeBtn.addEventListener('click', pauseSession);
+    pauseExitBtn.addEventListener('click', () => {
+      if (isPracticeMode){ paused=false; pauseOverlay.hidden=true; endSession(); }
+      else exitToWelcome();
+    });
+    exitBtn.addEventListener('click', () => {
+      if (isPracticeMode) endSession();
+      else exitToWelcome();
+    });
+    newSessionBtn.addEventListener('click', () => { doneModal.classList.remove('open'); });
+    restartSameBtn.addEventListener('click', () => { doneModal.classList.remove('open'); startSession(isPracticeMode); });
+    doneModal.addEventListener('click', (e) => { if (e.target === doneModal) doneModal.classList.remove('open'); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') doneModal.classList.remove('open'); });
+
+    // Re-fit focus overlay if the field is resized mid-session
+    addEventListener('resize', () => { if (document.body.classList.contains('playing')) applyFocusOverlay(); }, { passive:true });
+
+    // ===== Init =====
+    loadSettings();
+    refreshWelcomeStats();
+    waitForEngagement();
   </script>
+
   <script type="module">
     // Engagement hook: feed completed sessions into the shared progress and
     // achievements systems (streak, points, dashboard, badges). No-ops if
