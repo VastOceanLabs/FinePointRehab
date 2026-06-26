@@ -1437,9 +1437,9 @@
     const rand = arr => arr[Math.floor(Math.random()*arr.length)];
 
     // ===== Letter / number stroke data (normalised coordinates) =====
-    const STROKES={A:[[[.2,1],[.5,.2],[.8,1]],[[.35,.6],[.65,.6]]],B:[[[.2,.2],[.2,1]],[[.2,.2],[.6,.2],[.6,.5],[.2,.5]],[[.2,.5],[.65,.5],[.65,1],[.2,1]]],C:[[[.78,.3],[.6,.22],[.42,.22],[.3,.3],[.24,.48],[.3,.7],[.42,.78],[.6,.78],[.78,.7]]],D:[[[.2,.2],[.2,1]],[[.2,.2],[.6,.3],[.7,.6],[.6,.9],[.2,1]]],E:[[[.7,.2],[.2,.2],[.2,1],[.7,1]],[[.2,.55],[.6,.55]]],F:[[[.7,.2],[.2,.2],[.2,1]],[[.2,.55],[.6,.55]]],G:[[[.78,.3],[.6,.22],[.42,.22],[.3,.3],[.24,.48],[.3,.7],[.44,.78],[.62,.78],[.72,.72],[.72,.56],[.54,.56]]],H:[[[.2,.2],[.2,1]],[[.7,.2],[.7,1]],[[.2,.55],[.7,.55]]],I:[[[.3,.2],[.7,.2]],[[.5,.2],[.5,1]],[[.3,1],[.7,1]]],J:[[[.3,.2],[.7,.2]],[[.55,.2],[.55,.8],[.4,.95],[.25,.85]]],K:[[[.2,.2],[.2,1]],[[.75,.2],[.2,.6]],[[.35,.5],[.75,1]]],L:[[[.2,.2],[.2,1],[.7,1]]],M:[[[.15,1],[.15,.2],[.5,.6],[.85,.2],[.85,1]]],N:[[[.2,1],[.2,.2],[.75,1],[.75,.2]]],O:[[[.5,.2],[.33,.28],[.25,.48],[.3,.74],[.45,.88],[.55,.88],[.7,.74],[.75,.48],[.67,.28],[.5,.2]]],P:[[[.2,1],[.2,.2],[.65,.2],[.7,.4],[.65,.55],[.2,.55]]],Q:[[[.5,.2],[.33,.28],[.25,.48],[.3,.74],[.45,.88],[.55,.88],[.7,.74],[.75,.48],[.67,.28],[.5,.2]],[[.6,.75],[.85,1.05]]],R:[[[.2,1],[.2,.2],[.65,.2],[.7,.4],[.65,.55],[.2,.55]],[[.45,.55],[.75,1]]],S:[[[.7,.3],[.58,.22],[.42,.22],[.3,.3],[.28,.38],[.34,.48],[.5,.55],[.64,.62],[.72,.72],[.68,.82],[.56,.88],[.4,.88],[.28,.8]]],T:[[[.2,.2],[.8,.2]],[[.5,.2],[.5,1]]],U:[[[.2,.2],[.2,.78],[.3,.95],[.7,.95],[.8,.78],[.8,.2]]],V:[[[.15,.2],[.5,1],[.85,.2]]],W:[[[.1,.2],[.25,1],[.5,.5],[.75,1],[.9,.2]]],X:[[[.2,.2],[.8,1]],[[.8,.2],[.2,1]]],Y:[[[.2,.2],[.5,.55]],[[.8,.2],[.5,.55],[.5,1]]],Z:[[[.2,.2],[.8,.2],[.2,1],[.8,1]]],a:[[[.7,.5],[.4,.4],[.28,.58],[.4,.9],[.7,.9],[.7,.4],[.7,1]]],b:[[[.2,.1],[.2,1]],[[.2,.5],[.6,.4],[.7,.65],[.6,.9],[.3,.95]]],c:[[[.75,.5],[.5,.4],[.32,.52],[.34,.8],[.6,.88],[.75,.82]]],d:[[[.7,.1],[.7,1]],[[.7,.5],[.45,.4],[.3,.58],[.42,.9],[.7,.95]]],e:[[[.28,.62],[.68,.62],[.7,.5],[.48,.4],[.32,.52],[.36,.8],[.62,.88]]],f:[[[.65,.15],[.5,.1],[.4,.25],[.4,1]],[[.25,.4],[.6,.4]]],g:[[[.7,.4],[.45,.4],[.3,.58],[.42,.9],[.7,.9],[.7,.4],[.7,1.15],[.5,1.25],[.3,1.15]]],h:[[[.2,.1],[.2,1]],[[.2,.5],[.55,.4],[.7,.55],[.7,1]]],i:[[[.45,.22],[.5,.15]],[[.45,.4],[.45,1]]],j:[[[.5,.22],[.55,.15]],[[.5,.4],[.5,1.15],[.4,1.25],[.25,1.2]]],k:[[[.2,.1],[.2,1]],[[.65,.4],[.2,.7]],[[.35,.65],[.65,1]]],l:[[[.45,.1],[.45,1]]],m:[[[.15,1],[.15,.4]],[[.15,.5],[.35,.4],[.4,.55],[.4,1]],[[.4,.5],[.6,.4],[.65,.55],[.65,1]]],n:[[[.2,1],[.2,.4]],[[.2,.5],[.55,.4],[.7,.55],[.7,1]]],o:[[[.5,.4],[.35,.46],[.28,.6],[.34,.84],[.5,.94],[.66,.84],[.72,.6],[.65,.46],[.5,.4]]],p:[[[.2,.4],[.2,1.25]],[[.2,.5],[.6,.4],[.7,.65],[.6,.9],[.3,.95]]],q:[[[.7,.4],[.7,1.25]],[[.7,.5],[.45,.4],[.3,.58],[.42,.9],[.7,.95]]],r:[[[.25,1],[.25,.4]],[[.25,.52],[.5,.4],[.7,.46]]],s:[[[.74,.48],[.62,.42],[.52,.4],[.42,.44],[.34,.5],[.36,.56],[.46,.62],[.58,.66],[.68,.74],[.64,.84],[.54,.9],[.4,.9],[.3,.84]]],t:[[[.4,.2],[.4,.9],[.6,.95]],[[.25,.35],[.6,.35]]],u:[[[.25,.4],[.25,.8],[.35,.95],[.65,.95],[.7,.8],[.7,.4],[.7,1]]],v:[[[.2,.4],[.5,1],[.8,.4]]],w:[[[.15,.4],[.3,1],[.5,.65],[.7,1],[.85,.4]]],x:[[[.25,.4],[.75,1]],[[.75,.4],[.25,1]]],y:[[[.25,.4],[.25,.8],[.35,.95],[.65,.95],[.7,.8],[.7,.4],[.7,1.15],[.5,1.25],[.3,1.15]]],z:[[[.25,.4],[.75,.4],[.25,1],[.75,1]]],'0':[[[.5,.2],[.34,.3],[.26,.48],[.28,.72],[.4,.9],[.6,.9],[.72,.72],[.74,.48],[.66,.3],[.5,.2]]],'1':[[[.45,.3],[.55,.2],[.55,1]],[[.35,1],[.65,1]]],'2':[[[.3,.3],[.42,.22],[.62,.22],[.72,.3],[.72,.4],[.64,.5],[.5,.62],[.36,.76],[.3,.88],[.3,.96],[.8,.96]]],'3':[[[.34,.26],[.58,.22],[.7,.36],[.54,.5]],[[.54,.5],[.7,.64],[.6,.9],[.34,.96]]],'4':[[[.65,.2],[.3,.7],[.78,.7]],[[.65,.2],[.65,1]]],'5':[[[.7,.24],[.34,.24],[.32,.5],[.62,.52],[.7,.7],[.6,.92],[.34,.96]]],'6':[[[.68,.26],[.54,.21],[.4,.27],[.31,.42],[.27,.6],[.27,.76],[.36,.88],[.5,.92],[.64,.88],[.72,.76],[.72,.62],[.64,.52],[.5,.49],[.38,.53],[.3,.62]]],'7':[[[.26,.22],[.76,.22],[.42,1]]],'8':[[[.5,.19],[.42,.23],[.36,.35],[.42,.47],[.5,.51],[.58,.47],[.64,.35],[.58,.23],[.5,.19]],[[.5,.5],[.38,.56],[.3,.72],[.38,.88],[.5,.94],[.62,.88],[.7,.72],[.62,.56],[.5,.5]]],'9':[[[.7,.38],[.62,.47],[.5,.51],[.36,.48],[.28,.38],[.28,.24],[.36,.12],[.5,.08],[.64,.12],[.73,.24],[.73,.4],[.69,.58],[.6,.73],[.46,.79],[.32,.74]]]};
+    const STROKES={A:[[[.2,1],[.5,.2],[.8,1]],[[.35,.6],[.65,.6]]],B:[[[.22,.15],[.22,.95]],[[.22,.15],[.45,.17],[.61,.24],[.67,.33],[.61,.41],[.45,.48],[.22,.5]],[[.22,.5],[.5,.53],[.7,.61],[.77,.73],[.7,.84],[.5,.92],[.22,.95]]],C:[[[.78,.3],[.6,.22],[.42,.22],[.3,.3],[.24,.48],[.3,.7],[.42,.78],[.6,.78],[.78,.7]]],D:[[[.2,.2],[.2,1]],[[.2,.2],[.6,.3],[.7,.6],[.6,.9],[.2,1]]],E:[[[.7,.2],[.2,.2],[.2,1],[.7,1]],[[.2,.55],[.6,.55]]],F:[[[.7,.2],[.2,.2],[.2,1]],[[.2,.55],[.6,.55]]],G:[[[.78,.3],[.6,.22],[.42,.22],[.3,.3],[.24,.48],[.3,.7],[.44,.78],[.62,.78],[.72,.72],[.72,.56],[.54,.56]]],H:[[[.2,.2],[.2,1]],[[.7,.2],[.7,1]],[[.2,.55],[.7,.55]]],I:[[[.3,.2],[.7,.2]],[[.5,.2],[.5,1]],[[.3,1],[.7,1]]],J:[[[.3,.2],[.7,.2]],[[.55,.2],[.55,.8],[.4,.95],[.25,.85]]],K:[[[.22,.15],[.22,.97]],[[.74,.15],[.24,.54]],[[.24,.54],[.74,.97]]],L:[[[.2,.2],[.2,1],[.7,1]]],M:[[[.15,1],[.15,.2],[.5,.6],[.85,.2],[.85,1]]],N:[[[.2,1],[.2,.2],[.75,1],[.75,.2]]],O:[[[.5,.2],[.33,.28],[.25,.48],[.3,.74],[.45,.88],[.55,.88],[.7,.74],[.75,.48],[.67,.28],[.5,.2]]],P:[[[.2,1],[.2,.2],[.65,.2],[.7,.4],[.65,.55],[.2,.55]]],Q:[[[.5,.2],[.33,.28],[.25,.48],[.3,.74],[.45,.88],[.55,.88],[.7,.74],[.75,.48],[.67,.28],[.5,.2]],[[.6,.75],[.85,1.05]]],R:[[[.2,1],[.2,.2],[.65,.2],[.7,.4],[.65,.55],[.2,.55]],[[.45,.55],[.75,1]]],S:[[[.7,.3],[.58,.22],[.42,.22],[.3,.3],[.28,.38],[.34,.48],[.5,.55],[.64,.62],[.72,.72],[.68,.82],[.56,.88],[.4,.88],[.28,.8]]],T:[[[.2,.2],[.8,.2]],[[.5,.2],[.5,1]]],U:[[[.2,.2],[.2,.78],[.3,.95],[.7,.95],[.8,.78],[.8,.2]]],V:[[[.15,.2],[.5,1],[.85,.2]]],W:[[[.1,.2],[.25,1],[.5,.5],[.75,1],[.9,.2]]],X:[[[.2,.2],[.8,1]],[[.8,.2],[.2,1]]],Y:[[[.2,.2],[.5,.55]],[[.8,.2],[.5,.55],[.5,1]]],Z:[[[.2,.2],[.8,.2],[.2,1],[.8,1]]],a:[[[.66,.54],[.52,.42],[.38,.44],[.3,.58],[.32,.76],[.44,.86],[.6,.84],[.66,.74]],[[.66,.42],[.66,.96]]],b:[[[.2,.1],[.2,1]],[[.2,.5],[.6,.4],[.7,.65],[.6,.9],[.3,.95]]],c:[[[.75,.5],[.5,.4],[.32,.52],[.34,.8],[.6,.88],[.75,.82]]],d:[[[.7,.1],[.7,1]],[[.7,.5],[.45,.4],[.3,.58],[.42,.9],[.7,.95]]],e:[[[.28,.62],[.68,.62],[.7,.5],[.48,.4],[.32,.52],[.36,.8],[.62,.88]]],f:[[[.65,.15],[.5,.1],[.4,.25],[.4,1]],[[.25,.4],[.6,.4]]],g:[[[.66,.54],[.52,.42],[.38,.44],[.3,.58],[.32,.76],[.44,.86],[.6,.84],[.66,.74]],[[.66,.42],[.66,1.0],[.56,1.18],[.4,1.22],[.28,1.14]]],h:[[[.2,.1],[.2,1]],[[.2,.5],[.55,.4],[.7,.55],[.7,1]]],i:[[[.45,.22],[.5,.15]],[[.45,.4],[.45,1]]],j:[[[.5,.22],[.55,.15]],[[.5,.4],[.5,1.15],[.4,1.25],[.25,1.2]]],k:[[[.22,.1],[.22,1]],[[.64,.42],[.24,.66]],[[.24,.66],[.64,1]]],l:[[[.45,.1],[.45,1]]],m:[[[.15,1],[.15,.4]],[[.15,.5],[.35,.4],[.4,.55],[.4,1]],[[.4,.5],[.6,.4],[.65,.55],[.65,1]]],n:[[[.2,1],[.2,.4]],[[.2,.5],[.55,.4],[.7,.55],[.7,1]]],o:[[[.5,.4],[.35,.46],[.28,.6],[.34,.84],[.5,.94],[.66,.84],[.72,.6],[.65,.46],[.5,.4]]],p:[[[.2,.4],[.2,1.25]],[[.2,.5],[.6,.4],[.7,.65],[.6,.9],[.3,.95]]],q:[[[.7,.4],[.7,1.25]],[[.7,.5],[.45,.4],[.3,.58],[.42,.9],[.7,.95]]],r:[[[.25,1],[.25,.4]],[[.25,.52],[.5,.4],[.7,.46]]],s:[[[.74,.48],[.62,.42],[.52,.4],[.42,.44],[.34,.5],[.36,.56],[.46,.62],[.58,.66],[.68,.74],[.64,.84],[.54,.9],[.4,.9],[.3,.84]]],t:[[[.4,.2],[.4,.9],[.6,.95]],[[.25,.35],[.6,.35]]],u:[[[.28,.4],[.28,.76],[.38,.92],[.6,.92],[.7,.76],[.7,.4]],[[.7,.4],[.7,.96]]],v:[[[.2,.4],[.5,1],[.8,.4]]],w:[[[.15,.4],[.3,1],[.5,.65],[.7,1],[.85,.4]]],x:[[[.25,.4],[.75,1]],[[.75,.4],[.25,1]]],y:[[[.28,.4],[.28,.76],[.38,.92],[.6,.92],[.7,.76],[.7,.4]],[[.7,.4],[.7,1.0],[.6,1.18],[.44,1.22],[.32,1.14]]],z:[[[.25,.4],[.75,.4],[.25,1],[.75,1]]],'0':[[[.5,.2],[.34,.3],[.26,.48],[.28,.72],[.4,.9],[.6,.9],[.72,.72],[.74,.48],[.66,.3],[.5,.2]]],'1':[[[.45,.3],[.55,.2],[.55,1]],[[.35,1],[.65,1]]],'2':[[[.3,.3],[.42,.22],[.62,.22],[.72,.3],[.72,.4],[.64,.5],[.5,.62],[.36,.76],[.3,.88],[.3,.96],[.8,.96]]],'3':[[[.34,.26],[.58,.22],[.7,.36],[.54,.5]],[[.54,.5],[.7,.64],[.6,.9],[.34,.96]]],'4':[[[.65,.2],[.3,.7],[.78,.7]],[[.65,.2],[.65,1]]],'5':[[[.7,.24],[.34,.24],[.32,.5],[.62,.52],[.7,.7],[.6,.92],[.34,.96]]],'6':[[[.68,.26],[.54,.21],[.4,.27],[.31,.42],[.27,.6],[.27,.76],[.36,.88],[.5,.92],[.64,.88],[.72,.76],[.72,.62],[.64,.52],[.5,.49],[.38,.53],[.3,.62]]],'7':[[[.26,.22],[.76,.22],[.42,1]]],'8':[[[.5,.19],[.42,.23],[.36,.35],[.42,.47],[.5,.51],[.58,.47],[.64,.35],[.58,.23],[.5,.19]],[[.5,.5],[.38,.56],[.3,.72],[.38,.88],[.5,.94],[.62,.88],[.7,.72],[.62,.56],[.5,.5]]],'9':[[[.7,.38],[.62,.47],[.5,.51],[.36,.48],[.28,.38],[.28,.24],[.36,.12],[.5,.08],[.64,.12],[.73,.24],[.73,.4],[.69,.58],[.6,.73],[.46,.79],[.32,.74]]]};
     const SIZE_MAP={large:1.5,medium:1,small:.65};
-    const DIFF_MAP={easy:{bw:25,tol:40,minAcc:92},medium:{bw:20,tol:30,minAcc:95},hard:{bw:15,tol:20,minAcc:97}};
+    const DIFF_MAP={easy:{bw:26,tol:38,minAcc:86},medium:{bw:20,tol:30,minAcc:90},hard:{bw:15,tol:22,minAcc:94}};
     const PERFECT_MSG=['PERFECT!','AMAZING!','FLAWLESS!','SUPERB!','BRILLIANT!'];
     const GOOD_MSG=['GREAT!','NICE!','WELL DONE!','GOOD JOB!','AWESOME!'];
     const ACHIEVEMENTS={first_steps:{icon:'👣',name:'First Steps',desc:'Complete first session'},perfect_10:{icon:'💎',name:'Perfect 10',desc:'10 perfects in a session'},streak_master:{icon:'🔥',name:'Streak Master',desc:'10 streak'},century:{icon:'💯',name:'Century Club',desc:'1000+ points'},precision:{icon:'🎯',name:'Precision Pro',desc:'95%+ avg accuracy'},speed:{icon:'⚡',name:'Speed Demon',desc:'15+ in 2 min'},alphabet:{icon:'🔤',name:'Alphabet Master',desc:'Trace A-Z'},numbers:{icon:'🔢',name:'Number Ninja',desc:'Trace 0-9'}};
@@ -1757,7 +1757,7 @@
     let state = {
       active:false, started:false, paused:false, practice:false,
       score:0, completed:0, perfectCount:0, char:'', queue:[], traced:new Set(),
-      drawing:false, completing:false, pts:[], undoHist:[],
+      drawing:false, completing:false, pts:[], allPts:[], undoHist:[],
       durMs:120000, timeLeft:120000, scale:1,
       bw:20, tol:30, minAcc:90, baseBw:20, baseTol:30, baseMinAcc:90,
       baseBwStart:20, baseTolStart:30, baseMinAccStart:90,
@@ -1841,12 +1841,15 @@
     // The SAME dense points drive both drawing and coverage, so they stay aligned.
     function crBezier(p0,p1,p2,p3){
       const a=.5, d=(u,v)=>Math.hypot(v.x-u.x,v.y-u.y);
-      const t1=Math.pow(d(p0,p1),a), t2=t1+Math.pow(d(p1,p2),a), t3=t2+Math.pow(d(p2,p3),a);
-      const dt01=t1||1, dt02=t2||1, dt12=(t2-t1)||1, dt23=(t3-t2)||1, dt13=(t3-t1)||1;
       const sub=(u,v)=>({x:u.x-v.x,y:u.y-v.y}), mul=(u,s)=>({x:u.x*s,y:u.y*s}), add=(u,v)=>({x:u.x+v.x,y:u.y+v.y});
-      const m1=sub(mul(sub(p2,p1),dt12/dt02), mul(sub(p1,p0),dt01/dt02));
-      const m2=sub(mul(sub(p3,p2),dt23/dt13), mul(sub(p2,p1),dt12/dt13));
-      return { c1:add(p1,mul(m1,dt12/3)), c2:sub(p2,mul(m2,dt12/3)) };
+      const t01=Math.pow(d(p0,p1),a)||1, t12=Math.pow(d(p1,p2),a)||1, t23=Math.pow(d(p2,p3),a)||1;
+      // Barry–Goldman centripetal Catmull-Rom tangents → cubic Bézier control points for the
+      // p1→p2 span. The earlier tangent formula over-extended, bulging every curve outward at
+      // its control points (visible scalloping on O C S e a g and the digits). This is the
+      // textbook form and tracks the points without overshoot.
+      const m1=add(sub(p2,p1), mul(sub(mul(sub(p1,p0),1/t01), mul(sub(p2,p0),1/(t01+t12))), t12));
+      const m2=add(sub(p2,p1), mul(sub(mul(sub(p3,p2),1/t23), mul(sub(p3,p1),1/(t12+t23))), t12));
+      return { c1:add(p1,mul(m1,1/3)), c2:sub(p2,mul(m2,1/3)) };
     }
     function densifyStroke(pts){
       if(pts.length<2) return pts.map(p=>({x:p.x,y:p.y}));
@@ -1882,7 +1885,15 @@
       clearCanvas();
       const strokes = STROKES[state.char]; if(!strokes) return;
       let size = state.CSS*.7*state.scale; const maxSize = state.CSS*0.92; if(size>maxSize) size=maxSize;
-      const ox=(state.CSS-size)/2, oy=(state.CSS-size)/2;
+      // Fit each glyph by its true vertical extent: descenders (g j p q y) and tall
+      // ascenders never clip, and every character sits visually centred. The x em stays
+      // fixed so relative letter widths are preserved (no squashing of I / M etc.).
+      let minNY=Infinity, maxNY=-Infinity;
+      strokes.forEach(s=>s.forEach(p=>{ if(p[1]<minNY) minNY=p[1]; if(p[1]>maxNY) maxNY=p[1]; }));
+      const spanY=(maxNY-minNY)||1, vMargin=state.CSS*0.07, availH=state.CSS-2*vMargin;
+      if(size*spanY>availH) size=availH/spanY;
+      const ox=(state.CSS-size)/2;
+      const oy=(state.CSS-size*spanY)/2 - minNY*size;
       state.pathLen=0; state.segs=[]; let segId=0;
       const col = traceColors();
       ctx.save(); ctx.strokeStyle=col.guide; ctx.lineWidth=state.bw;
@@ -1912,41 +1923,76 @@
     }
 
     function startDraw(e){ if(!state.active||!state.started||state.paused) return; state.drawing=true; state.pts=[]; state.pts.push(getCoords(e)); startPoint.classList.remove('visible'); }
+    function coveragePct(){ return Math.min(100, state.pathLen>0 ? (state.covLen/state.pathLen)*100 : 0); }
+    // Mark guide segments covered by sampling ALONG the drawn line (a→b), not only at the
+    // raw pointer samples. Fast moves leave big gaps between samples; walking the segment in
+    // ≤6px probes means the % tracks the real ink and high coverage is actually reachable.
+    function markCoverage(a,b){
+      let probes;
+      if(a){
+        const L=Math.hypot(b.x-a.x,b.y-a.y), n=Math.max(1,Math.min(16,Math.ceil(L/6)));
+        probes=[]; for(let j=1;j<=n;j++){ const t=j/n; probes.push({x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t}); }
+      } else probes=[b];
+      for(const q of probes){
+        for(const seg of state.segs){
+          if(state.covSegs.has(seg.id)) continue;
+          if(distToSeg(q.x,q.y,seg.x1,seg.y1,seg.x2,seg.y2)<state.tol){ state.covSegs.add(seg.id); state.covLen+=seg.len; }
+        }
+      }
+    }
     function draw(e){
       if(!state.drawing||!state.active||!state.started||state.paused) return;
       e.preventDefault();
-      const p=getCoords(e); state.pts.push(p);
+      const prev=state.pts.length?state.pts[state.pts.length-1]:null;
+      const p=getCoords(e); state.pts.push(p); state.allPts.push(p);
       const col = traceColors();
       ctx.save(); ctx.strokeStyle=col.ink; ctx.lineWidth=10;
       if(state.pts.length>=4) drawCatmull(state.pts.slice(-4));
       else if(state.pts.length>1){ const a=state.pts[state.pts.length-2],b=state.pts[state.pts.length-1]; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
       ctx.restore();
-      const c=state.pts[state.pts.length-1];
-      state.segs.forEach(seg=>{ if(!state.covSegs.has(seg.id)){ const d=distToSeg(c.x,c.y,seg.x1,seg.y1,seg.x2,seg.y2); if(d<state.tol){ state.covSegs.add(seg.id); state.covLen+=seg.len; } } });
-      if(state.pts.length%10===0){ autoCheck(); updateRing(); }
+      markCoverage(prev,p);
+      updateRing();
+      autoCheck();
     }
-    function endDraw(){ if(!state.drawing) return; state.drawing=false; autoCheck(); }
+    function endDraw(){ if(!state.drawing) return; state.drawing=false; updateRing(); tryComplete(false); }
+    // Accuracy blends coverage with how closely the WHOLE attempt (every stroke) hugged the
+    // path. Used only for the score / "perfect" rating — never as a gate on finishing.
+    function computeAccuracy(){
+      const cov=coveragePct();
+      const src=state.allPts.length?state.allPts:state.pts;
+      if(!src.length) return cov;
+      let tot=0; for(const p of src) tot+=Math.min(distToPath(p.x,p.y), state.tol);
+      const distScore=100*(1-(tot/src.length)/state.tol);
+      return cov*0.75 + distScore*0.25;
+    }
     function autoCheck(){
-      if(state.pts.length<10||state.completing) return;
-      const cov=Math.min(100,(state.covLen/state.pathLen)*100);
-      if(cov>=70 && cov<state.minAcc && !state.showedHint){ hintEl.style.display='block'; state.showedHint=true; trackTimeout(()=>hintEl.style.display='none',2000); }
-      if(cov>=state.minAcc){
-        let tot=0; state.pts.forEach(p=>tot+=distToPath(p.x,p.y));
-        const avg=tot/state.pts.length,clamped=Math.min(avg,state.tol),distScore=100*(1-clamped/state.tol),final=cov*.8+distScore*.2;
-        if(final>=state.minAcc){ state.completing=true; completeStroke(final); }
-      }
+      if(state.completing) return;
+      const cov=coveragePct();
+      if(cov>=60 && cov<state.minAcc && !state.showedHint && state.allPts.length>=8){ hintEl.style.display='block'; state.showedHint=true; trackTimeout(()=>hintEl.style.display='none',2000); }
+      tryComplete(false);
+    }
+    // Finishing is gated on COVERAGE alone (did you trace enough of the guide?) so a letter
+    // is always completable — even a short final stroke triggers it. The blended accuracy
+    // only decides how many points you earn and whether it counts as a perfect trace.
+    function tryComplete(force){
+      if(state.completing) return false;
+      const cov=coveragePct();
+      if(!force && cov<state.minAcc) return false;
+      const acc=computeAccuracy();
+      state.completing=true; completeStroke(Math.max(acc,cov));
+      return true;
     }
     function saveUndo(){ if(!state.pts.length) return; state.undoHist.push([...state.pts]); if(state.undoHist.length>5) state.undoHist.shift(); }
     function undo(){
       if(!state.active||state.paused||!state.undoHist.length) return;
-      state.pts=state.undoHist.pop()||[]; state.covSegs=new Set(); state.covLen=0;
+      state.pts=state.undoHist.pop()||[]; state.allPts=[...state.pts]; state.covSegs=new Set(); state.covLen=0;
       state.pts.forEach(p=>state.segs.forEach(seg=>{ if(!state.covSegs.has(seg.id)&&distToSeg(p.x,p.y,seg.x1,seg.y1,seg.x2,seg.y2)<state.tol){ state.covSegs.add(seg.id); state.covLen+=seg.len; } }));
       drawStrokePath();
       if(state.pts.length){ const col=traceColors(); ctx.save(); ctx.strokeStyle=col.ink; ctx.lineWidth=10; drawCatmull(state.pts); ctx.restore(); }
       updateRing(); playSfx('select');
     }
-    function clearDraw(){ if(!state.active||state.paused) return; saveUndo(); drawStrokePath(); state.pts=[]; state.covSegs=new Set(); state.covLen=0; state.showedHint=false; hintEl.style.display='none'; updateRing(); playSfx('select'); }
-    function retry(){ if(!state.active||state.paused) return; drawStrokePath(); state.pts=[]; state.undoHist=[]; state.covSegs=new Set(); state.covLen=0; state.showedHint=false; hintEl.style.display='none'; updateRing(); playSfx('select'); }
+    function clearDraw(){ if(!state.active||state.paused) return; saveUndo(); drawStrokePath(); state.pts=[]; state.allPts=[]; state.covSegs=new Set(); state.covLen=0; state.showedHint=false; hintEl.style.display='none'; updateRing(); playSfx('select'); }
+    function retry(){ if(!state.active||state.paused) return; drawStrokePath(); state.pts=[]; state.allPts=[]; state.undoHist=[]; state.covSegs=new Set(); state.covLen=0; state.showedHint=false; hintEl.style.display='none'; updateRing(); playSfx('select'); }
 
     // ===== Streak / multiplier =====
     function getMult(s){ return s>=10?2:s>=5?1.5:s>=3?1.2:1; }
@@ -1966,7 +2012,7 @@
       else state.adaptPerfect=0;
     }
     function applyAdaptLvl(){
-      const lvls=[{bw:28,tol:45,minAcc:90},{bw:24,tol:38,minAcc:92},{bw:20,tol:30,minAcc:95},{bw:16,tol:24,minAcc:96},{bw:13,tol:18,minAcc:98}];
+      const lvls=[{bw:28,tol:44,minAcc:84},{bw:24,tol:38,minAcc:87},{bw:20,tol:32,minAcc:90},{bw:16,tol:26,minAcc:93},{bw:13,tol:20,minAcc:95}];
       const l=lvls[state.adaptLvl-1]||lvls[2];
       state.baseBw=l.bw; state.baseTol=l.tol; state.baseMinAcc=l.minAcc;
       state.stage=state.adaptLvl;
@@ -2029,7 +2075,7 @@
       const digit = state.char>='0'&&state.char<='9';
       state.bw=state.baseBw+(digit?2:0); state.tol=state.baseTol+(digit?5:0); state.minAcc=state.baseMinAcc-(digit?3:0);
       if(state.char==='8'){ state.tol+=2; state.minAcc-=1; }
-      state.pts=[]; state.undoHist=[]; state.covSegs=new Set(); state.covLen=0; state.completing=false; state.showedHint=false;
+      state.pts=[]; state.allPts=[]; state.undoHist=[]; state.covSegs=new Set(); state.covLen=0; state.completing=false; state.showedHint=false;
       hintEl.style.display='none';
       setStatus('your-turn', `Trace the ${digit?'number':'letter'} ${state.char} — start at the green dot`, '0%');
       drawStrokePath(); updateHUD();
@@ -2037,12 +2083,11 @@
     function skipChar(){ if(!state.active||!state.started||state.paused) return; clearTimeout(state.compTimer); skipPenalty.classList.add('show'); trackTimeout(()=>skipPenalty.classList.remove('show'),1000); setStatus('oops','Skipped — here comes the next one'); breakStreak(); adjustAdaptive(false,false); playSfx('select'); nextChar(); }
     function manualComplete(){
       if(!state.active||!state.started||state.paused||state.completing) return;
-      if(state.pts.length<5){ playSfx('select'); return; }
-      const cov=Math.min(100,(state.covLen/state.pathLen)*100);
-      if(cov<50){ showFeedback('Keep going!','good'); playSfx('select'); return; }
-      let tot=0; state.pts.forEach(p=>tot+=distToPath(p.x,p.y));
-      const avg=tot/state.pts.length,clamped=Math.min(avg,state.tol),distScore=100*(1-clamped/state.tol),final=cov*.8+distScore*.2;
-      state.completing=true; completeStroke(Math.max(final,cov));
+      if(state.allPts.length<5){ playSfx('select'); return; }
+      const cov=coveragePct();
+      if(cov<45){ showFeedback('Keep going!','good'); playSfx('select'); return; }
+      const acc=computeAccuracy();
+      state.completing=true; completeStroke(Math.max(acc,cov));
     }
 
     // ===== HUD / status =====
@@ -2110,7 +2155,7 @@
       const durMin=Math.max(0.5, Math.min(10, parseFloat(durIn.value||'2')));
       state.durMs=durMin*60*1000; state.timeLeft=state.durMs;
       state.score=state.completed=state.perfectCount=0; state.queue=[]; state.traced=new Set();
-      state.accSum=state.accCnt=0; state.undoHist=[]; state.pts=[]; state.covSegs=new Set(); state.covLen=0;
+      state.accSum=state.accCnt=0; state.undoHist=[]; state.pts=[]; state.allPts=[]; state.covSegs=new Set(); state.covLen=0;
       state.streak=state.bestStreak=0; state.mult=1; state.stageProgress=0; state.completing=false;
       state.adaptPerfect=state.adaptFail=0; state.sessionAch=[]; firedStreakMilestones=new Set();
       elapsedMs=0; pbBrokenThisSession=false;
@@ -2302,16 +2347,39 @@
       complete: (acc=98) => { if(!state.active||!state.started) return 'not ready'; state.completing=true; completeStroke(acc); return 'completed ' + state.char; },
       skip: () => { skipChar(); return 'skipped'; },
       end: () => { endSession(); return 'ended'; },
+      // Simulate a human tracing the current guide (QA). opts: stride = px between pointer
+      // samples (large = a fast, sparse stroke), jitter = px of wobble off the line.
+      autotrace: (opts={}) => {
+        if(!state.active||!state.started) return 'not ready';
+        const stride=opts.stride||4, jitter=opts.jitter||0, bias=opts.bias||0, segs=state.segs;
+        if(!segs.length) return 'no guide';
+        const completedBefore=state.completed, r=canvas.getBoundingClientRect();
+        const fire=(type,pt)=>canvas.dispatchEvent(new PointerEvent(type,{clientX:r.left+pt.x,clientY:r.top+pt.y,bubbles:true,pointerId:1}));
+        const strokes=[]; let cur=null;
+        segs.forEach(s=>{ if(!cur||Math.hypot(s.x1-cur.last.x,s.y1-cur.last.y)>1){ cur={pts:[{x:s.x1,y:s.y1}],last:{x:s.x2,y:s.y2}}; strokes.push(cur); } cur.pts.push({x:s.x2,y:s.y2}); cur.last={x:s.x2,y:s.y2}; });
+        const jit=p=>({x:p.x+bias+(Math.random()*2-1)*jitter,y:p.y+bias+(Math.random()*2-1)*jitter});
+        strokes.forEach(stk=>{
+          const dense=[]; for(let i=0;i<stk.pts.length-1;i++){ const a=stk.pts[i],b=stk.pts[i+1],L=Math.hypot(b.x-a.x,b.y-a.y),n=Math.max(1,Math.ceil(L/stride)); for(let j=0;j<n;j++){ const t=j/n; dense.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); } }
+          dense.push(stk.pts[stk.pts.length-1]);
+          fire('pointerdown',jit(dense[0])); for(let i=1;i<dense.length;i++) fire('pointermove',jit(dense[i])); fire('pointerup',jit(dense[dense.length-1]));
+        });
+        return { char:state.char, strokes:strokes.length, cov:Math.round(coveragePct()), completed:state.completed>completedBefore||state.completing };
+      },
       // ASCII-art of a glyph (smoothed) — handy for auditing stroke-data tweaks
       ascii: (ch, N=30) => {
         const strokes = STROKES[ch]; if(!strokes) return 'no glyph: '+ch;
-        const cv=document.createElement('canvas'); cv.width=N; cv.height=N;
+        // Render BIG (so the smoothing curve resolution matches real play) then downsample —
+        // a thin 1px line at play scale becomes a 1px line here too, so overshoots show.
+        const SC=8, R=N*SC;
+        const cv=document.createElement('canvas'); cv.width=R; cv.height=R;
         const g=cv.getContext('2d'); g.lineCap='round'; g.lineJoin='round';
-        const pad=3, size=N-2*pad, ox=pad, oy=pad;
-        g.strokeStyle='#000'; g.lineWidth=2.2;
+        const pad=R*0.08, size=R-2*pad, ox=pad, oy=pad;
+        g.strokeStyle='#000'; g.lineWidth=R*0.012;
         strokes.forEach(st=>{ const pts=st.map(([nx,ny])=>({x:ox+nx*size,y:oy+ny*size})), d=densifyStroke(pts); g.beginPath(); g.moveTo(d[0].x,d[0].y); for(let i=1;i<d.length;i++) g.lineTo(d[i].x,d[i].y); g.stroke(); });
-        const data=g.getImageData(0,0,N,N).data; let rows=[];
-        for(let y=0;y<N;y++){ let r=''; for(let x=0;x<N;x++){ r += data[(y*N+x)*4+3] > 60 ? '#' : '.'; } rows.push(r); }
+        const data=g.getImageData(0,0,R,R).data; let rows=[];
+        for(let y=0;y<N;y++){ let r=''; for(let x=0;x<N;x++){
+          let on=false; for(let sy=0;sy<SC&&!on;sy++){ for(let sx=0;sx<SC;sx++){ if(data[((y*SC+sy)*R+(x*SC+sx))*4+3]>60){ on=true; break; } } }
+          r += on?'#':'.'; } rows.push(r); }
         return ch+'\n'+rows.join('\n');
       }
     };
